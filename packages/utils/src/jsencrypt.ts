@@ -1,4 +1,4 @@
-import JSEncrypt from 'jsencrypt';
+import { JSEncrypt } from 'jsencrypt';
 
 function createJSEncrypt() {
   return new JSEncrypt();

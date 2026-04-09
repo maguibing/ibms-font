@@ -73,6 +73,20 @@ declare namespace Api {
       Pick<Api.System.Industry, 'name'> & Api.Common.CommonSearchParams
     >;
 
+    /** license type */
+    type LicenseType = 1 | 2;
+
+    /** generate system cert params */
+    type GenerateSysCertParams = {
+      license_expire_at: number;
+      license_type: LicenseType;
+    };
+
+    /** generate system cert response */
+    type GenerateSysCertResponse = {
+      license_content: string;
+    };
+
     /** role menu tree select */
     type RoleMenuTreeSelect = Common.CommonRecord<{
       checkedKeys: CommonType.IdType[];

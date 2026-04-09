@@ -5,3 +5,4 @@ export * from './klona';
 export * from './jsencrypt';
 export * from './dayjs';
 export * from './filter';
+export * from './copy';
