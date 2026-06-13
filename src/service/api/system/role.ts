@@ -12,7 +12,7 @@ export function fetchGetRoleList(data?: CommonType.CommonListQueryParams) {
 /** 新增角色信息 */
 export function fetchCreateRole(data: Api.System.RoleOperateParams) {
   return request<boolean>({
-    url: '/system/role',
+    url: '/CreateRole',
     method: 'post',
     data
   });
@@ -21,8 +21,17 @@ export function fetchCreateRole(data: Api.System.RoleOperateParams) {
 /** 修改角色信息 */
 export function fetchUpdateRole(data: Api.System.RoleOperateParams) {
   return request<boolean>({
-    url: '/system/role',
-    method: 'put',
+    url: '/UpdateRole',
+    method: 'post',
+    data
+  });
+}
+
+/** 分配菜单权限 */
+export function fetchAssignPermAuth(data: { role_id: CommonType.IdType, menu_id_list: CommonType.IdType[] }) {
+  return request<boolean>({
+    url: '/AssignPermAuth',
+    method: 'post',
     data
   });
 }

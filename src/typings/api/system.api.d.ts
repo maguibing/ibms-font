@@ -37,13 +37,13 @@ declare namespace Api {
 
     type MenuAuth =
       | {
-          menu_id_list: number[];
-          has_all?: false;
-        }
+        menu_id_list: number[];
+        has_all?: false;
+      }
       | {
-          has_all: true;
-          menu_id_list?: number[];
-        };
+        has_all: true;
+        menu_id_list?: number[];
+      };
 
     interface PermAuth {
       menu_auth?: MenuAuth;
@@ -71,6 +71,30 @@ declare namespace Api {
     /** industry search params */
     type IndustrySearchParams = CommonType.RecordNullable<
       Pick<Api.System.Industry, 'name'> & Api.Common.CommonSearchParams
+    >;
+
+    /** sys screen */
+    type SysScreen = Common.CommonRecord<{
+      /** 大屏ID */
+      id: CommonType.IdType;
+      /** 大屏名称 */
+      name: string;
+      /** 大屏封面 */
+      url: string;
+      /** 行业类型 */
+      industry_type: string;
+      /** 状态：1启用 2停用 */
+      status: 1 | 2;
+      sort: number;
+      desc: string;
+    }>;
+
+    /** sys screen list */
+    type SysScreenList = Common.PaginatingQueryRecord<SysScreen>;
+
+    /** sys screen search params */
+    type SysScreenSearchParams = CommonType.RecordNullable<
+      Pick<Api.System.SysScreen, 'name' | 'industry_type'> & Api.Common.CommonSearchParams
     >;
 
     /** license type */
@@ -211,6 +235,63 @@ declare namespace Api {
      * - "F": "按钮"
      */
     type MenuType = 'M' | 'C' | 'F';
+
+    /** backend menu tree type */
+    type BackendMenuType = 1 | 2 | 3 | 4;
+
+    interface MenuTreeMeta {
+      id: CommonType.IdType;
+      title: string;
+      icon?: string;
+      /** 为 true 时返回该字段，为 false 时后端不返回 */
+      is_visible?: boolean;
+      keep_alive?: boolean;
+      menu_type?: BackendMenuType | number;
+    }
+
+    interface MenuTreeNode {
+      path?: string;
+      component?: string;
+      name?: string;
+      redirect?: string;
+      meta?: MenuTreeMeta;
+      children?: MenuTreeNode[];
+      perm_key?: string;
+    }
+
+    interface MenuTreeOption extends Record<string, unknown> {
+      id: CommonType.IdType;
+      label: string;
+      icon?: string;
+      visible?: Common.VisibleStatus;
+      status?: Common.EnableStatus;
+      path?: string;
+      component?: string;
+      name?: string;
+      redirect?: string;
+      keepAlive?: boolean;
+      menuType?: BackendMenuType | number;
+      permKey?: string;
+      children?: MenuTreeOption[];
+    }
+
+    type MenuTreeOptionList = MenuTreeOption[];
+
+    type MenuTreeData = {
+      trees: MenuTreeNode[];
+    };
+
+    type MenuTreeResponse =
+      | MenuTreeData
+      | MenuTreeNode[]
+      | MenuTreeOptionList
+      | {
+        code?: string | number;
+        msg?: string;
+        detail?: string;
+        trace_id?: string;
+        data?: MenuTreeData;
+      };
 
     /**
      * 是否外链

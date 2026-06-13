@@ -12,8 +12,8 @@ import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hoo
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import RoleOperateDrawer from './modules/role-operate-drawer.vue';
+import RolePermissionsDrawer from './modules/role-permissions-drawer.vue';
 import RoleSearch from './modules/role-search.vue';
-import RoleAuthUserDrawer from './modules/role-auth-user-drawer.vue';
 
 defineOptions({
   name: 'RoleList'
@@ -23,18 +23,13 @@ const appStore = useAppStore();
 const { download } = useDownload();
 const { hasAuth } = useAuth();
 
-const { bool: authUserDrawerVisible, setTrue: openAuthUserDrawer } = useBoolean(false);
+const { bool: permissionsDrawerVisible, setTrue: openPermissionsDrawer } = useBoolean(false);
 
 const searchParams = ref<Api.System.RoleSearchParams>({
   pageNum: 1,
   pageSize: 10,
   name: null
 });
-
-type RoleTableRow = Api.System.Role & {
-  roleName: string;
-  createTime: string;
-};
 
 /** 将 RoleSearchParams 转换为 CommonListQueryParams */
 function transformSearchParamsToRequest(params: Api.System.RoleSearchParams): CommonType.CommonListQueryParams {
@@ -134,26 +129,14 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
             );
           };
 
-          // const dataScopeBtn = () => {
-          //   return (
-          //     <ButtonIcon
-          //       text
-          //       type="primary"
-          //       icon="material-symbols:database"
-          //       tooltipContent="数据范围权限"
-          //       onClick={() => handleDataScope(row)}
-          //     />
-          //   );
-          // };
-
-          const authUserBtn = () => {
+          const dataScopeBtn = () => {
             return (
               <ButtonIcon
                 text
                 type="primary"
-                icon="material-symbols:assignment-ind-outline"
-                tooltipContent="分配用户"
-                onClick={() => handleAuthUser(row)}
+                icon="material-symbols:database"
+                tooltipContent="数据范围权限"
+                onClick={() => handleMenuAuthScope(row)}
               />
             );
           };
@@ -174,8 +157,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
           const buttons = [];
           if (hasAuth('system:role:edit')) {
             buttons.push(editBtn());
-            // buttons.push(dataScopeBtn());
-            buttons.push(authUserBtn());
+            buttons.push(dataScopeBtn());
           }
           if (hasAuth('system:role:remove')) buttons.push(deleteBtn());
 
@@ -219,10 +201,10 @@ async function handleExport() {
   download('/system/role/export', searchParams.value, `角色_${new Date().getTime()}.xlsx`);
 }
 
-function handleAuthUser(row: RoleTableRow) {
+function handleMenuAuthScope(row: Api.System.Role) {
   const findItem = data.value.find(item => item.id === row.id) || null;
   editingData.value = jsonClone(findItem);
-  openAuthUserDrawer();
+  openPermissionsDrawer();
 }
 </script>
 
@@ -257,13 +239,15 @@ function handleAuthUser(row: RoleTableRow) {
         :pagination="mobilePagination"
         class="sm:h-full"
       />
+
       <RoleOperateDrawer
         v-model:visible="drawerVisible"
         :operate-type="operateType"
         :row-data="editingData"
         @submitted="getData"
       />
-      <RoleAuthUserDrawer v-model:visible="authUserDrawerVisible" :row-data="editingData" @submitted="getData" />
+
+      <RolePermissionsDrawer v-model:visible="permissionsDrawerVisible" :row-data="editingData" @submitted="getData" />
     </NCard>
   </div>
 </template>

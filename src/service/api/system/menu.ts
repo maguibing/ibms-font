@@ -37,16 +37,17 @@ export function fetchDeleteMenu(menuId: CommonType.IdType) {
 }
 
 /** 获取菜单树 */
-export function fetchGetMenuTreeSelect() {
-  return request<Api.System.MenuList>({
-    url: 'system/menu/treeselect',
-    method: 'get'
+export function fetchGetMenuTree(data: { p_type?: CommonType.IdType; menu_type_list?: CommonType.IdType[] }) {
+  return request<Api.System.MenuTreeResponse>({
+    url: '/GetMenuTrees',
+    method: 'post',
+    data
   });
 }
 
 /** 获取角色菜单权限 */
 export function fetchGetMenuTrees(data: { p_type: CommonType.IdType; menu_type_list: CommonType.IdType[] }) {
-  return request<Api.System.MenuList>({
+  return request<Api.System.MenuTreeResponse>({
     url: `/GetMenuTrees`,
     method: 'post',
     data
