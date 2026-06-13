@@ -21,7 +21,7 @@ const visible = defineModel<boolean>('visible', {
 });
 
 const menuTreeRef = ref<InstanceType<typeof MenuTree> | null>(null);
-const menuOptions = ref<Api.System.MenuTreeOptionList>([]);
+const menuOptions = ref<Api.System.MenuList>([]);
 const { loading: menuLoading } = useLoading();
 
 const { formRef, validate, restoreValidation } = useNaiveForm();

@@ -96,11 +96,10 @@ export default function useTable<ResponseData, ApiData, Column, Pagination exten
       const response = await api();
 
       const transformed = transform(response);
-      const tableData = getTableData(transformed, pagination);
 
-      data.value = tableData;
+      data.value = getTableData(transformed, pagination);
 
-      setEmpty(tableData.length === 0);
+      setEmpty(data.value.length === 0);
 
       await onFetched?.(transformed);
     } finally {
@@ -128,10 +127,8 @@ function getTableData<ApiData, Pagination extends boolean>(
   pagination?: Pagination
 ) {
   if (pagination) {
-    const list = (data as PaginationData<ApiData> | null | undefined)?.data;
-
-    return Array.isArray(list) ? list : [];
+    return (data as PaginationData<ApiData>).data;
   }
 
-  return Array.isArray(data) ? data : [];
+  return data as ApiData[];
 }

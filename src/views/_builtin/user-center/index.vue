@@ -206,7 +206,6 @@ async function updatePassword() {
             </NFormItem>
           </NForm>
         </NTabPane>
-
         <NTabPane name="updatePwd" tab="修改密码">
           <NForm
             ref="passwordFormRef"

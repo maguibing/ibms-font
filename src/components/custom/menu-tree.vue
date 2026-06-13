@@ -1,7 +1,10 @@
-<script setup lang="ts">
-import { onMounted, ref, useAttrs, watch } from 'vue';
-import type { TreeInst, TreeProps } from 'naive-ui';
-import { fetchGetMenuTree } from '@/service/api/system';
+<script setup lang="tsx">
+import { onMounted, ref, watch } from 'vue';
+import type { TreeOption, TreeSelectInst } from 'naive-ui';
+import { useBoolean } from '@sa/hooks';
+import { fetchGetMenuTreeSelect } from '@/service/api/system';
+import SvgIcon from '@/components/custom/svg-icon.vue';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'MenuTree',
@@ -11,6 +14,7 @@ defineOptions({
 interface Props {
   immediate?: boolean;
   showHeader?: boolean;
+  [key: string]: any;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -18,144 +22,139 @@ const props = withDefaults(defineProps<Props>(), {
   showHeader: true
 });
 
-const attrs = useAttrs() as TreeProps;
+const { bool: expandAll } = useBoolean();
+const { bool: checkAll } = useBoolean();
+const expandedKeys = ref<CommonType.IdType[]>([0]);
 
-const menuTreeRef = ref<TreeInst | null>(null);
-const expandedKeys = ref<CommonType.IdType[]>([]);
-const expandAll = ref(false);
-const checkAll = ref(false);
-
+const menuTreeRef = ref<TreeSelectInst | null>(null);
 const checkedKeys = defineModel<CommonType.IdType[]>('checkedKeys', { required: false, default: [] });
-
-const options = defineModel<Api.System.MenuTreeOptionList>('options', { required: false, default: [] });
+const options = defineModel<Api.System.MenuList>('options', { required: false, default: [] });
 const cascade = defineModel<boolean>('cascade', { required: false, default: true });
 const loading = defineModel<boolean>('loading', { required: false, default: false });
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
-}
-
-function isMenuTreeOption(node: unknown): node is Api.System.MenuTreeOption {
-  return isRecord(node) && 'id' in node && 'label' in node;
-}
-
-function getMenuLabel(node: Api.System.MenuTreeNode) {
-  return node.meta?.title?.trim() || node.name || node.path || node.perm_key || '未命名菜单';
-}
-
-function normalizeMenuTree(nodes: Api.System.MenuTreeNode[] = []): Api.System.MenuTreeOptionList {
-  return nodes.map(node => {
-    const children = normalizeMenuTree(node.children);
-
-    return {
-      id: node.meta?.id ?? node.perm_key ?? node.path ?? getMenuLabel(node),
-      label: getMenuLabel(node),
-      path: node.path,
-      component: node.component,
-      name: node.name,
-      redirect: node.redirect,
-      keepAlive: node.meta?.keep_alive,
-      menuType: node.meta?.menu_type,
-      permKey: node.perm_key,
-      ...(children.length > 0 ? { children } : {})
-    };
-  });
-}
-
-function extractMenuTreeOptions(data: Api.System.MenuTreeResponse | null | undefined): Api.System.MenuTreeOptionList {
-  if (Array.isArray(data)) {
-    if (data.length === 0) {
-      return [];
-    }
-
-    return isMenuTreeOption(data[0])
-      ? (data as Api.System.MenuTreeOptionList)
-      : normalizeMenuTree(data as Api.System.MenuTreeNode[]);
-  }
-
-  if (!isRecord(data)) {
-    return [];
-  }
-
-  const record = data as Record<string, unknown>;
-
-  if (Array.isArray(record.trees)) {
-    return normalizeMenuTree(record.trees as Api.System.MenuTreeNode[]);
-  }
-
-  if (isRecord(record.data) && Array.isArray(record.data.trees)) {
-    return normalizeMenuTree(record.data.trees as Api.System.MenuTreeNode[]);
-  }
-
-  return [];
-}
-
-function getAllMenuIds(nodes: Api.System.MenuTreeOptionList = options.value): CommonType.IdType[] {
-  return nodes.flatMap(node => [node.id, ...getAllMenuIds(node.children ?? [])]);
-}
-
-function syncExpandedKeys() {
-  expandedKeys.value = expandAll.value ? getAllMenuIds() : [];
-}
-
 async function getMenuList() {
   loading.value = true;
-
-  const { data, error } = await fetchGetMenuTree({
-    p_type: 1,
-    menu_type_list: [1, 2, 3, 4]
-  });
-
-  if (error) {
-    options.value = [];
-    loading.value = false;
-    return;
-  }
-
-  options.value = extractMenuTreeOptions(data);
-  syncExpandedKeys();
+  const { error, data } = await fetchGetMenuTreeSelect();
+  if (error) return;
+  options.value = [
+    {
+      id: 0,
+      label: '根目录',
+      icon: 'material-symbols:home-outline-rounded',
+      children: data
+    }
+  ] as Api.System.MenuList;
+  // 折叠到只显示根节点
   loading.value = false;
 }
 
-function handleCheckedTreeNodeAll(checked: boolean) {
-  checkedKeys.value = checked ? getAllMenuIds() : [];
-}
-
-function getCheckedMenuIds(includeIndeterminate: boolean = cascade.value) {
-  const checkedData = menuTreeRef.value?.getCheckedData();
-  const menuIds = new Set<CommonType.IdType>(
-    (checkedData?.keys as CommonType.IdType[] | undefined) ?? checkedKeys.value
-  );
-
-  if (includeIndeterminate) {
-    const indeterminateKeys =
-      (menuTreeRef.value?.getIndeterminateData()?.keys as CommonType.IdType[] | undefined) ?? [];
-
-    indeterminateKeys.forEach(key => {
-      menuIds.add(key);
-    });
-  }
-
-  return [...menuIds];
-}
-
-watch([expandAll, options], () => {
-  syncExpandedKeys();
-
-  if (checkAll.value) {
-    checkedKeys.value = getAllMenuIds();
-  }
-});
-
-watch([checkedKeys, options], () => {
-  const allMenuIds = getAllMenuIds();
-  checkAll.value = allMenuIds.length > 0 && allMenuIds.every(id => checkedKeys.value.includes(id));
-});
-
 onMounted(() => {
   if (props.immediate) {
-    void getMenuList();
+    getMenuList();
   }
+});
+
+watch([expandAll, options], ([newVal]) => {
+  if (newVal) {
+    // 展开所有节点
+    expandedKeys.value = getAllMenuIds(options.value);
+  } else {
+    expandedKeys.value = [0];
+  }
+});
+
+function renderLabel({ option }: { option: TreeOption }) {
+  let label = option.label;
+  if (label?.startsWith('route.') || label?.startsWith('menu.')) {
+    label = $t(label as App.I18n.I18nKey);
+  }
+  // 禁用的菜单显示红色
+  if (option.status === '1') {
+    return (
+      <div class="flex items-center gap-4px text-error-200">
+        {label}
+        <SvgIcon icon="ri:prohibited-line" class="text-16px" />
+      </div>
+    );
+  }
+  // 隐藏的菜单显示灰色
+  if (option.visible === '1') {
+    return (
+      <div class="flex items-center gap-4px text-gray-400">
+        {label}
+        <SvgIcon icon="codex:hidden" class="text-21px" />
+      </div>
+    );
+  }
+  return <div>{label}</div>;
+}
+
+function renderPrefix({ option }: { option: TreeOption }) {
+  const renderLocalIcon = String(option.icon).startsWith('local-icon-');
+  let icon = renderLocalIcon ? undefined : String(option.icon ?? 'material-symbols:buttons-alt-outline-rounded');
+  const localIcon = renderLocalIcon ? String(option.icon).replace('local-icon-', 'menu-') : undefined;
+  if (icon === '#') {
+    icon = 'material-symbols:buttons-alt-outline-rounded';
+  }
+  return <SvgIcon icon={icon} localIcon={localIcon} />;
+}
+
+function getAllMenuIds(menu: Api.System.MenuList) {
+  const menuIds: CommonType.IdType[] = [];
+  menu.forEach(item => {
+    menuIds.push(item.id!);
+    if (item.children) {
+      menuIds.push(...getAllMenuIds(item.children));
+    }
+  });
+  return menuIds;
+}
+
+/** 获取所有叶子节点的 ID（没有子节点的节点） */
+function getLeafMenuIds(menu: Api.System.MenuList): CommonType.IdType[] {
+  const leafIds: CommonType.IdType[] = [];
+  menu.forEach(item => {
+    if (!item.children || item.children.length === 0) {
+      // 是叶子节点
+      leafIds.push(item.id!);
+    } else {
+      // 有子节点，递归获取子节点中的叶子节点
+      leafIds.push(...getLeafMenuIds(item.children));
+    }
+  });
+  return leafIds;
+}
+
+function handleCheckedTreeNodeAll(checked: boolean) {
+  if (checked) {
+    checkedKeys.value = getAllMenuIds(options.value);
+    return;
+  }
+  checkedKeys.value = [];
+}
+
+function getCheckedMenuIds(isCascade: boolean = false) {
+  const menuIds = menuTreeRef.value?.getCheckedData()?.keys as string[];
+  const indeterminateData = menuTreeRef.value?.getIndeterminateData();
+  if (cascade.value || isCascade) {
+    const parentIds: string[] = indeterminateData?.keys.filter(item => !menuIds?.includes(String(item))) as string[];
+    menuIds?.push(...parentIds);
+  }
+  return menuIds;
+}
+
+watch(cascade, () => {
+  if (cascade.value) {
+    // 获取当前菜单树中的所有叶子节点ID
+    const allLeafIds = getLeafMenuIds(options.value);
+    // 筛选出当前选中项中的叶子节点
+    const selectedLeafIds = checkedKeys.value.filter(id => allLeafIds.includes(id));
+    // 重新设置选中状态为只包含叶子节点，让组件基于父子联动规则重新计算父节点状态
+    checkedKeys.value = selectedLeafIds;
+    return;
+  }
+  // 禁用父子联动时，将半选中的父节点也加入到选中列表
+  checkedKeys.value = getCheckedMenuIds(true);
 });
 
 defineExpose({
@@ -165,8 +164,8 @@ defineExpose({
 </script>
 
 <template>
-  <div class="menu-tree">
-    <div v-if="showHeader" class="menu-tree__toolbar">
+  <div class="w-full flex-col gap-12px">
+    <div v-if="showHeader" class="w-full flex-center">
       <NCheckbox v-model:checked="expandAll" :checked-value="true" :unchecked-value="false">展开/折叠</NCheckbox>
       <NCheckbox
         v-model:checked="checkAll"
@@ -178,61 +177,47 @@ defineExpose({
       </NCheckbox>
       <NCheckbox v-model:checked="cascade" :checked-value="true" :unchecked-value="false">父子联动</NCheckbox>
     </div>
-
-    <NSpin :show="loading" class="menu-tree__content" content-class="h-full">
+    <NSpin class="resource h-full w-full py-6px pl-3px" content-class="h-full" :show="loading">
       <NTree
         ref="menuTreeRef"
-        v-bind="attrs"
         v-model:checked-keys="checkedKeys"
         v-model:expanded-keys="expandedKeys"
+        multiple
+        checkable
+        :selectable="false"
+        key-field="id"
+        label-field="label"
         :data="options"
         :cascade="cascade"
         :loading="loading"
-        key-field="id"
-        label-field="label"
-        check-strategy="all"
-        multiple
-        checkable
-        block-node
         virtual-scroll
-        :selectable="false"
+        check-strategy="all"
+        :render-label="renderLabel"
+        :render-prefix="renderPrefix"
+        v-bind="$attrs"
       />
     </NSpin>
   </div>
 </template>
 
 <style scoped lang="scss">
-.menu-tree {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-}
-
-.menu-tree__toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-}
-
-.menu-tree__content {
-  min-height: 200px;
-  border: 1px solid rgb(224, 224, 230);
+.resource {
   border-radius: 6px;
+  border: 1px solid rgb(224, 224, 230);
 
-  :deep(.n-spin-content) {
-    height: 100%;
-  }
-
-  :deep(.n-tree) {
+  .n-tree {
     min-height: 200px;
+    max-height: 300px;
     width: 100%;
-    padding: 6px 3px;
+    height: 100%;
+
+    :deep(.n-tree__empty) {
+      min-height: 200px;
+      justify-content: center;
+    }
   }
 
-  :deep(.n-tree__empty) {
-    min-height: 200px;
+  .n-empty {
     justify-content: center;
   }
 }

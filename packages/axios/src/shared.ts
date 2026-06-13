@@ -32,7 +32,7 @@ export async function transformResponse(response: AxiosResponse) {
   const responseType: ResponseType = (response.config?.responseType as ResponseType) || 'json';
   if (responseType === 'json') return;
 
-  const isJson = response.headers['content-type']?.includes('application/json');
+  const isJson = (response.headers['content-type'] as string)?.includes('application/json');
   if (!isJson) return;
 
   if (responseType === 'blob') {
@@ -58,7 +58,7 @@ export async function transformBlobToJson(response: AxiosResponse) {
     }
 
     response.data = data;
-  } catch {}
+  } catch { }
 }
 
 export async function transformArrayBufferToJson(response: AxiosResponse) {
@@ -75,5 +75,5 @@ export async function transformArrayBufferToJson(response: AxiosResponse) {
     }
 
     response.data = data;
-  } catch {}
+  } catch { }
 }
