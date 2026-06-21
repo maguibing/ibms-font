@@ -47,6 +47,19 @@ export const platformMenuTypeOptions: CommonType.Option<Api.System.PlatformMenuT
   { value: platformMenuType.extLink, label: platformMenuTypeRecord[platformMenuType.extLink] }
 ];
 
+/** menu platform type */
+export const menuPlatformType = {
+  operation: 1,
+  integrator: 2,
+  project: 3
+} as const;
+
+export const menuPlatformTypeRecord: Record<(typeof menuPlatformType)[keyof typeof menuPlatformType], string> = {
+  [menuPlatformType.operation]: '运营平台',
+  [menuPlatformType.integrator]: '集成商平台',
+  [menuPlatformType.project]: '项目平台'
+};
+
 /** menu is frame */
 export const menuIsFrameRecord: Record<Api.System.IsMenuFrame, string> = {
   '0': '是',

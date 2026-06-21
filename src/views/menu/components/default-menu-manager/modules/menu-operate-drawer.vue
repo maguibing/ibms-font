@@ -16,16 +16,15 @@ import { $t } from '@/locales';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
 defineOptions({
-  name: 'PlatformMenuOperateDrawer'
+  name: 'MenuOperateDrawer'
 });
-
-const PLATFORM_P_TYPE = 1;
 
 const addablePlatformMenuTypeOptions = platformMenuTypeOptions.filter(
   item => item.value !== platformMenuType.button && item.value !== platformMenuType.extLink
 );
 
 interface Props {
+  pType: CommonType.IdType;
   operateType: NaiveUI.TableOperateType;
   menuId?: CommonType.IdType;
   treeData?: Api.System.PlatformMenu[] | null;
@@ -130,7 +129,7 @@ const localIconOptions = localIcons.map<SelectOption>(item => ({
 function createDefaultModel(): Model {
   return {
     parent_id: props.pid ?? 0,
-    p_type: PLATFORM_P_TYPE,
+    p_type: props.pType,
     layout: '0',
     order_num: 1,
     path: '',
@@ -186,7 +185,7 @@ function applyMenuDetail(menu: Api.System.PlatformMenuDetail) {
   model.value = {
     id: menu.id,
     parent_id: menu.parent_id ?? props.pid ?? 0,
-    p_type: menu.p_type ?? PLATFORM_P_TYPE,
+    p_type: menu.p_type ?? props.pType,
     layout: layoutType.value,
     order_num: menu.sort ?? 1,
     path,
@@ -400,7 +399,7 @@ function onCreate() {
             </NRadioGroup>
           </NFormItemGi>
           <NFormItemGi span="24" label="菜单名称" path="title">
-            <NInput v-model:value="model.title" placeholder="请输入菜单名称" />
+            <NInput v-model:value="model.title" placeholder="请输入菜单名称" :maxlength="10" show-count />
           </NFormItemGi>
           <NFormItemGi v-if="!isBtn" span="12" label="图标类型">
             <NRadioGroup v-model:value="iconType">
@@ -515,7 +514,11 @@ function onCreate() {
                 </div>
               </template>
             </NDynamicInput>
-            <NInput v-else v-model:value="model.query_param" :placeholder="$t('page.system.menu.placeholder.queryIframe')" />
+            <NInput
+              v-else
+              v-model:value="model.query_param"
+              :placeholder="$t('page.system.menu.placeholder.queryIframe')"
+            />
           </NFormItemGi>
           <NFormItemGi v-if="!isCatalog" :span="24" label="权限标识" path="perm_key">
             <NInput v-model:value="model.perm_key" placeholder="请输入权限标识" />
