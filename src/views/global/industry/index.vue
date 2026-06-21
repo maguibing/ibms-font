@@ -173,7 +173,6 @@ function edit(id: CommonType.IdType) {
           :loading="loading"
           :show-add="hasAuth('demo:demo:add')"
           :show-delete="hasAuth('demo:demo:remove')"
-          :show-export="hasAuth('demo:demo:export')"
           @add="handleAdd"
           @delete="handleBatchDelete"
           @refresh="getData"
