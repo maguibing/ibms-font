@@ -302,11 +302,11 @@ declare namespace Api {
      */
     type IsMenuFrame = '0' | '1' | '2';
 
-    type PlatformMenuType = 1 | 2 | 3 | 4;
+    type MenuNodeType = 1 | 2 | 3 | 4;
 
     type PlatformBooleanStatus = boolean | 1 | 2 | '1' | '2';
 
-    interface PlatformMenuMeta {
+    interface MenuNodeMeta {
       id: CommonType.IdType;
       title: string;
       icon?: string;
@@ -315,10 +315,10 @@ declare namespace Api {
       /** 1/true 表示缓存，2/false 或不返回表示不缓存 */
       keep_alive?: PlatformBooleanStatus;
       /** 1目录 2菜单 3按钮；为 0 时后端不返回 */
-      menu_type?: PlatformMenuType | number;
+      menu_type?: MenuNodeType | number;
     }
 
-    type PlatformMenuBaseDetail = {
+    type MenuNodeBaseDetail = {
       id: CommonType.IdType;
       parent_id?: CommonType.IdType;
       p_type?: CommonType.IdType;
@@ -328,8 +328,8 @@ declare namespace Api {
       is_visible?: PlatformBooleanStatus;
     };
 
-    type PlatformMenuDetail =
-      | (PlatformMenuBaseDetail & {
+    type MenuNodeDetail =
+      | (MenuNodeBaseDetail & {
           type: 1;
           detail: {
             dir: {
@@ -338,7 +338,7 @@ declare namespace Api {
             };
           };
         })
-      | (PlatformMenuBaseDetail & {
+      | (MenuNodeBaseDetail & {
           type: 2;
           detail: {
             page: {
@@ -349,7 +349,7 @@ declare namespace Api {
             };
           };
         })
-      | (PlatformMenuBaseDetail & {
+      | (MenuNodeBaseDetail & {
           type: 3;
           detail: {
             button: {
@@ -358,7 +358,7 @@ declare namespace Api {
           };
         });
 
-    interface PlatformMenu {
+    interface MenuNode {
       id?: CommonType.IdType;
       parent_id?: CommonType.IdType;
       p_type?: CommonType.IdType;
@@ -371,22 +371,22 @@ declare namespace Api {
       is_frame?: IsMenuFrame;
       status?: Common.EnableStatus;
       perm_key?: string;
-      meta: PlatformMenuMeta;
-      children?: PlatformMenu[];
+      meta: MenuNodeMeta;
+      children?: MenuNode[];
     }
 
-    type PlatformMenuList = PlatformMenu[];
+    type MenuNodeList = MenuNode[];
 
-    type PlatformMenuTreeResponse = {
-      trees: PlatformMenu[];
-      menu_type_map?: Record<string, PlatformMenuType | number>;
+    type MenuNodeTreeResponse = {
+      trees: MenuNode[];
+      menu_type_map?: Record<string, MenuNodeType | number>;
     };
 
-    type PlatformMenuDetailResponse = {
-      menu: PlatformMenuDetail;
+    type MenuNodeDetailResponse = {
+      menu: MenuNodeDetail;
     };
 
-    type PlatformMenuOperateDetail = {
+    type MenuNodeOperateDetail = {
       button?: {
         perm_key: string;
       };
@@ -406,16 +406,16 @@ declare namespace Api {
       };
     };
 
-    type PlatformMenuOperateParams = {
+    type MenuNodeOperateParams = {
       id?: CommonType.IdType;
-      detail: PlatformMenuOperateDetail;
+      detail: MenuNodeOperateDetail;
       icon: string;
       is_visible: boolean;
       name: string;
       p_type: CommonType.IdType;
       parent_id: CommonType.IdType;
       sort: number;
-      type: PlatformMenuType;
+      type: MenuNodeType;
     };
 
     type Menu = Common.CommonRecord<{

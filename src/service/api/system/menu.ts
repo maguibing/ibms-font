@@ -54,29 +54,26 @@ export function fetchGetMenuTrees(data: { p_type: CommonType.IdType; menu_type_l
   });
 }
 
-/** 获取平台菜单树 */
-export function fetchGetPlatformMenuTrees(data: {
-  p_type: CommonType.IdType;
-  menu_type_list?: CommonType.IdType[];
-}) {
-  return request<Api.System.PlatformMenuTreeResponse>({
+/** 获取菜单节点树 */
+export function fetchGetMenuNodeTrees(data: { p_type: CommonType.IdType; menu_type_list?: CommonType.IdType[] }) {
+  return request<Api.System.MenuNodeTreeResponse>({
     url: '/GetMenuTrees',
     method: 'post',
     data
   });
 }
 
-/** 获取平台菜单详情 */
-export function fetchGetPlatformMenu(data: { id: CommonType.IdType }) {
-  return request<Api.System.PlatformMenuDetailResponse>({
+/** 获取菜单节点详情 */
+export function fetchGetMenuNode(data: { id: CommonType.IdType }) {
+  return request<Api.System.MenuNodeDetailResponse>({
     url: '/GetMenu',
     method: 'post',
     data
   });
 }
 
-/** 新增平台菜单 */
-export function fetchCreatePlatformMenu(data: Api.System.PlatformMenuOperateParams) {
+/** 新增菜单节点 */
+export function fetchCreateMenuNode(data: Api.System.MenuNodeOperateParams) {
   return request<boolean>({
     url: '/CreateMenu',
     method: 'post',
@@ -84,8 +81,8 @@ export function fetchCreatePlatformMenu(data: Api.System.PlatformMenuOperatePara
   });
 }
 
-/** 修改平台菜单 */
-export function fetchUpdatePlatformMenu(data: Api.System.PlatformMenuOperateParams) {
+/** 修改菜单节点 */
+export function fetchUpdateMenuNode(data: Api.System.MenuNodeOperateParams) {
   return request<boolean>({
     url: '/UpdateMenu',
     method: 'post',
@@ -93,8 +90,8 @@ export function fetchUpdatePlatformMenu(data: Api.System.PlatformMenuOperatePara
   });
 }
 
-/** 删除平台菜单 */
-export function fetchDeletePlatformMenu(data: { id_list: CommonType.IdType[] }) {
+/** 删除菜单节点 */
+export function fetchDeleteMenuNode(data: { id_list: CommonType.IdType[] }) {
   return request<boolean>({
     url: '/DeleteMenu',
     method: 'post',

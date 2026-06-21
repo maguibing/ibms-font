@@ -5,10 +5,10 @@ import {
   menuIconTypeOptions,
   menuIsFrameOptions,
   menuLayoutOptions,
-  platformMenuType,
-  platformMenuTypeOptions
+  menuNodeType,
+  menuNodeTypeOptions
 } from '@/constants/business';
-import { fetchCreatePlatformMenu, fetchGetPlatformMenu, fetchUpdatePlatformMenu } from '@/service/api/system/menu';
+import { fetchCreateMenuNode, fetchGetMenuNode, fetchUpdateMenuNode } from '@/service/api/system/menu';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { getLocalMenuIcons } from '@/utils/icon';
 import { isNotNull } from '@/utils/common';
@@ -19,23 +19,23 @@ defineOptions({
   name: 'MenuOperateDrawer'
 });
 
-const addablePlatformMenuTypeOptions = platformMenuTypeOptions.filter(
-  item => item.value !== platformMenuType.button && item.value !== platformMenuType.extLink
+const addableMenuNodeTypeOptions = menuNodeTypeOptions.filter(
+  item => item.value !== menuNodeType.button && item.value !== menuNodeType.extLink
 );
 
 interface Props {
   pType: CommonType.IdType;
   operateType: NaiveUI.TableOperateType;
   menuId?: CommonType.IdType;
-  treeData?: Api.System.PlatformMenu[] | null;
+  treeData?: Api.System.MenuNode[] | null;
   pid?: CommonType.IdType;
-  menuType?: Api.System.PlatformMenuType;
+  menuType?: Api.System.MenuNodeType;
 }
 
 const props = defineProps<Props>();
 
 interface Emits {
-  (e: 'submitted', menuType: Api.System.PlatformMenuType): void;
+  (e: 'submitted', menuType: Api.System.MenuNodeType): void;
 }
 
 const emit = defineEmits<Emits>();
@@ -61,7 +61,7 @@ type Model = {
   icon: string;
   is_visible: boolean;
   keep_alive: boolean;
-  menu_type: Api.System.PlatformMenuType;
+  menu_type: Api.System.MenuNodeType;
 };
 
 type PlatformBooleanStatus = '1' | '2';
@@ -83,9 +83,9 @@ const drawerTitle = computed(() => {
 
 const model = ref<Model>(createDefaultModel());
 
-const isCatalog = computed(() => model.value.menu_type === platformMenuType.catalog);
-const isMenu = computed(() => model.value.menu_type === platformMenuType.menu);
-const isBtn = computed(() => model.value.menu_type === platformMenuType.button);
+const isCatalog = computed(() => model.value.menu_type === menuNodeType.catalog);
+const isMenu = computed(() => model.value.menu_type === menuNodeType.menu);
+const isBtn = computed(() => model.value.menu_type === menuNodeType.button);
 const isExternalType = computed(() => model.value.is_frame === '0');
 const isInternalType = computed(() => model.value.is_frame === '1');
 const isBlankLayout = computed(() => layoutType.value === '1');
@@ -143,7 +143,7 @@ function createDefaultModel(): Model {
     icon: defaultIcon,
     is_visible: true,
     keep_alive: false,
-    menu_type: props.menuType ?? platformMenuType.catalog
+    menu_type: props.menuType ?? menuNodeType.catalog
   };
 }
 
@@ -151,7 +151,7 @@ function normalizeBooleanField(value?: boolean | number | string): boolean {
   return value === true || value === 1 || value === '1';
 }
 
-function applyMenuDetail(menu: Api.System.PlatformMenuDetail) {
+function applyMenuDetail(menu: Api.System.MenuNodeDetail) {
   const menuType = menu.type;
   const isFrame: Api.System.IsMenuFrame = '1';
   let path = '';
@@ -160,26 +160,26 @@ function applyMenuDetail(menu: Api.System.PlatformMenuDetail) {
   let permKey = '';
   let keepAlive = false;
 
-  if (menu.type === platformMenuType.catalog) {
+  if (menu.type === menuNodeType.catalog) {
     path = menu.detail.dir.route_path;
     component = menu.detail.dir.component_path;
   }
 
-  if (menu.type === platformMenuType.menu) {
+  if (menu.type === menuNodeType.menu) {
     path = menu.detail.page.route_path;
     component = menu.detail.page.component_path;
     name = menu.detail.page.route_name;
     keepAlive = normalizeBooleanField(menu.detail.page.keep_alive);
   }
 
-  if (menu.type === platformMenuType.button) {
+  if (menu.type === menuNodeType.button) {
     permKey = menu.detail.button.perm_key;
   }
 
   if (component.startsWith('layout.blank$view.')) {
     layoutType.value = '1';
     component = component.slice(18, component.length)?.replaceAll('_', '/');
-  } else if (menuType === platformMenuType.menu && isFrame === '1' && component.endsWith('/index')) {
+  } else if (menuType === menuNodeType.menu && isFrame === '1' && component.endsWith('/index')) {
     component = component.slice(0, -6);
   }
   model.value = {
@@ -211,7 +211,7 @@ async function handleInitModel() {
   model.value = createDefaultModel();
 
   if (props.operateType === 'edit' && props.menuId) {
-    const { data, error } = await fetchGetPlatformMenu({ id: props.menuId });
+    const { data, error } = await fetchGetMenuNode({ id: props.menuId });
     if (error || !data) return;
     applyMenuDetail(data.menu);
   }
@@ -235,20 +235,20 @@ function getExternalUrl() {
   return model.value.path;
 }
 
-function getPayloadType(): Api.System.PlatformMenuType {
+function getPayloadType(): Api.System.MenuNodeType {
   if (isCatalog.value) {
-    return platformMenuType.catalog;
+    return menuNodeType.catalog;
   }
   if (isBtn.value) {
-    return platformMenuType.button;
+    return menuNodeType.button;
   }
   if (isExternalType.value || isIframeType.value) {
-    return platformMenuType.extLink;
+    return menuNodeType.extLink;
   }
-  return platformMenuType.menu;
+  return menuNodeType.menu;
 }
 
-function buildDetail(): Api.System.PlatformMenuOperateDetail {
+function buildDetail(): Api.System.MenuNodeOperateDetail {
   if (isBtn.value) {
     return {
       button: {
@@ -285,7 +285,7 @@ function buildDetail(): Api.System.PlatformMenuOperateDetail {
   };
 }
 
-function buildPayload(): Api.System.PlatformMenuOperateParams {
+function buildPayload(): Api.System.MenuNodeOperateParams {
   return {
     id: model.value.id,
     detail: buildDetail(),
@@ -304,13 +304,13 @@ async function handleSubmit() {
 
   const payload = buildPayload();
   if (props.operateType === 'add') {
-    const { error } = await fetchCreatePlatformMenu(payload);
+    const { error } = await fetchCreateMenuNode(payload);
     if (error) return;
     window.$message?.success($t('common.addSuccess'));
   }
 
   if (props.operateType === 'edit') {
-    const { error } = await fetchUpdatePlatformMenu(payload);
+    const { error } = await fetchUpdateMenuNode(payload);
     if (error) return;
     window.$message?.success($t('common.updateSuccess'));
   }
@@ -322,7 +322,7 @@ async function handleSubmit() {
 watch(
   () => model.value.menu_type,
   menuType => {
-    if (menuType === platformMenuType.catalog) {
+    if (menuType === menuNodeType.catalog) {
       model.value.is_frame = '1';
       model.value.perm_key = '';
       model.value.keep_alive = false;
@@ -380,7 +380,7 @@ function onCreate() {
           <NFormItemGi v-if="!isBtn" :span="12" label="菜单类型" path="menu_type">
             <NRadioGroup v-model:value="model.menu_type">
               <NRadioButton
-                v-for="item in addablePlatformMenuTypeOptions"
+                v-for="item in addableMenuNodeTypeOptions"
                 :key="item.value"
                 :value="item.value"
                 :label="item.label"

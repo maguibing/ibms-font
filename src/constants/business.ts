@@ -25,26 +25,26 @@ export const menuTypeRecord: Record<Api.System.MenuType, string> = {
 
 export const menuTypeOptions = transformRecordToOption(menuTypeRecord);
 
-/** platform menu type */
-export const platformMenuType = {
+/** menu node type */
+export const menuNodeType = {
   catalog: 1,
   menu: 2,
   button: 3,
   extLink: 4
 } as const;
 
-export const platformMenuTypeRecord: Record<Api.System.PlatformMenuType, string> = {
-  [platformMenuType.catalog]: '目录',
-  [platformMenuType.menu]: '菜单',
-  [platformMenuType.button]: '按钮',
-  [platformMenuType.extLink]: '外链'
+export const menuNodeTypeRecord: Record<Api.System.MenuNodeType, string> = {
+  [menuNodeType.catalog]: '目录',
+  [menuNodeType.menu]: '菜单',
+  [menuNodeType.button]: '按钮',
+  [menuNodeType.extLink]: '外链'
 };
 
-export const platformMenuTypeOptions: CommonType.Option<Api.System.PlatformMenuType>[] = [
-  { value: platformMenuType.catalog, label: platformMenuTypeRecord[platformMenuType.catalog] },
-  { value: platformMenuType.menu, label: platformMenuTypeRecord[platformMenuType.menu] },
-  { value: platformMenuType.button, label: platformMenuTypeRecord[platformMenuType.button] },
-  { value: platformMenuType.extLink, label: platformMenuTypeRecord[platformMenuType.extLink] }
+export const menuNodeTypeOptions: CommonType.Option<Api.System.MenuNodeType>[] = [
+  { value: menuNodeType.catalog, label: menuNodeTypeRecord[menuNodeType.catalog] },
+  { value: menuNodeType.menu, label: menuNodeTypeRecord[menuNodeType.menu] },
+  { value: menuNodeType.button, label: menuNodeTypeRecord[menuNodeType.button] },
+  { value: menuNodeType.extLink, label: menuNodeTypeRecord[menuNodeType.extLink] }
 ];
 
 /** menu platform type */
@@ -54,11 +54,6 @@ export const menuPlatformType = {
   project: 3
 } as const;
 
-export const menuPlatformTypeRecord: Record<(typeof menuPlatformType)[keyof typeof menuPlatformType], string> = {
-  [menuPlatformType.operation]: '运营平台',
-  [menuPlatformType.integrator]: '集成商平台',
-  [menuPlatformType.project]: '项目平台'
-};
 
 /** menu is frame */
 export const menuIsFrameRecord: Record<Api.System.IsMenuFrame, string> = {

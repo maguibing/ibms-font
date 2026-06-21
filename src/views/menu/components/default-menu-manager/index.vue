@@ -3,8 +3,8 @@ import { computed, ref } from 'vue';
 import type { DataTableColumns, TreeOption } from 'naive-ui';
 import { NButton, NDivider, NIcon, NTag } from 'naive-ui';
 import { useBoolean, useLoading } from '@sa/hooks';
-import { platformMenuType, platformMenuTypeRecord } from '@/constants/business';
-import { fetchDeletePlatformMenu, fetchGetPlatformMenuTrees } from '@/service/api/system/menu';
+import { menuNodeType, menuNodeTypeRecord } from '@/constants/business';
+import { fetchDeleteMenuNode, fetchGetMenuNodeTrees } from '@/service/api/system/menu';
 import { useAppStore } from '@/store/modules/app';
 import { useAuth } from '@/hooks/business/auth';
 import { $t } from '@/locales';
@@ -19,15 +19,15 @@ interface Props {
 
 const props = defineProps<Props>();
 
-type PlatformMenuNode = Omit<Api.System.PlatformMenu, 'children' | 'id'> & {
+type MenuNodeItem = Omit<Api.System.MenuNode, 'children' | 'id'> & {
   id: CommonType.IdType;
   label: string;
   icon: string;
-  menu_type: Api.System.PlatformMenuType;
+  menu_type: Api.System.MenuNodeType;
   is_visible: boolean;
   keep_alive: boolean;
-  children?: PlatformMenuNode[];
-  rawChildren?: PlatformMenuNode[];
+  children?: MenuNodeItem[];
+  rawChildren?: MenuNodeItem[];
 };
 
 const defaultIcon = import.meta.env.VITE_MENU_ICON;
@@ -39,31 +39,31 @@ const { loading, startLoading, endLoading } = useLoading();
 const { bool: drawerVisible, setTrue: openDrawer } = useBoolean();
 const { loading: btnLoading, startLoading: startBtnLoading, endLoading: endBtnLoading } = useLoading();
 const name = ref<string>();
-const createType = ref<Api.System.PlatformMenuType>();
+const createType = ref<Api.System.MenuNodeType>();
 const createPid = ref<CommonType.IdType>(0);
-const currentMenu = ref<PlatformMenuNode>();
-const treeData = ref<PlatformMenuNode[]>([]);
+const currentMenu = ref<MenuNodeItem>();
+const treeData = ref<MenuNodeItem[]>([]);
 const selectedKeys = ref<CommonType.IdType[]>([]);
 const expandedKeys = ref<CommonType.IdType[]>([0]);
-const btnData = ref<PlatformMenuNode[]>([]);
+const btnData = ref<MenuNodeItem[]>([]);
 
-const isCatalog = computed(() => currentMenu.value?.menu_type === platformMenuType.catalog);
-const isMenu = computed(() => currentMenu.value?.menu_type === platformMenuType.menu);
+const isCatalog = computed(() => currentMenu.value?.menu_type === menuNodeType.catalog);
+const isMenu = computed(() => currentMenu.value?.menu_type === menuNodeType.menu);
 
 function normalizeBooleanField(value?: boolean | number | string): boolean {
   return value === true || value === 1 || value === '1';
 }
 
-function normalizeMenu(menu: Api.System.PlatformMenu, parentId: CommonType.IdType = 0): PlatformMenuNode {
+function normalizeMenu(menu: Api.System.MenuNode, parentId: CommonType.IdType = 0): MenuNodeItem {
   const id = menu.meta.id;
   const children = (menu.children || []).map(item => normalizeMenu(item, id));
   const { children: _children, ...menuWithoutChildren } = menu;
-  const menuType = menu.meta.menu_type as Api.System.PlatformMenuType;
+  const menuType = menu.meta.menu_type as Api.System.MenuNodeType;
   const isVisible = normalizeBooleanField(menu.meta?.is_visible);
   const keepAlive = normalizeBooleanField(menu.meta?.keep_alive);
   const title = menu?.meta?.title ?? '';
   const icon = menu.meta?.icon || defaultIcon;
-  const visibleChildren = children.filter(item => item.menu_type !== platformMenuType.button);
+  const visibleChildren = children.filter(item => item.menu_type !== menuNodeType.button);
 
   return {
     ...menuWithoutChildren,
@@ -88,8 +88,8 @@ function normalizeMenu(menu: Api.System.PlatformMenu, parentId: CommonType.IdTyp
   };
 }
 
-function createRootNode(children: PlatformMenuNode[]): PlatformMenuNode {
-  const visibleChildren = children.filter(item => item.menu_type !== platformMenuType.button);
+function createRootNode(children: MenuNodeItem[]): MenuNodeItem {
+  const visibleChildren = children.filter(item => item.menu_type !== menuNodeType.button);
 
   return {
     id: 0,
@@ -105,11 +105,11 @@ function createRootNode(children: PlatformMenuNode[]): PlatformMenuNode {
       icon: 'material-symbols:home-outline-rounded',
       is_visible: true,
       keep_alive: false,
-      menu_type: platformMenuType.catalog
+      menu_type: menuNodeType.catalog
     },
     label: '根目录',
     icon: 'material-symbols:home-outline-rounded',
-    menu_type: platformMenuType.catalog,
+    menu_type: menuNodeType.catalog,
     is_visible: true,
     keep_alive: false,
     rawChildren: children,
@@ -117,7 +117,7 @@ function createRootNode(children: PlatformMenuNode[]): PlatformMenuNode {
   };
 }
 
-function findMenuById(list: PlatformMenuNode[], id: CommonType.IdType): PlatformMenuNode | undefined {
+function findMenuById(list: MenuNodeItem[], id: CommonType.IdType): MenuNodeItem | undefined {
   for (const item of list) {
     if (item.id === id) {
       return item;
@@ -132,13 +132,13 @@ function findMenuById(list: PlatformMenuNode[], id: CommonType.IdType): Platform
 
 async function getMenuTree(selectId?: CommonType.IdType) {
   startLoading();
-  const { data, error } = await fetchGetPlatformMenuTrees({
+  const { data, error } = await fetchGetMenuNodeTrees({
     p_type: props.pType,
     menu_type_list: [
-      platformMenuType.catalog,
-      platformMenuType.menu,
-      platformMenuType.button,
-      platformMenuType.extLink
+      menuNodeType.catalog,
+      menuNodeType.menu,
+      menuNodeType.button,
+      menuNodeType.extLink
     ]
   });
   endLoading();
@@ -165,17 +165,17 @@ async function getMenuTree(selectId?: CommonType.IdType) {
 
 getMenuTree();
 
-async function handleSubmitted(menuType?: Api.System.PlatformMenuType) {
+async function handleSubmitted(menuType?: Api.System.MenuNodeType) {
   const selectedId = currentMenu.value?.id;
   await getMenuTree(selectedId);
-  if (menuType === platformMenuType.button) {
+  if (menuType === menuNodeType.button) {
     getBtnMenuList();
   }
 }
 
 function handleAddMenu(pid: CommonType.IdType) {
   createPid.value = pid;
-  createType.value = pid === 0 ? platformMenuType.catalog : platformMenuType.menu;
+  createType.value = pid === 0 ? menuNodeType.catalog : menuNodeType.menu;
   editingId.value = undefined;
   operateType.value = 'add';
   openDrawer();
@@ -183,7 +183,7 @@ function handleAddMenu(pid: CommonType.IdType) {
 
 function handleUpdateMenu() {
   operateType.value = 'edit';
-  createType.value = currentMenu.value?.menu_type as Api.System.PlatformMenuType;
+  createType.value = currentMenu.value?.menu_type as Api.System.MenuNodeType;
   editingId.value = currentMenu.value?.id;
   openDrawer();
 }
@@ -194,7 +194,7 @@ async function handleDeleteMenu(id?: CommonType.IdType) {
     return;
   }
 
-  const { error } = await fetchDeletePlatformMenu({ id_list: [menuId] });
+  const { error } = await fetchDeleteMenuNode({ id_list: [menuId] });
   if (error) return;
   window.$message?.success($t('common.deleteSuccess'));
 
@@ -210,7 +210,7 @@ async function handleDeleteMenu(id?: CommonType.IdType) {
 }
 
 function getMenuLabel(option: TreeOption) {
-  const meta = option.meta as Api.System.PlatformMenuMeta | undefined;
+  const meta = option.meta as Api.System.MenuNodeMeta | undefined;
   const raw = String(option.label || meta?.title || option.name || '');
   if (raw.startsWith('route.') || raw.startsWith('menu.')) {
     return $t(raw as App.I18n.I18nKey);
@@ -247,7 +247,7 @@ function renderPrefix({ option }: { option: TreeOption }) {
 }
 
 function renderSuffix({ option }: { option: TreeOption }) {
-  if (Number(option.menu_type ?? 0) !== platformMenuType.catalog || !hasAuth('system:menu:add')) {
+  if (Number(option.menu_type ?? 0) !== menuNodeType.catalog || !hasAuth('system:menu:add')) {
     return null;
   }
 
@@ -275,7 +275,7 @@ function reset() {
 }
 
 function handleClickTree(option: Array<TreeOption | null>) {
-  const menu = option[0] as PlatformMenuNode | undefined;
+  const menu = option[0] as MenuNodeItem | undefined;
   if (!menu || menu.id === 0) {
     currentMenu.value = undefined;
     btnData.value = [];
@@ -287,21 +287,21 @@ function handleClickTree(option: Array<TreeOption | null>) {
 
 function getBtnMenuList() {
   startBtnLoading();
-  btnData.value = (currentMenu.value?.rawChildren || []).filter(item => item.menu_type === platformMenuType.button);
+  btnData.value = (currentMenu.value?.rawChildren || []).filter(item => item.menu_type === menuNodeType.button);
   endBtnLoading();
 }
 
 function addBtnMenu() {
   operateType.value = 'add';
-  createType.value = platformMenuType.button;
+  createType.value = menuNodeType.button;
   createPid.value = currentMenu.value?.id || 0;
   editingId.value = undefined;
   openDrawer();
 }
 
-function handleUpdateBtnMenu(row: PlatformMenuNode) {
+function handleUpdateBtnMenu(row: MenuNodeItem) {
   operateType.value = 'edit';
-  createType.value = platformMenuType.button;
+  createType.value = menuNodeType.button;
   editingId.value = row.id;
   openDrawer();
 }
@@ -310,7 +310,7 @@ function renderMenuName(menuName: string) {
   return menuName?.startsWith('route.') || menuName?.startsWith('menu.') ? $t(menuName as App.I18n.I18nKey) : menuName;
 }
 
-const btnColumns: DataTableColumns<PlatformMenuNode> = [
+const btnColumns: DataTableColumns<MenuNodeItem> = [
   {
     key: 'index',
     width: 64,
@@ -520,7 +520,7 @@ const btnColumns: DataTableColumns<PlatformMenuNode> = [
           >
             <NDescriptionsItem label="菜单类型">
               <NTag class="m-1" size="small" type="primary">
-                {{ platformMenuTypeRecord[currentMenu.menu_type] || '未知' }}
+                {{ menuNodeTypeRecord[currentMenu.menu_type] || '未知' }}
               </NTag>
             </NDescriptionsItem>
             <NDescriptionsItem label="菜单状态">
