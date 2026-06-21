@@ -1,13 +1,15 @@
-<script setup lang="ts">
+<script setup lang="tsx">
 import { h, ref } from 'vue';
-import { NImage, NTag } from 'naive-ui';
+import { NDivider, NImage, NTag } from 'naive-ui';
 import { formatDateTime } from '@sa/utils';
 import { fetchGetSysScreenList } from '@/service/api/sys-screen';
 import { useAppStore } from '@/store/modules/app';
-import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
+import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { $t } from '@/locales';
-import SysScreenSearch from './modules/sys-screen-search.vue';
 import { useAuth } from '@/hooks/business/auth';
+import ButtonIcon from '@/components/custom/button-icon.vue';
+import SysScreenOperateDrawer from './modules/sys-screen-operate-drawer.vue';
+import SysScreenSearch from './modules/sys-screen-search.vue';
 defineOptions({
   name: 'SysScreenList'
 });
@@ -108,9 +110,72 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         align: 'center',
         minWidth: 180,
         render: row => formatDateTime(row.created_at)
+      },
+      {
+        key: 'operate',
+        title: $t('common.operate'),
+        align: 'center',
+        width: 130,
+        render: row => {
+          const divider = () => {
+            if (!hasAuth('sys:screen:edit') || !hasAuth('sys:screen:remove')) {
+              return null;
+            }
+            return <NDivider vertical />;
+          };
+
+          const editBtn = () => {
+            if (!hasAuth('sys:screen:edit')) {
+              return null;
+            }
+            return (
+              <ButtonIcon
+                text
+                type="primary"
+                icon="material-symbols:drive-file-rename-outline-outline"
+                tooltipContent={$t('common.edit')}
+                onClick={() => edit(row.id)}
+              />
+            );
+          };
+
+          const deleteBtn = () => {
+            if (!hasAuth('sys:screen:remove')) {
+              return null;
+            }
+            return (
+              <ButtonIcon
+                text
+                type="error"
+                icon="material-symbols:delete-outline"
+                tooltipContent={$t('common.delete')}
+                popconfirmContent={$t('common.confirmDelete')}
+                onPositiveClick={() => handleDelete()}
+              />
+            );
+          };
+
+          return (
+            <div class="flex-center gap-8px">
+              {editBtn()}
+              {divider()}
+              {deleteBtn()}
+            </div>
+          );
+        }
       }
     ]
   });
+
+const { drawerVisible, operateType, editingData, handleAdd, handleEdit } = useTableOperate(data, 'id', getData);
+
+function edit(id: CommonType.IdType) {
+  handleEdit(id);
+}
+
+function handleDelete() {
+  window.$message?.warning('删除接口未接入');
+}
 </script>
 
 <template>
@@ -124,6 +189,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
           :show-add="hasAuth('sys:screen:add')"
           :show-delete="hasAuth('sys:screen:remove')"
           :show-export="hasAuth('sys:screen:export')"
+          @add="handleAdd"
           @refresh="getData"
         />
       </template>
@@ -137,6 +203,12 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         :row-key="row => row.id"
         :pagination="mobilePagination"
         class="sm:h-full"
+      />
+      <SysScreenOperateDrawer
+        v-model:visible="drawerVisible"
+        :operate-type="operateType"
+        :row-data="editingData"
+        @submitted="getDataByPage"
       />
     </NCard>
   </div>

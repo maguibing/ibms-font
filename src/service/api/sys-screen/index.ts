@@ -8,3 +8,12 @@ export function fetchGetSysScreenList(data: CommonType.CommonListQueryParams) {
     data
   });
 }
+
+/** 创建大屏 */
+export function fetchCreateSysScreen(data: Api.System.SysScreenOperateParams) {
+  return request({
+    url: '/CreateSysScreen',
+    method: 'post',
+    data
+  });
+}

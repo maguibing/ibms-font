@@ -87,7 +87,34 @@ declare namespace Api {
       status: 1 | 2;
       sort: number;
       desc: string;
+      detail?: SysScreenDetail;
+      industry_id_list?: CommonType.IdType[];
+      project_conf?: SysScreenProjectConf[];
     }>;
+
+    type SysScreenDetail = {
+      component_path: string;
+      route_name: string;
+      route_path: string;
+    };
+
+    type SysScreenProjectConf = {
+      is_mock: boolean;
+      project_id: number | null;
+      show_3d_visual: boolean;
+      show_enter_system: boolean;
+      show_logout_button: boolean;
+      show_personal_info: boolean;
+    };
+
+    type SysScreenOperateParams = {
+      detail: SysScreenDetail;
+      industry_id_list: CommonType.IdType[];
+      name: string;
+      project_conf: SysScreenProjectConf[];
+      status: 1 | 2;
+      url: string;
+    };
 
     /** sys screen list */
     type SysScreenList = Common.PaginatingQueryRecord<SysScreen>;
