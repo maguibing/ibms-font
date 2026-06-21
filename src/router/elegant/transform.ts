@@ -44,7 +44,7 @@ function transformElegantRouteToVueRoute(
   function getLayoutName(component: string) {
     const layout = component.replace(LAYOUT_PREFIX, '');
 
-    if (!layouts[layout]) {
+    if(!layouts[layout]) {
       throw new Error(`Layout component "${layout}" not found`);
     }
 
@@ -58,7 +58,7 @@ function transformElegantRouteToVueRoute(
   function getViewName(component: string) {
     const view = component.replace(VIEW_PREFIX, '');
 
-    if (!views[view]) {
+    if(!views[view]) {
       throw new Error(`View component "${view}" not found`);
     }
 
@@ -145,7 +145,7 @@ function transformElegantRouteToVueRoute(
   if (children?.length) {
     const childRoutes = children.flatMap(child => transformElegantRouteToVueRoute(child, layouts, views));
 
-    if (isFirstLevelRoute(route)) {
+    if(isFirstLevelRoute(route)) {
       vueRoute.children = childRoutes;
     } else {
       vueRoutes.push(...childRoutes);
@@ -171,6 +171,9 @@ const routeMap: RouteMap = {
   "404": "/404",
   "500": "/500",
   "about": "/about",
+  "demo": "/demo",
+  "demo_demo": "/demo/demo",
+  "demo_tree": "/demo/tree",
   "global": "/global",
   "global_activate": "/global/activate",
   "global_industry": "/global/industry",
@@ -183,15 +186,28 @@ const routeMap: RouteMap = {
   "integrator_version": "/integrator/version",
   "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?",
   "menu": "/menu",
-  "menu_integrator-menu": "/menu/integrator-menu",
+  "menu_corp-menu": "/menu/corp-menu",
   "menu_platform-menu": "/menu/platform-menu",
   "menu_project-menu": "/menu/project-menu",
+  "monitor": "/monitor",
+  "monitor_cache": "/monitor/cache",
+  "monitor_logininfor": "/monitor/logininfor",
+  "monitor_online": "/monitor/online",
+  "monitor_operlog": "/monitor/operlog",
   "social-callback": "/social-callback",
   "system": "/system",
+  "system_client": "/system/client",
+  "system_config": "/system/config",
   "system_dept": "/system/dept",
+  "system_dict": "/system/dict",
   "system_menu": "/system/menu",
   "system_notice": "/system/notice",
+  "system_oss": "/system/oss",
+  "system_oss-config": "/system/oss-config",
+  "system_post": "/system/post",
   "system_role": "/system/role",
+  "system_tenant": "/system/tenant",
+  "system_tenant-package": "/system/tenant-package",
   "system_user": "/system/user",
   "tool": "/tool",
   "tool_gen": "/tool/gen",

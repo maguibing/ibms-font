@@ -264,7 +264,7 @@ declare namespace Api {
       label: string;
       icon?: string;
       visible?: Common.VisibleStatus;
-      status?: Common.EnableStatus;
+      status?: Common.EnableStatus | boolean | number;
       path?: string;
       component?: string;
       name?: string;
@@ -301,6 +301,122 @@ declare namespace Api {
      * - "2": "iframe"
      */
     type IsMenuFrame = '0' | '1' | '2';
+
+    type PlatformMenuType = 1 | 2 | 3 | 4;
+
+    type PlatformBooleanStatus = boolean | 1 | 2 | '1' | '2';
+
+    interface PlatformMenuMeta {
+      id: CommonType.IdType;
+      title: string;
+      icon?: string;
+      /** 1/true 表示启用，2/false 或不返回表示停用 */
+      is_visible?: PlatformBooleanStatus;
+      /** 1/true 表示缓存，2/false 或不返回表示不缓存 */
+      keep_alive?: PlatformBooleanStatus;
+      /** 1目录 2菜单 3按钮；为 0 时后端不返回 */
+      menu_type?: PlatformMenuType | number;
+    }
+
+    type PlatformMenuBaseDetail = {
+      id: CommonType.IdType;
+      parent_id?: CommonType.IdType;
+      p_type?: CommonType.IdType;
+      name: string;
+      icon?: string;
+      sort?: number;
+      is_visible?: PlatformBooleanStatus;
+    };
+
+    type PlatformMenuDetail =
+      | (PlatformMenuBaseDetail & {
+          type: 1;
+          detail: {
+            dir: {
+              component_path: string;
+              route_path: string;
+            };
+          };
+        })
+      | (PlatformMenuBaseDetail & {
+          type: 2;
+          detail: {
+            page: {
+              component_path: string;
+              keep_alive?: PlatformBooleanStatus;
+              route_name: string;
+              route_path: string;
+            };
+          };
+        })
+      | (PlatformMenuBaseDetail & {
+          type: 3;
+          detail: {
+            button: {
+              perm_key: string;
+            };
+          };
+        });
+
+    interface PlatformMenu {
+      id?: CommonType.IdType;
+      parent_id?: CommonType.IdType;
+      p_type?: CommonType.IdType;
+      layout?: MenuLayout;
+      order_num?: number;
+      path?: string;
+      component?: string;
+      name?: string;
+      query_param?: string;
+      is_frame?: IsMenuFrame;
+      status?: Common.EnableStatus;
+      perm_key?: string;
+      meta: PlatformMenuMeta;
+      children?: PlatformMenu[];
+    }
+
+    type PlatformMenuList = PlatformMenu[];
+
+    type PlatformMenuTreeResponse = {
+      trees: PlatformMenu[];
+      menu_type_map?: Record<string, PlatformMenuType | number>;
+    };
+
+    type PlatformMenuDetailResponse = {
+      menu: PlatformMenuDetail;
+    };
+
+    type PlatformMenuOperateDetail = {
+      button?: {
+        perm_key: string;
+      };
+      dir?: {
+        always_show: boolean;
+        component_path: string;
+        route_path: string;
+      };
+      ext_link?: {
+        url: string;
+      };
+      page?: {
+        component_path: string;
+        keep_alive: boolean;
+        route_name: string;
+        route_path: string;
+      };
+    };
+
+    type PlatformMenuOperateParams = {
+      id?: CommonType.IdType;
+      detail: PlatformMenuOperateDetail;
+      icon: string;
+      is_visible: boolean;
+      name: string;
+      p_type: CommonType.IdType;
+      parent_id: CommonType.IdType;
+      sort: number;
+      type: PlatformMenuType;
+    };
 
     type Menu = Common.CommonRecord<{
       /** 菜单 ID */

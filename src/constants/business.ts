@@ -25,6 +25,28 @@ export const menuTypeRecord: Record<Api.System.MenuType, string> = {
 
 export const menuTypeOptions = transformRecordToOption(menuTypeRecord);
 
+/** platform menu type */
+export const platformMenuType = {
+  catalog: 1,
+  menu: 2,
+  button: 3,
+  extLink: 4
+} as const;
+
+export const platformMenuTypeRecord: Record<Api.System.PlatformMenuType, string> = {
+  [platformMenuType.catalog]: '目录',
+  [platformMenuType.menu]: '菜单',
+  [platformMenuType.button]: '按钮',
+  [platformMenuType.extLink]: '外链'
+};
+
+export const platformMenuTypeOptions: CommonType.Option<Api.System.PlatformMenuType>[] = [
+  { value: platformMenuType.catalog, label: platformMenuTypeRecord[platformMenuType.catalog] },
+  { value: platformMenuType.menu, label: platformMenuTypeRecord[platformMenuType.menu] },
+  { value: platformMenuType.button, label: platformMenuTypeRecord[platformMenuType.button] },
+  { value: platformMenuType.extLink, label: platformMenuTypeRecord[platformMenuType.extLink] }
+];
+
 /** menu is frame */
 export const menuIsFrameRecord: Record<Api.System.IsMenuFrame, string> = {
   '0': '是',

@@ -27,7 +27,7 @@ const registerEnabled = ref<boolean>(false);
 const remberMe = ref<boolean>(false);
 
 const model: Api.Auth.PwdLoginForm = reactive({
-  phone: '19999999999',
+  phone: '15102068523',
   rsa_pwd: '123456789##',
   captcha_id: '',
   captcha_answer: ''

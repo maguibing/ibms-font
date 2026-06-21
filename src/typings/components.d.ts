@@ -7,7 +7,7 @@
 // Read more: https://github.com/vuejs/core/pull/3399
 import { GlobalComponents } from 'vue'
 
-export { }
+export {}
 
 /* prettier-ignore */
 declare module 'vue' {
@@ -108,8 +108,6 @@ declare module 'vue' {
     NLayout: typeof import('naive-ui')['NLayout']
     NLayoutContent: typeof import('naive-ui')['NLayoutContent']
     NLayoutSider: typeof import('naive-ui')['NLayoutSider']
-    NList: typeof import('naive-ui')['NList']
-    NListItem: typeof import('naive-ui')['NListItem']
     NLoadingBarProvider: typeof import('naive-ui')['NLoadingBarProvider']
     NMenu: typeof import('naive-ui')['NMenu']
     NMessageProvider: typeof import('naive-ui')['NMessageProvider']
@@ -123,17 +121,14 @@ declare module 'vue' {
     NRadioGroup: typeof import('naive-ui')['NRadioGroup']
     NScrollbar: typeof import('naive-ui')['NScrollbar']
     NSelect: typeof import('naive-ui')['NSelect']
-    NSelectOption: typeof import('naive-ui')['NSelectOption']
     NSpace: typeof import('naive-ui')['NSpace']
     NSpin: typeof import('naive-ui')['NSpin']
-    NStatistic: typeof import('naive-ui')['NStatistic']
     NSwitch: typeof import('naive-ui')['NSwitch']
     NTab: typeof import('naive-ui')['NTab']
     NTabPane: typeof import('naive-ui')['NTabPane']
     NTabs: typeof import('naive-ui')['NTabs']
     NTag: typeof import('naive-ui')['NTag']
     NText: typeof import('naive-ui')['NText']
-    NThing: typeof import('naive-ui')['NThing']
     NTooltip: typeof import('naive-ui')['NTooltip']
     NTree: typeof import('naive-ui')['NTree']
     NTreeSelect: typeof import('naive-ui')['NTreeSelect']
@@ -260,8 +255,6 @@ declare global {
   const NLayout: typeof import('naive-ui')['NLayout']
   const NLayoutContent: typeof import('naive-ui')['NLayoutContent']
   const NLayoutSider: typeof import('naive-ui')['NLayoutSider']
-  const NList: typeof import('naive-ui')['NList']
-  const NListItem: typeof import('naive-ui')['NListItem']
   const NLoadingBarProvider: typeof import('naive-ui')['NLoadingBarProvider']
   const NMenu: typeof import('naive-ui')['NMenu']
   const NMessageProvider: typeof import('naive-ui')['NMessageProvider']
@@ -275,17 +268,14 @@ declare global {
   const NRadioGroup: typeof import('naive-ui')['NRadioGroup']
   const NScrollbar: typeof import('naive-ui')['NScrollbar']
   const NSelect: typeof import('naive-ui')['NSelect']
-  const NSelectOption: typeof import('naive-ui')['NSelectOption']
   const NSpace: typeof import('naive-ui')['NSpace']
   const NSpin: typeof import('naive-ui')['NSpin']
-  const NStatistic: typeof import('naive-ui')['NStatistic']
   const NSwitch: typeof import('naive-ui')['NSwitch']
   const NTab: typeof import('naive-ui')['NTab']
   const NTabPane: typeof import('naive-ui')['NTabPane']
   const NTabs: typeof import('naive-ui')['NTabs']
   const NTag: typeof import('naive-ui')['NTag']
   const NText: typeof import('naive-ui')['NText']
-  const NThing: typeof import('naive-ui')['NThing']
   const NTooltip: typeof import('naive-ui')['NTooltip']
   const NTree: typeof import('naive-ui')['NTree']
   const NTreeSelect: typeof import('naive-ui')['NTreeSelect']

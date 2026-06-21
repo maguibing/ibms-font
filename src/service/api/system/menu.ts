@@ -54,6 +54,54 @@ export function fetchGetMenuTrees(data: { p_type: CommonType.IdType; menu_type_l
   });
 }
 
+/** 获取平台菜单树 */
+export function fetchGetPlatformMenuTrees(data: {
+  p_type: CommonType.IdType;
+  menu_type_list?: CommonType.IdType[];
+}) {
+  return request<Api.System.PlatformMenuTreeResponse>({
+    url: '/GetMenuTrees',
+    method: 'post',
+    data
+  });
+}
+
+/** 获取平台菜单详情 */
+export function fetchGetPlatformMenu(data: { id: CommonType.IdType }) {
+  return request<Api.System.PlatformMenuDetailResponse>({
+    url: '/GetMenu',
+    method: 'post',
+    data
+  });
+}
+
+/** 新增平台菜单 */
+export function fetchCreatePlatformMenu(data: Api.System.PlatformMenuOperateParams) {
+  return request<boolean>({
+    url: '/CreateMenu',
+    method: 'post',
+    data
+  });
+}
+
+/** 修改平台菜单 */
+export function fetchUpdatePlatformMenu(data: Api.System.PlatformMenuOperateParams) {
+  return request<boolean>({
+    url: '/UpdateMenu',
+    method: 'post',
+    data
+  });
+}
+
+/** 删除平台菜单 */
+export function fetchDeletePlatformMenu(data: { id_list: CommonType.IdType[] }) {
+  return request<boolean>({
+    url: '/DeleteMenu',
+    method: 'post',
+    data
+  });
+}
+
 /** 获取租户套餐关联菜单 */
 export function fetchGetTenantPackageMenuTreeSelect(packageId: CommonType.IdType) {
   return request<Api.System.TenantPackageMenuTreeSelect>({

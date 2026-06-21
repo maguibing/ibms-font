@@ -25,5 +25,6 @@
     "**/dist/**": true,
     "/.claude": true,
     "/.codex": true
-  }
+  },
+  "oxc.enable.oxfmt": true
 }

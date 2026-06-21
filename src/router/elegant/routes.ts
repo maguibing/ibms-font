@@ -51,6 +51,35 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'demo',
+    path: '/demo',
+    component: 'layout.base',
+    meta: {
+      title: 'demo',
+      i18nKey: 'route.demo'
+    },
+    children: [
+      {
+        name: 'demo_demo',
+        path: '/demo/demo',
+        component: 'view.demo_demo',
+        meta: {
+          title: 'demo_demo',
+          i18nKey: 'route.demo_demo'
+        }
+      },
+      {
+        name: 'demo_tree',
+        path: '/demo/tree',
+        component: 'view.demo_tree',
+        meta: {
+          title: 'demo_tree',
+          i18nKey: 'route.demo_tree'
+        }
+      }
+    ]
+  },
+  {
     name: 'global',
     path: '/global',
     component: 'layout.base',
@@ -172,12 +201,12 @@ export const generatedRoutes: GeneratedRoute[] = [
     },
     children: [
       {
-        name: 'menu_integrator-menu',
-        path: '/menu/integrator-menu',
-        component: 'view.menu_integrator-menu',
+        name: 'menu_corp-menu',
+        path: '/menu/corp-menu',
+        component: 'view.menu_corp-menu',
         meta: {
-          title: 'menu_integrator-menu',
-          i18nKey: 'route.menu_integrator-menu'
+          title: 'menu_corp-menu',
+          i18nKey: 'route.menu_corp-menu'
         }
       },
       {
@@ -196,6 +225,53 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'menu_project-menu',
           i18nKey: 'route.menu_project-menu'
+        }
+      }
+    ]
+  },
+  {
+    name: 'monitor',
+    path: '/monitor',
+    component: 'layout.base',
+    meta: {
+      title: 'monitor',
+      i18nKey: 'route.monitor'
+    },
+    children: [
+      {
+        name: 'monitor_cache',
+        path: '/monitor/cache',
+        component: 'view.monitor_cache',
+        meta: {
+          title: 'monitor_cache',
+          i18nKey: 'route.monitor_cache'
+        }
+      },
+      {
+        name: 'monitor_logininfor',
+        path: '/monitor/logininfor',
+        component: 'view.monitor_logininfor',
+        meta: {
+          title: 'monitor_logininfor',
+          i18nKey: 'route.monitor_logininfor'
+        }
+      },
+      {
+        name: 'monitor_online',
+        path: '/monitor/online',
+        component: 'view.monitor_online',
+        meta: {
+          title: 'monitor_online',
+          i18nKey: 'route.monitor_online'
+        }
+      },
+      {
+        name: 'monitor_operlog',
+        path: '/monitor/operlog',
+        component: 'view.monitor_operlog',
+        meta: {
+          title: 'monitor_operlog',
+          i18nKey: 'route.monitor_operlog'
         }
       }
     ]
@@ -223,12 +299,39 @@ export const generatedRoutes: GeneratedRoute[] = [
     },
     children: [
       {
+        name: 'system_client',
+        path: '/system/client',
+        component: 'view.system_client',
+        meta: {
+          title: 'system_client',
+          i18nKey: 'route.system_client'
+        }
+      },
+      {
+        name: 'system_config',
+        path: '/system/config',
+        component: 'view.system_config',
+        meta: {
+          title: 'system_config',
+          i18nKey: 'route.system_config'
+        }
+      },
+      {
         name: 'system_dept',
         path: '/system/dept',
         component: 'view.system_dept',
         meta: {
           title: 'system_dept',
           i18nKey: 'route.system_dept'
+        }
+      },
+      {
+        name: 'system_dict',
+        path: '/system/dict',
+        component: 'view.system_dict',
+        meta: {
+          title: 'system_dict',
+          i18nKey: 'route.system_dict'
         }
       },
       {
@@ -252,12 +355,57 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'system_oss',
+        path: '/system/oss',
+        component: 'view.system_oss',
+        meta: {
+          title: 'system_oss',
+          i18nKey: 'route.system_oss'
+        }
+      },
+      {
+        name: 'system_oss-config',
+        path: '/system/oss-config',
+        component: 'view.system_oss-config',
+        meta: {
+          title: 'system_oss-config',
+          i18nKey: 'route.system_oss-config'
+        }
+      },
+      {
+        name: 'system_post',
+        path: '/system/post',
+        component: 'view.system_post',
+        meta: {
+          title: 'system_post',
+          i18nKey: 'route.system_post'
+        }
+      },
+      {
         name: 'system_role',
         path: '/system/role',
         component: 'view.system_role',
         meta: {
           title: 'system_role',
           i18nKey: 'route.system_role'
+        }
+      },
+      {
+        name: 'system_tenant',
+        path: '/system/tenant',
+        component: 'view.system_tenant',
+        meta: {
+          title: 'system_tenant',
+          i18nKey: 'route.system_tenant'
+        }
+      },
+      {
+        name: 'system_tenant-package',
+        path: '/system/tenant-package',
+        component: 'view.system_tenant-package',
+        meta: {
+          title: 'system_tenant-package',
+          i18nKey: 'route.system_tenant-package'
         }
       },
       {
