@@ -30,9 +30,9 @@ declare module "@elegant-router/types" {
     "demo_tree": "/demo/tree";
     "global": "/global";
     "global_activate": "/global/activate";
+    "global_device-type-template": "/global/device-type-template";
     "global_industry": "/global/industry";
     "global_sys-screen": "/global/sys-screen";
-    "global_type-device-template": "/global/type-device-template";
     "home": "/home";
     "iframe-page": "/iframe-page/:url";
     "integrator": "/integrator";
@@ -145,9 +145,9 @@ declare module "@elegant-router/types" {
     | "demo_demo"
     | "demo_tree"
     | "global_activate"
+    | "global_device-type-template"
     | "global_industry"
     | "global_sys-screen"
-    | "global_type-device-template"
     | "home"
     | "integrator_intlist"
     | "integrator_version"

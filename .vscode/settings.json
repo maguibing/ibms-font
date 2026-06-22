@@ -26,5 +26,8 @@
     "/.claude": true,
     "/.codex": true
   },
-  "oxc.enable.oxfmt": true
+  "oxc.enable.oxfmt": true,
+  "[vue]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  }
 }

@@ -2,7 +2,7 @@
 import { h, ref } from 'vue';
 import { NDivider, NImage, NTag } from 'naive-ui';
 import { formatDateTime } from '@sa/utils';
-import { fetchGetSysScreenList } from '@/service/api/sys-screen';
+import { fetchDeleteSysScreen, fetchGetSysScreenList } from '@/service/api/sys-screen';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
@@ -150,7 +150,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 icon="material-symbols:delete-outline"
                 tooltipContent={$t('common.delete')}
                 popconfirmContent={$t('common.confirmDelete')}
-                onPositiveClick={() => handleDelete()}
+                onPositiveClick={() => handleDelete(row.id)}
               />
             );
           };
@@ -183,8 +183,12 @@ function edit(id: CommonType.IdType) {
   drawerVisible.value = true;
 }
 
-function handleDelete() {
-  window.$message?.warning('删除接口未接入');
+async function handleDelete(id: CommonType.IdType) {
+  const { error } = await fetchDeleteSysScreen({ id_list: [id] });
+  if (error) return;
+
+  window.$message?.success($t('common.deleteSuccess'));
+  await getData();
 }
 </script>
 
@@ -197,8 +201,8 @@ function handleDelete() {
           v-model:columns="columnChecks"
           :loading="loading"
           :show-add="hasAuth('sys:screen:add')"
-          :show-delete="hasAuth('sys:screen:remove')"
-          :show-export="hasAuth('sys:screen:export')"
+          :show-delete="false"
+          :show-export="false"
           @add="handleAdd"
           @refresh="getData"
         />

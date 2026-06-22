@@ -44,3 +44,12 @@ export function fetchUpdateSysScreen(data: Api.System.SysScreenUpdateParams) {
     data
   });
 }
+
+/** 删除大屏 */
+export function fetchDeleteSysScreen(data: Api.Common.CommonIdList) {
+  return request({
+    url: '/DeleteSysScreen',
+    method: 'post',
+    data
+  });
+}

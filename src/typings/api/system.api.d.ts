@@ -73,6 +73,39 @@ declare namespace Api {
       Pick<Api.System.Industry, 'name'> & Api.Common.CommonSearchParams
     >;
 
+    /** device type template category */
+    type DeviceTypeTemplateCategory = Common.CommonRecord<{
+      id: CommonType.IdType;
+      deleted_at: number;
+      name: string;
+      sort: number;
+      desc: string;
+    }>;
+
+    type DeviceTypeTemplateCategoryOperateParams = CommonType.RecordNullable<
+      Pick<DeviceTypeTemplateCategory, 'id' | 'name' | 'sort' | 'desc'>
+    >;
+
+    /** device type template category list */
+    type DeviceTypeTemplateCategoryList = Common.PaginatingQueryRecord<DeviceTypeTemplateCategory>;
+
+    /** device type template */
+    type DeviceTypeTemplate = Common.CommonRecord<{
+      id: CommonType.IdType;
+      category_id: CommonType.IdType;
+      name: string;
+      key: string;
+      status: number;
+    }>;
+
+    /** device type template list */
+    type DeviceTypeTemplateList = Common.PaginatingQueryRecord<DeviceTypeTemplate>;
+
+    /** device type template search params */
+    type DeviceTypeTemplateSearchParams = CommonType.RecordNullable<
+      Pick<DeviceTypeTemplate, 'name' | 'category_id'> & Api.Common.CommonSearchParams
+    >;
+
     /** sys screen */
     type SysScreen = Common.CommonRecord<{
       /** 大屏ID */

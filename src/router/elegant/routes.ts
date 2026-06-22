@@ -98,6 +98,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'global_device-type-template',
+        path: '/global/device-type-template',
+        component: 'view.global_device-type-template',
+        meta: {
+          title: 'global_device-type-template',
+          i18nKey: 'route.global_device-type-template'
+        }
+      },
+      {
         name: 'global_industry',
         path: '/global/industry',
         component: 'view.global_industry',
@@ -113,15 +122,6 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'global_sys-screen',
           i18nKey: 'route.global_sys-screen'
-        }
-      },
-      {
-        name: 'global_type-device-template',
-        path: '/global/type-device-template',
-        component: 'view.global_type-device-template',
-        meta: {
-          title: 'global_type-device-template',
-          i18nKey: 'route.global_type-device-template'
         }
       }
     ]
