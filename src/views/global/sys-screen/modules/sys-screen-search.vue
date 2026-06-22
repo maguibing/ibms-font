@@ -2,6 +2,7 @@
 import { toRaw } from 'vue';
 import { jsonClone } from '@sa/utils';
 import { useNaiveForm } from '@/hooks/common/form';
+import { fetchGetIndustryList } from '@/service/api/industry';
 import { $t } from '@/locales';
 
 defineOptions({
@@ -43,10 +44,18 @@ async function search() {
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
             <NFormItemGi span="24 s:12 m:8" label="大屏名称" label-width="auto" path="name" class="pr-24px">
-              <NInput v-model:value="model.name" placeholder="请输入大屏名称" />
+              <NInput v-model:value="model.name" placeholder="请输入大屏名称" @keyup.enter="search" />
             </NFormItemGi>
             <NFormItemGi span="24 s:12 m:8" label="行业类型" label-width="auto" path="industry_type" class="pr-24px">
-              <NInput v-model:value="model.industry_type" placeholder="请输入行业类型" />
+              <RemoteSearchSelect
+                v-model:value="model.industry_type"
+                :request="fetchGetIndustryList"
+                :search-type="1"
+                label-field="name"
+                value-field="id"
+                placeholder="请选择行业类型"
+                clearable
+              />
             </NFormItemGi>
             <NFormItemGi :show-feedback="false" span="24 s:24 m:8" class="pr-24px">
               <NSpace class="w-full" justify="end">

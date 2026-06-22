@@ -88,12 +88,33 @@ declare namespace Api {
       sort: number;
       desc: string;
       detail?: SysScreenDetail;
-      industry_id_list?: CommonType.IdType[];
-      project_conf?: SysScreenProjectConf[];
+      industry_conf?: SysScreenIndustryConf;
+      project_conf?: SysScreenDetailProjectConf;
+    }>;
+
+    type SysScreenDetailResponse = {
+      sys_screen: SysScreenDetailData;
+      industry_map?: CommonType.IdNameMap;
+      project_map?: CommonType.IdNameMap;
+    };
+
+    type SysScreenDetailData = Common.CommonRecord<{
+      /** 大屏ID */
+      id: CommonType.IdType;
+      /** 大屏名称 */
+      name: string;
+      /** 大屏封面 */
+      url: string;
+      /** 状态：1启用 2停用 */
+      status: 1 | 2;
+      detail?: SysScreenDetail;
+      industry_conf?: SysScreenIndustryConf;
+      project_conf?: SysScreenDetailProjectConf;
     }>;
 
     type SysScreenDetail = {
       component_path: string;
+      keep_alive?: boolean;
       route_name: string;
       route_path: string;
     };
@@ -107,6 +128,14 @@ declare namespace Api {
       show_personal_info: boolean;
     };
 
+    type SysScreenDetailProjectConf = {
+      sub_conf_list?: SysScreenProjectConf[];
+    };
+
+    type SysScreenIndustryConf = {
+      industry_id_list: CommonType.IdType[];
+    };
+
     type SysScreenOperateParams = {
       detail: SysScreenDetail;
       industry_id_list: CommonType.IdType[];
@@ -114,6 +143,10 @@ declare namespace Api {
       project_conf: SysScreenProjectConf[];
       status: 1 | 2;
       url: string;
+    };
+
+    type SysScreenUpdateParams = SysScreenOperateParams & {
+      id: CommonType.IdType;
     };
 
     /** sys screen list */

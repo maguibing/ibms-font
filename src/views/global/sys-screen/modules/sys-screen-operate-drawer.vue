@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import type { SelectOption, UploadFileInfo } from 'naive-ui';
+import type { FormItemInst, UploadFileInfo } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
 import { jsonClone } from '@sa/utils';
 import { fetchGetIndustryList } from '@/service/api/industry';
-import { fetchCreateSysScreen } from '@/service/api/sys-screen';
+import {
+  fetchCreateSysScreen,
+  fetchGetProjectList,
+  fetchGetSysScreen,
+  fetchUpdateSysScreen
+} from '@/service/api/sys-screen';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import FileUpload from '@/components/custom/file-upload.vue';
 import { $t } from '@/locales';
@@ -15,7 +20,7 @@ defineOptions({
 
 interface Props {
   operateType: NaiveUI.TableOperateType;
-  rowData?: Api.System.SysScreen | null;
+  rowId?: CommonType.IdType | null;
 }
 
 interface Emits {
@@ -35,7 +40,7 @@ const visible = defineModel<boolean>('visible', {
 const { formRef, validate, restoreValidation } = useNaiveForm();
 const { createRequiredRule } = useFormRules();
 const { loading, startLoading, endLoading } = useLoading();
-const { loading: industryLoading, startLoading: startIndustryLoading, endLoading: endIndustryLoading } = useLoading();
+const { loading: detailLoading, startLoading: startDetailLoading, endLoading: endDetailLoading } = useLoading();
 
 const title = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
@@ -45,15 +50,32 @@ const title = computed(() => {
   return titles[props.operateType];
 });
 
-const industryOptions = ref<SelectOption[]>([]);
+const industryMap = ref<CommonType.IdNameMap>({});
+const coverFormItemRef = ref<FormItemInst | null>(null);
 const coverFileList = ref<UploadFileInfo[]>([]);
 const model = ref<Model>(createDefaultModel());
+const projectMap = ref<CommonType.IdNameMap>({});
+
+const selectedIndustryOptions = computed(() => {
+  return model.value.industry_id_list
+    .map(id => industryMap.value[String(id)])
+    .filter((item): item is CommonType.IdNameRecord => Boolean(item));
+});
+
+const selectedProjectOptions = computed(() => {
+  return model.value.project_conf
+    .map(item => {
+      if (item.project_id === null) return null;
+      return projectMap.value[String(item.project_id)];
+    })
+    .filter((item): item is CommonType.IdNameRecord => Boolean(item));
+});
 
 const rules: Record<string, App.Global.FormRule> = {
   name: createRequiredRule('请输入大屏名称'),
   'detail.route_path': createRequiredRule('请输入路由路径'),
   'detail.component_path': createRequiredRule('请输入组件路径'),
-  url: createRequiredRule('请上传缩略图或填写图片地址'),
+  url: createRequiredRule('请上传缩略图'),
   industry_id_list: createRequiredRule('请选择行业类型'),
   status: createRequiredRule('请选择状态')
 };
@@ -61,6 +83,7 @@ const rules: Record<string, App.Global.FormRule> = {
 function createDefaultDetail(): Api.System.SysScreenDetail {
   return {
     component_path: '',
+    keep_alive: true,
     route_name: '',
     route_path: ''
   };
@@ -72,7 +95,7 @@ function createDefaultProjectConf(): ProjectConf {
     project_id: null,
     show_3d_visual: false,
     show_enter_system: true,
-    show_logout_button: true,
+    show_logout_button: false,
     show_personal_info: false
   };
 }
@@ -88,39 +111,79 @@ function createDefaultModel(): Model {
   };
 }
 
-function toNumberStatus(status: Api.System.SysScreen['status'] | null | undefined): 1 | 2 {
+function toNumberStatus(status: Api.System.SysScreenDetailData['status'] | null | undefined): 1 | 2 {
   return Number(status) === 2 ? 2 : 1;
 }
 
-function buildModelFromRow(row: Api.System.SysScreen): Model {
+function normalizeProjectConf(conf: ProjectConf): ProjectConf {
+  const {
+    is_mock = false,
+    project_id = null,
+    show_3d_visual = false,
+    show_enter_system = false,
+    show_logout_button = false,
+    show_personal_info = false
+  } = conf;
   return {
-    detail: row.detail ? jsonClone(row.detail) : createDefaultDetail(),
-    industry_id_list: row.industry_id_list ? jsonClone(row.industry_id_list) : [],
-    name: row.name || '',
-    project_conf: row.project_conf?.length ? jsonClone(row.project_conf) : [createDefaultProjectConf()],
-    status: toNumberStatus(row.status),
-    url: row.url || ''
+    is_mock,
+    project_id,
+    show_3d_visual,
+    show_enter_system,
+    show_logout_button,
+    show_personal_info
   };
 }
 
-function handleUpdateModel() {
-  model.value = createDefaultModel();
+function buildModelFromDetail(detail: Api.System.SysScreenDetailData): Model {
+  const projectConf = detail.project_conf?.sub_conf_list?.length
+    ? detail.project_conf.sub_conf_list.map(item => normalizeProjectConf(item))
+    : [createDefaultProjectConf()];
 
-  if (props.operateType === 'edit' && props.rowData) {
-    model.value = buildModelFromRow(props.rowData);
+  return {
+    detail: detail.detail ? jsonClone(detail.detail) : createDefaultDetail(),
+    industry_id_list: detail.industry_conf?.industry_id_list ? jsonClone(detail.industry_conf.industry_id_list) : [],
+    name: detail.name || '',
+    project_conf: projectConf,
+    status: toNumberStatus(detail.status),
+    url: detail.url || ''
+  };
+}
+
+function buildCoverFileList(url: string): UploadFileInfo[] {
+  if (!url) return [];
+
+  return [
+    {
+      id: url,
+      name: url.split('/').pop() || '缩略图',
+      status: 'finished',
+      url
+    }
+  ];
+}
+
+async function handleUpdateModel() {
+  model.value = createDefaultModel();
+  industryMap.value = {};
+  projectMap.value = {};
+
+  if (props.operateType === 'edit' && props.rowId !== null && props.rowId !== undefined) {
+    await getSysScreenDetail(props.rowId);
   }
 }
 
-async function getIndustryOptions() {
-  startIndustryLoading();
-  const { data, error } = await fetchGetIndustryList({
-    list_option: { offset: 0, limit: 100 }
-  });
-  endIndustryLoading();
+async function getSysScreenDetail(id: CommonType.IdType) {
+  startDetailLoading();
+  const { data, error } = await fetchGetSysScreen({ id, options: [{ key: 1 }, { key: 2 }, { key: 3 }] }).finally(
+    endDetailLoading
+  );
 
   if (error) return;
 
-  industryOptions.value = data.list.map(item => ({ label: item.name, value: item.id }));
+  industryMap.value = data.industry_map || {};
+  projectMap.value = data.project_map || {};
+  model.value = buildModelFromDetail(data.sys_screen);
+  coverFileList.value = buildCoverFileList(model.value.url);
 }
 
 function closeDrawer() {
@@ -148,12 +211,23 @@ async function handleSubmit() {
     return;
   }
 
+  startLoading();
+
   if (props.operateType === 'edit') {
-    window.$message?.warning('修改接口未接入');
+    const { error } = await fetchUpdateSysScreen({
+      ...model.value,
+      id: props.rowId!
+    });
+    endLoading();
+
+    if (error) return;
+
+    window.$message?.success($t('common.updateSuccess'));
+    closeDrawer();
+    emit('submitted');
     return;
   }
 
-  startLoading();
   const { error } = await fetchCreateSysScreen(model.value);
   endLoading();
 
@@ -169,9 +243,6 @@ watch(visible, () => {
     handleUpdateModel();
     coverFileList.value = [];
     restoreValidation();
-    if (industryOptions.value.length === 0) {
-      getIndustryOptions();
-    }
   }
 });
 
@@ -181,6 +252,9 @@ watch(
     const url = value.find(item => item.status === 'finished')?.url || '';
     if (url !== model.value.url) {
       model.value.url = url;
+      if (url) {
+        coverFormItemRef.value?.restoreValidation();
+      }
     }
   },
   { deep: true }
@@ -209,12 +283,15 @@ watch(
             </NInputGroup>
           </NFormItemGi>
           <NFormItemGi span="24 m:12" label="行业类型" path="industry_id_list">
-            <NSelect
+            <RemoteSearchSelect
               v-model:value="model.industry_id_list"
+              :request="fetchGetIndustryList"
+              :search-type="1"
+              :selected-options="selectedIndustryOptions"
+              label-field="name"
+              value-field="id"
               multiple
-              filterable
-              :loading="industryLoading"
-              :options="industryOptions"
+              clearable
               placeholder="请选择行业类型"
             />
           </NFormItemGi>
@@ -243,11 +320,16 @@ watch(
                   >
                     项目 {{ index + 1 }}
                   </div>
-                  <NInputNumber
+                  <RemoteSearchSelect
                     v-model:value="item.project_id"
-                    class="max-w-240px flex-1"
-                    :show-button="false"
-                    placeholder="项目ID"
+                    class="max-w-280px flex-1"
+                    :request="fetchGetProjectList"
+                    :search-type="1"
+                    :selected-options="selectedProjectOptions"
+                    label-field="name"
+                    value-field="id"
+                    clearable
+                    placeholder="请选择项目"
                   />
                 </div>
                 <NGrid responsive="screen" item-responsive :x-gap="10" :y-gap="10">
@@ -309,7 +391,7 @@ watch(
               </NSpace>
             </NRadioGroup>
           </NFormItemGi>
-          <NFormItemGi span="24" label="缩略图" path="url">
+          <NFormItemGi ref="coverFormItemRef" span="24" label="缩略图" path="url">
             <div class="w-full flex-col gap-12px">
               <FileUpload v-model:file-list="coverFileList" upload-type="image" :max="1" :file-size="5" />
             </div>
@@ -319,7 +401,9 @@ watch(
       <template #footer>
         <NSpace :size="16">
           <NButton @click="closeDrawer">{{ $t('common.cancel') }}</NButton>
-          <NButton type="primary" :loading="loading" @click="handleSubmit">{{ $t('common.confirm') }}</NButton>
+          <NButton type="primary" :loading="loading || detailLoading" @click="handleSubmit">
+            {{ $t('common.confirm') }}
+          </NButton>
         </NSpace>
       </template>
     </NDrawerContent>

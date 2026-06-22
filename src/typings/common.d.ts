@@ -29,6 +29,17 @@ declare namespace CommonType {
   /** The id type */
   type IdType = string | number;
 
+  /** The common id-name record */
+  type IdNameRecord = {
+    id: IdType;
+    name: string;
+  };
+
+  /** The common id-name map */
+  type IdNameMap = {
+    [key: string]: IdNameRecord;
+  };
+
   /** The res error code */
   type ErrorCode = '401' | '403' | '404' | 'default';
 

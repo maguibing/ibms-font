@@ -4,7 +4,7 @@ import { NDivider, NImage, NTag } from 'naive-ui';
 import { formatDateTime } from '@sa/utils';
 import { fetchGetSysScreenList } from '@/service/api/sys-screen';
 import { useAppStore } from '@/store/modules/app';
-import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
+import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import { useAuth } from '@/hooks/business/auth';
 import ButtonIcon from '@/components/custom/button-icon.vue';
@@ -28,7 +28,7 @@ function transformSearchParamsToRequest(params: Api.System.SysScreenSearchParams
   const pageSize = params.pageSize || 10;
   const filterConfigs = [
     { type: 3, value: params.name },
-    { type: 2, value: params.industry_type }
+    { type: 2, value: params.industry_type?.toString() }
   ];
 
   const options = filterConfigs
@@ -167,10 +167,20 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
     ]
   });
 
-const { drawerVisible, operateType, editingData, handleAdd, handleEdit } = useTableOperate(data, 'id', getData);
+const drawerVisible = ref(false);
+const operateType = ref<NaiveUI.TableOperateType>('add');
+const editingId = ref<CommonType.IdType | null>(null);
+
+function handleAdd() {
+  operateType.value = 'add';
+  editingId.value = null;
+  drawerVisible.value = true;
+}
 
 function edit(id: CommonType.IdType) {
-  handleEdit(id);
+  operateType.value = 'edit';
+  editingId.value = id;
+  drawerVisible.value = true;
 }
 
 function handleDelete() {
@@ -207,7 +217,7 @@ function handleDelete() {
       <SysScreenOperateDrawer
         v-model:visible="drawerVisible"
         :operate-type="operateType"
-        :row-data="editingData"
+        :row-id="editingId"
         @submitted="getDataByPage"
       />
     </NCard>

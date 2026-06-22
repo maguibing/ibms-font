@@ -2,7 +2,6 @@
 import { computed, defineComponent } from 'vue';
 import type { UploadFileInfo } from 'naive-ui';
 import type { JSX } from 'vue/jsx-runtime';
-import { fetchBatchDeleteOss } from '@/service/api/system/oss';
 import { getToken } from '@/store/modules/auth/shared';
 import { getServiceBaseURL } from '@/utils/service';
 import { AcceptType } from '@/enum/business';
@@ -24,7 +23,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  action: `/resource/oss/upload`,
+  action: `/Upload`,
   data: undefined,
   defaultUpload: true,
   showTip: true,
@@ -101,14 +100,27 @@ const headers: Record<string, string> = {
   clientid: import.meta.env.VITE_APP_CLIENT_ID!
 };
 
+function getFileSuffix(fileName: string) {
+  const nameParts = fileName.split('.');
+  return nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+}
+
+function getUploadData({ file }: { file: UploadFileInfo }) {
+  return {
+    ...props.data,
+    meta: JSON.stringify({
+      file_suffix: getFileSuffix(file.name)
+    })
+  };
+}
+
 function beforeUpload(options: { file: UploadFileInfo; fileList: UploadFileInfo[] }) {
   fileNum += 1;
   const { file } = options;
 
   // 校检文件类型
   if (accept.value) {
-    const fileName = file.name.split('.');
-    const fileExt = `.${fileName[fileName.length - 1]}`;
+    const fileExt = `.${getFileSuffix(file.name)}`;
     const isTypeOk = accept.value.split(',')?.includes(fileExt);
     if (!isTypeOk) {
       window.$message?.error(`文件格式不正确, 请上传 ${accept.value} 格式文件!`);
@@ -134,7 +146,7 @@ function beforeUpload(options: { file: UploadFileInfo; fileList: UploadFileInfo[
 function isErrorState(xhr: XMLHttpRequest) {
   const responseText = xhr?.responseText;
   const response = JSON.parse(responseText);
-  return response.code !== 200;
+  return String(response.code) !== import.meta.env.VITE_SERVICE_SUCCESS_CODE;
 }
 
 function handleFinish(options: { file: UploadFileInfo; event?: ProgressEvent }) {
@@ -143,11 +155,10 @@ function handleFinish(options: { file: UploadFileInfo; event?: ProgressEvent }) 
   // @ts-expect-error Ignore type errors
   const responseText = event?.target?.responseText;
   const response = JSON.parse(responseText);
-  const oss: Api.System.Oss = response.data;
-  fileList.value.find(item => item.id === file.id)!.id = String(oss.ossId);
-  file.id = String(oss.ossId);
+  const oss = response.data;
+  fileList.value.find(item => item.id === file.id)!.id = oss.path;
+  file.id = oss.path;
   file.url = oss.url;
-  file.name = oss.fileName;
   if (fileNum === 0) {
     window.$message?.success('上传成功');
   }
@@ -162,13 +173,7 @@ function handleError(options: { file: UploadFileInfo; event?: ProgressEvent }) {
   window.$message?.error(msg || '上传失败');
 }
 
-async function handleRemove(file: UploadFileInfo) {
-  if (file.status !== 'finished') {
-    return false;
-  }
-  const { error } = await fetchBatchDeleteOss([file.id]);
-  if (error) return false;
-  window.$message?.success('删除成功');
+function handleRemove() {
   return true;
 }
 </script>
@@ -179,7 +184,8 @@ async function handleRemove(file: UploadFileInfo) {
       v-bind="$attrs"
       v-model:file-list="fileList"
       :action="`${baseURL}${action}`"
-      :data="data"
+      name="file_data"
+      :data="getUploadData"
       :headers="headers"
       :max="max"
       :accept="accept"
@@ -191,7 +197,7 @@ async function handleRemove(file: UploadFileInfo) {
       @finish="handleFinish"
       @error="handleError"
       @before-upload="beforeUpload"
-      @remove="({ file }) => handleRemove(file)"
+      @remove="handleRemove"
     >
       <NUploadDragger v-if="uploadType === 'file'">
         <div class="mb-12px flex-center">
