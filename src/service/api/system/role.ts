@@ -28,7 +28,7 @@ export function fetchUpdateRole(data: Api.System.RoleOperateParams) {
 }
 
 /** 分配菜单权限 */
-export function fetchAssignPermAuth(data: { role_id: CommonType.IdType, menu_id_list: CommonType.IdType[] }) {
+export function fetchAssignPermAuth(data: { role_id: CommonType.IdType; menu_id_list: CommonType.IdType[] }) {
   return request<boolean>({
     url: '/AssignPermAuth',
     method: 'post',

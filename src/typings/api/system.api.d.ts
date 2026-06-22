@@ -37,13 +37,13 @@ declare namespace Api {
 
     type MenuAuth =
       | {
-        menu_id_list: number[];
-        has_all?: false;
-      }
+          menu_id_list: number[];
+          has_all?: false;
+        }
       | {
-        has_all: true;
-        menu_id_list?: number[];
-      };
+          has_all: true;
+          menu_id_list?: number[];
+        };
 
     interface PermAuth {
       menu_auth?: MenuAuth;
@@ -313,12 +313,12 @@ declare namespace Api {
       | MenuTreeNode[]
       | MenuTreeOptionList
       | {
-        code?: string | number;
-        msg?: string;
-        detail?: string;
-        trace_id?: string;
-        data?: MenuTreeData;
-      };
+          code?: string | number;
+          msg?: string;
+          detail?: string;
+          trace_id?: string;
+          data?: MenuTreeData;
+        };
 
     /**
      * 是否外链

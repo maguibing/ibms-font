@@ -54,7 +54,6 @@ export const menuPlatformType = {
   project: 3
 } as const;
 
-
 /** menu is frame */
 export const menuIsFrameRecord: Record<Api.System.IsMenuFrame, string> = {
   '0': '是',

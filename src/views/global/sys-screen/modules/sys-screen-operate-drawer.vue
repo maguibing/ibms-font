@@ -114,20 +114,13 @@ function handleUpdateModel() {
 async function getIndustryOptions() {
   startIndustryLoading();
   const { data, error } = await fetchGetIndustryList({
-    list_option: {
-      offset: 0,
-      limit: 999
-    },
-    options: [{ key: 1 }, { key: 2 }, { key: 3 }]
+    list_option: { offset: 0, limit: 100 }
   });
   endIndustryLoading();
 
   if (error) return;
 
-  industryOptions.value = data.list.map(item => ({
-    label: item.name,
-    value: item.id
-  }));
+  industryOptions.value = data.list.map(item => ({ label: item.name, value: item.id }));
 }
 
 function closeDrawer() {

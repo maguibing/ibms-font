@@ -58,7 +58,7 @@ export async function transformBlobToJson(response: AxiosResponse) {
     }
 
     response.data = data;
-  } catch { }
+  } catch {}
 }
 
 export async function transformArrayBufferToJson(response: AxiosResponse) {
@@ -75,5 +75,5 @@ export async function transformArrayBufferToJson(response: AxiosResponse) {
     }
 
     response.data = data;
-  } catch { }
+  } catch {}
 }
