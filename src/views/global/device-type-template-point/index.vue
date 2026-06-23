@@ -11,14 +11,19 @@ import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import DataTypeTag from '@/components/custom/data-type-tag.vue';
-
+import PointOperateDrawer from './modules/point-operate-drawer.vue';
+import { useAuth } from '@/hooks/business/auth';
 defineOptions({
   name: 'DeviceTypeTemplatePointList'
 });
 
 const route = useRoute();
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
+const pointOperateVisible = ref(false);
+const pointOperateType = ref<NaiveUI.TableOperateType>('add');
+const editingPointId = ref<CommonType.IdType | null>(null);
 
 const templateId = computed(() => route.query.template_id as string | undefined);
 
@@ -120,10 +125,28 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         key: 'operate',
         title: $t('common.operate'),
         align: 'center',
-        width: 90,
+        width: 120,
         render: row => {
-          return (
-            <div class="flex-center gap-8px">
+          const editBtn = () => {
+            if (!hasAuth('demo:demo:edit')) {
+              return null;
+            }
+            return (
+              <ButtonIcon
+                text
+                type="primary"
+                icon="material-symbols:edit-outline"
+                tooltipContent={$t('common.edit')}
+                onClick={() => handleEdit(row.id)}
+              />
+            );
+          };
+
+          const deleteBtn = () => {
+            if (!hasAuth('demo:demo:remove')) {
+              return null;
+            }
+            return (
               <ButtonIcon
                 text
                 type="error"
@@ -132,6 +155,21 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 popconfirmContent={$t('common.confirmDelete')}
                 onPositiveClick={() => handleDelete(row.id)}
               />
+            );
+          };
+
+          const buttons = [];
+          buttons.push(editBtn());
+          buttons.push(deleteBtn());
+
+          return (
+            <div class="flex-center gap-8px">
+              {buttons.map((btn, index) => (
+                <>
+                  {index !== 0 && <NDivider vertical />}
+                  {btn}
+                </>
+              ))}
             </div>
           );
         }
@@ -142,6 +180,23 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
 function handleResetSearch() {
   searchParams.value.name = null;
   getDataByPage();
+}
+
+function handleAdd() {
+  if (!templateId.value) {
+    window.$message?.warning('缺少模板ID');
+    return;
+  }
+
+  pointOperateType.value = 'add';
+  editingPointId.value = null;
+  pointOperateVisible.value = true;
+}
+
+function handleEdit(id: CommonType.IdType) {
+  pointOperateType.value = 'edit';
+  editingPointId.value = id;
+  pointOperateVisible.value = true;
 }
 
 async function handleDelete(id: CommonType.IdType) {
@@ -207,9 +262,10 @@ async function handleBatchDelete() {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-add="false"
+          :show-add="true"
           :show-delete="true"
           :show-export="false"
+          @add="handleAdd"
           @delete="handleBatchDelete"
           @refresh="getData"
         />
@@ -227,6 +283,13 @@ async function handleBatchDelete() {
         class="sm:h-full"
       />
     </NCard>
+    <PointOperateDrawer
+      v-model:visible="pointOperateVisible"
+      :template-id="templateId"
+      :operate-type="pointOperateType"
+      :row-id="editingPointId"
+      @submitted="getData"
+    />
   </div>
 </template>
 

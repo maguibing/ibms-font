@@ -45,6 +45,33 @@ export function fetchGetDeviceTypeTemplatePointList(data: CommonType.CommonListQ
   });
 }
 
+/** 获取设备类型模板点位详情 */
+export function fetchGetDeviceTypeTemplatePoint(data: { id: CommonType.IdType }) {
+  return request<Api.System.DeviceTypeTemplatePointDetailResponse>({
+    url: '/GetDeviceTypeTemplatePoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 新增设备类型模板点位 */
+export function fetchCreateDeviceTypeTemplatePoint(data: Api.System.DeviceTypeTemplatePointOperateParams) {
+  return request({
+    url: '/CreateDeviceTypeTemplatePoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 修改设备类型模板点位 */
+export function fetchUpdateDeviceTypeTemplatePoint(data: Api.System.DeviceTypeTemplatePointOperateParams) {
+  return request({
+    url: '/UpdateDeviceTypeTemplatePoint',
+    method: 'post',
+    data
+  });
+}
+
 /** 删除设备类型模板点位 */
 export function fetchDeleteDeviceTypeTemplatePoint(data: Api.Common.CommonIdList) {
   return request({

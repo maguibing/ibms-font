@@ -37,13 +37,13 @@ declare namespace Api {
 
     type MenuAuth =
       | {
-        menu_id_list: number[];
-        has_all?: false;
-      }
+          menu_id_list: number[];
+          has_all?: false;
+        }
       | {
-        has_all: true;
-        menu_id_list?: number[];
-      };
+          has_all: true;
+          menu_id_list?: number[];
+        };
 
     interface PermAuth {
       menu_auth?: MenuAuth;
@@ -122,34 +122,34 @@ declare namespace Api {
     /** device type template point setting */
     type DeviceTypeTemplatePointSetting =
       | {
-        data_type: 1;
-        num_val: {
-          unit?: string;
-          default_value?: number;
-          scale?: number;
-        };
-      }
+          data_type: 1;
+          num_val: {
+            default_value: number;
+            scale: 1 | 2 | 3 | 4;
+            unit: string;
+          };
+        }
       | {
-        data_type: 2;
-        switch_val: {
-          true_val: DeviceTypeTemplatePointValueItem;
-          false_val: DeviceTypeTemplatePointValueItem;
-          cmd_val_data_type?: CommonType.DataType;
-        };
-      }
+          data_type: 2;
+          switch_val: {
+            cmd_val_data_type: 1 | 2 | 3;
+            false_val: DeviceTypeTemplatePointValueItem;
+            true_val: DeviceTypeTemplatePointValueItem;
+          };
+        }
       | {
-        data_type: 3;
-        str_val: {
-          default_value?: string;
-        };
-      }
+          data_type: 3;
+          str_val: {
+            default_value: string;
+          };
+        }
       | {
-        data_type: 4;
-        enum_val: {
-          enum_list: DeviceTypeTemplatePointValueItem[];
-          cmd_val_data_type?: CommonType.DataType;
+          data_type: 4;
+          enum_val: {
+            cmd_val_data_type: 1 | 2;
+            enum_list: DeviceTypeTemplatePointValueItem[];
+          };
         };
-      };
 
     /** device type template point */
     type DeviceTypeTemplatePoint = Common.CommonRecord<{
@@ -165,6 +165,19 @@ declare namespace Api {
 
     /** device type template point list */
     type DeviceTypeTemplatePointList = Common.PaginatingQueryRecord<DeviceTypeTemplatePoint>;
+
+    /** device type template point detail response */
+    type DeviceTypeTemplatePointDetailResponse = {
+      device_type_template_point: DeviceTypeTemplatePoint;
+    };
+
+    /** device type template point operate params */
+    type DeviceTypeTemplatePointOperateParams = CommonType.RecordNullable<
+      Pick<
+        DeviceTypeTemplatePoint,
+        'id' | 'template_id' | 'name' | 'key' | 'energy_type' | 'data_type' | 'setting' | 'desc'
+      >
+    >;
 
     /** device type template point search params */
     type DeviceTypeTemplatePointSearchParams = CommonType.RecordNullable<
@@ -444,12 +457,12 @@ declare namespace Api {
       | MenuTreeNode[]
       | MenuTreeOptionList
       | {
-        code?: string | number;
-        msg?: string;
-        detail?: string;
-        trace_id?: string;
-        data?: MenuTreeData;
-      };
+          code?: string | number;
+          msg?: string;
+          detail?: string;
+          trace_id?: string;
+          data?: MenuTreeData;
+        };
 
     /**
      * 是否外链
@@ -488,33 +501,33 @@ declare namespace Api {
 
     type MenuNodeDetail =
       | (MenuNodeBaseDetail & {
-        type: 1;
-        detail: {
-          dir: {
-            component_path: string;
-            route_path: string;
+          type: 1;
+          detail: {
+            dir: {
+              component_path: string;
+              route_path: string;
+            };
           };
-        };
-      })
+        })
       | (MenuNodeBaseDetail & {
-        type: 2;
-        detail: {
-          page: {
-            component_path: string;
-            keep_alive?: PlatformBooleanStatus;
-            route_name: string;
-            route_path: string;
+          type: 2;
+          detail: {
+            page: {
+              component_path: string;
+              keep_alive?: PlatformBooleanStatus;
+              route_name: string;
+              route_path: string;
+            };
           };
-        };
-      })
+        })
       | (MenuNodeBaseDetail & {
-        type: 3;
-        detail: {
-          button: {
-            perm_key: string;
+          type: 3;
+          detail: {
+            button: {
+              perm_key: string;
+            };
           };
-        };
-      });
+        });
 
     interface MenuNode {
       id?: CommonType.IdType;

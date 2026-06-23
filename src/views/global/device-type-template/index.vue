@@ -17,7 +17,6 @@ import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import CategoryOperateDrawer from './modules/category-operate-drawer.vue';
 import DeviceTypeOperateDrawer from './modules/device-type-operate-drawer.vue';
-
 defineOptions({
   name: 'DeviceTypeTemplateList'
 });
@@ -152,8 +151,8 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         align: 'center',
         width: 180,
         render: row => {
-          return (
-            <div class="flex-center gap-8px">
+          const editBtn = () => {
+            return (
               <ButtonIcon
                 text
                 type="primary"
@@ -161,7 +160,11 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 tooltipContent={$t('common.edit')}
                 onClick={() => handleEditDeviceType(row)}
               />
-              <NDivider vertical />
+            );
+          };
+
+          const pointManageBtn = () => {
+            return (
               <ButtonIcon
                 text
                 type="primary"
@@ -169,7 +172,11 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 tooltipContent="点位管理"
                 onClick={() => handlePointManage(row)}
               />
-              <NDivider vertical />
+            );
+          };
+
+          const deleteBtn = () => {
+            return (
               <ButtonIcon
                 text
                 type="error"
@@ -178,6 +185,21 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 popconfirmContent={$t('common.confirmDelete')}
                 onPositiveClick={() => handleDeleteDeviceType(row)}
               />
+            );
+          };
+
+          const buttons = [];
+          buttons.push(editBtn());
+          buttons.push(pointManageBtn());
+          buttons.push(deleteBtn());
+          return (
+            <div class="flex-center gap-8px">
+              {buttons.map((btn, index) => (
+                <>
+                  {index !== 0 && <NDivider vertical />}
+                  {btn}
+                </>
+              ))}
             </div>
           );
         }

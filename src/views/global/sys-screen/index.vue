@@ -117,17 +117,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         align: 'center',
         width: 130,
         render: row => {
-          const divider = () => {
-            if (!hasAuth('sys:screen:edit') || !hasAuth('sys:screen:remove')) {
-              return null;
-            }
-            return <NDivider vertical />;
-          };
-
           const editBtn = () => {
-            if (!hasAuth('sys:screen:edit')) {
-              return null;
-            }
             return (
               <ButtonIcon
                 text
@@ -140,9 +130,6 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
           };
 
           const deleteBtn = () => {
-            if (!hasAuth('sys:screen:remove')) {
-              return null;
-            }
             return (
               <ButtonIcon
                 text
@@ -155,11 +142,18 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
             );
           };
 
+          const buttons = [];
+          buttons.push(editBtn());
+          buttons.push(deleteBtn());
+
           return (
             <div class="flex-center gap-8px">
-              {editBtn()}
-              {divider()}
-              {deleteBtn()}
+              {buttons.map((btn, index) => (
+                <>
+                  {index !== 0 && <NDivider vertical />}
+                  {btn}
+                </>
+              ))}
             </div>
           );
         }
