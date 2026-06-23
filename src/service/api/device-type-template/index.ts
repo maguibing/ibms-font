@@ -9,6 +9,51 @@ export function fetchGetDeviceTypeTemplateList(data: CommonType.CommonListQueryP
   });
 }
 
+/** 新增设备类型模板 */
+export function fetchCreateDeviceTypeTemplate(data: Api.System.DeviceTypeTemplateOperateParams) {
+  return request({
+    url: '/CreateDeviceTypeTemplate',
+    method: 'post',
+    data
+  });
+}
+
+/** 修改设备类型模板 */
+export function fetchUpdateDeviceTypeTemplate(data: Api.System.DeviceTypeTemplateOperateParams) {
+  return request({
+    url: '/UpdateDeviceTypeTemplate',
+    method: 'post',
+    data
+  });
+}
+
+/** 删除设备类型模板 */
+export function fetchDeleteDeviceTypeTemplate(data: Api.Common.CommonIdList) {
+  return request({
+    url: '/DeleteDeviceTypeTemplate',
+    method: 'post',
+    data
+  });
+}
+
+/** 获取设备类型模板点位列表 */
+export function fetchGetDeviceTypeTemplatePointList(data: CommonType.CommonListQueryParams) {
+  return request<Api.System.DeviceTypeTemplatePointList>({
+    url: '/ListDeviceTypeTemplatePoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 删除设备类型模板点位 */
+export function fetchDeleteDeviceTypeTemplatePoint(data: Api.Common.CommonIdList) {
+  return request({
+    url: '/DeleteDeviceTypeTemplatePoint',
+    method: 'post',
+    data
+  });
+}
+
 /** 获取设备类型模板分类列表 */
 export function fetchGetDeviceTypeTemplateCategoryList(data: CommonType.CommonListQueryParams) {
   return request<Api.System.DeviceTypeTemplateCategoryList>({

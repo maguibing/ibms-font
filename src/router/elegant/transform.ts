@@ -177,6 +177,7 @@ const routeMap: RouteMap = {
   "global": "/global",
   "global_activate": "/global/activate",
   "global_device-type-template": "/global/device-type-template",
+  "global_device-type-template-point": "/global/device-type-template-point",
   "global_industry": "/global/industry",
   "global_sys-screen": "/global/sys-screen",
   "home": "/home",

@@ -50,6 +50,8 @@ declare module 'vue-router' {
     href?: string | null;
     /** Whether to hide the route in the menu */
     hideInMenu?: boolean | null;
+    /** Backend menu visible flag. Only true means show in menu. */
+    is_visible?: boolean | null;
     /**
      * The menu key will be activated when entering the route
      *

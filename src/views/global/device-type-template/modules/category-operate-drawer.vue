@@ -48,7 +48,7 @@ function createDefaultModel(): Model {
   return {
     id: null,
     name: '',
-    sort: 0,
+    sort: 1,
     desc: ''
   };
 }

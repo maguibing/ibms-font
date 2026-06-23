@@ -537,7 +537,8 @@ function onCreate() {
               </NSpace>
             </NRadioGroup>
           </NFormItemGi>
-          <NFormItemGi :span="12" path="status">
+          <!--
+ <NFormItemGi :span="12" path="status">
             <template #label>
               <div class="flex-center">
                 <FormTip :content="$t('page.system.menu.statusTip')" />
@@ -551,6 +552,7 @@ function onCreate() {
               </NSpace>
             </NRadioGroup>
           </NFormItemGi>
+-->
           <NFormItemGi :span="12" label="显示排序" path="order_num">
             <NInputNumber v-model:value="model.order_num" placeholder="请输入显示排序" />
           </NFormItemGi>

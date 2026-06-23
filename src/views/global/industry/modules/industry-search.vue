@@ -47,17 +47,17 @@ async function search() {
             </NFormItemGi>
             <NFormItemGi :show-feedback="false" span="24 s:12 m:16" class="pr-24px">
               <NSpace class="w-full" justify="end">
-                <NButton @click="reset">
-                  <template #icon>
-                    <icon-ic-round-refresh class="text-icon" />
-                  </template>
-                  {{ $t('common.reset') }}
-                </NButton>
                 <NButton type="primary" ghost @click="search">
                   <template #icon>
                     <icon-ic-round-search class="text-icon" />
                   </template>
                   {{ $t('common.search') }}
+                </NButton>
+                <NButton @click="reset">
+                  <template #icon>
+                    <icon-ic-round-refresh class="text-icon" />
+                  </template>
+                  {{ $t('common.reset') }}
                 </NButton>
               </NSpace>
             </NFormItemGi>

@@ -107,6 +107,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'global_device-type-template-point',
+        path: '/global/device-type-template-point',
+        component: 'view.global_device-type-template-point',
+        meta: {
+          title: 'global_device-type-template-point',
+          i18nKey: 'route.global_device-type-template-point'
+        }
+      },
+      {
         name: 'global_industry',
         path: '/global/industry',
         component: 'view.global_industry',

@@ -67,8 +67,6 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
       if (authRouteMode.value === 'dynamic') {
         if (route.path === '/' && route.children?.length) {
           const child = route.children[0];
-          // @ts-expect-error no hidden field
-          child.hidden = route.hidden;
           parseRouter(child);
           child.name = Math.random().toString(36).slice(2, 12);
           Object.assign(route, child);
@@ -126,8 +124,7 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
     } else if (!isNotNull(route.meta.icon)) {
       route.meta.icon = defaultIcon;
     }
-    // @ts-expect-error no hidden field
-    route.meta.hideInMenu = route.hidden;
+    route.meta.hideInMenu = route.meta.is_visible !== true;
     // @ts-expect-error route.meta.activeMenu is activeMenu type
     route.meta.activeMenu = route.meta?.activeMenu?.substring(1);
     if (route.meta.hideInMenu && parent && !route.meta.activeMenu) {

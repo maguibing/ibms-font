@@ -1,26 +1,29 @@
 <script setup lang="tsx">
 import { computed, ref } from 'vue';
 import type { TreeOption } from 'naive-ui';
-import type { FlatResponseData } from '@sa/axios';
-import { NEllipsis, NTag, NTooltip } from 'naive-ui';
+import { NDivider, NEllipsis, NTag, NTooltip } from 'naive-ui';
 import { useBoolean, useLoading } from '@sa/hooks';
 import { formatDateTime } from '@sa/utils';
 import {
+  fetchDeleteDeviceTypeTemplate,
   fetchDeleteDeviceTypeTemplateCategory,
   fetchGetDeviceTypeTemplateList,
   fetchGetDeviceTypeTemplateCategoryList
 } from '@/service/api/device-type-template';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
+import { useRouterPush } from '@/hooks/common/router';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import CategoryOperateDrawer from './modules/category-operate-drawer.vue';
+import DeviceTypeOperateDrawer from './modules/device-type-operate-drawer.vue';
 
 defineOptions({
   name: 'DeviceTypeTemplateList'
 });
 
 const appStore = useAppStore();
+const { routerPushByKey } = useRouterPush();
 const selectedKeys = ref<CommonType.IdType[]>([]);
 const categoryPattern = ref<string>();
 const categoryData = ref<Api.System.DeviceTypeTemplateCategory[]>([]);
@@ -28,6 +31,10 @@ const selectedCategoryId = ref<CommonType.IdType | null>(null);
 const categoryOperateType = ref<NaiveUI.TableOperateType>('add');
 const categoryOperateData = ref<Api.System.DeviceTypeTemplateCategory>();
 const { bool: categoryDrawerVisible, setTrue: openCategoryDrawer } = useBoolean();
+const deviceTypeOperateType = ref<NaiveUI.TableOperateType>('add');
+const deviceTypeOperateData = ref<Api.System.DeviceTypeTemplate>();
+const { bool: deviceTypeDrawerVisible, setTrue: openDeviceTypeDrawer } = useBoolean();
+const checkedRowKeys = ref<CommonType.IdType[]>([]);
 
 const { loading: treeLoading, startLoading: startTreeLoading, endLoading: endTreeLoading } = useLoading();
 
@@ -52,10 +59,6 @@ const categoryTitle = computed(() => {
 
 const selectable = computed(() => {
   return !treeLoading.value;
-});
-
-const hasSelectedCategory = computed(() => {
-  return selectedCategoryId.value !== null && selectedCategoryId.value !== undefined;
 });
 
 function categoryFilter(pattern: string, node: TreeOption) {
@@ -84,40 +87,20 @@ function transformSearchParamsToRequest(params: Api.System.DeviceTypeTemplateSea
   };
 }
 
-type DeviceTypeTemplateListResponse = FlatResponseData<App.Service.Response<any>, Api.System.DeviceTypeTemplateList>;
-
-function getEmptyDeviceTypeTemplateListResponse(): DeviceTypeTemplateListResponse {
-  const emptyData = {
-    list: [],
-    paginate: {
-      limit: searchParams.value.pageSize || 10,
-      offset: 0,
-      total: 0
-    }
-  } as unknown as Api.System.DeviceTypeTemplateList;
-
-  return {
-    data: emptyData,
-    error: null,
-    response: null as unknown as DeviceTypeTemplateListResponse['response']
-  };
-}
-
 const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagination, scrollX } =
-  useNaivePaginatedTable<DeviceTypeTemplateListResponse, Api.System.DeviceTypeTemplate>({
-    api: () => {
-      if (!hasSelectedCategory.value) {
-        return Promise.resolve(getEmptyDeviceTypeTemplateListResponse());
-      }
-
-      return fetchGetDeviceTypeTemplateList(transformSearchParamsToRequest(searchParams.value));
-    },
+  useNaivePaginatedTable({
+    api: () => fetchGetDeviceTypeTemplateList(transformSearchParamsToRequest(searchParams.value)),
     transform: response => defaultTransform<Api.System.DeviceTypeTemplate>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page;
       searchParams.value.pageSize = params.pageSize;
     },
     columns: () => [
+      {
+        type: 'selection',
+        align: 'center',
+        width: 48
+      },
       {
         key: 'index',
         title: $t('common.index'),
@@ -149,7 +132,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         align: 'center',
         minWidth: 100,
         render: row => {
-          if (row.status === 1) {
+          if (Number(row.status) === 1) {
             return <NTag type="success">启用</NTag>;
           }
 
@@ -157,18 +140,47 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         }
       },
       {
-        key: 'created_at',
-        title: '创建时间',
-        align: 'center',
-        minWidth: 180,
-        render: row => formatDateTime(row.created_at)
-      },
-      {
         key: 'updated_at',
         title: '更新时间',
         align: 'center',
         minWidth: 180,
         render: row => formatDateTime(row.updated_at)
+      },
+      {
+        key: 'operate',
+        title: $t('common.operate'),
+        align: 'center',
+        width: 180,
+        render: row => {
+          return (
+            <div class="flex-center gap-8px">
+              <ButtonIcon
+                text
+                type="primary"
+                icon="material-symbols:drive-file-rename-outline-outline"
+                tooltipContent={$t('common.edit')}
+                onClick={() => handleEditDeviceType(row)}
+              />
+              <NDivider vertical />
+              <ButtonIcon
+                text
+                type="primary"
+                icon="material-symbols:swap-horizontal-circle"
+                tooltipContent="点位管理"
+                onClick={() => handlePointManage(row)}
+              />
+              <NDivider vertical />
+              <ButtonIcon
+                text
+                type="error"
+                icon="material-symbols:delete-outline"
+                tooltipContent={$t('common.delete')}
+                popconfirmContent={$t('common.confirmDelete')}
+                onPositiveClick={() => handleDeleteDeviceType(row)}
+              />
+            </div>
+          );
+        }
       }
     ]
   });
@@ -193,6 +205,7 @@ function handleClickTree(keys: CommonType.IdType[]) {
   selectedKeys.value = keys;
   selectedCategoryId.value = keys.length ? keys[0] : null;
   searchParams.value.category_id = selectedCategoryId.value;
+  checkedRowKeys.value = [];
   getDataByPage();
 }
 
@@ -237,6 +250,51 @@ async function handleSubmitCategory(id?: CommonType.IdType | null) {
 function handleResetSearch() {
   searchParams.value.name = null;
   getDataByPage();
+}
+
+function handleAddDeviceType() {
+  if (selectedCategoryId.value === null || selectedCategoryId.value === undefined) {
+    window.$message?.warning('请选择左侧分类');
+    return;
+  }
+
+  deviceTypeOperateType.value = 'add';
+  deviceTypeOperateData.value = undefined;
+  openDeviceTypeDrawer();
+}
+
+function handleEditDeviceType(row: Api.System.DeviceTypeTemplate) {
+  deviceTypeOperateType.value = 'edit';
+  deviceTypeOperateData.value = row;
+  openDeviceTypeDrawer();
+}
+
+function handlePointManage(row: Api.System.DeviceTypeTemplate) {
+  routerPushByKey('global_device-type-template-point', {
+    query: {
+      template_id: String(row.id),
+    }
+  });
+}
+
+async function handleDeleteDeviceType(row: Api.System.DeviceTypeTemplate) {
+  const { error } = await fetchDeleteDeviceTypeTemplate({ id_list: [row.id] });
+  if (error) return;
+
+  window.$message?.success($t('common.deleteSuccess'));
+  checkedRowKeys.value = checkedRowKeys.value.filter(id => id !== row.id);
+  await getData();
+}
+
+async function handleBatchDeleteDeviceType() {
+  if (checkedRowKeys.value.length === 0) return;
+
+  const { error } = await fetchDeleteDeviceTypeTemplate({ id_list: checkedRowKeys.value });
+  if (error) return;
+
+  window.$message?.success($t('common.deleteSuccess'));
+  checkedRowKeys.value = [];
+  await getData();
 }
 
 function renderLabel({ option }: { option: TreeOption }) {
@@ -334,47 +392,56 @@ getCategoryData();
       </NSpin>
     </template>
     <div class="h-full flex-col-stretch gap-12px overflow-hidden lt-sm:overflow-auto">
-      <NCard v-if="hasSelectedCategory" :bordered="false" size="small" class="card-wrapper">
-        <NForm inline :show-feedback="false" label-placement="left">
-          <NFormItem label="设备类型名称">
-            <NInput v-model:value="searchParams.name" clearable placeholder="请输入设备类型名称" />
-          </NFormItem>
-          <NFormItem>
-            <NSpace>
-              <NButton type="primary" @click="() => getDataByPage()">
-                <template #icon>
-                  <icon-ic-round-search class="text-icon" />
-                </template>
-                {{ $t('common.search') }}
-              </NButton>
-              <NButton @click="handleResetSearch">
-                <template #icon>
-                  <icon-ic-round-refresh class="text-icon" />
-                </template>
-                {{ $t('common.reset') }}
-              </NButton>
-            </NSpace>
-          </NFormItem>
-        </NForm>
+      <NCard :bordered="false" size="small" class="card-wrapper">
+        <NCollapse>
+          <NCollapseItem :title="$t('common.search')" name="device-type-template-search">
+            <NForm :show-feedback="false" label-placement="left" :label-width="80">
+              <NGrid responsive="screen" item-responsive>
+                <NFormItemGi span="24 s:12 m:8" label="设备类型名称" label-width="auto" class="pr-24px">
+                  <NInput
+                    v-model:value="searchParams.name"
+                    clearable
+                    placeholder="请输入设备类型名称"
+                    @keyup.enter="getDataByPage()"
+                  />
+                </NFormItemGi>
+                <NFormItemGi :show-feedback="false" span="24 s:12 m:16" class="pr-24px">
+                  <NSpace class="w-full" justify="end">
+                    <NButton type="primary" ghost @click="getDataByPage()">
+                      <template #icon>
+                        <icon-ic-round-search class="text-icon" />
+                      </template>
+                      {{ $t('common.search') }}
+                    </NButton>
+                    <NButton @click="handleResetSearch">
+                      <template #icon>
+                        <icon-ic-round-refresh class="text-icon" />
+                      </template>
+                      {{ $t('common.reset') }}
+                    </NButton>
+                  </NSpace>
+                </NFormItemGi>
+              </NGrid>
+            </NForm>
+          </NCollapseItem>
+        </NCollapse>
       </NCard>
-      <NCard
-        v-if="hasSelectedCategory"
-        :title="() => categoryTitle"
-        :bordered="false"
-        size="small"
-        class="card-wrapper sm:flex-1-hidden"
-      >
+      <NCard :title="() => categoryTitle" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
         <template #header-extra>
           <TableHeaderOperation
             v-model:columns="columnChecks"
+            :disabled-delete="checkedRowKeys.length === 0"
             :loading="loading"
-            :show-add="false"
-            :show-delete="false"
+            :show-add="true"
+            :show-delete="true"
             :show-export="false"
+            @add="handleAddDeviceType"
+            @delete="handleBatchDeleteDeviceType"
             @refresh="getData"
           />
         </template>
         <DataTable
+          v-model:checked-row-keys="checkedRowKeys"
           :columns="columns"
           :data="data"
           :flex-height="!appStore.isMobile"
@@ -391,6 +458,14 @@ getCategoryData();
         :operate-type="categoryOperateType"
         :row-data="categoryOperateData"
         @submitted="handleSubmitCategory"
+      />
+      <DeviceTypeOperateDrawer
+        v-model:visible="deviceTypeDrawerVisible"
+        :operate-type="deviceTypeOperateType"
+        :row-data="deviceTypeOperateData"
+        :category-id="selectedCategoryId"
+        :categories="categoryData"
+        @submitted="getDataByPage"
       />
     </div>
   </TableSiderLayout>
