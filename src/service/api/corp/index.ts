@@ -18,6 +18,42 @@ export function fetchGetCorp(data: { id: CommonType.IdType; options?: CommonType
   });
 }
 
+/** 获取版本列表 */
+export function fetchGetVersionList(data: Api.System.CorpProjectVersionListParams) {
+  return request<Api.System.CorpProjectVersionList>({
+    url: '/ListVersion',
+    method: 'post',
+    data
+  });
+}
+
+/** 续费版本 */
+export function fetchRenewalVersion(data: Api.System.RenewalVersionParams) {
+  return request({
+    url: '/RenewalVersion',
+    method: 'post',
+    data
+  });
+}
+
+/** 新增版本 */
+export function fetchCreateVersion(data: Api.System.CreateVersionParams) {
+  return request({
+    url: '/CreateVersion',
+    method: 'post',
+    data
+  });
+}
+
+/** 绑定已有版本 */
+export function fetchBindVersionCorp(data: Api.System.BindVersionCorpParams) {
+  return request({
+    url: '/BindVersionCorp',
+    method: 'post',
+    data
+  });
+}
+
 /** 新增集成商 */
 export function fetchAddCorp(data: Api.System.CorpOperateParams) {
   return request({

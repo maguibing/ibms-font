@@ -37,13 +37,13 @@ declare namespace Api {
 
     type MenuAuth =
       | {
-          menu_id_list: number[];
-          has_all?: false;
-        }
+        menu_id_list: number[];
+        has_all?: false;
+      }
       | {
-          has_all: true;
-          menu_id_list?: number[];
-        };
+        has_all: true;
+        menu_id_list?: number[];
+      };
 
     interface PermAuth {
       menu_auth?: MenuAuth;
@@ -87,6 +87,68 @@ declare namespace Api {
 
     /** corp list */
     type CorpList = Common.PaginatingQueryRecord<Corp, CorpListExtra>;
+
+    /** corp project version */
+    type CorpProjectVersion = Common.CommonRecord<{
+      id: CommonType.IdType;
+      corp_id: CommonType.IdType;
+      project_id: CommonType.IdType;
+      name: string;
+      menu_conf?: {
+        menu_id_list?: CommonType.IdType[];
+      };
+      resource_conf?: {
+        device_num?: number;
+        data_store_day?: number;
+        day_msg_num?: number;
+        project_user_num?: number;
+      };
+      price_conf?: {
+        day?: number;
+        discount_price?: number;
+        original_price?: number;
+      };
+      start_at: number;
+      end_at: number;
+    }>;
+
+    type CorpProjectVersionList = Common.PaginatingQueryRecord<CorpProjectVersion>;
+
+    type CorpProjectVersionListParams = {
+      corp_id: CommonType.IdType;
+      list_option: CommonType.CommonListOptions;
+    };
+
+    type RenewalVersionParams = {
+      id: CommonType.IdType;
+      days: number;
+    };
+
+    type BindVersionCorpParams = {
+      corp_id: CommonType.IdType;
+      version_id_list: CommonType.IdType[];
+    };
+
+    type CreateVersionParams = {
+      corp_id: CommonType.IdType;
+      desc: string;
+      menu_conf: {
+        menu_id_list: CommonType.IdType[];
+      };
+      name: string;
+      price_conf: {
+        day: number;
+        discount_price: number;
+        original_price: number;
+      };
+      resource_conf: {
+        data_store_day: number;
+        day_msg_num: number;
+        device_num: number;
+        project_user_num: number;
+      };
+      start_at: number;
+    };
 
     /** corp detail */
     type CorpDetail = {
@@ -187,34 +249,34 @@ declare namespace Api {
     /** device type template point setting */
     type DeviceTypeTemplatePointSetting =
       | {
-          data_type: 1;
-          num_val: {
-            default_value: number;
-            scale: 1 | 2 | 3 | 4;
-            unit: string;
-          };
-        }
-      | {
-          data_type: 2;
-          switch_val: {
-            cmd_val_data_type: 1 | 2 | 3;
-            false_val: DeviceTypeTemplatePointValueItem;
-            true_val: DeviceTypeTemplatePointValueItem;
-          };
-        }
-      | {
-          data_type: 3;
-          str_val: {
-            default_value: string;
-          };
-        }
-      | {
-          data_type: 4;
-          enum_val: {
-            cmd_val_data_type: 1 | 2;
-            enum_list: DeviceTypeTemplatePointValueItem[];
-          };
+        data_type: 1;
+        num_val: {
+          default_value: number;
+          scale: 1 | 2 | 3 | 4;
+          unit: string;
         };
+      }
+      | {
+        data_type: 2;
+        switch_val: {
+          cmd_val_data_type: 1 | 2 | 3;
+          false_val: DeviceTypeTemplatePointValueItem;
+          true_val: DeviceTypeTemplatePointValueItem;
+        };
+      }
+      | {
+        data_type: 3;
+        str_val: {
+          default_value: string;
+        };
+      }
+      | {
+        data_type: 4;
+        enum_val: {
+          cmd_val_data_type: 1 | 2;
+          enum_list: DeviceTypeTemplatePointValueItem[];
+        };
+      };
 
     /** device type template point */
     type DeviceTypeTemplatePoint = Common.CommonRecord<{
@@ -517,18 +579,6 @@ declare namespace Api {
       trees: MenuTreeNode[];
     };
 
-    type MenuTreeResponse =
-      | MenuTreeData
-      | MenuTreeNode[]
-      | MenuTreeOptionList
-      | {
-          code?: string | number;
-          msg?: string;
-          detail?: string;
-          trace_id?: string;
-          data?: MenuTreeData;
-        };
-
     /**
      * 是否外链
      *
@@ -566,33 +616,33 @@ declare namespace Api {
 
     type MenuNodeDetail =
       | (MenuNodeBaseDetail & {
-          type: 1;
-          detail: {
-            dir: {
-              component_path: string;
-              route_path: string;
-            };
+        type: 1;
+        detail: {
+          dir: {
+            component_path: string;
+            route_path: string;
           };
-        })
+        };
+      })
       | (MenuNodeBaseDetail & {
-          type: 2;
-          detail: {
-            page: {
-              component_path: string;
-              keep_alive?: PlatformBooleanStatus;
-              route_name: string;
-              route_path: string;
-            };
+        type: 2;
+        detail: {
+          page: {
+            component_path: string;
+            keep_alive?: PlatformBooleanStatus;
+            route_name: string;
+            route_path: string;
           };
-        })
+        };
+      })
       | (MenuNodeBaseDetail & {
-          type: 3;
-          detail: {
-            button: {
-              perm_key: string;
-            };
+        type: 3;
+        detail: {
+          button: {
+            perm_key: string;
           };
-        });
+        };
+      });
 
     interface MenuNode {
       id?: CommonType.IdType;
@@ -735,12 +785,22 @@ declare namespace Api {
       leader_id: number;
     }>;
 
+    type DeptDetailResponse = {
+      dept: {
+        id: CommonType.IdType;
+        parent_id?: CommonType.IdType;
+        name?: string;
+        sort?: number;
+        leader_id?: number;
+      };
+    };
+
     /** dept search params */
     type DeptSearchParams = CommonType.RecordNullable<Pick<Api.System.Dept, 'name'> & Api.Common.CommonSearchParams>;
 
     /** dept operate params */
     type DeptOperateParams = CommonType.RecordNullable<
-      Pick<Api.System.Dept, 'dept_id' | 'parent_id' | 'name' | 'sort' | 'leader_id'>
+      Pick<Api.System.Dept, 'dept_id' | 'parent_id' | 'name' | 'sort' | 'leader_id'> & { id: CommonType.IdType }
     >;
 
     /** dept list */

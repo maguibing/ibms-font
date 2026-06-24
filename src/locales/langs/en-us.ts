@@ -580,7 +580,7 @@ const local: App.I18n.Schema = {
         empty: 'No department information',
         title: 'Department List',
         parentId: 'Parent Department',
-        deptName: 'Department Name',
+        name: 'Department Name',
         orderNum: 'Order Num',
         deptCategory: 'Department Category',
         leader: 'Leader',
@@ -596,7 +596,7 @@ const local: App.I18n.Schema = {
             required: 'Please select Parent Department',
             invalid: 'Parent Department cannot be empty'
           },
-          deptName: {
+          name: {
             required: 'Please enter Department Name',
             invalid: 'Department Name cannot be empty'
           },

@@ -60,6 +60,15 @@ export const generatedRoutes: GeneratedRoute[] = [
     },
     children: [
       {
+        name: 'corp_corp-detail',
+        path: '/corp/corp-detail',
+        component: 'view.corp_corp-detail',
+        meta: {
+          title: 'corp_corp-detail',
+          i18nKey: 'route.corp_corp-detail'
+        }
+      },
+      {
         name: 'corp_corp-list',
         path: '/corp/corp-list',
         component: 'view.corp_corp-list',

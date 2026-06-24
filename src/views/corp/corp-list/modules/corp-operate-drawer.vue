@@ -117,7 +117,7 @@ function handleRegionUpdate(
     path
       ?.map(item => item.label)
       .filter(Boolean)
-      .join(' / ') || '';
+      .join('/') || '';
 }
 
 function resetModel() {

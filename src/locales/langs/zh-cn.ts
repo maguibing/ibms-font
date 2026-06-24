@@ -587,7 +587,7 @@ const local: App.I18n.Schema = {
             required: '请选择上级部门',
             invalid: '上级部门不能为空'
           },
-          deptName: {
+          name: {
             required: '请输入部门名称',
             invalid: '部门名称不能为空'
           },

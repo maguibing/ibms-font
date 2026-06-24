@@ -26,6 +26,7 @@ declare module "@elegant-router/types" {
     "500": "/500";
     "about": "/about";
     "corp": "/corp";
+    "corp_corp-detail": "/corp/corp-detail";
     "corp_corp-list": "/corp/corp-list";
     "demo": "/demo";
     "demo_demo": "/demo/demo";
@@ -146,6 +147,7 @@ declare module "@elegant-router/types" {
     | "social-callback"
     | "user-center"
     | "about"
+    | "corp_corp-detail"
     | "corp_corp-list"
     | "demo_demo"
     | "demo_tree"

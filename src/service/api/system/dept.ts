@@ -9,6 +9,15 @@ export function fetchGetDeptList(data?: CommonType.CommonRequestOptions) {
   });
 }
 
+/** 获取部门详情 */
+export function fetchGetDept(data: { id: CommonType.IdType }) {
+  return request<Api.System.DeptDetailResponse>({
+    url: '/GetDept',
+    method: 'post',
+    data
+  });
+}
+
 /** 新增部门 */
 export function fetchCreateDept(data: Api.System.DeptOperateParams) {
   return request<boolean>({
@@ -22,7 +31,7 @@ export function fetchCreateDept(data: Api.System.DeptOperateParams) {
 export function fetchUpdateDept(data: Api.System.DeptOperateParams) {
   return request<boolean>({
     url: '/UpdateDept',
-    method: 'put',
+    method: 'post',
     data
   });
 }
@@ -33,13 +42,5 @@ export function fetchBatchDeleteDept(data: { id_list: CommonType.IdType[] }) {
     url: `/DeleteDept`,
     method: 'post',
     data
-  });
-}
-
-/** 获取部门选择框列表 */
-export function fetchGetDeptSelect() {
-  return request<Api.System.Dept[]>({
-    url: '/system/dept/optionselect',
-    method: 'get'
   });
 }

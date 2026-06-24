@@ -23,6 +23,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "social-callback": () => import("@/views/_builtin/social-callback/index.vue"),
   "user-center": () => import("@/views/_builtin/user-center/index.vue"),
   about: () => import("@/views/about/index.vue"),
+  "corp_corp-detail": () => import("@/views/corp/corp-detail/index.vue"),
   "corp_corp-list": () => import("@/views/corp/corp-list/index.vue"),
   demo_demo: () => import("@/views/demo/demo/index.vue"),
   demo_tree: () => import("@/views/demo/tree/index.vue"),

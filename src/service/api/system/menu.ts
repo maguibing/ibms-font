@@ -36,23 +36,6 @@ export function fetchDeleteMenu(menuId: CommonType.IdType) {
   });
 }
 
-/** 获取菜单树 */
-export function fetchGetMenuTree(data: { p_type?: CommonType.IdType; menu_type_list?: CommonType.IdType[] }) {
-  return request<Api.System.MenuTreeResponse>({
-    url: '/GetMenuTrees',
-    method: 'post',
-    data
-  });
-}
-
-/** 获取角色菜单权限 */
-export function fetchGetMenuTrees(data: { p_type: CommonType.IdType; menu_type_list: CommonType.IdType[] }) {
-  return request<Api.System.MenuTreeResponse>({
-    url: `/GetMenuTrees`,
-    method: 'post',
-    data
-  });
-}
 
 /** 获取菜单节点树 */
 export function fetchGetMenuNodeTrees(data: { p_type: CommonType.IdType; menu_type_list?: CommonType.IdType[] }) {

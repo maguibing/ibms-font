@@ -36,24 +36,6 @@ export function fetchAssignPermAuth(data: { role_id: CommonType.IdType; menu_id_
   });
 }
 
-/** 修改角色状态 */
-export function fetchUpdateRoleStatus(data: Api.System.RoleOperateParams) {
-  return request<boolean>({
-    url: '/system/role/changeStatus',
-    method: 'put',
-    data
-  });
-}
-
-/** 修改角色数据权限 */
-export function fetchUpdateRoleDataScope(data: Api.System.RoleOperateParams) {
-  return request<boolean>({
-    url: '/system/role/dataScope',
-    method: 'put',
-    data
-  });
-}
-
 /** 批量删除角色信息 */
 export function fetchBatchDeleteRole(data: { id_list: CommonType.IdType[] }) {
   return request<boolean>({
@@ -72,37 +54,10 @@ export function fetchGetRoleSelect(data?: CommonType.CommonListOptions) {
   });
 }
 
-/** 获取对应角色部门树列表 */
-export function fetchGetRoleDeptTreeSelect(roleId: CommonType.IdType) {
-  return request<Api.System.RoleDeptTreeSelect>({
-    url: `/system/role/deptTree/${roleId}`,
+/** 获取菜单树 */
+export function fetchGetMenuTreeSelect() {
+  return request<Api.System.MenuList>({
+    url: 'system/menu/treeselect',
     method: 'get'
-  });
-}
-
-/** 获取对应角色用户列表 */
-export function fetchGetRoleUserList(params: Api.System.UserSearchParams) {
-  return request<Api.System.UserList>({
-    url: `/system/role/authUser/allocatedList`,
-    method: 'get',
-    params
-  });
-}
-
-/** 批量选择用户授权 */
-export function fetchUpdateRoleAuthUser(roleId: CommonType.IdType, userIds: CommonType.IdType[]) {
-  return request<boolean>({
-    url: '/system/role/authUser/selectAll',
-    method: 'put',
-    params: { roleId, userIds: userIds.join(',') }
-  });
-}
-
-/** 批量取消用户授权 */
-export function fetchUpdateRoleAuthUserCancel(roleId: CommonType.IdType, userIds: CommonType.IdType[]) {
-  return request<boolean>({
-    url: '/system/role/authUser/cancelAll',
-    method: 'put',
-    params: { roleId, userIds: userIds.join(',') }
   });
 }

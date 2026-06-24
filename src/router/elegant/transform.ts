@@ -172,6 +172,7 @@ const routeMap: RouteMap = {
   "500": "/500",
   "about": "/about",
   "corp": "/corp",
+  "corp_corp-detail": "/corp/corp-detail",
   "corp_corp-list": "/corp/corp-list",
   "demo": "/demo",
   "demo_demo": "/demo/demo",

@@ -42,8 +42,8 @@ async function search() {
       <NCollapseItem :title="$t('common.search')" name="user-search">
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" :label="$t('page.system.dept.deptName')" path="deptName" class="pr-24px">
-              <NInput v-model:value="model.deptName" :placeholder="$t('page.system.dept.form.deptName.required')" />
+            <NFormItemGi span="24 s:12 m:8" :label="$t('page.system.dept.name')" path="name" class="pr-24px">
+              <NInput v-model:value="model.name" :placeholder="$t('page.system.dept.form.name.required')" />
             </NFormItemGi>
             <NFormItemGi span="24 s:12 m:16" class="pr-24px">
               <NSpace class="w-full" justify="end">

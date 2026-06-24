@@ -7,7 +7,6 @@ import { dataScopeRecord } from '@/constants/business';
 import { fetchBatchDeleteRole, fetchGetRoleList } from '@/service/api/system/role';
 import { useAppStore } from '@/store/modules/app';
 import { useAuth } from '@/hooks/business/auth';
-import { useDownload } from '@/hooks/business/download';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
@@ -20,7 +19,6 @@ defineOptions({
 });
 
 const appStore = useAppStore();
-const { download } = useDownload();
 const { hasAuth } = useAuth();
 
 const { bool: permissionsDrawerVisible, setTrue: openPermissionsDrawer } = useBoolean(false);
@@ -113,7 +111,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         key: 'operate',
         title: $t('common.operate'),
         align: 'center',
-        width: 230,
+        width: 150,
         render: row => {
           if (row.role_type === 1) return null;
 
@@ -197,9 +195,6 @@ async function edit(roleId: CommonType.IdType) {
   handleEdit(roleId);
 }
 
-async function handleExport() {
-  download('/system/role/export', searchParams.value, `角色_${new Date().getTime()}.xlsx`);
-}
 
 function handleMenuAuthScope(row: Api.System.Role) {
   const findItem = data.value.find(item => item.id === row.id) || null;
@@ -219,10 +214,9 @@ function handleMenuAuthScope(row: Api.System.Role) {
           :loading="loading"
           :show-add="hasAuth('system:role:add')"
           :show-delete="hasAuth('system:role:remove')"
-          :show-export="hasAuth('system:role:export')"
+          :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"
-          @export="handleExport"
           @refresh="getData"
         />
       </template>

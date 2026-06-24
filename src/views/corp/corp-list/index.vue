@@ -4,6 +4,7 @@ import { StatusTag, type StatusTagMap } from '@sa/materials';
 import { fetchDeleteCorp, fetchGetCorpList, fetchUpdateCorpStatus } from '@/service/api/corp';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
+import { useRouterPush } from '@/hooks/common/router';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import PhoneReveal from '@/components/business/phone-reveal.vue';
@@ -16,6 +17,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { routerPushByKey } = useRouterPush();
 
 const AUDIT_PASS_STATUS = 2;
 const PENDING_AUDIT_STATUS = 1;
@@ -168,8 +170,20 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         key: 'operate',
         title: $t('common.operate'),
         align: 'center',
-        width: 120,
+        width: 180,
         render: row => {
+          const viewBtn = () => {
+            return (
+              <ButtonIcon
+                text
+                type="primary"
+                icon="material-symbols:visibility-outline"
+                tooltipContent="查看"
+                onClick={() => handleView(row.id)}
+              />
+            );
+          };
+
           const statusBtn = () => {
             const isEnabled = row.status === ENABLE_STATUS;
             const nextStatus = isEnabled ? DISABLE_STATUS : ENABLE_STATUS;
@@ -213,6 +227,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
           };
 
           const buttons = [];
+          buttons.push(viewBtn());
 
           if (row.audit_status === PENDING_AUDIT_STATUS) {
             buttons.push(auditBtn());
@@ -220,7 +235,6 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
             if (row.audit_status === AUDIT_PASS_STATUS) {
               buttons.push(statusBtn());
             }
-
             buttons.push(deleteBtn());
           }
 
@@ -249,6 +263,14 @@ const corpExtra = computed<Api.System.CorpListExtra>(() => {
 
 function getContactUser(row: Api.System.Corp) {
   return corpExtra.value.base_user_map[String(row.contact_id)];
+}
+
+function handleView(id: CommonType.IdType) {
+  routerPushByKey('corp_corp-detail', {
+    query: {
+      id: String(id)
+    }
+  });
 }
 
 function handleAudit(id: CommonType.IdType) {

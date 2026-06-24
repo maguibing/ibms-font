@@ -50,11 +50,10 @@ function createDefaultModel(): Model {
   };
 }
 
-type RuleKey = Extract<keyof Model, 'name' | 'desc'>;
+type RuleKey = Extract<keyof Model, 'name'>;
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  name: createRequiredRule('角色名称不能为空'),
-  desc: createRequiredRule('角色描述不能为空')
+  name: createRequiredRule('角色名称不能为空')
 };
 
 async function handleUpdateModelWhenEdit() {
@@ -116,10 +115,17 @@ watch(visible, () => {
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules">
         <NFormItem label="名称" path="name">
-          <NInput v-model:value="model.name" placeholder="请输入名称" />
+          <NInput v-model:value="model.name" placeholder="请输入名称" :maxlength="10" show-count />
         </NFormItem>
-        <NFormItem label="描述" path="desc">
-          <NInput v-model:value="model.desc" :rows="3" type="textarea" placeholder="请输入描述" />
+        <NFormItem label="描述">
+          <NInput
+            v-model:value="model.desc"
+            :rows="3"
+            type="textarea"
+            placeholder="请输入描述"
+            :maxlength="100"
+            show-count
+          />
         </NFormItem>
       </NForm>
       <template #footer>

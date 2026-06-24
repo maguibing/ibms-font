@@ -2,7 +2,8 @@
 import { computed, ref, watch } from 'vue';
 import { NInputNumber } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
-import { fetchCreateDept, fetchGetDeptList, fetchUpdateDept } from '@/service/api/system/dept';
+import { jsonClone } from '@sa/utils';
+import { fetchCreateDept, fetchGetDept, fetchGetDeptList, fetchUpdateDept } from '@/service/api/system/dept';
 import { fetchGetUserList } from '@/service/api/system';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
@@ -58,29 +59,33 @@ function createDefaultModel(): Model {
   return {
     parent_id: getRowDeptId() || '',
     name: '',
-    sort: null,
-    leader_id: null
+    sort: 1,
+    leader_id: null,
+    id: null
   };
 }
 
-type RuleKey = Extract<keyof Model, 'parent_id' | 'name'>;
+type RuleKey = Extract<keyof Model, 'parent_id' | 'name' | 'sort'>;
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
   parent_id: createRequiredRule($t('page.system.dept.form.parentId.invalid')),
-  name: createRequiredRule($t('page.system.dept.form.deptName.invalid'))
+  name: createRequiredRule($t('page.system.dept.form.name.invalid')),
+  sort: createRequiredRule($t('page.system.dept.form.sort.invalid'))
 };
 
-function handleUpdateModelWhenEdit() {
+async function handleUpdateModelWhenEdit() {
   model.value = createDefaultModel();
 
   if (props.operateType === 'edit' && props.rowData) {
-    model.value = {
-      ...model.value,
-      parent_id: props.rowData.dept_parent_id,
-      name: props.rowData.dept_name,
-      sort: props.rowData.sort,
-      leader_id: props.rowData.leader_id || null
-    };
+    const deptId = getRowDeptId();
+    if (!deptId) return;
+
+    const { data, error } = await fetchGetDept({ id: deptId });
+    if (error) {
+      return;
+    }
+
+    model.value = jsonClone(data?.dept || createDefaultModel());
   }
 }
 
@@ -92,11 +97,12 @@ async function handleSubmit() {
   await validate();
 
   const { parent_id, name, sort, leader_id } = model.value;
+  const submitParentId = parent_id || 0;
 
   // request
   if (props.operateType === 'add') {
     const { error } = await fetchCreateDept({
-      parent_id,
+      parent_id: submitParentId,
       name,
       sort,
       leader_id
@@ -106,9 +112,10 @@ async function handleSubmit() {
   }
 
   if (props.operateType === 'edit') {
+    const deptId = getRowDeptId() as CommonType.IdType;
     const { error } = await fetchUpdateDept({
-      dept_id: getRowDeptId() as CommonType.IdType,
-      parent_id,
+      id: deptId,
+      parent_id: submitParentId,
       name,
       sort,
       leader_id
@@ -141,8 +148,7 @@ async function getDeptData() {
 watch(visible, () => {
   if (visible.value) {
     getDeptData();
-    handleUpdateModelWhenEdit();
-    restoreValidation();
+    handleUpdateModelWhenEdit().then(() => restoreValidation());
   }
 });
 </script>
@@ -151,7 +157,7 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="800" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules">
-        <NFormItem v-if="model.parent_id !== 0" :label="$t('page.system.dept.parentId')" path="parent_id">
+        <NFormItem v-if="model.parent_id !== 0" :label="$t('page.system.dept.parentId')">
           <NTreeSelect
             v-model:value="model.parent_id"
             v-model:expanded-keys="expandedKeys"
@@ -164,12 +170,14 @@ watch(visible, () => {
           />
         </NFormItem>
         <NFormItem :label="$t('page.system.dept.name')" path="name">
-          <NInput v-model:value="model.name" :placeholder="$t('page.system.dept.form.deptName.required')" />
+          <NInput v-model:value="model.name" :placeholder="$t('page.system.dept.form.name.required')" />
         </NFormItem>
         <NFormItem :label="$t('page.system.dept.sort')" path="sort">
           <NInputNumber
             v-model:value="model.sort"
             class="w-full"
+            :precision="0"
+            :min="1"
             :placeholder="$t('page.system.dept.form.sort.required')"
           />
         </NFormItem>
