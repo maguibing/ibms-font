@@ -171,6 +171,8 @@ const routeMap: RouteMap = {
   "404": "/404",
   "500": "/500",
   "about": "/about",
+  "corp": "/corp",
+  "corp_corp-list": "/corp/corp-list",
   "demo": "/demo",
   "demo_demo": "/demo/demo",
   "demo_tree": "/demo/tree",

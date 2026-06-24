@@ -14,6 +14,9 @@ importers:
       '@iconify/vue':
         specifier: 5.0.1
         version: 5.0.1(vue@3.5.34(typescript@6.0.3))
+      '@province-city-china/level':
+        specifier: ^8.5.8
+        version: 8.5.8
       '@sa/axios':
         specifier: workspace:*
         version: link:packages/axios
@@ -1257,6 +1260,12 @@ packages:
 
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
+
+  '@province-city-china/level@8.5.8':
+    resolution: {integrity: sha512-c0wbrg+RHZZ2IV72Mjz8tlck+/e2YXEgGzl/D1To3EqAdJxrbswl/a+ZEIAQMOI+1kfwAJePzwLmIIBvspR3Fw==}
+
+  '@province-city-china/types@8.5.8':
+    resolution: {integrity: sha512-KZ3NyM8HsaBVcn5BRhWaOeZRhqEvm18PfB6HfRDuZfwwWhJLoTxB81mTENrBlONr2g8fy/fSbjsh44gvOj+/Lw==}
 
   '@quansync/fs@1.0.0':
     resolution: {integrity: sha512-4TJ3DFtlf1L5LDMaM6CanJ/0lckGNtJcMjQ1NAV6zDmA0tEHKZtxNKin8EgPaVX1YzljbxckyT2tJrpQKAtngQ==}
@@ -5193,6 +5202,12 @@ snapshots:
     optional: true
 
   '@polka/url@1.0.0-next.29': {}
+
+  '@province-city-china/level@8.5.8':
+    dependencies:
+      '@province-city-china/types': 8.5.8
+
+  '@province-city-china/types@8.5.8': {}
 
   '@quansync/fs@1.0.0':
     dependencies:

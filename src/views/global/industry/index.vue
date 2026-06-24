@@ -114,9 +114,9 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               />
             );
           };
-const buttons = [];
-buttons.push(editBtn());
-buttons.push(deleteBtn());
+          const buttons = [];
+          buttons.push(editBtn());
+          buttons.push(deleteBtn());
           return (
             <div class="flex-center gap-8px">
               {buttons.map((btn, index) => (

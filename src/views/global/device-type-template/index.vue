@@ -45,7 +45,8 @@ const searchParams = ref<Api.System.DeviceTypeTemplateSearchParams>({
 });
 
 const categoryTitle = computed(() => {
-  const category = categoryData.value.find(item => item.id === selectedCategoryId.value);
+  const categories = Array.isArray(categoryData.value) ? categoryData.value : [];
+  const category = categories.find(item => item.id === selectedCategoryId.value);
 
   return category ? (
     <NEllipsis lineClamp={2} class="flex">
@@ -217,7 +218,7 @@ async function getCategoryData() {
   });
 
   if (!error) {
-    categoryData.value = categoryResponse.list;
+    categoryData.value = Array.isArray(categoryResponse?.list) ? categoryResponse.list : [];
   }
 
   endTreeLoading();
@@ -326,13 +327,11 @@ function renderLabel({ option }: { option: TreeOption }) {
         trigger: () => (
           <div class="w-200px flex gap-6px overflow-hidden text-ellipsis whitespace-nowrap">
             <span>{option.name}</span>
-            {option.desc ? <span class="text-12px text-gray-500">( {option.desc} )</span> : null}
           </div>
         ),
         default: () => (
           <div class="flex-col">
             <span>{option.name}</span>
-            {option.desc ? <span>( {option.desc} )</span> : null}
           </div>
         )
       }}

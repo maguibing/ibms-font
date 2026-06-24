@@ -125,10 +125,12 @@ export default function useTable<ResponseData, ApiData, Column, Pagination exten
 function getTableData<ApiData, Pagination extends boolean>(
   data: GetApiData<ApiData, Pagination>,
   pagination?: Pagination
-) {
+): ApiData[] {
   if (pagination) {
-    return (data as PaginationData<ApiData>).data;
+    const pageData = (data as PaginationData<ApiData>)?.data;
+
+    return Array.isArray(pageData) ? pageData : [];
   }
 
-  return data as ApiData[];
+  return Array.isArray(data) ? data : [];
 }

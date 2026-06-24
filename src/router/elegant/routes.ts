@@ -51,6 +51,26 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'corp',
+    path: '/corp',
+    component: 'layout.base',
+    meta: {
+      title: 'corp',
+      i18nKey: 'route.corp'
+    },
+    children: [
+      {
+        name: 'corp_corp-list',
+        path: '/corp/corp-list',
+        component: 'view.corp_corp-list',
+        meta: {
+          title: 'corp_corp-list',
+          i18nKey: 'route.corp_corp-list'
+        }
+      }
+    ]
+  },
+  {
     name: 'demo',
     path: '/demo',
     component: 'layout.base',

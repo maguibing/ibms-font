@@ -7,7 +7,6 @@ import { StatusTag } from '@sa/materials';
 import {
   fetchBatchDeleteUser,
   fetchGetDeptTree,
-  fetchGetPhone,
   fetchGetUserList,
   fetchResetPassword
 } from '@/service/api/system';
@@ -16,6 +15,7 @@ import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hoo
 import { useAuth } from '@/hooks/business/auth';
 import { useDownload } from '@/hooks/business/download';
 import ButtonIcon from '@/components/custom/button-icon.vue';
+import PhoneReveal from '@/components/business/phone-reveal.vue';
 import { $t } from '@/locales';
 import UserOperateDrawer from './modules/user-operate-drawer.vue';
 import UserImportModal from './modules/user-import-modal.vue';
@@ -41,59 +41,6 @@ const searchParams = ref<Api.System.UserSearchParams>({
   dateRange: null
 });
 
-const phoneVisibleMap = ref<Record<string, boolean>>({});
-const phoneLoadingMap = ref<Record<string, boolean>>({});
-const phoneValueMap = ref<Record<string, string>>({});
-
-function getPhoneMapKey(userId: CommonType.IdType) {
-  return String(userId);
-}
-
-function isPhoneVisible(userId: CommonType.IdType) {
-  return Boolean(phoneVisibleMap.value[getPhoneMapKey(userId)]);
-}
-
-function isPhoneLoading(userId: CommonType.IdType) {
-  return Boolean(phoneLoadingMap.value[getPhoneMapKey(userId)]);
-}
-
-function getDisplayPhone(row: Api.System.User) {
-  const key = getPhoneMapKey(row.user_id);
-  const realPhone = phoneValueMap.value[key];
-
-  if (isPhoneVisible(row.user_id) && realPhone) {
-    return realPhone;
-  }
-
-  return row.phone || '-';
-}
-
-async function handleTogglePhone(row: Api.System.User) {
-  const key = getPhoneMapKey(row.user_id);
-
-  if (isPhoneLoading(row.user_id)) {
-    return;
-  }
-
-  if (isPhoneVisible(row.user_id)) {
-    phoneVisibleMap.value[key] = false;
-    return;
-  }
-
-  if (!phoneValueMap.value[key]) {
-    phoneLoadingMap.value[key] = true;
-    const { data: phoneData, error } = await fetchGetPhone({ user_id: row.user_id });
-    phoneLoadingMap.value[key] = false;
-
-    if (error || !phoneData?.phone) {
-      return;
-    }
-
-    phoneValueMap.value[key] = phoneData.phone;
-  }
-
-  phoneVisibleMap.value[key] = true;
-}
 /** 将 UserSearchParams 转换为 CommonListQueryParams */
 function transformSearchParamsToRequest(params: Api.System.UserSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
@@ -203,22 +150,7 @@ const {
       title: $t('page.system.user.phonenumber'),
       align: 'center',
       width: 180,
-      render: row => {
-        const visible = isPhoneVisible(row.user_id);
-
-        return (
-          <div class="flex-center gap-4px">
-            <NEllipsis class="max-w-120px">{getDisplayPhone(row)}</NEllipsis>
-            <ButtonIcon
-              text
-              loading={isPhoneLoading(row.user_id)}
-              icon={visible ? 'material-symbols:visibility-off-outline' : 'material-symbols:visibility-outline'}
-              tooltipContent={visible ? '隐藏手机号' : '显示手机号'}
-              onClick={() => handleTogglePhone(row)}
-            />
-          </div>
-        );
-      }
+      render: row => <PhoneReveal userId={row.user_id} maskedPhone={row.phone} />
     },
     {
       key: 'status',

@@ -53,6 +53,71 @@ declare namespace Api {
     /** role list */
     type RoleList = Common.PaginatingQueryRecord<Role>;
 
+    /** corp */
+    type Corp = Common.CommonRecord<{
+      id: CommonType.IdType;
+      name: string;
+      status: number;
+      audit_status: number;
+      contact_id: CommonType.IdType;
+      address?: string;
+      ad_code?: string;
+      ad_address?: string;
+    }>;
+
+    /** corp base user */
+    type CorpBaseUser = {
+      user_id: CommonType.IdType;
+      created_at: number;
+      p_type: number;
+      username: string;
+      account_id: CommonType.IdType;
+      gender?: number;
+      role_id: CommonType.IdType;
+      phone: string;
+      email?: string;
+      status: number;
+      biz_id: CommonType.IdType;
+    };
+
+    /** corp list extra */
+    type CorpListExtra = {
+      base_user_map: Record<string, CorpBaseUser>;
+    };
+
+    /** corp list */
+    type CorpList = Common.PaginatingQueryRecord<Corp, CorpListExtra>;
+
+    /** corp detail */
+    type CorpDetail = {
+      corp: Corp;
+      base_user_map: Record<string, CorpBaseUser>;
+    };
+
+    /** corp operate params */
+    type CorpOperateParams = CommonType.RecordNullable<
+      Pick<Corp, 'name' | 'address' | 'ad_code' | 'ad_address'> & {
+        contact_name: string;
+        contact_phone: string;
+        contact_email: string;
+        rsa_pwd: string;
+      }
+    >;
+
+    /** corp audit status params */
+    type CorpAuditStatusParams = Pick<Corp, 'id' | 'audit_status'>;
+
+    /** corp status params */
+    type CorpStatusParams = Pick<Corp, 'id' | 'status'>;
+
+    /** corp search params */
+    type CorpSearchParams = CommonType.RecordNullable<
+      Pick<Corp, 'name'> & {
+        contact_name: string;
+        contact_phone: string;
+      } & Api.Common.CommonSearchParams
+    >;
+
     type IndustryOperateParams = CommonType.RecordNullable<Pick<Api.System.Industry, 'id' | 'name' | 'sort' | 'desc'>>;
 
     /** industry */
