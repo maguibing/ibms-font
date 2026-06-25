@@ -33,8 +33,8 @@ const { createRequiredRule } = useFormRules();
 
 const title = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增测试单表',
-    edit: '编辑测试单表'
+    add: '新增行业',
+    edit: '编辑行业'
   };
   return titles[props.operateType];
 });
@@ -104,13 +104,20 @@ watch(visible, () => {
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules">
         <NFormItem label="行业名称" path="name">
-          <NInput v-model:value="model.name" placeholder="请输入行业名称" />
+          <NInput v-model:value="model.name" placeholder="请输入行业名称" :maxlength="20" show-count />
         </NFormItem>
         <NFormItem label="排序号" path="sort">
           <NInputNumber v-model:value="model.sort" placeholder="请输入排序号" />
         </NFormItem>
         <NFormItem label="描述" path="desc">
-          <NInput v-model:value="model.desc" placeholder="请输入描述" />
+          <NInput
+            v-model:value="model.desc"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入描述"
+            :maxlength="100"
+            show-count
+          />
         </NFormItem>
       </NForm>
       <template #footer>

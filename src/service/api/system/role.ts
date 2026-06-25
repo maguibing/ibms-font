@@ -9,6 +9,15 @@ export function fetchGetRoleList(data?: CommonType.CommonListQueryParams) {
   });
 }
 
+/** 获取角色信息详情 */
+export function fetchGetRole(data: { id: CommonType.IdType }) {
+  return request<Api.System.RoleDetailResponse>({
+    url: '/GetRole',
+    method: 'post',
+    data
+  });
+}
+
 /** 新增角色信息 */
 export function fetchCreateRole(data: Api.System.RoleOperateParams) {
   return request<boolean>({
@@ -51,13 +60,5 @@ export function fetchGetRoleSelect(data?: CommonType.CommonListOptions) {
     url: '/ListRole',
     method: 'post',
     data
-  });
-}
-
-/** 获取菜单树 */
-export function fetchGetMenuTreeSelect() {
-  return request<Api.System.MenuList>({
-    url: 'system/menu/treeselect',
-    method: 'get'
   });
 }

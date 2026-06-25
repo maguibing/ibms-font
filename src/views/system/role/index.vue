@@ -133,7 +133,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 text
                 type="primary"
                 icon="material-symbols:database"
-                tooltipContent="数据范围权限"
+                tooltipContent="分配权限"
                 onClick={() => handleMenuAuthScope(row)}
               />
             );

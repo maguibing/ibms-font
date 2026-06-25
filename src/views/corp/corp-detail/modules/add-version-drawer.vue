@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, shallowRef } from 'vue';
+import { ref, shallowRef } from 'vue';
 import { useLoading } from '@sa/hooks';
 import { fetchCreateVersion } from '@/service/api/corp';
-import { fetchGetMenuNodeTrees } from '@/service/api/system/menu';
 import { menuNodeType, menuPlatformType } from '@/constants/business';
+import MenuTree from '@/components/custom/menu-tree.vue';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
 
@@ -13,15 +13,6 @@ defineOptions({
 
 interface Emits {
   (e: 'submitted'): void;
-}
-
-interface VersionMenuNode {
-  id: CommonType.IdType;
-  label: string;
-  icon?: string;
-  menuType?: Api.System.MenuNodeType | number;
-  ancestorIds: CommonType.IdType[];
-  children?: VersionMenuNode[];
 }
 
 interface FormModel {
@@ -44,13 +35,14 @@ const emit = defineEmits<Emits>();
 const { formRef, validate, restoreValidation } = useNaiveForm();
 const { createRequiredRule } = useFormRules();
 const { loading: submitLoading, startLoading: startSubmitLoading, endLoading: endSubmitLoading } = useLoading();
-const { loading: menuLoading, startLoading: startMenuLoading, endLoading: endMenuLoading } = useLoading();
 
 const visible = shallowRef(false);
 const corpId = shallowRef<CommonType.IdType | null>(null);
 const corpName = shallowRef('');
-const menuGroups = ref<VersionMenuNode[]>([]);
+const menuTreeRef = ref<InstanceType<typeof MenuTree> | null>(null);
 const checkedMenuIds = ref<CommonType.IdType[]>([]);
+const menuLoading = ref(false);
+const cascade = ref(true);
 const formModel = ref<FormModel>(createDefaultModel());
 
 const durationUnitOptions = [
@@ -58,6 +50,11 @@ const durationUnitOptions = [
   { label: '月', value: 30 },
   { label: '年', value: 365 }
 ];
+
+const menuTreeRequestParams = {
+  p_type: menuPlatformType.project,
+  menu_type_list: [menuNodeType.catalog, menuNodeType.menu, menuNodeType.button, menuNodeType.extLink]
+};
 
 type RuleKey = Extract<
   keyof FormModel,
@@ -91,31 +88,6 @@ const rules: Record<RuleKey, App.Global.FormRule | App.Global.FormRule[]> = {
   data_store_day: createRequiredRule('请输入数据存储时长')
 };
 
-const menuNodeMap = computed(() => {
-  const map = new Map<string, VersionMenuNode>();
-
-  function walk(nodes: VersionMenuNode[]) {
-    nodes.forEach(node => {
-      map.set(String(node.id), node);
-      if (node.children?.length) {
-        walk(node.children);
-      }
-    });
-  }
-
-  walk(menuGroups.value);
-
-  return map;
-});
-
-const allMenuIds = computed(() => collectMenuIds(menuGroups.value));
-
-const checkedMenuIdSet = computed(() => new Set(checkedMenuIds.value.map(String)));
-
-const isAllChecked = computed(() => {
-  return Boolean(allMenuIds.value.length) && allMenuIds.value.every(id => checkedMenuIdSet.value.has(String(id)));
-});
-
 function createDefaultModel(): FormModel {
   return {
     name: '',
@@ -133,96 +105,11 @@ function createDefaultModel(): FormModel {
   };
 }
 
-function normalizeMenuNode(menu: Api.System.MenuNode, ancestorIds: CommonType.IdType[] = []): VersionMenuNode {
-  const id = menu.meta.id;
-  const label = menu.meta.title || menu.name || '';
-  const nextAncestorIds = [...ancestorIds, id];
-  const children = (menu.children || []).map(item => normalizeMenuNode(item, nextAncestorIds));
-
-  return {
-    id,
-    label,
-    icon: menu.meta.icon,
-    menuType: menu.meta.menu_type,
-    ancestorIds,
-    ...(children.length ? { children } : {})
-  };
-}
-
-function collectMenuIds(nodes: VersionMenuNode[]): CommonType.IdType[] {
-  const ids: CommonType.IdType[] = [];
-
-  nodes.forEach(node => {
-    ids.push(node.id);
-
-    if (node.children?.length) {
-      ids.push(...collectMenuIds(node.children));
-    }
-  });
-
-  return uniqueIds(ids);
-}
-
-function getDisplayMenuItems(nodes: VersionMenuNode[]) {
-  const items: VersionMenuNode[] = [];
-
-  nodes.forEach(node => {
-    if (node.children?.length) {
-      if (node.menuType !== menuNodeType.catalog) {
-        items.push(node);
-      }
-
-      items.push(...getDisplayMenuItems(node.children));
-      return;
-    }
-
-    items.push(node);
-  });
-
-  return uniqueMenuNodes(items);
-}
-
-function uniqueIds(ids: CommonType.IdType[]) {
-  const map = new Map<string, CommonType.IdType>();
-
-  ids.forEach(id => {
-    map.set(String(id), id);
-  });
-
-  return Array.from(map.values());
-}
-
-function uniqueMenuNodes(nodes: VersionMenuNode[]) {
-  const map = new Map<string, VersionMenuNode>();
-
-  nodes.forEach(node => {
-    map.set(String(node.id), node);
-  });
-
-  return Array.from(map.values());
-}
-
 function resetModel() {
   formModel.value = createDefaultModel();
-  menuGroups.value = [];
   checkedMenuIds.value = [];
-}
-
-async function getMenuTree() {
-  startMenuLoading();
-  const { data, error } = await fetchGetMenuNodeTrees({
-    p_type: menuPlatformType.integrator,
-    menu_type_list: [
-      menuNodeType.catalog,
-      menuNodeType.menu,
-      menuNodeType.button,
-      menuNodeType.extLink
-    ]
-  }).finally(endMenuLoading);
-
-  if (error) return;
-
-  menuGroups.value = (data?.trees || []).map(item => normalizeMenuNode(item));
+  cascade.value = true;
+  menuLoading.value = false;
 }
 
 function open(id: CommonType.IdType, name?: string) {
@@ -231,47 +118,18 @@ function open(id: CommonType.IdType, name?: string) {
   resetModel();
   restoreValidation();
   visible.value = true;
-  getMenuTree();
 }
 
 function close() {
   visible.value = false;
 }
 
-function setAllMenus(checked: boolean) {
-  checkedMenuIds.value = checked ? [...allMenuIds.value] : [];
-}
-
-function isMenuChecked(id: CommonType.IdType) {
-  return checkedMenuIdSet.value.has(String(id));
-}
-
-function handleMenuChecked(node: VersionMenuNode, checked: boolean) {
-  const next = new Map(checkedMenuIds.value.map(id => [String(id), id]));
-  const targetIds = collectMenuIds([node]);
-
-  targetIds.forEach(id => {
-    if (checked) {
-      next.set(String(id), id);
-      return;
-    }
-
-    next.delete(String(id));
-  });
-
-  checkedMenuIds.value = Array.from(next.values());
-}
-
 function getSubmitMenuIds() {
   const map = new Map<string, CommonType.IdType>();
+  const menuIds = menuTreeRef.value?.getCheckedMenuIds(true) ?? checkedMenuIds.value;
 
-  checkedMenuIds.value.forEach(id => {
-    const node = menuNodeMap.value.get(String(id));
-    const ids = node ? [...node.ancestorIds, node.id] : [id];
-
-    ids.forEach(item => {
-      map.set(String(item), item);
-    });
+  menuIds.forEach(id => {
+    map.set(String(id), id);
   });
 
   return Array.from(map.values());
@@ -281,12 +139,19 @@ function getDurationDays(value: number | null, unit: number) {
   return Number(value || 0) * unit;
 }
 
-function createSubmitPayload(): Api.System.CreateVersionParams {
+function isStartDateDisabled(timestamp: number) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return timestamp < today.getTime();
+}
+
+function createSubmitPayload(menuIds: CommonType.IdType[]): Api.System.CreateVersionParams {
   return {
     corp_id: corpId.value as CommonType.IdType,
     desc: formModel.value.desc,
     menu_conf: {
-      menu_id_list: getSubmitMenuIds()
+      menu_id_list: menuIds
     },
     name: formModel.value.name,
     price_conf: {
@@ -309,8 +174,14 @@ async function handleSubmit() {
 
   await validate();
 
+  const menuIds = getSubmitMenuIds();
+  if (!menuIds.length) {
+    window.$message?.warning('请至少选择一个菜单');
+    return;
+  }
+
   startSubmitLoading();
-  const { error } = await fetchCreateVersion(createSubmitPayload()).finally(endSubmitLoading);
+  const { error } = await fetchCreateVersion(createSubmitPayload(menuIds)).finally(endSubmitLoading);
 
   if (error) return;
 
@@ -359,6 +230,7 @@ defineExpose({
               clearable
               class="w-full"
               placeholder="请选择预计开始时间"
+              :is-date-disabled="isStartDateDisabled"
             />
           </NFormItemGi>
         </NGrid>
@@ -433,41 +305,18 @@ defineExpose({
         </NGrid>
 
         <NDivider>菜单配置</NDivider>
-        <NSpin :show="menuLoading">
-          <div class="min-h-260px">
-            <NSpace :size="16">
-              <NButton :type="isAllChecked ? 'primary' : 'default'" ghost @click="setAllMenus(true)">全选</NButton>
-              <NButton :type="!checkedMenuIds.length ? 'primary' : 'default'" ghost @click="setAllMenus(false)">
-                全不选
-              </NButton>
-            </NSpace>
-
-            <NEmpty v-if="!menuGroups.length && !menuLoading" description="暂无菜单数据" class="py-48px" />
-
-            <div v-else class="mt-24px flex-col gap-28px">
-              <section v-for="group in menuGroups" :key="group.id" class="flex-col gap-12px">
-                <h3 class="m-0 text-18px text-base-text font-700">{{ group.label }}</h3>
-                <div class="grid grid-cols-1 gap-12px sm:grid-cols-2 lg:grid-cols-3">
-                  <button
-                    v-for="item in getDisplayMenuItems(group.children?.length ? group.children : [group])"
-                    :key="item.id"
-                    type="button"
-                    class="h-40px flex items-center gap-8px border border-[rgb(var(--border-color))] rounded-4px bg-[rgb(var(--card-color))] px-12px text-left text-base-text transition-colors hover:border-primary"
-                    :class="isMenuChecked(item.id) ? 'border-primary text-primary' : ''"
-                    @click="handleMenuChecked(item, !isMenuChecked(item.id))"
-                  >
-                    <NCheckbox
-                      :checked="isMenuChecked(item.id)"
-                      @click.stop
-                      @update:checked="handleMenuChecked(item, $event)"
-                    />
-                    <span class="truncate font-600">{{ item.label }}</span>
-                  </button>
-                </div>
-              </section>
-            </div>
-          </div>
-        </NSpin>
+        <NFormItem label="菜单权限" class="pr-24px">
+          <MenuTree
+            v-if="visible"
+            ref="menuTreeRef"
+            v-model:checked-keys="checkedMenuIds"
+            v-model:cascade="cascade"
+            v-model:loading="menuLoading"
+            :request-params="menuTreeRequestParams"
+            :show-button-menus="false"
+            :immediate="true"
+          />
+        </NFormItem>
       </NForm>
 
       <template #footer>

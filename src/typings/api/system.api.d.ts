@@ -53,6 +53,10 @@ declare namespace Api {
     /** role list */
     type RoleList = Common.PaginatingQueryRecord<Role>;
 
+    type RoleDetailResponse = {
+      role: Role;
+    };
+
     /** corp */
     type Corp = Common.CommonRecord<{
       id: CommonType.IdType;
@@ -409,22 +413,6 @@ declare namespace Api {
       license_content: string;
     };
 
-    /** role menu tree select */
-    type RoleMenuTreeSelect = Common.CommonRecord<{
-      checkedKeys: CommonType.IdType[];
-      menus: MenuList;
-    }>;
-    /** teannt-package menu tree select */
-    type TenantPackageMenuTreeSelect = Common.CommonRecord<{
-      checkedKeys: CommonType.IdType[];
-      menus: MenuList;
-    }>;
-    /** role dept tree select */
-    type RoleDeptTreeSelect = Common.CommonRecord<{
-      checkedKeys: CommonType.IdType[];
-      depts: Dept[];
-    }>;
-
     /** all role */
     type AllRole = Pick<Api.System.Role, 'id' | 'name'>;
 
@@ -557,28 +545,6 @@ declare namespace Api {
       perm_key?: string;
     }
 
-    interface MenuTreeOption extends Record<string, unknown> {
-      id: CommonType.IdType;
-      label: string;
-      icon?: string;
-      visible?: Common.VisibleStatus;
-      status?: Common.EnableStatus | boolean | number;
-      path?: string;
-      component?: string;
-      name?: string;
-      redirect?: string;
-      keepAlive?: boolean;
-      menuType?: BackendMenuType | number;
-      permKey?: string;
-      children?: MenuTreeOption[];
-    }
-
-    type MenuTreeOptionList = MenuTreeOption[];
-
-    type MenuTreeData = {
-      trees: MenuTreeNode[];
-    };
-
     /**
      * 是否外链
      *
@@ -703,73 +669,6 @@ declare namespace Api {
       sort: number;
       type: MenuNodeType;
     };
-
-    type Menu = Common.CommonRecord<{
-      /** 菜单 ID */
-      menuId: CommonType.IdType;
-      /** 父菜单 ID */
-      parentId: CommonType.IdType;
-      /** 菜单名称 */
-      menuName: string;
-      /** 显示顺序 */
-      orderNum: number;
-      /** 路由地址 */
-      path: string;
-      /** 组件路径 */
-      component: string;
-      /** 路由参数 */
-      queryParam: string;
-      /** 是否为外链（0是 1否 2iframe） */
-      isFrame: IsMenuFrame;
-      /** 是否缓存（0缓存 1不缓存） */
-      isCache: Common.EnableStatus;
-      /** 菜单类型（M目录 C菜单 F按钮） */
-      menuType: MenuType;
-      /** 显示状态（0显示 1隐藏） */
-      visible: Common.VisibleStatus;
-      /** 菜单状态（0正常 1停用） */
-      status: Common.EnableStatus;
-      /** 权限标识 */
-      perms: string;
-      /** 菜单图标 */
-      icon: string;
-      /** 备注 */
-      remark?: string;
-      /** 父菜单名称 */
-      parentName: string;
-      /** 子菜单 */
-      children: MenuList;
-      id?: CommonType.IdType;
-      label?: string;
-    }>;
-
-    /** menu list */
-    type MenuList = Menu[];
-
-    /** menu search params */
-    type MenuSearchParams = CommonType.RecordNullable<Pick<Menu, 'menuName' | 'status' | 'menuType' | 'parentId'>>;
-
-    /** menu operate params */
-    type MenuOperateParams = CommonType.RecordNullable<
-      Pick<
-        Menu,
-        | 'menuId'
-        | 'menuName'
-        | 'parentId'
-        | 'orderNum'
-        | 'path'
-        | 'component'
-        | 'queryParam'
-        | 'isFrame'
-        | 'isCache'
-        | 'menuType'
-        | 'visible'
-        | 'status'
-        | 'perms'
-        | 'icon'
-        | 'remark'
-      >
-    >;
 
     /** dept */
     type Dept = Api.Common.CommonRecord<{

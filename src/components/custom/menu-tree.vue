@@ -1,8 +1,9 @@
 <script setup lang="tsx">
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import type { TreeOption, TreeSelectInst } from 'naive-ui';
 import { useBoolean } from '@sa/hooks';
-import { fetchGetMenuTreeSelect } from '@/service/api/system';
+import { menuNodeType } from '@/constants/business';
+import { fetchGetMenuNodeTrees } from '@/service/api/system';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 import { $t } from '@/locales';
 
@@ -13,38 +14,100 @@ defineOptions({
 
 interface Props {
   immediate?: boolean;
+  showButtonMenus?: boolean;
   showHeader?: boolean;
+  requestParams?: Parameters<typeof fetchGetMenuNodeTrees>[0];
   [key: string]: any;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   immediate: true,
+  requestParams: undefined,
+  showButtonMenus: true,
   showHeader: true
 });
 
-const { bool: expandAll } = useBoolean();
+type MenuTreeOption = Omit<Api.System.MenuNode, 'children' | 'id'> & {
+  id: CommonType.IdType;
+  label: string;
+  icon?: string;
+  visible?: '1';
+  children?: MenuTreeOption[];
+};
+
+const { bool: expandAll } = useBoolean(true);
 const { bool: checkAll } = useBoolean();
-const expandedKeys = ref<CommonType.IdType[]>([0]);
+const expandedKeys = ref<CommonType.IdType[]>([]);
 
 const menuTreeRef = ref<TreeSelectInst | null>(null);
+const allOptions = ref<MenuTreeOption[]>([]);
 const checkedKeys = defineModel<CommonType.IdType[]>('checkedKeys', { required: false, default: [] });
-const options = defineModel<Api.System.MenuList>('options', { required: false, default: [] });
+const options = defineModel<MenuTreeOption[]>('options', { required: false, default: [] });
 const cascade = defineModel<boolean>('cascade', { required: false, default: true });
 const loading = defineModel<boolean>('loading', { required: false, default: false });
 
+const defaultRequestParams = computed<Parameters<typeof fetchGetMenuNodeTrees>[0]>(() => ({
+  p_type: 1,
+  menu_type_list: [
+    menuNodeType.catalog,
+    menuNodeType.menu,
+    menuNodeType.button,
+    menuNodeType.extLink
+  ]
+}));
+
+function normalizeMenu(menu: Api.System.MenuNode): MenuTreeOption {
+  const id = menu.meta.id;
+  const title = menu.meta.title;
+  const icon = menu.meta.icon || 'material-symbols:buttons-alt-outline-rounded';
+
+  return {
+    ...menu,
+    id,
+    meta: {
+      ...menu.meta,
+      id,
+      title,
+      icon
+    },
+    label: title,
+    icon,
+    visible: menu.meta.is_visible === false ? '1' : undefined,
+    children: menu.children?.map(normalizeMenu)
+  };
+}
+
+function getVisibleMenuOptions(menu: MenuTreeOption[]): MenuTreeOption[] {
+  if (props.showButtonMenus) {
+    return menu;
+  }
+
+  return menu.reduce<MenuTreeOption[]>((result, item) => {
+    if (item.meta.menu_type === menuNodeType.button) {
+      return result;
+    }
+
+    const children = item.children ? getVisibleMenuOptions(item.children) : undefined;
+
+    result.push({
+      ...item,
+      children: children?.length ? children : undefined
+    });
+
+    return result;
+  }, []);
+}
+
 async function getMenuList() {
   loading.value = true;
-  const { error, data } = await fetchGetMenuTreeSelect();
-  if (error) return;
-  options.value = [
-    {
-      id: 0,
-      label: '根目录',
-      icon: 'material-symbols:home-outline-rounded',
-      children: data
-    }
-  ] as Api.System.MenuList;
-  // 折叠到只显示根节点
+  const { error, data } = await fetchGetMenuNodeTrees(props.requestParams ?? defaultRequestParams.value);
+  if (error) {
+    loading.value = false;
+    return;
+  }
+
+  allOptions.value = (data?.trees || []).map(normalizeMenu);
+  options.value = getVisibleMenuOptions(allOptions.value);
   loading.value = false;
 }
 
@@ -99,7 +162,7 @@ function renderPrefix({ option }: { option: TreeOption }) {
   return <SvgIcon icon={icon} localIcon={localIcon} />;
 }
 
-function getAllMenuIds(menu: Api.System.MenuList) {
+function getAllMenuIds(menu: MenuTreeOption[]) {
   const menuIds: CommonType.IdType[] = [];
   menu.forEach(item => {
     menuIds.push(item.id!);
@@ -111,7 +174,7 @@ function getAllMenuIds(menu: Api.System.MenuList) {
 }
 
 /** 获取所有叶子节点的 ID（没有子节点的节点） */
-function getLeafMenuIds(menu: Api.System.MenuList): CommonType.IdType[] {
+function getLeafMenuIds(menu: MenuTreeOption[]): CommonType.IdType[] {
   const leafIds: CommonType.IdType[] = [];
   menu.forEach(item => {
     if (!item.children || item.children.length === 0) {
@@ -133,14 +196,46 @@ function handleCheckedTreeNodeAll(checked: boolean) {
   checkedKeys.value = [];
 }
 
+function getHiddenButtonMenuIds(menu: MenuTreeOption[], checkedIdSet: Set<string>) {
+  const menuIds: CommonType.IdType[] = [];
+
+  function walk(node: MenuTreeOption, parentChecked: boolean) {
+    const isButton = node.meta.menu_type === menuNodeType.button;
+    const checked = checkedIdSet.has(String(node.id));
+
+    if (isButton) {
+      if (parentChecked) {
+        menuIds.push(node.id);
+      }
+      return;
+    }
+
+    node.children?.forEach(child => walk(child, parentChecked || checked));
+  }
+
+  menu.forEach(item => walk(item, false));
+
+  return menuIds;
+}
+
 function getCheckedMenuIds(isCascade: boolean = false) {
-  const menuIds = menuTreeRef.value?.getCheckedData()?.keys as string[];
+  const menuIds = [...((menuTreeRef.value?.getCheckedData()?.keys ?? []) as CommonType.IdType[])];
   const indeterminateData = menuTreeRef.value?.getIndeterminateData();
   if (cascade.value || isCascade) {
-    const parentIds: string[] = indeterminateData?.keys.filter(item => !menuIds?.includes(String(item))) as string[];
-    menuIds?.push(...parentIds);
+    const parentIds = (indeterminateData?.keys ?? []) as CommonType.IdType[];
+    parentIds.forEach(id => {
+      if (!menuIds.some(item => String(item) === String(id))) {
+        menuIds.push(id);
+      }
+    });
   }
-  return menuIds;
+
+  if (!props.showButtonMenus) {
+    const checkedIdSet = new Set(menuIds.map(String));
+    menuIds.push(...getHiddenButtonMenuIds(allOptions.value, checkedIdSet));
+  }
+
+  return Array.from(new Map(menuIds.map(id => [String(id), id])).values());
 }
 
 watch(cascade, () => {
@@ -207,7 +302,7 @@ defineExpose({
 
   .n-tree {
     min-height: 200px;
-    max-height: 300px;
+    max-height: 750px;
     width: 100%;
     height: 100%;
 

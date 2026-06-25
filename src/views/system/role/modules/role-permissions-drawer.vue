@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import MenuTree from '@/components/custom/menu-tree.vue';
-import { fetchAssignPermAuth } from '@/service/api/system/role';
+import { menuNodeType, menuPlatformType } from '@/constants/business';
+import { fetchAssignPermAuth, fetchGetRole } from '@/service/api/system/role';
 import { $t } from '@/locales';
 
 defineOptions({
@@ -27,9 +28,12 @@ const visible = defineModel<boolean>('visible', {
 
 const menuTreeRef = ref<InstanceType<typeof MenuTree> | null>(null);
 const checkedKeys = ref<CommonType.IdType[]>([]);
-const menuOptions = ref<Api.System.MenuTreeOptionList>([]);
 const menuLoading = ref(false);
-const cascade = ref(true);
+const cascade = ref(false);
+const menuTreeRequestParams = {
+  menu_type_list: [menuNodeType.catalog, menuNodeType.menu, menuNodeType.button, menuNodeType.extLink],
+  p_type: menuPlatformType.operation
+};
 
 const title = computed(() => {
   const roleName = props.rowData?.name?.trim();
@@ -41,8 +45,8 @@ const title = computed(() => {
   return '菜单权限';
 });
 
-function getDefaultCheckedKeys() {
-  const menuAuth = props.rowData?.perm_auth?.menu_auth;
+function getDefaultCheckedKeys(role?: Api.System.Role | null) {
+  const menuAuth = role?.perm_auth?.menu_auth;
 
   if (!menuAuth || menuAuth.has_all) {
     return [];
@@ -51,11 +55,29 @@ function getDefaultCheckedKeys() {
   return [...menuAuth.menu_id_list];
 }
 
-function handleUpdateModelWhenOpen() {
-  checkedKeys.value = getDefaultCheckedKeys();
-  menuOptions.value = [];
+async function handleUpdateModelWhenOpen() {
+  checkedKeys.value = [];
+  const roleId = props.rowData?.id;
+
+  cascade.value = false;
+
+  if (roleId === undefined || roleId === null) {
+    menuLoading.value = false;
+    return;
+  }
+
+  menuLoading.value = true;
+  const { error, data } = await fetchGetRole({ id: roleId });
+  if (error) {
+    menuLoading.value = false;
+    return;
+  }
+
+  if (visible.value && props.rowData?.id === roleId) {
+    checkedKeys.value = getDefaultCheckedKeys(data.role);
+  }
+
   menuLoading.value = false;
-  cascade.value = true;
 }
 
 function closeDrawer() {
@@ -88,9 +110,10 @@ watch(visible, newValue => {
             v-if="visible"
             ref="menuTreeRef"
             v-model:checked-keys="checkedKeys"
-            v-model:options="menuOptions"
             v-model:cascade="cascade"
             v-model:loading="menuLoading"
+            :request-params="menuTreeRequestParams"
+            :show-button-menus="true"
             :immediate="true"
           />
         </NFormItem>
