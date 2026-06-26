@@ -29,9 +29,6 @@ declare module "@elegant-router/types" {
     "corp_corp-detail": "/corp/corp-detail";
     "corp_corp-list": "/corp/corp-list";
     "corp_version": "/corp/version";
-    "demo": "/demo";
-    "demo_demo": "/demo/demo";
-    "demo_tree": "/demo/tree";
     "global": "/global";
     "global_activate": "/global/activate";
     "global_device-type-template": "/global/device-type-template";
@@ -40,36 +37,17 @@ declare module "@elegant-router/types" {
     "global_sys-screen": "/global/sys-screen";
     "home": "/home";
     "iframe-page": "/iframe-page/:url";
-    "integrator": "/integrator";
-    "integrator_intlist": "/integrator/intlist";
-    "integrator_version": "/integrator/version";
     "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?";
     "menu": "/menu";
     "menu_corp-menu": "/menu/corp-menu";
     "menu_platform-menu": "/menu/platform-menu";
     "menu_project-menu": "/menu/project-menu";
     "monitor": "/monitor";
-    "monitor_cache": "/monitor/cache";
-    "monitor_logininfor": "/monitor/logininfor";
-    "monitor_online": "/monitor/online";
     "monitor_operlog": "/monitor/operlog";
-    "social-callback": "/social-callback";
     "system": "/system";
-    "system_client": "/system/client";
-    "system_config": "/system/config";
     "system_dept": "/system/dept";
-    "system_dict": "/system/dict";
-    "system_menu": "/system/menu";
-    "system_notice": "/system/notice";
-    "system_oss": "/system/oss";
-    "system_oss-config": "/system/oss-config";
-    "system_post": "/system/post";
     "system_role": "/system/role";
-    "system_tenant": "/system/tenant";
-    "system_tenant-package": "/system/tenant-package";
     "system_user": "/system/user";
-    "tool": "/tool";
-    "tool_gen": "/tool/gen";
     "user-center": "/user-center";
   };
 
@@ -111,17 +89,13 @@ declare module "@elegant-router/types" {
     | "500"
     | "about"
     | "corp"
-    | "demo"
     | "global"
     | "home"
     | "iframe-page"
-    | "integrator"
     | "login"
     | "menu"
     | "monitor"
-    | "social-callback"
     | "system"
-    | "tool"
     | "user-center"
   >;
 
@@ -145,43 +119,24 @@ declare module "@elegant-router/types" {
     | "500"
     | "iframe-page"
     | "login"
-    | "social-callback"
     | "user-center"
     | "about"
     | "corp_corp-detail"
     | "corp_corp-list"
     | "corp_version"
-    | "demo_demo"
-    | "demo_tree"
     | "global_activate"
     | "global_device-type-template-point"
     | "global_device-type-template"
     | "global_industry"
     | "global_sys-screen"
     | "home"
-    | "integrator_intlist"
-    | "integrator_version"
     | "menu_corp-menu"
     | "menu_platform-menu"
     | "menu_project-menu"
-    | "monitor_cache"
-    | "monitor_logininfor"
-    | "monitor_online"
     | "monitor_operlog"
-    | "system_client"
-    | "system_config"
     | "system_dept"
-    | "system_dict"
-    | "system_menu"
-    | "system_notice"
-    | "system_oss-config"
-    | "system_oss"
-    | "system_post"
     | "system_role"
-    | "system_tenant-package"
-    | "system_tenant"
     | "system_user"
-    | "tool_gen"
   >;
 
   /**

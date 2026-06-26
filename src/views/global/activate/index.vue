@@ -268,8 +268,7 @@ watch(
           </div>
           <pre
             class="m-0 max-h-280px overflow-auto rounded-2 border border-success/30 bg-[rgb(var(--container-bg-color))] p-3 text-12px text-base-text leading-5"
-            >{{ generatedLicense }}</pre
-          >
+          >{{ generatedLicense }}</pre>
         </section>
       </Transition>
     </div>

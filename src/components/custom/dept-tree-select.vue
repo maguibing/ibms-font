@@ -1,4 +1,5 @@
-<script setup lang="tsx">
+<script setup lang="ts">
+import { computed, onMounted } from 'vue';
 import { useLoading } from '@sa/hooks';
 import { fetchGetDeptTree } from '@/service/api/system';
 
@@ -7,31 +8,44 @@ defineOptions({
   inheritAttrs: false
 });
 
-interface Props {
-  [key: string]: any;
-}
+type DeptTreeOption = Omit<Api.Common.DeptNode, 'children'> & {
+  children?: DeptTreeOption[];
+  [key: string]: unknown;
+};
 
-defineProps<Props>();
-
-const value = defineModel<CommonType.IdType | null>('value', { required: false });
-const options = defineModel<Api.Common.CommonTreeRecord>('options', { required: false, default: [] });
-const expandedKeys = defineModel<CommonType.IdType[]>('expandedKeys', { required: false, default: [] });
+const value = defineModel<CommonType.IdType | CommonType.IdType[] | null>('value', { required: false });
+const options = defineModel<Api.Common.DeptNode[]>('options', { required: false, default: () => [] });
+const expandedKeys = defineModel<CommonType.IdType[]>('expandedKeys', { required: false, default: () => [] });
 
 const { loading, startLoading, endLoading } = useLoading();
 
-async function getDeptList() {
-  startLoading();
-  const { error, data } = await fetchGetDeptTree();
-  if (error) return;
-  options.value = data;
-  // 设置默认展开的节点
-  if (data?.length && !expandedKeys.value.length) {
-    expandedKeys.value = [data[0].id];
-  }
-  endLoading();
+function normalizeDeptTree(depts: Api.Common.DeptNode[] = []): DeptTreeOption[] {
+  return depts.map(({ children, ...dept }) => ({
+    ...dept,
+    children: children?.length ? normalizeDeptTree(children) : undefined
+  }));
 }
 
-getDeptList();
+const treeSelectOptions = computed(() => normalizeDeptTree(options.value));
+
+async function getDeptList() {
+  startLoading();
+  try {
+    const { error, data } = await fetchGetDeptTree({ options: [{ key: 1 }] });
+    if (error) return;
+
+    const deptTree = data?.trees ?? [];
+    options.value = deptTree;
+
+    if (deptTree.length && !expandedKeys.value.length) {
+      expandedKeys.value = [deptTree[0].dept_id];
+    }
+  } finally {
+    endLoading();
+  }
+}
+
+onMounted(getDeptList);
 </script>
 
 <template>
@@ -41,9 +55,9 @@ getDeptList();
     filterable
     class="h-full"
     :loading="loading"
-    key-field="id"
-    label-field="label"
-    :options="options as []"
+    key-field="dept_id"
+    label-field="dept_name"
+    :options="treeSelectOptions"
     v-bind="$attrs"
   />
 </template>

@@ -155,6 +155,7 @@ declare module 'vue' {
     TableSiderLayout: typeof import('./../components/advanced/table-sider-layout.vue')['default']
     ThemeSchemaSwitch: typeof import('./../components/common/theme-schema-switch.vue')['default']
     UserSelect: typeof import('./../components/custom/user-select.vue')['default']
+    VersionOperateDrawer: typeof import('./../components/custom/version-operate-drawer.vue')['default']
     WangEditor: typeof import('./../components/custom/wang-editor.vue')['default']
     WaveBg: typeof import('./../components/custom/wave-bg.vue')['default']
   }
@@ -305,6 +306,7 @@ declare global {
   const TableSiderLayout: typeof import('./../components/advanced/table-sider-layout.vue')['default']
   const ThemeSchemaSwitch: typeof import('./../components/common/theme-schema-switch.vue')['default']
   const UserSelect: typeof import('./../components/custom/user-select.vue')['default']
+  const VersionOperateDrawer: typeof import('./../components/custom/version-operate-drawer.vue')['default']
   const WangEditor: typeof import('./../components/custom/wang-editor.vue')['default']
   const WaveBg: typeof import('./../components/custom/wave-bg.vue')['default']
 }

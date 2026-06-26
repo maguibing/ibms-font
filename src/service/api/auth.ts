@@ -59,7 +59,7 @@ export function fetchLogout() {
     });
   }
   return request({
-    url: '/auth/logout',
+    url: '/Logout',
     method: 'post'
   });
 }

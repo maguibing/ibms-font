@@ -45,6 +45,24 @@ export function fetchCreateVersion(data: Api.System.CreateVersionParams) {
   });
 }
 
+/** 修改版本 */
+export function fetchUpdateVersion(data: Api.System.UpdateVersionParams) {
+  return request({
+    url: '/UpdateVersion',
+    method: 'post',
+    data
+  });
+}
+
+/** 删除版本 */
+export function fetchDeleteVersion(data: Api.Common.CommonIdList) {
+  return request({
+    url: '/DeleteVersion',
+    method: 'post',
+    data
+  });
+}
+
 /** 绑定已有版本 */
 export function fetchBindVersionCorp(data: Api.System.BindVersionCorpParams) {
   return request({

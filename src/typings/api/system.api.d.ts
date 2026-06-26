@@ -95,9 +95,10 @@ declare namespace Api {
     /** corp project version */
     type CorpProjectVersion = Common.CommonRecord<{
       id: CommonType.IdType;
-      corp_id: CommonType.IdType;
-      project_id: CommonType.IdType;
+      corp_id?: CommonType.IdType;
+      project_id?: CommonType.IdType;
       name: string;
+      desc?: string;
       menu_conf?: {
         menu_id_list?: CommonType.IdType[];
       };
@@ -116,12 +117,21 @@ declare namespace Api {
       end_at: number;
     }>;
 
-    type CorpProjectVersionList = Common.PaginatingQueryRecord<CorpProjectVersion>;
-
-    type CorpProjectVersionListParams = {
-      corp_id: CommonType.IdType;
-      list_option: CommonType.CommonListOptions;
+    type CorpProjectVersionListExtra = {
+      random_map: Record<string, { random_list?: string[] }>;
+      all_map: Record<string, { all_list?: string[] }>;
+      corp_map: Record<string, Pick<Corp, 'id' | 'name'>>;
     };
+
+    type CorpProjectVersionList = Common.PaginatingQueryRecord<CorpProjectVersion, CorpProjectVersionListExtra>;
+
+    type CorpProjectVersionListParams = CommonType.CommonListQueryParams & {
+      corp_id?: CommonType.IdType;
+    };
+
+    type CorpProjectVersionSearchParams = CommonType.RecordNullable<
+      Pick<CorpProjectVersion, 'name' | 'corp_id'> & Api.Common.CommonSearchParams
+    >;
 
     type RenewalVersionParams = {
       id: CommonType.IdType;
@@ -134,7 +144,7 @@ declare namespace Api {
     };
 
     type CreateVersionParams = {
-      corp_id: CommonType.IdType;
+      corp_id?: CommonType.IdType;
       desc: string;
       menu_conf: {
         menu_id_list: CommonType.IdType[];
@@ -152,6 +162,10 @@ declare namespace Api {
         project_user_num: number;
       };
       start_at: number;
+    };
+
+    type UpdateVersionParams = CreateVersionParams & {
+      id: CommonType.IdType;
     };
 
     /** corp detail */
