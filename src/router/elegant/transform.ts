@@ -174,6 +174,7 @@ const routeMap: RouteMap = {
   "corp": "/corp",
   "corp_corp-detail": "/corp/corp-detail",
   "corp_corp-list": "/corp/corp-list",
+  "corp_version": "/corp/version",
   "demo": "/demo",
   "demo_demo": "/demo/demo",
   "demo_tree": "/demo/tree",

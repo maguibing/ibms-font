@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { encryptByRsa, jsonClone } from '@sa/utils';
 import { useLoading } from '@sa/hooks';
 import { fetchCreateUser, fetchGetRoleSelect, fetchUpdateUser } from '@/service/api/system';
+import { usePhoneExistCheck } from '@/hooks/business/use-phone-exist-check';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
 
@@ -49,6 +50,24 @@ const title = computed(() => {
 type Model = Api.System.UserOperateParams & { rsa_pwd: string };
 
 const model = ref<Model>(createDefaultModel());
+const {
+  phoneFormItemRef,
+  showPasswordFields,
+  phoneValidationStatus,
+  phoneFeedback,
+  checkPhone,
+  resetPhoneCheck,
+  resetPhoneCheckStatus
+} = usePhoneExistCheck({
+  getPhone: () => model.value.phone || '',
+  setPhone: phone => {
+    model.value.phone = phone;
+  },
+  existsFeedback: '手机号码已存在，将使用已存在账号',
+  onExists: clearPassword,
+  onReset: clearPassword
+});
+const showCreatePasswordFields = computed(() => props.operateType === 'add' && showPasswordFields.value);
 
 function createDefaultModel(): Model {
   return {
@@ -64,19 +83,41 @@ function createDefaultModel(): Model {
   };
 }
 
-type RuleKey = Extract<keyof Model, 'username' | 'role_id' | 'phone' | 'password' | 'status' | 'rsa_pwd' | 'password'>;
+function clearPassword() {
+  model.value.password = '';
+  model.value.rsa_pwd = '';
+}
 
-const rules: Record<RuleKey, App.Global.FormRule[]> = {
-  username: [createRequiredRule($t('page.system.user.form.userName.required'))],
-  role_id: [createRequiredRule($t('page.system.user.form.roleIds.required'))],
-  phone: [createRequiredRule($t('page.system.user.form.phonenumber.required')), patternRules.phone],
-  status: [createRequiredRule($t('page.system.user.form.status.required'))],
-  password: [createRequiredRule($t('page.system.user.form.password.required')), patternRules.pwd],
-  rsa_pwd: [createRequiredRule($t('page.system.user.form.confirmPassword.required')), patternRules.pwd]
-};
+type RuleKey = Extract<keyof Model, 'username' | 'role_id' | 'phone' | 'password' | 'status' | 'rsa_pwd'>;
+
+const rules = computed<Partial<Record<RuleKey, App.Global.FormRule[]>>>(() => {
+  const baseRules: Partial<Record<RuleKey, App.Global.FormRule[]>> = {
+    username: [createRequiredRule($t('page.system.user.form.userName.required'))],
+    role_id: [createRequiredRule($t('page.system.user.form.roleIds.required'))],
+    status: [createRequiredRule($t('page.system.user.form.status.required'))]
+  };
+
+  if (props.operateType === 'add') {
+    baseRules.phone = [
+      createRequiredRule($t('page.system.user.form.phonenumber.required')),
+      { ...patternRules.phone, trigger: ['change', 'blur'] }
+    ];
+  }
+
+  if (!showCreatePasswordFields.value) {
+    return baseRules;
+  }
+
+  return {
+    ...baseRules,
+    password: [createRequiredRule($t('page.system.user.form.password.required')), patternRules.pwd],
+    rsa_pwd: [createRequiredRule($t('page.system.user.form.confirmPassword.required')), patternRules.pwd]
+  };
+});
 
 function handleUpdateModelWhenEdit() {
   model.value = createDefaultModel();
+  resetPhoneCheck();
   startLoading();
   if (props.operateType === 'edit' && props.rowData) {
     startDeptLoading();
@@ -90,12 +131,22 @@ function closeDrawer() {
   visible.value = false;
 }
 
+async function handlePhoneBlur() {
+  if (props.operateType !== 'add') return;
+  await checkPhone();
+}
+
 async function handleSubmit() {
   await validate();
 
   if (props.operateType === 'add') {
+    const checked = await checkPhone();
+    if (!checked) return;
+
     const params = {
-      rsa_pwd: encryptByRsa(model.value.rsa_pwd as string, import.meta.env.VITE_APP_RSA_PUBLIC_KEY || '') as string,
+      rsa_pwd: showPasswordFields.value
+        ? (encryptByRsa(model.value.rsa_pwd as string, import.meta.env.VITE_APP_RSA_PUBLIC_KEY || '') as string)
+        : '',
       user: model.value
     };
 
@@ -120,6 +171,17 @@ watch(visible, () => {
     restoreValidation();
   }
 });
+
+watch(
+  () => model.value.phone,
+  () => {
+    if (props.operateType === 'add') {
+      resetPhoneCheckStatus();
+    } else {
+      resetPhoneCheck();
+    }
+  }
+);
 </script>
 
 <template>
@@ -160,16 +222,23 @@ watch(visible, () => {
               :request-params="{ list_option: { limit: 20, offset: 0 } }"
             />
           </NFormItem>
-          <NFormItem :label="$t('page.system.user.phonenumber')" :path="operateType === 'add' ? 'phone' : ''">
+          <NFormItem
+            ref="phoneFormItemRef"
+            :label="$t('page.system.user.phonenumber')"
+            :path="operateType === 'add' ? 'phone' : ''"
+            :validation-status="phoneValidationStatus"
+            :feedback="phoneFeedback"
+          >
             <NInput
               v-model:value="model.phone"
               :placeholder="$t('page.system.user.form.phonenumber.required')"
               :disabled="operateType === 'edit'"
               :maxlength="11"
+              @blur="handlePhoneBlur"
             />
           </NFormItem>
 
-          <template v-if="operateType === 'add'">
+          <template v-if="showCreatePasswordFields">
             <NFormItem :label="$t('page.system.user.password')" path="password">
               <NInput
                 v-model:value="model.password"

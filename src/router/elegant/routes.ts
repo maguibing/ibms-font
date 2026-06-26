@@ -76,6 +76,15 @@ export const generatedRoutes: GeneratedRoute[] = [
           title: 'corp_corp-list',
           i18nKey: 'route.corp_corp-list'
         }
+      },
+      {
+        name: 'corp_version',
+        path: '/corp/version',
+        component: 'view.corp_version',
+        meta: {
+          title: 'corp_version',
+          i18nKey: 'route.corp_version'
+        }
       }
     ]
   },

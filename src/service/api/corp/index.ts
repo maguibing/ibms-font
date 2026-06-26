@@ -54,6 +54,15 @@ export function fetchBindVersionCorp(data: Api.System.BindVersionCorpParams) {
   });
 }
 
+/** 校验手机号 */
+export function fetchCheckPhone(data: { phone: string; p_type?: number }) {
+  return request<{ is_exist?: boolean }>({
+    url: '/CheckPhone',
+    method: 'post',
+    data
+  });
+}
+
 /** 新增集成商 */
 export function fetchAddCorp(data: Api.System.CorpOperateParams) {
   return request({

@@ -25,6 +25,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   about: () => import("@/views/about/index.vue"),
   "corp_corp-detail": () => import("@/views/corp/corp-detail/index.vue"),
   "corp_corp-list": () => import("@/views/corp/corp-list/index.vue"),
+  corp_version: () => import("@/views/corp/version/index.vue"),
   demo_demo: () => import("@/views/demo/demo/index.vue"),
   demo_tree: () => import("@/views/demo/tree/index.vue"),
   global_activate: () => import("@/views/global/activate/index.vue"),

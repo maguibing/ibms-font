@@ -28,6 +28,7 @@ declare module "@elegant-router/types" {
     "corp": "/corp";
     "corp_corp-detail": "/corp/corp-detail";
     "corp_corp-list": "/corp/corp-list";
+    "corp_version": "/corp/version";
     "demo": "/demo";
     "demo_demo": "/demo/demo";
     "demo_tree": "/demo/tree";
@@ -149,6 +150,7 @@ declare module "@elegant-router/types" {
     | "about"
     | "corp_corp-detail"
     | "corp_corp-list"
+    | "corp_version"
     | "demo_demo"
     | "demo_tree"
     | "global_activate"
