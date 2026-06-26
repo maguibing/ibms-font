@@ -100,9 +100,9 @@ handleLoginRember();
 
 // handleRegister();
 
-async function handleSocialLogin() {
-  window.$message?.warning('暂未开放，敬请期待');
-}
+// async function handleSocialLogin() {
+//   window.$message?.warning('暂未开放，敬请期待');
+// }
 </script>
 
 <template>
@@ -159,7 +159,8 @@ async function handleSocialLogin() {
       <div class="color-#858585">{{ $t('page.login.pwdLogin.otherAccountLogin') }}</div>
     </NDivider>
 
-    <div class="w-full flex-y-center gap-16px">
+    <!--
+ <div class="w-full flex-y-center gap-16px">
       <NButton class="flex-1" @click="handleSocialLogin">
         <template #icon>
           <icon-simple-icons-gitee class="color-#c71d23" />
@@ -173,6 +174,7 @@ async function handleSocialLogin() {
         <span class="ml-6px">GitHub</span>
       </NButton>
     </div>
+-->
 
     <div class="mt-24px w-full text-center text-18px text-#858585">
       您还没有账户？

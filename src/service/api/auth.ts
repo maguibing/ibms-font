@@ -22,6 +22,24 @@ export function fetchLogin(data: Api.Auth.PwdLoginForm) {
   });
 }
 
+/** Send verify code */
+export function fetchSendVerifyCode(data: { phone: string }) {
+  return request({
+    url: '/SendVerifyCode',
+    method: 'POST',
+    data
+  });
+}
+
+/** Forget password */
+export function fetchForgetPassword(data: { phone: string; verify_code: string; rsa_pwd: string }) {
+  return request({
+    url: '/ForgetPassword',
+    method: 'POST',
+    data
+  });
+}
+
 /** social login callback */
 export function fetchSocialLoginCallback(data: Api.Auth.SocialLoginForm) {
   return request({
