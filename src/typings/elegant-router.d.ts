@@ -49,6 +49,8 @@ declare module "@elegant-router/types" {
     "system_role": "/system/role";
     "system_user": "/system/user";
     "user-center": "/user-center";
+    "version": "/version";
+    "version_version-list": "/version/version-list";
   };
 
   /**
@@ -97,6 +99,7 @@ declare module "@elegant-router/types" {
     | "monitor"
     | "system"
     | "user-center"
+    | "version"
   >;
 
   /**
@@ -137,6 +140,7 @@ declare module "@elegant-router/types" {
     | "system_dept"
     | "system_role"
     | "system_user"
+    | "version_version-list"
   >;
 
   /**

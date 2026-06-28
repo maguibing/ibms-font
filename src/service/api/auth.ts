@@ -22,6 +22,22 @@ export function fetchLogin(data: Api.Auth.PwdLoginForm) {
   });
 }
 
+export function fetchCpLogin(data: Api.Auth.PwdLoginForm) {
+  return request<Api.Auth.CorpLoginData>({
+    url: '/Login',
+    method: 'POST',
+    data
+  });
+}
+
+export function fetchSelectCorp(data: Api.Auth.SelectCorpForm) {
+  return request<Api.Auth.LoginToken>({
+    url: '/SelectCorp',
+    method: 'POST',
+    data
+  });
+}
+
 /** Send verify code */
 export function fetchSendVerifyCode(data: { phone: string }) {
   return request({

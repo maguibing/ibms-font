@@ -57,6 +57,48 @@ declare namespace Api {
       user_id?: string;
     }
 
+    interface CorpLoginCorp {
+      corp_id: number;
+      name: string;
+      status?: number;
+      audit_status?: number;
+      contact_id?: number;
+      ad_code?: string;
+      ad_address?: string;
+      address?: string;
+    }
+
+    interface CorpLoginUser {
+      user_id: number;
+      created_at?: number;
+      p_type?: number;
+      username: string;
+      account_id?: number;
+      gender?: number;
+      role_id?: number;
+      phone?: string;
+      status?: number;
+      biz_id?: number;
+    }
+
+    interface CorpLoginItem {
+      corp: CorpLoginCorp;
+      user: CorpLoginUser;
+    }
+
+    interface CorpLoginData {
+      corp_list: CorpLoginItem[];
+      login_token: string;
+    }
+
+    interface SelectCorpForm {
+      corp_id: number;
+      login_token: string;
+      user_id: number;
+    }
+
+    type LoginResult = { type: 'corp-list'; data: CorpLoginData } | undefined;
+
     /** 用户基础信息 */
     interface UserInfoUser {
       user_id: number;

@@ -10,6 +10,7 @@ import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { localStg } from '@/utils/storage';
 import { decryptWithAes, encryptWithAes } from '@/utils/crypto';
 import { $t } from '@/locales';
+import CorpLoginList from './corp-login-list.vue';
 
 const aesKey = CryptoJS.enc.Utf8.parse(import.meta.env.VITE_REMEMBER_ME_AES_KEY || 'pC4aO6cD2uU7hA0bK6iD4vE1mV8sU8xG');
 
@@ -25,6 +26,7 @@ const { loading: codeLoading, startLoading: startCodeLoading, endLoading: endCod
 const codeUrl = ref<string>();
 const registerEnabled = ref<boolean>(false);
 const remberMe = ref<boolean>(false);
+const cpLoginData = ref<Api.Auth.CorpLoginData | null>(null);
 
 const model: Api.Auth.PwdLoginForm = reactive({
   phone: '15102068523',
@@ -63,7 +65,11 @@ async function handleSubmit() {
       ...model,
       rsa_pwd: encryptByRsa(model.rsa_pwd as string, import.meta.env.VITE_APP_RSA_PUBLIC_KEY || '')
     };
-    await authStore.login(reqParmas);
+    const result = await authStore.login(reqParmas);
+
+    if (result?.type === 'corp-list') {
+      await handleCorpLoginData(result.data);
+    }
   } catch {
     handleFetchCaptchaCode();
   }
@@ -92,21 +98,52 @@ function handleLoginRember() {
 
 handleLoginRember();
 
-// async function handleRegister() {
-//   const { data, error } = await fetchGetConfigDetail('sys.account.registerUser');
-//   if (error) return;
-//   registerEnabled.value = data.configValue === 'true';
-// }
+function handleBackLogin() {
+  cpLoginData.value = null;
+  handleFetchCaptchaCode();
+}
 
-// handleRegister();
+async function handleCorpLoginData(corpLoginData: Api.Auth.CorpLoginData) {
+  const [onlyCorp] = corpLoginData.corp_list;
 
-// async function handleSocialLogin() {
-//   window.$message?.warning('暂未开放，敬请期待');
-// }
+  if (corpLoginData.corp_list.length !== 1 || !onlyCorp) {
+    cpLoginData.value = corpLoginData;
+    return;
+  }
+
+  try {
+    await loginWithCorp(corpLoginData, onlyCorp);
+  } catch {
+    cpLoginData.value = corpLoginData;
+  }
+}
+
+async function handleSelectCorp(item: Api.Auth.CorpLoginItem) {
+  if (!cpLoginData.value) return;
+
+  try {
+    await loginWithCorp(cpLoginData.value, item);
+  } catch {}
+}
+
+async function loginWithCorp(corpLoginData: Api.Auth.CorpLoginData, item: Api.Auth.CorpLoginItem) {
+  await authStore.selectCorpLogin({
+    corp_id: item.corp.corp_id,
+    login_token: corpLoginData.login_token,
+    user_id: item.user.user_id
+  });
+}
 </script>
 
 <template>
-  <div>
+  <CorpLoginList
+    v-if="cpLoginData"
+    :corp-list="cpLoginData.corp_list"
+    :loading="authStore.loginLoading"
+    @back="handleBackLogin"
+    @select="handleSelectCorp"
+  />
+  <div v-else>
     <div class="mb-5px text-32px text-black font-600 dark:text-white">登录到您的账户</div>
     <div class="pb-18px text-16px text-#858585">欢迎回来！请输入您的账户信息</div>
     <NForm
@@ -158,23 +195,6 @@ handleLoginRember();
     <NDivider>
       <div class="color-#858585">{{ $t('page.login.pwdLogin.otherAccountLogin') }}</div>
     </NDivider>
-
-    <!--
- <div class="w-full flex-y-center gap-16px">
-      <NButton class="flex-1" @click="handleSocialLogin">
-        <template #icon>
-          <icon-simple-icons-gitee class="color-#c71d23" />
-        </template>
-        <span class="ml-6px">Gitee</span>
-      </NButton>
-      <NButton class="flex-1" @click="handleSocialLogin">
-        <template #icon>
-          <icon-mdi-github class="color-#010409" />
-        </template>
-        <span class="ml-6px">GitHub</span>
-      </NButton>
-    </div>
--->
 
     <div class="mt-24px w-full text-center text-18px text-#858585">
       您还没有账户？

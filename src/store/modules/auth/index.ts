@@ -2,7 +2,7 @@ import { computed, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { defineStore } from 'pinia';
 import { useLoading } from '@sa/hooks';
-import { fetchGetBaseInfo, fetchLogin, fetchLogout } from '@/service/api';
+import { fetchCpLogin, fetchGetBaseInfo, fetchLogin, fetchLogout, fetchSelectCorp } from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
 import { localStg } from '@/utils/storage';
 import { SetupStoreId } from '@/enum';
@@ -95,12 +95,27 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     return false;
   }
 
+  async function redirectAfterLogin(redirect: boolean) {
+    const isClear = checkTabClear();
+    let needRedirect = redirect;
+
+    if (isClear) {
+      // If the tab needs to be cleared,it means we don't need to redirect.
+      needRedirect = false;
+    }
+
+    await redirectFromLogin(needRedirect);
+  }
+
   /**
    * Login
    *
    * @param [redirect=true] Whether to redirect after login. Default is `true`
    */
-  async function login(loginForm: Api.Auth.PwdLoginForm | Api.Auth.SocialLoginForm, redirect = true) {
+  async function login(
+    loginForm: Api.Auth.PwdLoginForm | Api.Auth.SocialLoginForm,
+    redirect = true
+  ): Promise<Api.Auth.LoginResult> {
     startLoading();
 
     const { VITE_APP_CLIENT_ID } = import.meta.env;
@@ -111,27 +126,57 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
       grantType: loginForm.grantType ?? 'password'
     };
 
-    const { data: loginToken, error } = await fetchLogin(loginData);
+    let result: Api.Auth.LoginResult = undefined;
+    let loginError: unknown = null;
+
+    if (import.meta.env.VITE_APP_SCENE === 'cp') {
+      const { data: cpLoginData, error } = await fetchCpLogin(loginData);
+
+      if (!error) {
+        result = {
+          type: 'corp-list',
+          data: cpLoginData
+        };
+      } else {
+        loginError = error;
+        resetStore();
+      }
+    } else {
+      const { data: loginToken, error } = await fetchLogin(loginData);
+
+      if (!error) {
+        const pass = await loginByToken(loginToken);
+
+        if (pass) {
+          await redirectAfterLogin(redirect);
+
+          // window.$notification?.success({
+          //   title: $t('page.login.common.loginSuccess'),
+          //   content: $t('page.login.common.welcomeBack', { userName: userInfo.userName }),
+          //   duration: 4500
+          // });
+        }
+      } else {
+        loginError = error;
+        resetStore();
+      }
+    }
+
+    endLoading();
+
+    return loginError ? Promise.reject(loginError) : result;
+  }
+
+  async function selectCorpLogin(selectCorpForm: Api.Auth.SelectCorpForm, redirect = true) {
+    startLoading();
+
+    const { data: loginToken, error } = await fetchSelectCorp(selectCorpForm);
 
     if (!error) {
       const pass = await loginByToken(loginToken);
 
       if (pass) {
-        // Check if the tab needs to be cleared
-        const isClear = checkTabClear();
-        let needRedirect = redirect;
-
-        if (isClear) {
-          // If the tab needs to be cleared,it means we don't need to redirect.
-          needRedirect = false;
-        }
-        await redirectFromLogin(needRedirect);
-
-        // window.$notification?.success({
-        //   title: $t('page.login.common.loginSuccess'),
-        //   content: $t('page.login.common.welcomeBack', { userName: userInfo.userName }),
-        //   duration: 4500
-        // });
+        await redirectAfterLogin(redirect);
       }
     } else {
       resetStore();
@@ -193,6 +238,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     loginLoading,
     resetStore,
     login,
+    selectCorpLogin,
     logout,
     initUserInfo
   };

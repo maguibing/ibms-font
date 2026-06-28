@@ -194,7 +194,9 @@ const routeMap: RouteMap = {
   "system_dept": "/system/dept",
   "system_role": "/system/role",
   "system_user": "/system/user",
-  "user-center": "/user-center"
+  "user-center": "/user-center",
+  "version": "/version",
+  "version_version-list": "/version/version-list"
 };
 
 /**

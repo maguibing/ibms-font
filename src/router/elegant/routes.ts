@@ -288,5 +288,25 @@ export const generatedRoutes: GeneratedRoute[] = [
       icon: 'material-symbols:account-circle-full',
       hideInMenu: true
     }
+  },
+  {
+    name: 'version',
+    path: '/version',
+    component: 'layout.base',
+    meta: {
+      title: 'version',
+      i18nKey: 'route.version'
+    },
+    children: [
+      {
+        name: 'version_version-list',
+        path: '/version/version-list',
+        component: 'view.version_version-list',
+        meta: {
+          title: 'version_version-list',
+          i18nKey: 'route.version_version-list'
+        }
+      }
+    ]
   }
 ];
