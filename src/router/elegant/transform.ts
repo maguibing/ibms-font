@@ -190,6 +190,8 @@ const routeMap: RouteMap = {
   "menu_project-menu": "/menu/project-menu",
   "monitor": "/monitor",
   "monitor_operlog": "/monitor/operlog",
+  "project": "/project",
+  "project_project-list": "/project/project-list",
   "system": "/system",
   "system_dept": "/system/dept",
   "system_role": "/system/role",

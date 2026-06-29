@@ -20,8 +20,53 @@ export function fetchGetSysScreen(data: { id: CommonType.IdType; options?: Commo
 
 /** 获取项目列表 */
 export function fetchGetProjectList(data: CommonType.CommonListQueryParams) {
-  return request<Api.Common.PaginatingQueryRecord<CommonType.IdNameRecord>>({
+  return request<Api.System.ProjectList>({
     url: '/ListProject',
+    method: 'post',
+    data
+  });
+}
+
+/** 获取项目成员列表 */
+export function fetchGetProjectUserList(data: Api.System.ProjectUserListParams) {
+  return request<Api.System.ProjectUserList>({
+    url: '/ListProjectUser',
+    method: 'post',
+    data
+  });
+}
+
+/** 修改项目成员 */
+export function fetchUpdateProjectUser(data: Api.System.ProjectUserUpdateParams) {
+  return request({
+    url: '/UpdateProjectUser',
+    method: 'post',
+    data
+  });
+}
+
+/** 创建项目 */
+export function fetchCreateProject(data: Api.System.ProjectOperateParams) {
+  return request({
+    url: '/CreateProject',
+    method: 'post',
+    data
+  });
+}
+
+/** 修改项目 */
+export function fetchUpdateProject(data: Api.System.ProjectUpdateParams) {
+  return request({
+    url: '/UpdateProject',
+    method: 'post',
+    data
+  });
+}
+
+/** 删除项目 */
+export function fetchDeleteProject(data: Api.Common.CommonIdList) {
+  return request({
+    url: '/DeleteProject',
     method: 'post',
     data
   });

@@ -239,6 +239,26 @@ export const generatedRoutes: GeneratedRoute[] = [
     ]
   },
   {
+    name: 'project',
+    path: '/project',
+    component: 'layout.base',
+    meta: {
+      title: 'project',
+      i18nKey: 'route.project'
+    },
+    children: [
+      {
+        name: 'project_project-list',
+        path: '/project/project-list',
+        component: 'view.project_project-list',
+        meta: {
+          title: 'project_project-list',
+          i18nKey: 'route.project_project-list'
+        }
+      }
+    ]
+  },
+  {
     name: 'system',
     path: '/system',
     component: 'layout.base',

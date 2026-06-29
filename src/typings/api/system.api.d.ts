@@ -96,6 +96,7 @@ declare namespace Api {
     type CorpProjectVersion = Common.CommonRecord<{
       id: CommonType.IdType;
       corp_id?: CommonType.IdType;
+      corp_name?: string;
       project_id?: CommonType.IdType;
       name: string;
       desc?: string;
@@ -127,6 +128,38 @@ declare namespace Api {
 
     type CorpProjectVersionListParams = CommonType.CommonListQueryParams & {
       corp_id?: CommonType.IdType;
+    };
+
+    type VersionMenuItem = {
+      id?: CommonType.IdType;
+      menu_id?: CommonType.IdType;
+      type?: number | string;
+      name?: string;
+      title?: string;
+      label?: string;
+      path?: string;
+      children?: VersionMenuItem[];
+      [key: string]: unknown;
+    };
+
+    type GetVersionParams = {
+      version_id: CommonType.IdType;
+      options: CommonType.CommonKeysOptions[];
+    };
+
+    type GetVersionResponse = {
+      current_version?: CorpProjectVersion;
+      version?: CorpProjectVersion;
+      corp_project_version?: CorpProjectVersion;
+      corp?: Pick<Corp, 'id' | 'name'>;
+      corp_name?: string;
+      corp_map?: Record<string, Pick<Corp, 'id' | 'name'>>;
+      menu_list?: VersionMenuItem[];
+      menu_tree?: VersionMenuItem[];
+      version_menu?: VersionMenuItem[];
+      menu_map?: Record<string, VersionMenuItem>;
+      random_list?: string[];
+      all_list?: string[];
     };
 
     type CorpProjectVersionSearchParams = CommonType.RecordNullable<
@@ -412,6 +445,79 @@ declare namespace Api {
     type SysScreenSearchParams = CommonType.RecordNullable<
       Pick<Api.System.SysScreen, 'name' | 'industry_type'> & Api.Common.CommonSearchParams
     >;
+
+    type Project = Api.Common.CommonRecord<{
+      id: CommonType.IdType;
+      ad_code?: string;
+      ad_address?: string;
+      address?: string;
+      corp_leader_id?: CommonType.IdType;
+      desc?: string;
+      leader_phone?: string;
+      leader_username?: string;
+      name: string;
+      project_leader_id?: CommonType.IdType;
+      status?: number;
+      version_id?: CommonType.IdType;
+      version_name?: string;
+    }>;
+
+    type ProjectListExtra = {
+      base_user_map: Record<string, Pick<User, 'user_id' | 'username' | 'phone'>>;
+      version_map: Record<string, Pick<CorpProjectVersion, 'id' | 'name'>>;
+    };
+
+    type ProjectList = Api.Common.PaginatingQueryRecord<Project, ProjectListExtra>;
+
+    type ProjectUserStatus = 1 | 2;
+
+    type ProjectUser = Omit<User, 'status'> & {
+      biz_id: CommonType.IdType;
+      status?: ProjectUserStatus;
+    };
+
+    type ProjectUserListParams = {
+      list_option: {
+        options: Array<Partial<CommonType.CommonTypeOptions>>;
+        offset: number;
+        limit: number;
+      };
+      options: CommonType.CommonKeysOptions[];
+      project_id: CommonType.IdType;
+    };
+
+    type ProjectUserListExtra = {
+      leader_map: Record<string, boolean>;
+    };
+
+    type ProjectUserList = Api.Common.PaginatingQueryRecord<ProjectUser, ProjectUserListExtra>;
+
+    type ProjectUserUpdateParams = {
+      dept_id: number;
+      email: string;
+      gender: number;
+      role_id: number;
+      status: ProjectUserStatus;
+      user_id: number;
+      username: string;
+    };
+
+    type ProjectOperateParams = {
+      ad_address: string;
+      ad_code: string;
+      address: string;
+      desc: string;
+      leader_id: CommonType.IdType;
+      name: string;
+      rsa_pwd: string;
+      version_id: CommonType.IdType;
+    };
+
+    type ProjectUpdateParams = Omit<ProjectOperateParams, 'rsa_pwd'> & {
+      id: CommonType.IdType;
+    };
+
+    type ProjectSearchParams = CommonType.RecordNullable<Pick<Project, 'name'> & Api.Common.CommonSearchParams>;
 
     /** license type */
     type LicenseType = 1 | 2;

@@ -1,6 +1,6 @@
 <script setup lang="tsx">
 import { computed, ref, useTemplateRef } from 'vue';
-import { NDivider, NTime } from 'naive-ui';
+import { NDivider, NTag, NTime } from 'naive-ui';
 import { type FilterConfig, isValidFilterConfig } from '@sa/utils';
 import { fetchDeleteVersion, fetchGetCorpList, fetchGetVersionList } from '@/service/api/corp';
 import { useAppStore } from '@/store/modules/app';
@@ -91,6 +91,13 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
           tooltip: true
         },
         render: row => getCorpName(row.corp_id)
+      },
+      {
+        key: 'status',
+        title: '状态',
+        align: 'center',
+        minWidth: 100,
+        render: row => <NTag type={row.corp_id ? 'success' : 'warning'}>{row.corp_id ? '使用中' : '未分配'}</NTag>
       },
       {
         key: 'start_at',

@@ -27,6 +27,15 @@ export function fetchGetVersionList(data: Api.System.CorpProjectVersionListParam
   });
 }
 
+/** 获取版本详情 */
+export function fetchGetVersion(data: Api.System.GetVersionParams) {
+  return request<Api.System.GetVersionResponse>({
+    url: '/GetVersion',
+    method: 'post',
+    data
+  });
+}
+
 /** 续费版本 */
 export function fetchRenewalVersion(data: Api.System.RenewalVersionParams) {
   return request({
