@@ -10,7 +10,8 @@ import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { localStg } from '@/utils/storage';
 import { decryptWithAes, encryptWithAes } from '@/utils/crypto';
 import { $t } from '@/locales';
-import CorpLoginList from './corp-login-list.vue';
+import LoginSelectList from './login-select-list.vue';
+import type { LoginSelectItem } from './login-select-list.types';
 
 const aesKey = CryptoJS.enc.Utf8.parse(import.meta.env.VITE_REMEMBER_ME_AES_KEY || 'pC4aO6cD2uU7hA0bK6iD4vE1mV8sU8xG');
 
@@ -26,7 +27,7 @@ const { loading: codeLoading, startLoading: startCodeLoading, endLoading: endCod
 const codeUrl = ref<string>();
 const registerEnabled = ref<boolean>(false);
 const remberMe = ref<boolean>(false);
-const cpLoginData = ref<Api.Auth.CorpLoginData | null>(null);
+const selectedLoginData = ref<SelectedLoginData | null>(null);
 
 const model: Api.Auth.PwdLoginForm = reactive({
   phone: '15102068523',
@@ -36,6 +37,27 @@ const model: Api.Auth.PwdLoginForm = reactive({
 });
 
 type RuleKey = Extract<keyof Api.Auth.PwdLoginForm, 'phone' | 'rsa_pwd' | 'captcha_answer'>;
+
+type CorpLoginSelectItem = Extract<LoginSelectItem, { type: 'corp' }>;
+type ProjectLoginSelectItem = Extract<LoginSelectItem, { type: 'project' }>;
+
+interface BaseSelectedLoginData {
+  title: string;
+  subtitle: string;
+  searchPlaceholder: string;
+  emptyDescription: string;
+  loginToken: string;
+}
+
+type SelectedLoginData =
+  | (BaseSelectedLoginData & {
+      type: 'corp';
+      items: CorpLoginSelectItem[];
+    })
+  | (BaseSelectedLoginData & {
+      type: 'project';
+      items: ProjectLoginSelectItem[];
+    });
 
 const rules = computed<Record<RuleKey, App.Global.FormRule[]>>(() => {
   // inside computed to make locale reactive, if not apply i18n, you can define it without computed
@@ -67,8 +89,8 @@ async function handleSubmit() {
     };
     const result = await authStore.login(reqParmas);
 
-    if (result?.type === 'corp-list') {
-      await handleCorpLoginData(result.data);
+    if (result) {
+      await handleLoginResult(result);
     }
   } catch {
     handleFetchCaptchaCode();
@@ -99,49 +121,115 @@ function handleLoginRember() {
 handleLoginRember();
 
 function handleBackLogin() {
-  cpLoginData.value = null;
+  selectedLoginData.value = null;
   handleFetchCaptchaCode();
 }
 
-async function handleCorpLoginData(corpLoginData: Api.Auth.CorpLoginData) {
-  const [onlyCorp] = corpLoginData.corp_list;
+async function handleLoginResult(result: Exclude<Api.Auth.LoginResult, undefined>) {
+  const selectData = result.type === 'corp-list' ? createCorpSelectData(result.data) : createProjectSelectData(result.data);
 
-  if (corpLoginData.corp_list.length !== 1 || !onlyCorp) {
-    cpLoginData.value = corpLoginData;
+  await handleSelectData(selectData);
+}
+
+async function handleSelectData(selectData: SelectedLoginData) {
+  const [onlyItem] = selectData.items;
+
+  if (selectData.items.length !== 1 || !onlyItem || onlyItem.disabled) {
+    selectedLoginData.value = selectData;
     return;
   }
 
   try {
-    await loginWithCorp(corpLoginData, onlyCorp);
+    await loginSelectedItem(selectData, onlyItem);
   } catch {
-    cpLoginData.value = corpLoginData;
+    selectedLoginData.value = selectData;
   }
 }
 
-async function handleSelectCorp(item: Api.Auth.CorpLoginItem) {
-  if (!cpLoginData.value) return;
+async function handleSelectLogin(item: LoginSelectItem) {
+  if (!selectedLoginData.value) return;
 
   try {
-    await loginWithCorp(cpLoginData.value, item);
+    await loginSelectedItem(selectedLoginData.value, item);
   } catch {}
 }
 
-async function loginWithCorp(corpLoginData: Api.Auth.CorpLoginData, item: Api.Auth.CorpLoginItem) {
+async function loginSelectedItem(selectData: SelectedLoginData, item: LoginSelectItem) {
+  if (selectData.type !== item.type) return;
+
+  if (item.type === 'corp') {
+    await loginWithCorp(selectData.loginToken, item.raw);
+    return;
+  }
+
+  await loginWithProject(selectData.loginToken, item.raw);
+}
+
+function createCorpSelectData(corpLoginData: Api.Auth.CorpLoginData): SelectedLoginData {
+  return {
+    type: 'corp',
+    title: '选择集成商',
+    subtitle: '请选择本次登录的集成商',
+    searchPlaceholder: '搜索集成商或用户名',
+    emptyDescription: '暂无匹配集成商',
+    loginToken: corpLoginData.login_token,
+    items: corpLoginData.corp_list.map(item => ({
+      type: 'corp',
+      key: `${item.corp.corp_id}:${item.user.user_id}`,
+      title: item.corp.name,
+      subtitle: item.user.username,
+      raw: item
+    }))
+  };
+}
+
+function createProjectSelectData(projectLoginData: Api.Auth.ProjectLoginData): SelectedLoginData {
+  return {
+    type: 'project',
+    title: '选择项目',
+    subtitle: '请选择本次登录的项目',
+    searchPlaceholder: '搜索项目',
+    emptyDescription: '暂无匹配项目',
+    loginToken: projectLoginData.login_token,
+    items: projectLoginData.project_list.map(item => ({
+      type: 'project',
+      key: String(item.id),
+      title: item.name,
+      subtitle: `项目ID：${item.id}`,
+      disabled: !item.can_use,
+      raw: item
+    }))
+  };
+}
+
+async function loginWithCorp(loginToken: string, item: Api.Auth.CorpLoginItem) {
   await authStore.selectCorpLogin({
     corp_id: item.corp.corp_id,
-    login_token: corpLoginData.login_token,
+    login_token: loginToken,
     user_id: item.user.user_id
+  });
+}
+
+async function loginWithProject(loginToken: string, item: Api.Auth.ProjectLoginItem) {
+  await authStore.selectProjectLogin({
+    project_id: item.id,
+    login_token: loginToken,
+    user_id: item.user_id
   });
 }
 </script>
 
 <template>
-  <CorpLoginList
-    v-if="cpLoginData"
-    :corp-list="cpLoginData.corp_list"
+  <LoginSelectList
+    v-if="selectedLoginData"
+    :title="selectedLoginData.title"
+    :subtitle="selectedLoginData.subtitle"
+    :search-placeholder="selectedLoginData.searchPlaceholder"
+    :empty-description="selectedLoginData.emptyDescription"
+    :items="selectedLoginData.items"
     :loading="authStore.loginLoading"
     @back="handleBackLogin"
-    @select="handleSelectCorp"
+    @select="handleSelectLogin"
   />
   <div v-else>
     <div class="mb-5px text-32px text-black font-600 dark:text-white">登录到您的账户</div>

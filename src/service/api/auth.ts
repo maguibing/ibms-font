@@ -30,9 +30,25 @@ export function fetchCpLogin(data: Api.Auth.PwdLoginForm) {
   });
 }
 
+export function fetchPjLogin(data: Api.Auth.PwdLoginForm) {
+  return request<Api.Auth.ProjectLoginData>({
+    url: '/Login',
+    method: 'POST',
+    data
+  });
+}
+
 export function fetchSelectCorp(data: Api.Auth.SelectCorpForm) {
   return request<Api.Auth.LoginToken>({
     url: '/SelectCorp',
+    method: 'POST',
+    data
+  });
+}
+
+export function fetchSelectProject(data: Api.Auth.SelectProjectForm) {
+  return request<Api.Auth.LoginToken>({
+    url: '/SelectProject',
     method: 'POST',
     data
   });

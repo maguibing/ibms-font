@@ -91,13 +91,35 @@ declare namespace Api {
       login_token: string;
     }
 
+    interface ProjectLoginItem {
+      id: number;
+      name: string;
+      leader_id: number;
+      user_id: number;
+      can_use: boolean;
+    }
+
+    interface ProjectLoginData {
+      project_list: ProjectLoginItem[];
+      login_token: string;
+    }
+
     interface SelectCorpForm {
       corp_id: number;
       login_token: string;
       user_id: number;
     }
 
-    type LoginResult = { type: 'corp-list'; data: CorpLoginData } | undefined;
+    interface SelectProjectForm {
+      project_id: number;
+      login_token: string;
+      user_id: number;
+    }
+
+    type LoginResult =
+      | { type: 'corp-list'; data: CorpLoginData }
+      | { type: 'project-list'; data: ProjectLoginData }
+      | undefined;
 
     /** 用户基础信息 */
     interface UserInfoUser {

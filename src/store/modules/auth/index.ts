@@ -2,7 +2,15 @@ import { computed, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { defineStore } from 'pinia';
 import { useLoading } from '@sa/hooks';
-import { fetchCpLogin, fetchGetBaseInfo, fetchLogin, fetchLogout, fetchSelectCorp } from '@/service/api';
+import {
+  fetchCpLogin,
+  fetchGetBaseInfo,
+  fetchLogin,
+  fetchLogout,
+  fetchPjLogin,
+  fetchSelectCorp,
+  fetchSelectProject
+} from '@/service/api';
 import { useRouterPush } from '@/hooks/common/router';
 import { localStg } from '@/utils/storage';
 import { SetupStoreId } from '@/enum';
@@ -10,6 +18,10 @@ import { useRouteStore } from '../route';
 import { useTabStore } from '../tab';
 import { useNoticeStore } from '../notice';
 import { clearAuthStorage, getToken } from './shared';
+
+type LoginListResult = Exclude<Api.Auth.LoginResult, undefined>;
+
+type SceneLoginResult = { result: LoginListResult; error: null } | { result: undefined; error: unknown };
 
 export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   const route = useRoute();
@@ -129,18 +141,12 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     let result: Api.Auth.LoginResult = undefined;
     let loginError: unknown = null;
 
-    if (import.meta.env.VITE_APP_SCENE === 'cp') {
-      const { data: cpLoginData, error } = await fetchCpLogin(loginData);
+    const sceneLoginResult = await getSceneLoginResult(loginData);
 
-      if (!error) {
-        result = {
-          type: 'corp-list',
-          data: cpLoginData
-        };
-      } else {
-        loginError = error;
-        resetStore();
-      }
+    if (sceneLoginResult) {
+      result = sceneLoginResult.result;
+      loginError = sceneLoginResult.error;
+      if (loginError) resetStore();
     } else {
       const { data: loginToken, error } = await fetchLogin(loginData);
 
@@ -167,10 +173,34 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     return loginError ? Promise.reject(loginError) : result;
   }
 
+  async function getSceneLoginResult(loginData: Api.Auth.PwdLoginForm): Promise<SceneLoginResult | null> {
+    if (import.meta.env.VITE_APP_SCENE === 'cp') {
+      const { data, error } = await fetchCpLogin(loginData);
+
+      return error ? { result: undefined, error } : { result: { type: 'corp-list', data }, error: null };
+    }
+
+    if (import.meta.env.VITE_APP_SCENE === 'pj') {
+      const { data, error } = await fetchPjLogin(loginData);
+
+      return error ? { result: undefined, error } : { result: { type: 'project-list', data }, error: null };
+    }
+
+    return null;
+  }
+
   async function selectCorpLogin(selectCorpForm: Api.Auth.SelectCorpForm, redirect = true) {
+    return selectLoginToken(() => fetchSelectCorp(selectCorpForm), redirect);
+  }
+
+  async function selectProjectLogin(selectProjectForm: Api.Auth.SelectProjectForm, redirect = true) {
+    return selectLoginToken(() => fetchSelectProject(selectProjectForm), redirect);
+  }
+
+  async function selectLoginToken(fetchLoginToken: () => ReturnType<typeof fetchSelectCorp>, redirect = true) {
     startLoading();
 
-    const { data: loginToken, error } = await fetchSelectCorp(selectCorpForm);
+    const { data: loginToken, error } = await fetchLoginToken();
 
     if (!error) {
       const pass = await loginByToken(loginToken);
@@ -239,6 +269,7 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     resetStore,
     login,
     selectCorpLogin,
+    selectProjectLogin,
     logout,
     initUserInfo
   };
