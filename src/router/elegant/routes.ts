@@ -288,6 +288,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'system_system-log',
+        path: '/system/system-log',
+        component: 'view.system_system-log',
+        meta: {
+          title: 'system_system-log',
+          i18nKey: 'route.system_system-log'
+        }
+      },
+      {
         name: 'system_user',
         path: '/system/user',
         component: 'view.system_user',

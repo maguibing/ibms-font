@@ -195,6 +195,7 @@ const routeMap: RouteMap = {
   "system": "/system",
   "system_dept": "/system/dept",
   "system_role": "/system/role",
+  "system_system-log": "/system/system-log",
   "system_user": "/system/user",
   "user-center": "/user-center",
   "version": "/version",

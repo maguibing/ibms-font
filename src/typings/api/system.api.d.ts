@@ -554,6 +554,7 @@ declare namespace Api {
       dept_id?: number;
       gender?: number;
       role_id: number;
+      biz_id?: number;
       phone: string;
       email?: string;
       status?: number;
@@ -824,5 +825,49 @@ declare namespace Api {
 
     /** dept list */
     type DeptList = Api.Common.PaginatingQueryRecord<Dept>;
+
+    type SystemOperationLogExtra = {
+      os?: string;
+      browser?: string;
+      device?: string;
+      request_path?: string;
+      request_id?: string;
+      [key: string]: unknown;
+    };
+
+    type SystemOperationLog = Api.Common.CommonRecord<{
+      id: CommonType.IdType;
+      p_type: number;
+      biz_id: CommonType.IdType;
+      user_id: CommonType.IdType;
+      operate_type: number;
+      operate_module: number;
+      target_id?: CommonType.IdType;
+      target_name?: string;
+      ip?: string;
+      request_params?: string;
+      response_result?: string;
+      desc?: string;
+      extra?: SystemOperationLogExtra;
+    }>;
+
+    type SystemOperationLogListExtra = {
+      base_user_map?: Record<string, Pick<User, 'user_id' | 'username' | 'phone' | 'status' | 'p_type' | 'biz_id'>>;
+    };
+
+    type SystemOperationLogList = Api.Common.PaginatingQueryRecord<
+      SystemOperationLog,
+      SystemOperationLogListExtra
+    >;
+
+    type SystemOperationLogSearchParams = CommonType.RecordNullable<
+      Api.Common.CommonSearchParams & {
+        user_id: CommonType.IdType;
+        operate_type: number;
+        operate_module: number;
+        ip: string;
+        dateRange: [number, number];
+      }
+    >;
   }
 }
