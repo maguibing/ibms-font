@@ -5,7 +5,7 @@ import { useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
 
 defineOptions({
-  name: 'DeptSearch'
+  name: 'SpaceTypeSearch'
 });
 
 interface Emits {
@@ -16,7 +16,7 @@ const emit = defineEmits<Emits>();
 
 const { formRef, validate, restoreValidation } = useNaiveForm();
 
-const model = defineModel<Api.System.DeptSearchParams>('model', { required: true });
+const model = defineModel<Api.Space.SpaceTypeSearchParams>('model', { required: true });
 
 const defaultModel = jsonClone(toRaw(model.value));
 
@@ -39,13 +39,13 @@ async function search() {
 <template>
   <NCard :bordered="false" size="small" class="card-wrapper">
     <NCollapse>
-      <NCollapseItem :title="$t('common.search')" name="user-search">
+      <NCollapseItem :title="$t('common.search')" name="space-type-search">
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" :label="$t('page.system.dept.name')" path="name" class="pr-24px">
-              <NInput v-model:value="model.name" :placeholder="$t('page.system.dept.form.name.required')" />
+            <NFormItemGi span="24 s:12 m:8" label="关键字" label-width="auto" path="keyword" class="pr-24px">
+              <NInput v-model:value="model.keyword" clearable placeholder="请输入关键字" @keyup.enter="search" />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:16" class="pr-24px">
+            <NFormItemGi :show-feedback="false" span="24 s:12 m:16" class="pr-24px">
               <NSpace class="w-full" justify="end">
                 <NButton type="primary" ghost @click="search">
                   <template #icon>

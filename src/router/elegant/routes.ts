@@ -259,6 +259,35 @@ export const generatedRoutes: GeneratedRoute[] = [
     ]
   },
   {
+    name: 'space',
+    path: '/space',
+    component: 'layout.base',
+    meta: {
+      title: 'space',
+      i18nKey: 'route.space'
+    },
+    children: [
+      {
+        name: 'space_space-list',
+        path: '/space/space-list',
+        component: 'view.space_space-list',
+        meta: {
+          title: 'space_space-list',
+          i18nKey: 'route.space_space-list'
+        }
+      },
+      {
+        name: 'space_space-type',
+        path: '/space/space-type',
+        component: 'view.space_space-type',
+        meta: {
+          title: 'space_space-type',
+          i18nKey: 'route.space_space-type'
+        }
+      }
+    ]
+  },
+  {
     name: 'system',
     path: '/system',
     component: 'layout.base',

@@ -43,21 +43,21 @@ async function search() {
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
             <NFormItemGi span="24 s:12 m:6" label="角色名称" path="name" class="pr-24px">
-              <NInput v-model:value="model.name" placeholder="请输入角色名称" />
+              <NInput v-model:value="model.name" placeholder="请输入角色名称" @keyup.enter="search" />
             </NFormItemGi>
             <NFormItemGi span="24 s:12 m:18" class="pr-24px">
               <NSpace class="w-full" justify="end">
-                <NButton @click="reset">
-                  <template #icon>
-                    <icon-ic-round-refresh class="text-icon" />
-                  </template>
-                  {{ $t('common.reset') }}
-                </NButton>
                 <NButton type="primary" ghost @click="search">
                   <template #icon>
                     <icon-ic-round-search class="text-icon" />
                   </template>
                   {{ $t('common.search') }}
+                </NButton>
+                <NButton @click="reset">
+                  <template #icon>
+                    <icon-ic-round-refresh class="text-icon" />
+                  </template>
+                  {{ $t('common.reset') }}
                 </NButton>
               </NSpace>
             </NFormItemGi>

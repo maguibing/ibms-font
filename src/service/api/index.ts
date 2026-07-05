@@ -5,4 +5,5 @@ export * from './industry';
 export * from './sys-screen';
 export * from './device-type-template';
 export * from './device';
+export * from './space';
 export * from './system/system-log';

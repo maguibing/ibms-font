@@ -46,6 +46,9 @@ declare module "@elegant-router/types" {
     "monitor_operlog": "/monitor/operlog";
     "project": "/project";
     "project_project-list": "/project/project-list";
+    "space": "/space";
+    "space_space-list": "/space/space-list";
+    "space_space-type": "/space/space-type";
     "system": "/system";
     "system_dept": "/system/dept";
     "system_role": "/system/role";
@@ -101,6 +104,7 @@ declare module "@elegant-router/types" {
     | "menu"
     | "monitor"
     | "project"
+    | "space"
     | "system"
     | "user-center"
     | "version"
@@ -142,6 +146,8 @@ declare module "@elegant-router/types" {
     | "menu_project-menu"
     | "monitor_operlog"
     | "project_project-list"
+    | "space_space-list"
+    | "space_space-type"
     | "system_dept"
     | "system_role"
     | "system_system-log"
