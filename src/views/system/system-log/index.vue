@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, shallowRef } from 'vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
+import DeviceOperationLog from './modules/device-operation-log.vue';
 import SystemOperationLog from './modules/system-operation-log.vue';
 
 defineOptions({
@@ -34,17 +35,15 @@ const logMenuOptions: LogTab[] = [
   {
     label: logTitleMap.device,
     key: 'device',
-    icon: 'material-symbols:devices-outline-rounded',
-    disabled: true
+    icon: 'material-symbols:devices-outline-rounded'
   }
 ];
 
-const activeLogTitle = computed(() => logTitleMap[activeLogType.value]);
 const tabPlacement = computed<'left' | 'top'>(() => (isCompact.value ? 'top' : 'left'));
 </script>
 
 <template>
-  <div class="min-h-880px flex items-stretch gap-16px overflow-hidden lt-lg:flex-col lt-lg:overflow-auto">
+  <div class="system-log-layout flex items-stretch gap-16px overflow-hidden lt-lg:flex-col lt-sm:overflow-auto">
     <NCard
       :bordered="false"
       size="small"
@@ -70,9 +69,9 @@ const tabPlacement = computed<'left' | 'top'>(() => (isCompact.value ? 'top' : '
       </NTabs>
     </NCard>
 
-    <div class="min-w-0 flex-1-hidden flex-col-stretch">
+    <div class="min-w-0 flex-col-stretch lg:flex-1-hidden">
       <SystemOperationLog v-if="activeLogType === 'system'" />
-      <NCard v-else :title="activeLogTitle" :bordered="false" size="small" class="card-wrapper" />
+      <DeviceOperationLog v-else />
     </div>
   </div>
 </template>
@@ -80,6 +79,12 @@ const tabPlacement = computed<'left' | 'top'>(() => (isCompact.value ? 'top' : '
 <style scoped>
 .system-log-sider :deep(.n-tabs-nav) {
   width: 100%;
+}
+
+.system-log-layout {
+  --system-log-min-height: max(500px, calc(100vh - 85px - var(--calc-footer-height, 0px)));
+
+  min-height: var(--system-log-min-height);
 }
 
 .system-log-sider :deep(.n-tabs-tab) {

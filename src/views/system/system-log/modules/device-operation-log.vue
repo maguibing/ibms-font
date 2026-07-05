@@ -1,30 +1,29 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { formatDateTime } from '@sa/utils';
-import { fetchGetSystemLogList } from '@/service/api/system';
+import { fetchGetDeviceOperationLogList } from '@/service/api/system';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
-import { operateModuleOptions, operateTypeOptions } from './system-operation-log.constants';
-import SystemOperationLogSearch from './system-operation-log-search.vue';
+import DeviceOperationLogSearch from './device-operation-log-search.vue';
 
 defineOptions({
-  name: 'SystemOperationLog'
+  name: 'DeviceOperationLog'
 });
 
 const appStore = useAppStore();
 
-const searchParams = ref<Api.System.SystemOperationLogSearchParams>(createDefaultSearchParams());
+const searchParams = ref<Api.System.DeviceOperationLogSearchParams>(createDefaultSearchParams());
 
 const { columns, data, getDataByPage, loading, mobilePagination, scrollX, extraData } = useNaivePaginatedTable({
-  api: () => fetchGetSystemLogList(transformSearchParamsToRequest(searchParams.value)),
-  transform: response => defaultTransform<Api.System.SystemOperationLog>(response),
+  api: () => fetchGetDeviceOperationLogList(transformSearchParamsToRequest(searchParams.value)),
+  transform: response => defaultTransform<Api.System.DeviceOperationLog>(response),
   onPaginationParamsChange: params => {
     searchParams.value.pageNum = params.page;
     searchParams.value.pageSize = params.pageSize;
   },
   paginationProps: { pageSize: 50 },
-  columns: (): NaiveUI.TableColumn<Api.System.SystemOperationLog>[] => [
+  columns: (): NaiveUI.TableColumn<Api.System.DeviceOperationLog>[] => [
     {
       key: 'index',
       title: $t('common.index'),
@@ -40,70 +39,52 @@ const { columns, data, getDataByPage, loading, mobilePagination, scrollX, extraD
       render: row => formatDateTime(row.created_at)
     },
     {
-      key: 'user_id',
+      key: 'operator_id',
       title: '操作人',
       align: 'center',
       minWidth: 140,
       ellipsis: {
         tooltip: true
       },
-      render: row => getOperatorName(row.user_id)
+      render: row => getOperatorName(row.operator_id)
     },
     {
-      key: 'operate_type',
-      title: '操作类型',
-      align: 'center',
-      minWidth: 120,
-      render: row =>
-        String(
-          operateTypeOptions.find(item => String(item.value) === String(row.operate_type))?.label ??
-            row.operate_type ??
-            '-'
-        )
-    },
-    {
-      key: 'operate_module',
-      title: '操作模块',
-      align: 'center',
-      minWidth: 120,
-      render: row =>
-        String(
-          operateModuleOptions.find(item => String(item.value) === String(row.operate_module))?.label ??
-            row.operate_module ??
-            '-'
-        )
-    },
-    {
-      key: 'ip',
-      title: 'IP',
+      key: 'point',
+      title: '点位',
       align: 'center',
       minWidth: 140,
       ellipsis: {
         tooltip: true
       },
-      render: row => row.ip || '-'
+      render: row => getPointName(row)
     },
     {
-      key: 'desc',
-      title: '操作详情',
+      key: 'is_success',
+      title: '执行结果',
       align: 'center',
-      minWidth: 200,
+      minWidth: 120,
+      render: row => getExecuteResult(row)
+    },
+    {
+      key: 'fail_reason',
+      title: '失败原因',
+      align: 'center',
+      minWidth: 160,
       ellipsis: {
         tooltip: true
       },
-      render: row => row.desc || '-'
+      render: row => getFailReason(row)
     }
   ]
 });
 
-function createDefaultSearchParams(): Api.System.SystemOperationLogSearchParams {
+function createDefaultSearchParams(): Api.System.DeviceOperationLogSearchParams {
   return {
     pageNum: 1,
     pageSize: 50,
-    user_id: null,
-    operate_type: null,
-    operate_module: null,
-    ip: null,
+    device_id: null,
+    physical_point_id: null,
+    operator_id: null,
     dateRange: null
   };
 }
@@ -120,17 +101,16 @@ function normalizeDateRange(value?: [number, number] | null) {
 }
 
 function transformSearchParamsToRequest(
-  params: Api.System.SystemOperationLogSearchParams
+  params: Api.System.DeviceOperationLogSearchParams
 ): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
   const pageSize = params.pageSize || 10;
   const filterConfigs = [
     { type: 104, value: '101' },
-    { type: 1, value: params.user_id },
-    { type: 2, value: params.operate_type },
-    { type: 3, value: params.operate_module },
-    { type: 4, value: params.ip },
-    { type: 5, value: normalizeDateRange(params.dateRange) }
+    { type: 1, value: params.device_id },
+    { type: 2, value: params.physical_point_id },
+    { type: 3, value: params.operator_id },
+    { type: 103, value: normalizeDateRange(params.dateRange) }
   ];
 
   const options = filterConfigs
@@ -143,23 +123,43 @@ function transformSearchParamsToRequest(
       offset: (pageNum - 1) * pageSize,
       limit: pageSize
     },
-    options: [{ key: 1 }]
+    options: [{ key: 1 }, { key: 2 }, { key: 3 }]
   };
 }
 
-function getOperatorName(userId?: CommonType.IdType) {
-  if (!userId) return '-';
+function getOperatorName(operatorId?: CommonType.IdType) {
+  if (operatorId === undefined || operatorId === null || operatorId === '') return '系统';
 
   const raw = extraData.value as Api.System.OperationLogListExtra | null;
 
-  return raw?.base_user_map?.[String(userId)]?.username ?? String(userId);
+  return raw?.base_user_map?.[String(operatorId)]?.username ?? String(operatorId);
+}
+
+function getPointName(row: Api.System.DeviceOperationLog) {
+  return (
+    row.point_val?.physical_point?.name ??
+    row.point_val?.device_type_point?.name ??
+    row.point_val?.logic_point?.name ??
+    '-'
+  );
+}
+
+function getExecuteResult(row: Api.System.DeviceOperationLog) {
+  if (row.is_success === true) return '成功';
+  if (row.is_success === false) return '失败';
+
+  return '-';
+}
+
+function getFailReason(row: Api.System.DeviceOperationLog) {
+  return row.failure_reason || row.fail_reason || row.reason || '-';
 }
 </script>
 
 <template>
   <div class="system-log-content flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
-    <SystemOperationLogSearch v-model:model="searchParams" @search="getDataByPage" />
-    <NCard title="系统日志" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <DeviceOperationLogSearch v-model:model="searchParams" @search="getDataByPage" />
+    <NCard title="设备操作日志" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <DataTable
         :columns="columns"
         :data="data"

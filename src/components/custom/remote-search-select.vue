@@ -299,6 +299,7 @@ defineExpose({
     :loading="loading"
     :options="options"
     :remote="attrs.remote ?? true"
+    :reset-menu-on-options-change="attrs.resetMenuOnOptionsChange ?? false"
     clear-filter-after-select
     v-bind="$attrs"
     @clear="handleClear"

@@ -851,14 +851,11 @@ declare namespace Api {
       extra?: SystemOperationLogExtra;
     }>;
 
-    type SystemOperationLogListExtra = {
+    type OperationLogListExtra = {
       base_user_map?: Record<string, Pick<User, 'user_id' | 'username' | 'phone' | 'status' | 'p_type' | 'biz_id'>>;
     };
 
-    type SystemOperationLogList = Api.Common.PaginatingQueryRecord<
-      SystemOperationLog,
-      SystemOperationLogListExtra
-    >;
+    type SystemOperationLogList = Api.Common.PaginatingQueryRecord<SystemOperationLog, OperationLogListExtra>;
 
     type SystemOperationLogSearchParams = CommonType.RecordNullable<
       Api.Common.CommonSearchParams & {
@@ -866,6 +863,50 @@ declare namespace Api {
         operate_type: number;
         operate_module: number;
         ip: string;
+        dateRange: [number, number];
+      }
+    >;
+
+    type DeviceOperationLogPointVal = {
+      ts?: number;
+      logic_point?: Api.Device.PointOption;
+      device_type?: {
+        id?: CommonType.IdType;
+      };
+      device?: Api.Device.PointOption;
+      device_type_point?: Api.Device.PointOption;
+      physical_point?: Api.Device.PointOption;
+      data_type?: number;
+      num_val?: {
+        value?: number;
+        scale?: number;
+        [key: string]: unknown;
+      };
+      [key: string]: unknown;
+    };
+
+    type DeviceOperationLog = Api.Common.CommonRecord<{
+      id: CommonType.IdType;
+      project_id?: CommonType.IdType;
+      biz_type?: number;
+      biz_id?: CommonType.IdType;
+      operator_id?: CommonType.IdType;
+      physical_point_id?: CommonType.IdType;
+      continuous_times?: number;
+      point_val?: DeviceOperationLogPointVal;
+      is_success?: boolean;
+      fail_reason?: string;
+      failure_reason?: string;
+      reason?: string;
+    }>;
+
+    type DeviceOperationLogList = Api.Common.PaginatingQueryRecord<DeviceOperationLog, OperationLogListExtra>;
+
+    type DeviceOperationLogSearchParams = CommonType.RecordNullable<
+      Api.Common.CommonSearchParams & {
+        device_id: CommonType.IdType;
+        physical_point_id: CommonType.IdType;
+        operator_id: CommonType.IdType;
         dateRange: [number, number];
       }
     >;
