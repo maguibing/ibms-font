@@ -40,6 +40,7 @@ const logMenuOptions: LogTab[] = [
 ];
 
 const tabPlacement = computed<'left' | 'top'>(() => (isCompact.value ? 'top' : 'left'));
+const activeLogComponent = computed(() => (activeLogType.value === 'system' ? SystemOperationLog : DeviceOperationLog));
 </script>
 
 <template>
@@ -70,8 +71,9 @@ const tabPlacement = computed<'left' | 'top'>(() => (isCompact.value ? 'top' : '
     </NCard>
 
     <div class="min-w-0 flex-col-stretch lg:flex-1-hidden">
-      <SystemOperationLog v-if="activeLogType === 'system'" />
-      <DeviceOperationLog v-else />
+      <KeepAlive>
+        <component :is="activeLogComponent" />
+      </KeepAlive>
     </div>
   </div>
 </template>
