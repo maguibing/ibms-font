@@ -366,5 +366,34 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       }
     ]
+  },
+  {
+    name: 'visual',
+    path: '/visual',
+    component: 'layout.base',
+    meta: {
+      title: 'visual',
+      i18nKey: 'route.visual'
+    },
+    children: [
+      {
+        name: 'visual_sys-screen',
+        path: '/visual/sys-screen',
+        component: 'view.visual_sys-screen',
+        meta: {
+          title: 'visual_sys-screen',
+          i18nKey: 'route.visual_sys-screen'
+        }
+      },
+      {
+        name: 'visual_sys-screen-tag',
+        path: '/visual/sys-screen-tag',
+        component: 'view.visual_sys-screen-tag',
+        meta: {
+          title: 'visual_sys-screen-tag',
+          i18nKey: 'route.visual_sys-screen-tag'
+        }
+      }
+    ]
   }
 ];

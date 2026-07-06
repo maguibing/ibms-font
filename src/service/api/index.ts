@@ -7,3 +7,4 @@ export * from './device-type-template';
 export * from './device';
 export * from './space';
 export * from './system/system-log';
+export * from './visual/screen';

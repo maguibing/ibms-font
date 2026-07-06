@@ -202,7 +202,10 @@ const routeMap: RouteMap = {
   "system_user": "/system/user",
   "user-center": "/user-center",
   "version": "/version",
-  "version_version-list": "/version/version-list"
+  "version_version-list": "/version/version-list",
+  "visual": "/visual",
+  "visual_sys-screen": "/visual/sys-screen",
+  "visual_sys-screen-tag": "/visual/sys-screen-tag"
 };
 
 /**

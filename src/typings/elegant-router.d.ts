@@ -57,6 +57,9 @@ declare module "@elegant-router/types" {
     "user-center": "/user-center";
     "version": "/version";
     "version_version-list": "/version/version-list";
+    "visual": "/visual";
+    "visual_sys-screen": "/visual/sys-screen";
+    "visual_sys-screen-tag": "/visual/sys-screen-tag";
   };
 
   /**
@@ -108,6 +111,7 @@ declare module "@elegant-router/types" {
     | "system"
     | "user-center"
     | "version"
+    | "visual"
   >;
 
   /**
@@ -153,6 +157,8 @@ declare module "@elegant-router/types" {
     | "system_system-log"
     | "system_user"
     | "version_version-list"
+    | "visual_sys-screen-tag"
+    | "visual_sys-screen"
   >;
 
   /**
