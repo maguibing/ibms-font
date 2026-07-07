@@ -169,6 +169,35 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'ledger',
+    path: '/ledger',
+    component: 'layout.base',
+    meta: {
+      title: 'ledger',
+      i18nKey: 'route.ledger'
+    },
+    children: [
+      {
+        name: 'ledger_assets',
+        path: '/ledger/assets',
+        component: 'view.ledger_assets',
+        meta: {
+          title: 'ledger_assets',
+          i18nKey: 'route.ledger_assets'
+        }
+      },
+      {
+        name: 'ledger_assets-type',
+        path: '/ledger/assets-type',
+        component: 'view.ledger_assets-type',
+        meta: {
+          title: 'ledger_assets-type',
+          i18nKey: 'route.ledger_assets-type'
+        }
+      }
+    ]
+  },
+  {
     name: 'login',
     path: '/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?',
     component: 'layout.blank$view.login',

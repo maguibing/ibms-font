@@ -37,6 +37,9 @@ declare module "@elegant-router/types" {
     "global_sys-screen": "/global/sys-screen";
     "home": "/home";
     "iframe-page": "/iframe-page/:url";
+    "ledger": "/ledger";
+    "ledger_assets": "/ledger/assets";
+    "ledger_assets-type": "/ledger/assets-type";
     "login": "/login/:module(pwd-login|code-login|register|reset-pwd|bind-wechat)?";
     "menu": "/menu";
     "menu_corp-menu": "/menu/corp-menu";
@@ -105,6 +108,7 @@ declare module "@elegant-router/types" {
     | "global"
     | "home"
     | "iframe-page"
+    | "ledger"
     | "login"
     | "menu"
     | "monitor"
@@ -147,6 +151,8 @@ declare module "@elegant-router/types" {
     | "global_industry"
     | "global_sys-screen"
     | "home"
+    | "ledger_assets-type"
+    | "ledger_assets"
     | "menu_corp-menu"
     | "menu_platform-menu"
     | "menu_project-menu"
