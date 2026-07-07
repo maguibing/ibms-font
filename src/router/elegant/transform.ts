@@ -204,6 +204,8 @@ const routeMap: RouteMap = {
   "version": "/version",
   "version_version-list": "/version/version-list",
   "visual": "/visual",
+  "visual_configuration": "/visual/configuration",
+  "visual_custom-screen": "/visual/custom-screen",
   "visual_sys-screen": "/visual/sys-screen",
   "visual_sys-screen-tag": "/visual/sys-screen-tag"
 };

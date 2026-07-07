@@ -51,10 +51,7 @@ declare namespace Api {
       project_sys_screen_map: Record<string, Pick<ProjectSysScreen, 'id' | 'name'>>;
     };
 
-    type ProjectSysScreenTagList = Api.Common.PaginatingQueryRecord<
-      ProjectSysScreenTag,
-      ProjectSysScreenTagListExtra
-    >;
+    type ProjectSysScreenTagList = Api.Common.PaginatingQueryRecord<ProjectSysScreenTag, ProjectSysScreenTagListExtra>;
 
     type ProjectSysScreenTagOperateParams = CommonType.RecordNullable<
       Pick<ProjectSysScreenTag, 'id' | 'key' | 'name' | 'project_sys_screen_id' | 'scope'>
@@ -98,13 +95,18 @@ declare namespace Api {
 
     type ProjectSysScreenTagPointSearchParams = CommonType.RecordNullable<
       Pick<ProjectSysScreenTagPoint, 'device_id' | 'logic_point_id' | 'mapping_point_name'> &
-        Api.Common.CommonSearchParams
+      Api.Common.CommonSearchParams
     >;
 
     type ProjectSysScreenTagPointOperateParams = CommonType.RecordNullable<
       Pick<
         ProjectSysScreenTagPoint,
-        'id' | 'device_id' | 'logic_point_id' | 'mapping_point_name' | 'project_sys_screen_id' | 'project_sys_screen_tag_id'
+        | 'id'
+        | 'device_id'
+        | 'logic_point_id'
+        | 'mapping_point_name'
+        | 'project_sys_screen_id'
+        | 'project_sys_screen_tag_id'
       >
     >;
 
@@ -113,5 +115,89 @@ declare namespace Api {
     type ProjectSysScreenUpdateParams = {
       list: ProjectSysScreenUpdateItem[];
     };
+
+    type Configuration = Api.Common.CommonRecord<{
+      id: CommonType.IdType;
+      project_id: CommonType.IdType;
+      configuration_category_id?: CommonType.IdType;
+      name: string;
+      key: string;
+      desc?: string;
+      type?: number;
+      thumb_url?: string;
+      last_save_user_id?: CommonType.IdType;
+      last_publish_user_id?: CommonType.IdType;
+      publish_at?: number;
+    }>;
+
+    type ConfigurationBaseUser = {
+      user_id: CommonType.IdType;
+      created_at?: number;
+      p_type?: number;
+      username: string;
+      account_id?: CommonType.IdType;
+      gender?: number;
+      role_id?: CommonType.IdType;
+      phone?: string;
+      status?: number;
+      biz_id?: CommonType.IdType;
+    };
+
+    type ConfigurationListExtra = {
+      base_user_map: Record<string, ConfigurationBaseUser>;
+    };
+
+    type ConfigurationList = Api.Common.PaginatingQueryRecord<Configuration, ConfigurationListExtra>;
+
+    type ConfigurationSearchParams = CommonType.RecordNullable<
+      Pick<Configuration, 'name'> & Api.Common.CommonSearchParams
+    >;
+
+    type ConfigurationOperateParams = CommonType.RecordNullable<
+      Pick<Configuration, 'id' | 'name' | 'configuration_category_id' | 'desc' | 'type'>
+    >;
+
+    type ConfigurationCloneParams = CommonType.RecordNullable<Pick<Configuration, 'id' | 'name' | 'desc'>>;
+
+    type ConfigurationCategory = {
+      id: CommonType.IdType;
+      name: string;
+      parent_id?: CommonType.IdType;
+      children?: ConfigurationCategory[];
+    };
+
+    type ConfigurationCategoryTreeResponse = {
+      trees: ConfigurationCategory[];
+    };
+
+    type ConfigurationCategoryOperateParams = {
+      id?: CommonType.IdType | null;
+      name: string;
+      parent_id: CommonType.IdType;
+    };
+
+    type CustomScreen = Api.Common.CommonRecord<{
+      id: CommonType.IdType;
+      project_id: CommonType.IdType;
+      name: string;
+      key: string;
+      desc?: string;
+      thumb_url?: string;
+      last_save_user_id?: CommonType.IdType;
+      last_publish_user_id?: CommonType.IdType;
+      publish_at?: number;
+    }>;
+
+    type CustomScreenListExtra = {
+      base_user_map: Record<string, ConfigurationBaseUser>;
+    };
+
+    type CustomScreenList = Api.Common.PaginatingQueryRecord<CustomScreen, CustomScreenListExtra>;
+
+    type CustomScreenSearchParams = CommonType.RecordNullable<
+      Pick<CustomScreen, 'name'> & Api.Common.CommonSearchParams
+    >;
+
+    type CustomScreenOperateParams = CommonType.RecordNullable<Pick<CustomScreen, 'id' | 'name' | 'desc'>>;
   }
 }

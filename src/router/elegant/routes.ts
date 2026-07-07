@@ -377,6 +377,24 @@ export const generatedRoutes: GeneratedRoute[] = [
     },
     children: [
       {
+        name: 'visual_configuration',
+        path: '/visual/configuration',
+        component: 'view.visual_configuration',
+        meta: {
+          title: 'visual_configuration',
+          i18nKey: 'route.visual_configuration'
+        }
+      },
+      {
+        name: 'visual_custom-screen',
+        path: '/visual/custom-screen',
+        component: 'view.visual_custom-screen',
+        meta: {
+          title: 'visual_custom-screen',
+          i18nKey: 'route.visual_custom-screen'
+        }
+      },
+      {
         name: 'visual_sys-screen',
         path: '/visual/sys-screen',
         component: 'view.visual_sys-screen',

@@ -43,6 +43,8 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "system_system-log": () => import("@/views/system/system-log/index.vue"),
   system_user: () => import("@/views/system/user/index.vue"),
   "version_version-list": () => import("@/views/version/version-list/index.vue"),
+  visual_configuration: () => import("@/views/visual/configuration/index.vue"),
+  "visual_custom-screen": () => import("@/views/visual/custom-screen/index.vue"),
   "visual_sys-screen-tag": () => import("@/views/visual/sys-screen-tag/index.vue"),
   "visual_sys-screen": () => import("@/views/visual/sys-screen/index.vue"),
 };
