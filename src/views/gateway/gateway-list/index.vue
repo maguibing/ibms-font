@@ -8,6 +8,7 @@ import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
+import GatewayOperateDrawer from './modules/gateway-operate-drawer.vue';
 import GatewaySearch from './modules/gateway-search.vue';
 import {
   GATEWAY_LINK_STATUS_MAP,
@@ -23,6 +24,7 @@ defineOptions({
 const appStore = useAppStore();
 
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
+const drawerVisible = ref(false);
 const searchParams = ref<Api.Gateway.GatewaySearchParams>({
   pageNum: 1,
   pageSize: 10,
@@ -172,6 +174,10 @@ function handleDeveloping() {
   window.$message?.info('功能待开发');
 }
 
+function handleAdd() {
+  drawerVisible.value = true;
+}
+
 async function handleDelete(id: CommonType.IdType) {
   const { error } = await fetchDeleteGateway({ id_list: [id] });
   if (error) return;
@@ -209,7 +215,7 @@ function handleSearch() {
           :show-add="true"
           :show-delete="true"
           :show-export="false"
-          @add="handleDeveloping"
+          @add="handleAdd"
           @delete="handleBatchDelete"
           @refresh="getData"
         />
@@ -226,6 +232,7 @@ function handleSearch() {
         :pagination="mobilePagination"
         class="sm:h-full"
       />
+      <GatewayOperateDrawer v-model:visible="drawerVisible" @submitted="getDataByPage" />
     </NCard>
   </div>
 </template>

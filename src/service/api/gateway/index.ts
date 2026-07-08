@@ -9,6 +9,23 @@ export function fetchGetGatewayList(data: CommonType.CommonListQueryParams) {
   });
 }
 
+/** 新增边缘设备 */
+export function fetchCreateGateway(data: Api.Gateway.GatewayCreateParams) {
+  return request({
+    url: '/CreateGateway',
+    method: 'post',
+    data
+  });
+}
+
+/** 获取物联网网关网卡列表 */
+export function fetchListIothubNetworkInterface() {
+  return request<Api.Gateway.IothubNetworkInterfaceResponse>({
+    url: '/ListIothubNetworkInterface',
+    method: 'post'
+  });
+}
+
 /** 删除边缘设备 */
 export function fetchDeleteGateway(data: Api.Common.CommonIdList) {
   return request({

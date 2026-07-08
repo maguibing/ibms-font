@@ -9,6 +9,28 @@ export const GATEWAY_PROTOCOL_OPTIONS: CommonType.Option<Api.Gateway.ProtocolTyp
   { label: 'OPC UA', value: 6 }
 ];
 
+export const httpMethodOptions = ['POST', 'GET', 'PUT', 'DELETE', 'PATCH'];
+
+export const tokenPlacementOptions = [
+  { label: '标准认证头（Bearer Token）', value: 1 },
+  { label: '标准认证头（Raw Token）', value: 2 },
+  { label: '自定义请求头（Header）', value: 3 },
+  { label: 'URL 查询参数（Query）', value: 4 },
+  { label: '请求体参数（Body）', value: 5 }
+];
+
+export const tokenKeyFixedByPlacement = {
+  1: 'Authorization Bearer',
+  2: 'Athorization'
+};
+
+export const dataFormatOptions: CommonType.Option<Api.Gateway.DataFormat, string>[] = [
+  { label: 'Key-Value格式', value: 1 },
+  { label: '标准格式', value: 2 },
+  { label: '讯饶格式', value: 3 },
+  { label: 'NZ格式', value: 4 }
+];
+
 export const GATEWAY_STATUS_MAP: StatusTagMap = {
   '1': { label: '启用', type: 'success' },
   '2': { label: '禁用', type: 'default' }

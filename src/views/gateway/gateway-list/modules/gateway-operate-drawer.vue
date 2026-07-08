@@ -1,0 +1,437 @@
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue';
+import { useLoading } from '@sa/hooks';
+import { fetchCreateGateway, fetchListIothubNetworkInterface } from '@/service/api/gateway';
+import { fetchGetSpaceTrees } from '@/service/api/space';
+import { useFormRules, useNaiveForm } from '@/hooks/common/form';
+import { $t } from '@/locales';
+import { GATEWAY_PROTOCOL_OPTIONS, dataFormatOptions } from '../shared';
+
+defineOptions({
+  name: 'GatewayOperateDrawer'
+});
+
+interface Emits {
+  (e: 'submitted'): void;
+}
+
+type Model = {
+  bacnet: {
+    ip: {
+      interface_name: string;
+      local_port: number | null;
+    };
+    poll_interval: number | null;
+    timeout: number | null;
+  };
+  data_format: Api.Gateway.DataFormat;
+  desc: string;
+  key: string;
+  modbus: {
+    poll_interval: number | null;
+    tcp: {
+      host: string;
+      port: number | null;
+    };
+    timeout: number | null;
+  };
+  name: string;
+  p_key: string;
+  password: string;
+  protocol_type: Api.Gateway.ProtocolType;
+  space_id: CommonType.IdType | null;
+  status: Api.Gateway.GatewayStatus;
+  username: string;
+};
+
+const emit = defineEmits<Emits>();
+
+const visible = defineModel<boolean>('visible', {
+  default: false
+});
+
+const { formRef, validate, restoreValidation } = useNaiveForm();
+const { createNumberRequiredRule, createRequiredRule } = useFormRules();
+const { loading: spaceLoading, startLoading: startSpaceLoading, endLoading: endSpaceLoading } = useLoading();
+const {
+  loading: networkInterfaceLoading,
+  startLoading: startNetworkInterfaceLoading,
+  endLoading: endNetworkInterfaceLoading
+} = useLoading();
+const { loading: submitLoading, startLoading: startSubmitLoading, endLoading: endSubmitLoading } = useLoading();
+
+const spaceData = ref<Api.Space.Space[]>([]);
+const networkInterfaceOptions = ref<CommonType.Option<string, string>[]>([]);
+const expandedKeys = ref<CommonType.IdType[]>([]);
+const model = ref<Model>(createDefaultModel());
+
+const statusOptions: CommonType.Option<Api.Gateway.GatewayStatus, string>[] = [
+  { label: '启用', value: 1 },
+  { label: '禁用', value: 2 }
+];
+
+const isHttpServerProtocol = computed(() => model.value.protocol_type === 2);
+const isModbusProtocol = computed(() => model.value.protocol_type === 4);
+const isMqttProtocol = computed(() => model.value.protocol_type === 1);
+const isBacnetProtocol = computed(() => model.value.protocol_type === 5);
+const showDataFormat = computed(() => isHttpServerProtocol.value || isMqttProtocol.value);
+const dataFormatDisabled = computed(() => isMqttProtocol.value);
+
+const rules: Record<string, App.Global.FormRule | App.Global.FormRule[]> = {
+  'bacnet.ip.interface_name': createRequiredRule('请选择目标地址'),
+  'bacnet.ip.local_port': createNumberRequiredRule('请输入目标端口'),
+  name: createRequiredRule('请输入边缘设备名称'),
+  protocol_type: createRequiredRule('请选择协议'),
+  'modbus.tcp.host': [
+    createRequiredRule('请输入IP地址'),
+    {
+      pattern: /^(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/,
+      message: '请输入正确的IP地址',
+      trigger: ['input', 'blur']
+    }
+  ],
+  'modbus.tcp.port': createNumberRequiredRule('请输入端口')
+};
+
+function createDefaultModel(): Model {
+  return {
+    bacnet: {
+      ip: {
+        interface_name: '',
+        local_port: 47808
+      },
+      poll_interval: 5,
+      timeout: 5
+    },
+    data_format: 2,
+    desc: '',
+    key: '',
+    modbus: {
+      poll_interval: 5,
+      tcp: {
+        host: '',
+        port: 502
+      },
+      timeout: 10
+    },
+    name: '',
+    p_key: '',
+    password: '',
+    protocol_type: 1,
+    space_id: null,
+    status: 1,
+    username: ''
+  };
+}
+
+async function getSpaceData() {
+  startSpaceLoading();
+  const { data, error } = await fetchGetSpaceTrees().finally(endSpaceLoading);
+
+  if (error) {
+    spaceData.value = [];
+    return;
+  }
+
+  spaceData.value = Array.isArray(data?.trees) ? data.trees : [];
+}
+
+async function getNetworkInterfaceOptions() {
+  startNetworkInterfaceLoading();
+  const { data, error } = await fetchListIothubNetworkInterface().finally(endNetworkInterfaceLoading);
+
+  if (error) {
+    networkInterfaceOptions.value = [];
+    return;
+  }
+
+  networkInterfaceOptions.value = Array.isArray(data?.interfaces)
+    ? data.interfaces.map(item => ({
+        label: item.local_addr || item.name,
+        value: item.name
+      }))
+    : [];
+}
+
+function resetModel() {
+  model.value = createDefaultModel();
+}
+
+function closeDrawer() {
+  visible.value = false;
+}
+
+function createProtocolParams(): Api.Gateway.GatewayCreateProtocol {
+  const protocol: Api.Gateway.GatewayCreateProtocol = {
+    protocol_type: model.value.protocol_type
+  };
+
+  if (model.value.protocol_type === 1) {
+    protocol.data_format = model.value.data_format;
+    protocol.mqtt = {
+      domain: '',
+      port: 0
+    };
+  }
+
+  if (model.value.protocol_type === 2) {
+    protocol.data_format = model.value.data_format;
+    protocol.http_server = {
+      addr: '',
+      path: ''
+    };
+  }
+
+  if (model.value.protocol_type === 4) {
+    protocol.modbus = {
+      mode: 1,
+      poll_interval: model.value.modbus.poll_interval ?? 5,
+      tcp: {
+        host: model.value.modbus.tcp.host,
+        port: model.value.modbus.tcp.port as number
+      },
+      timeout: model.value.modbus.timeout ?? 10
+    };
+  }
+
+  if (model.value.protocol_type === 5) {
+    protocol.bacnet = {
+      ip: {
+        interface_name: model.value.bacnet.ip.interface_name,
+        local_port: model.value.bacnet.ip.local_port as number
+      },
+      is_support_cov: true,
+      network_type: 1,
+      poll_interval: model.value.bacnet.poll_interval ?? 5,
+      timeout: model.value.bacnet.timeout ?? 5
+    };
+  }
+
+  return protocol;
+}
+
+function createSubmitPayload(): Api.Gateway.GatewayCreateParams {
+  return {
+    desc: model.value.desc,
+    key: model.value.key,
+    name: model.value.name,
+    p_key: model.value.p_key,
+    password: model.value.password,
+    protocol: createProtocolParams(),
+    protocol_type: model.value.protocol_type,
+    space_id: model.value.space_id ?? 0,
+    status: model.value.status,
+    username: model.value.username
+  };
+}
+
+async function handleSubmit() {
+  await validate();
+
+  startSubmitLoading();
+  const { error } = await fetchCreateGateway(createSubmitPayload()).finally(endSubmitLoading);
+  if (error) return;
+
+  window.$message?.success($t('common.addSuccess'));
+  closeDrawer();
+  emit('submitted');
+}
+
+watch(visible, () => {
+  if (visible.value) {
+    resetModel();
+    getSpaceData();
+    getNetworkInterfaceOptions();
+    restoreValidation();
+  }
+});
+
+watch(
+  () => model.value.protocol_type,
+  protocolType => {
+    if (protocolType !== 2) {
+      model.value.data_format = 2;
+    }
+  }
+);
+</script>
+
+<template>
+  <NDrawer v-model:show="visible" title="新增边缘设备" display-directive="show" :width="680" class="max-w-90%">
+    <NDrawerContent title="新增边缘设备" :native-scrollbar="false" closable>
+      <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
+        <NFormItem label="名称" path="name">
+          <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入名称" />
+        </NFormItem>
+        <NFormItem label="主题" path="p_key">
+          <NInput v-model:value="model.p_key" maxlength="30" show-count placeholder="请输入主题" />
+        </NFormItem>
+        <NFormItem label="标识" path="key">
+          <NInput v-model:value="model.key" maxlength="48" show-count placeholder="请输入标识" />
+        </NFormItem>
+        <NFormItem label="协议" path="protocol_type">
+          <NSelect v-model:value="model.protocol_type" :options="GATEWAY_PROTOCOL_OPTIONS" placeholder="请选择协议" />
+        </NFormItem>
+        <NFormItem v-if="showDataFormat" label="数据格式" path="data_format">
+          <NSelect
+            v-model:value="model.data_format"
+            :options="dataFormatOptions"
+            :disabled="dataFormatDisabled"
+            placeholder="请选择数据格式"
+          />
+        </NFormItem>
+        <template v-if="isModbusProtocol">
+          <div class="protocol-config-panel">
+            <div class="protocol-config-title">Modbus TCP参数</div>
+            <NGrid responsive="screen" item-responsive :x-gap="16">
+              <NFormItemGi span="12" label="IP地址" path="modbus.tcp.host">
+                <NInput v-model:value="model.modbus.tcp.host" maxlength="100" show-count placeholder="请输入IP地址" />
+              </NFormItemGi>
+              <NFormItemGi span="12" label="端口" path="modbus.tcp.port">
+                <NInputNumber
+                  v-model:value="model.modbus.tcp.port"
+                  class="w-full"
+                  :min="1"
+                  :max="65535"
+                  :precision="0"
+                  placeholder="请输入端口"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="12" label="轮询间隔（秒）" path="modbus.poll_interval">
+                <NInputNumber
+                  v-model:value="model.modbus.poll_interval"
+                  class="w-full"
+                  :min="5"
+                  :precision="0"
+                  placeholder="请输入轮询间隔（秒）"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="12" label="超时时间（秒）" path="modbus.timeout">
+                <NInputNumber
+                  v-model:value="model.modbus.timeout"
+                  class="w-full"
+                  :min="10"
+                  :precision="0"
+                  placeholder="请输入超时时间（秒）"
+                />
+              </NFormItemGi>
+            </NGrid>
+          </div>
+        </template>
+        <template v-if="isBacnetProtocol">
+          <div class="protocol-config-panel">
+            <div class="protocol-config-title">BACnet IP参数</div>
+            <NGrid responsive="screen" item-responsive :x-gap="16">
+              <NFormItemGi span="12" label="目标地址" path="bacnet.ip.interface_name">
+                <NSelect
+                  v-model:value="model.bacnet.ip.interface_name"
+                  filterable
+                  clearable
+                  :loading="networkInterfaceLoading"
+                  :options="networkInterfaceOptions"
+                  placeholder="请选择目标地址"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="12" label="目标端口" path="bacnet.ip.local_port">
+                <NInputNumber
+                  v-model:value="model.bacnet.ip.local_port"
+                  class="w-full"
+                  :min="1"
+                  :max="65535"
+                  :precision="0"
+                  placeholder="请输入目标端口"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="12" label="轮询间隔（秒）" path="bacnet.poll_interval">
+                <NInputNumber
+                  v-model:value="model.bacnet.poll_interval"
+                  class="w-full"
+                  :min="5"
+                  :precision="0"
+                  placeholder="请输入轮询间隔（秒）"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="12" label="超时时间（秒）" path="bacnet.timeout">
+                <NInputNumber
+                  v-model:value="model.bacnet.timeout"
+                  class="w-full"
+                  :min="5"
+                  :precision="0"
+                  placeholder="请输入超时时间（秒）"
+                />
+              </NFormItemGi>
+            </NGrid>
+          </div>
+        </template>
+        <NFormItem label="所属空间" path="space_id">
+          <NTreeSelect
+            v-model:value="model.space_id"
+            v-model:expanded-keys="expandedKeys"
+            filterable
+            clearable
+            :loading="spaceLoading"
+            :options="spaceData"
+            label-field="space_name"
+            key-field="space_id"
+            placeholder="请选择所属空间"
+          />
+        </NFormItem>
+        <NFormItem label="状态" path="status">
+          <NRadioGroup v-model:value="model.status">
+            <NRadio v-for="item in statusOptions" :key="item.value" :value="item.value">
+              {{ item.label }}
+            </NRadio>
+          </NRadioGroup>
+        </NFormItem>
+        <NFormItem label="用户名" path="username">
+          <NInput v-model:value="model.username" maxlength="30" show-count placeholder="请输入用户名" />
+        </NFormItem>
+        <NFormItem label="密码" path="password">
+          <NInput
+            v-model:value="model.password"
+            type="password"
+            show-password-on="click"
+            :input-props="{ autocomplete: 'new-password' }"
+            placeholder="请输入密码"
+          />
+        </NFormItem>
+
+        <NFormItem label="描述" path="desc">
+          <NInput
+            v-model:value="model.desc"
+            type="textarea"
+            maxlength="200"
+            show-count
+            :rows="4"
+            placeholder="请输入描述"
+          />
+        </NFormItem>
+      </NForm>
+      <template #footer>
+        <NSpace :size="16">
+          <NButton @click="closeDrawer">{{ $t('common.cancel') }}</NButton>
+          <NButton type="primary" :loading="submitLoading" @click="handleSubmit">{{ $t('common.confirm') }}</NButton>
+        </NSpace>
+      </template>
+    </NDrawerContent>
+  </NDrawer>
+</template>
+
+<style scoped>
+.protocol-config-panel {
+  margin-bottom: 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fafafa;
+  padding: 14px 14px 0;
+}
+
+.protocol-config-title {
+  margin-bottom: 12px;
+  border-left: 3px solid #18a058;
+  padding-left: 8px;
+  color: #18a058;
+  font-size: 14px;
+  font-weight: 600;
+}
+</style>
