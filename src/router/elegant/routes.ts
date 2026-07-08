@@ -89,6 +89,26 @@ export const generatedRoutes: GeneratedRoute[] = [
     ]
   },
   {
+    name: 'gateway',
+    path: '/gateway',
+    component: 'layout.base',
+    meta: {
+      title: 'gateway',
+      i18nKey: 'route.gateway'
+    },
+    children: [
+      {
+        name: 'gateway_gateway-list',
+        path: '/gateway/gateway-list',
+        component: 'view.gateway_gateway-list',
+        meta: {
+          title: 'gateway_gateway-list',
+          i18nKey: 'route.gateway_gateway-list'
+        }
+      }
+    ]
+  },
+  {
     name: 'global',
     path: '/global',
     component: 'layout.base',

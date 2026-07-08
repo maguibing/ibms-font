@@ -175,6 +175,8 @@ const routeMap: RouteMap = {
   "corp_corp-detail": "/corp/corp-detail",
   "corp_corp-list": "/corp/corp-list",
   "corp_version": "/corp/version",
+  "gateway": "/gateway",
+  "gateway_gateway-list": "/gateway/gateway-list",
   "global": "/global",
   "global_activate": "/global/activate",
   "global_device-type-template": "/global/device-type-template",

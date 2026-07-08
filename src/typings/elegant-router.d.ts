@@ -29,6 +29,8 @@ declare module "@elegant-router/types" {
     "corp_corp-detail": "/corp/corp-detail";
     "corp_corp-list": "/corp/corp-list";
     "corp_version": "/corp/version";
+    "gateway": "/gateway";
+    "gateway_gateway-list": "/gateway/gateway-list";
     "global": "/global";
     "global_activate": "/global/activate";
     "global_device-type-template": "/global/device-type-template";
@@ -105,6 +107,7 @@ declare module "@elegant-router/types" {
     | "500"
     | "about"
     | "corp"
+    | "gateway"
     | "global"
     | "home"
     | "iframe-page"
@@ -145,6 +148,7 @@ declare module "@elegant-router/types" {
     | "corp_corp-detail"
     | "corp_corp-list"
     | "corp_version"
+    | "gateway_gateway-list"
     | "global_activate"
     | "global_device-type-template-point"
     | "global_device-type-template"

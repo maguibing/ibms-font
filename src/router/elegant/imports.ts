@@ -25,6 +25,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "corp_corp-detail": () => import("@/views/corp/corp-detail/index.vue"),
   "corp_corp-list": () => import("@/views/corp/corp-list/index.vue"),
   corp_version: () => import("@/views/corp/version/index.vue"),
+  "gateway_gateway-list": () => import("@/views/gateway/gateway-list/index.vue"),
   global_activate: () => import("@/views/global/activate/index.vue"),
   "global_device-type-template-point": () => import("@/views/global/device-type-template-point/index.vue"),
   "global_device-type-template": () => import("@/views/global/device-type-template/index.vue"),
