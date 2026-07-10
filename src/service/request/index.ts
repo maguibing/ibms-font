@@ -1,5 +1,5 @@
 import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { BACKEND_ERROR_CODE, createFlatRequest, REQUEST_CANCELED_CODE } from '@sa/axios';
+import { createFlatRequest, REQUEST_CANCELED_CODE } from '@sa/axios';
 import { decryptByRsa, encryptByRsa } from '@sa/utils';
 import { useAuthStore } from '@/store/modules/auth';
 import { localStg, sessionStg } from '@/utils/storage';
@@ -154,12 +154,11 @@ export const request = createFlatRequest(
       }
 
       let message = error.message;
-      let backendErrorCode = '';
+      const backendData = error.response?.data;
+      const backendErrorCode = String(backendData?.code || '');
 
-      // get backend error message and code
-      if (error.code === BACKEND_ERROR_CODE) {
-        message = error.response?.data?.msg || message;
-        backendErrorCode = String(error.response?.data?.code || '');
+      if (backendData?.msg || backendData?.detail) {
+        message = [backendData.msg, backendData.detail].filter(Boolean).join('\n');
       }
 
       // the error message is displayed in the modal

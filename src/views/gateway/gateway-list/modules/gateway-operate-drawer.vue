@@ -5,7 +5,7 @@ import { fetchCreateGateway, fetchListIothubNetworkInterface } from '@/service/a
 import { fetchGetSpaceTrees } from '@/service/api/space';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
-import { GATEWAY_PROTOCOL_OPTIONS, dataFormatOptions } from '../shared';
+import { GATEWAY_PROTOCOL_OPTIONS, dataFormatOptions, opcUaAuthTypeOptions, opcUaSecurityModeOptions } from '../shared';
 
 defineOptions({
   name: 'GatewayOperateDrawer'
@@ -36,6 +36,26 @@ type Model = {
     timeout: number | null;
   };
   name: string;
+  opcua: {
+    authentication: {
+      auth_type: Api.Gateway.OpcUaAuthType;
+      user_auth: {
+        password: string;
+        username: string;
+      };
+    };
+    endpoint_url: string;
+    is_auto_discovery: boolean;
+    is_subscription: boolean;
+    poll_interval: number | null;
+    request_timeout: number | null;
+    security_policy: {
+      mode: Api.Gateway.OpcUaSecurityMode;
+      policy_uri: string;
+    };
+    session_timeout: number | null;
+    timeout: number | null;
+  };
   p_key: string;
   password: string;
   protocol_type: Api.Gateway.ProtocolType;
@@ -74,8 +94,20 @@ const isHttpServerProtocol = computed(() => model.value.protocol_type === 2);
 const isModbusProtocol = computed(() => model.value.protocol_type === 4);
 const isMqttProtocol = computed(() => model.value.protocol_type === 1);
 const isBacnetProtocol = computed(() => model.value.protocol_type === 5);
-const showDataFormat = computed(() => isHttpServerProtocol.value || isMqttProtocol.value);
-const dataFormatDisabled = computed(() => isMqttProtocol.value);
+const isOpcUaProtocol = computed(() => model.value.protocol_type === 6);
+const isOpcUaSecureMode = computed(() => [2, 3].includes(model.value.opcua.security_policy.mode));
+const isOpcUaUsernameAuthMode = computed(() => model.value.opcua.authentication.auth_type === 2);
+const showDataFormat = computed(
+  () =>
+    isHttpServerProtocol.value ||
+    isMqttProtocol.value ||
+    isModbusProtocol.value ||
+    isBacnetProtocol.value ||
+    isOpcUaProtocol.value
+);
+const dataFormatDisabled = computed(
+  () => isMqttProtocol.value || isModbusProtocol.value || isBacnetProtocol.value || isOpcUaProtocol.value
+);
 
 const rules: Record<string, App.Global.FormRule | App.Global.FormRule[]> = {
   'bacnet.ip.interface_name': createRequiredRule('请选择目标地址'),
@@ -90,7 +122,12 @@ const rules: Record<string, App.Global.FormRule | App.Global.FormRule[]> = {
       trigger: ['input', 'blur']
     }
   ],
-  'modbus.tcp.port': createNumberRequiredRule('请输入端口')
+  'modbus.tcp.port': createNumberRequiredRule('请输入端口'),
+  'opcua.authentication.auth_type': createRequiredRule('请选择认证类型'),
+  'opcua.authentication.user_auth.password': createRequiredRule('请输入密码'),
+  'opcua.authentication.user_auth.username': createRequiredRule('请输入用户名'),
+  'opcua.endpoint_url': createRequiredRule('请输入服务端地址'),
+  'opcua.security_policy.policy_uri': createRequiredRule('请输入安全策略 URI')
 };
 
 function createDefaultModel(): Model {
@@ -115,6 +152,26 @@ function createDefaultModel(): Model {
       timeout: 10
     },
     name: '',
+    opcua: {
+      authentication: {
+        auth_type: 1,
+        user_auth: {
+          password: '',
+          username: ''
+        }
+      },
+      endpoint_url: '',
+      is_auto_discovery: true,
+      is_subscription: true,
+      poll_interval: 5,
+      request_timeout: 10,
+      security_policy: {
+        mode: 1,
+        policy_uri: ''
+      },
+      session_timeout: 10,
+      timeout: 10
+    },
     p_key: '',
     password: '',
     protocol_type: 1,
@@ -204,6 +261,29 @@ function createProtocolParams(): Api.Gateway.GatewayCreateProtocol {
       network_type: 1,
       poll_interval: model.value.bacnet.poll_interval ?? 5,
       timeout: model.value.bacnet.timeout ?? 5
+    };
+  }
+
+  if (model.value.protocol_type === 6) {
+    protocol.opcua = {
+      authentication: {
+        auth_type: model.value.opcua.authentication.auth_type,
+        user_auth: {
+          password: isOpcUaUsernameAuthMode.value ? model.value.opcua.authentication.user_auth.password : '',
+          username: isOpcUaUsernameAuthMode.value ? model.value.opcua.authentication.user_auth.username : ''
+        }
+      },
+      endpoint_url: model.value.opcua.endpoint_url,
+      is_auto_discovery: model.value.opcua.is_auto_discovery,
+      is_subscription: model.value.opcua.is_subscription,
+      poll_interval: model.value.opcua.poll_interval ?? 5,
+      request_timeout: model.value.opcua.request_timeout ?? 10,
+      security_policy: {
+        mode: model.value.opcua.security_policy.mode,
+        policy_uri: isOpcUaSecureMode.value ? model.value.opcua.security_policy.policy_uri : ''
+      },
+      session_timeout: model.value.opcua.session_timeout ?? 10,
+      timeout: model.value.opcua.timeout ?? 10
     };
   }
 
@@ -358,6 +438,91 @@ watch(
                   :min="5"
                   :precision="0"
                   placeholder="请输入超时时间（秒）"
+                />
+              </NFormItemGi>
+            </NGrid>
+          </div>
+        </template>
+        <template v-if="isOpcUaProtocol">
+          <div class="protocol-config-panel">
+            <div class="protocol-config-title">OPC UA 连接参数</div>
+            <NGrid responsive="screen" item-responsive :x-gap="16">
+              <NFormItemGi span="12" label="服务端地址" path="opcua.endpoint_url">
+                <NInput v-model:value="model.opcua.endpoint_url" placeholder="opc.tcp://192.168.1.100:4840" />
+              </NFormItemGi>
+              <NFormItemGi span="12" label="安全模式" path="opcua.security_policy.mode">
+                <NSelect
+                  v-model:value="model.opcua.security_policy.mode"
+                  :options="opcUaSecurityModeOptions"
+                  placeholder="请选择安全模式"
+                />
+              </NFormItemGi>
+              <NFormItemGi
+                v-if="isOpcUaSecureMode"
+                span="12"
+                label="安全策略 URI"
+                path="opcua.security_policy.policy_uri"
+              >
+                <NInput v-model:value="model.opcua.security_policy.policy_uri" placeholder="请输入安全策略 URI" />
+              </NFormItemGi>
+              <NFormItemGi span="12" label="认证类型" path="opcua.authentication.auth_type">
+                <NSelect
+                  v-model:value="model.opcua.authentication.auth_type"
+                  :options="opcUaAuthTypeOptions"
+                  placeholder="请选择认证类型"
+                />
+              </NFormItemGi>
+              <template v-if="isOpcUaUsernameAuthMode">
+                <NFormItemGi span="12" label="用户名" path="opcua.authentication.user_auth.username">
+                  <NInput v-model:value="model.opcua.authentication.user_auth.username" placeholder="请输入用户名" />
+                </NFormItemGi>
+                <NFormItemGi span="12" label="密码" path="opcua.authentication.user_auth.password">
+                  <NInput
+                    v-model:value="model.opcua.authentication.user_auth.password"
+                    type="password"
+                    show-password-on="click"
+                    :input-props="{ autocomplete: 'new-password' }"
+                    placeholder="请输入密码"
+                  />
+                </NFormItemGi>
+              </template>
+              <NFormItemGi span="12" label="轮询间隔（秒）" path="opcua.poll_interval">
+                <NInputNumber
+                  v-model:value="model.opcua.poll_interval"
+                  class="w-full"
+                  :min="5"
+                  :precision="0"
+                  placeholder="请输入轮询间隔（秒）"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="12" label="请求超时（秒）" path="opcua.request_timeout">
+                <NInputNumber
+                  v-model:value="model.opcua.request_timeout"
+                  class="w-full"
+                  :min="10"
+                  :max="60"
+                  :precision="0"
+                  placeholder="请输入请求超时（秒）"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="12" label="会话超时（秒）" path="opcua.session_timeout">
+                <NInputNumber
+                  v-model:value="model.opcua.session_timeout"
+                  class="w-full"
+                  :min="10"
+                  :max="60"
+                  :precision="0"
+                  placeholder="请输入会话超时（秒）"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="12" label="连接超时（秒）" path="opcua.timeout">
+                <NInputNumber
+                  v-model:value="model.opcua.timeout"
+                  class="w-full"
+                  :min="10"
+                  :max="60"
+                  :precision="0"
+                  placeholder="请输入连接超时（秒）"
                 />
               </NFormItemGi>
             </NGrid>

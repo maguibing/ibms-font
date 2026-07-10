@@ -9,6 +9,17 @@ export const GATEWAY_PROTOCOL_OPTIONS: CommonType.Option<Api.Gateway.ProtocolTyp
   { label: 'OPC UA', value: 6 }
 ];
 
+export const opcUaSecurityModeOptions: CommonType.Option<Api.Gateway.OpcUaSecurityMode, string>[] = [
+  { label: '无安全', value: 1 },
+  { label: '签名', value: 2 },
+  { label: '签名并加密', value: 3 }
+];
+
+export const opcUaAuthTypeOptions: CommonType.Option<Api.Gateway.OpcUaAuthType, string>[] = [
+  { label: '匿名', value: 1 },
+  { label: '用户名', value: 2 }
+];
+
 export const httpMethodOptions = ['POST', 'GET', 'PUT', 'DELETE', 'PATCH'];
 
 export const tokenPlacementOptions = [

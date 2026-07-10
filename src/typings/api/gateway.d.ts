@@ -46,12 +46,37 @@ declare namespace Api {
       timeout: number;
     };
 
+    type OpcUaSecurityMode = 1 | 2 | 3;
+    type OpcUaAuthType = 1 | 2;
+
+    type GatewayOpcUaProtocol = {
+      authentication: {
+        auth_type: OpcUaAuthType;
+        user_auth: {
+          password: string;
+          username: string;
+        };
+      };
+      endpoint_url: string;
+      is_auto_discovery: boolean;
+      is_subscription: boolean;
+      poll_interval: number;
+      request_timeout: number;
+      security_policy: {
+        mode: OpcUaSecurityMode;
+        policy_uri: string;
+      };
+      session_timeout: number;
+      timeout: number;
+    };
+
     type GatewayCreateProtocol = {
       bacnet?: GatewayBacnetProtocol;
       data_format?: DataFormat;
       http_server?: GatewayHttpServerProtocol;
       modbus?: GatewayModbusProtocol;
       mqtt?: GatewayMqttProtocol;
+      opcua?: GatewayOpcUaProtocol;
       protocol_type: ProtocolType;
     };
 

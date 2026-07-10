@@ -1,3 +1,4 @@
+import { h } from 'vue';
 import { useAuthStore } from '@/store/modules/auth';
 import { localStg } from '@/utils/storage';
 import type { RequestInstanceState } from './type';
@@ -50,7 +51,7 @@ export function showErrorMsg(state: RequestInstanceState, message: string) {
   if (!isExist) {
     state.errMsgStack.push(message);
 
-    window.$message?.error(message, {
+    window.$message?.error(() => h('span', { style: { whiteSpace: 'pre-line' } }, message), {
       onLeave: () => {
         state.errMsgStack = state.errMsgStack.filter(msg => msg !== message);
 

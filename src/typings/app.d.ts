@@ -1108,6 +1108,8 @@ declare namespace App {
       code: string;
       /** The backend service response message */
       msg: string;
+      /** The backend service response detail */
+      detail?: string;
       /** The backend service response data */
       data: T;
     };
