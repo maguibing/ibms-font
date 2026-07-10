@@ -157,8 +157,8 @@ export const request = createFlatRequest(
       const backendData = error.response?.data;
       const backendErrorCode = String(backendData?.code || '');
 
-      if (backendData?.msg || backendData?.detail) {
-        message = [backendData.msg, backendData.detail].filter(Boolean).join('\n');
+      if (backendData?.msg) {
+        message = backendData.msg;
       }
 
       // the error message is displayed in the modal

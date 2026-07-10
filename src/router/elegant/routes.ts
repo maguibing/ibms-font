@@ -89,6 +89,26 @@ export const generatedRoutes: GeneratedRoute[] = [
     ]
   },
   {
+    name: 'device',
+    path: '/device',
+    component: 'layout.base',
+    meta: {
+      title: 'device',
+      i18nKey: 'route.device'
+    },
+    children: [
+      {
+        name: 'device_device-group',
+        path: '/device/device-group',
+        component: 'view.device_device-group',
+        meta: {
+          title: 'device_device-group',
+          i18nKey: 'route.device_device-group'
+        }
+      }
+    ]
+  },
+  {
     name: 'gateway',
     path: '/gateway',
     component: 'layout.base',
