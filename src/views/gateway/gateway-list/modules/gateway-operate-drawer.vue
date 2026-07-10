@@ -6,6 +6,12 @@ import { fetchGetSpaceTrees } from '@/service/api/space';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
 import { GATEWAY_PROTOCOL_OPTIONS, dataFormatOptions, opcUaAuthTypeOptions, opcUaSecurityModeOptions } from '../shared';
+import GatewayHttpClientConfig from './gateway-http-client-config.vue';
+import {
+  createGatewayHttpClientModel,
+  createGatewayHttpClientRouteParams,
+  gatewayHttpClientKeyValueRowsToMap
+} from './gateway-http-client-config';
 
 defineOptions({
   name: 'GatewayOperateDrawer'
@@ -14,55 +20,6 @@ defineOptions({
 interface Emits {
   (e: 'submitted'): void;
 }
-
-type Model = {
-  bacnet: {
-    ip: {
-      interface_name: string;
-      local_port: number | null;
-    };
-    poll_interval: number | null;
-    timeout: number | null;
-  };
-  data_format: Api.Gateway.DataFormat;
-  desc: string;
-  key: string;
-  modbus: {
-    poll_interval: number | null;
-    tcp: {
-      host: string;
-      port: number | null;
-    };
-    timeout: number | null;
-  };
-  name: string;
-  opcua: {
-    authentication: {
-      auth_type: Api.Gateway.OpcUaAuthType;
-      user_auth: {
-        password: string;
-        username: string;
-      };
-    };
-    endpoint_url: string;
-    is_auto_discovery: boolean;
-    is_subscription: boolean;
-    poll_interval: number | null;
-    request_timeout: number | null;
-    security_policy: {
-      mode: Api.Gateway.OpcUaSecurityMode;
-      policy_uri: string;
-    };
-    session_timeout: number | null;
-    timeout: number | null;
-  };
-  p_key: string;
-  password: string;
-  protocol_type: Api.Gateway.ProtocolType;
-  space_id: CommonType.IdType | null;
-  status: Api.Gateway.GatewayStatus;
-  username: string;
-};
 
 const emit = defineEmits<Emits>();
 
@@ -83,31 +40,25 @@ const { loading: submitLoading, startLoading: startSubmitLoading, endLoading: en
 const spaceData = ref<Api.Space.Space[]>([]);
 const networkInterfaceOptions = ref<CommonType.Option<string, string>[]>([]);
 const expandedKeys = ref<CommonType.IdType[]>([]);
-const model = ref<Model>(createDefaultModel());
+const model = ref<Api.Gateway.GatewayOperateDrawerModel>(createDefaultModel());
 
 const statusOptions: CommonType.Option<Api.Gateway.GatewayStatus, string>[] = [
   { label: '启用', value: 1 },
   { label: '禁用', value: 2 }
 ];
 
-const isHttpServerProtocol = computed(() => model.value.protocol_type === 2);
-const isModbusProtocol = computed(() => model.value.protocol_type === 4);
-const isMqttProtocol = computed(() => model.value.protocol_type === 1);
-const isBacnetProtocol = computed(() => model.value.protocol_type === 5);
-const isOpcUaProtocol = computed(() => model.value.protocol_type === 6);
+const isHttpServer = computed(() => model.value.protocol_type === 2);
+const isHttpClient = computed(() => model.value.protocol_type === 3);
+const isModbus = computed(() => model.value.protocol_type === 4);
+const isMqtt = computed(() => model.value.protocol_type === 1);
+const isBacnet = computed(() => model.value.protocol_type === 5);
+const isOpcUa = computed(() => model.value.protocol_type === 6);
 const isOpcUaSecureMode = computed(() => [2, 3].includes(model.value.opcua.security_policy.mode));
 const isOpcUaUsernameAuthMode = computed(() => model.value.opcua.authentication.auth_type === 2);
 const showDataFormat = computed(
-  () =>
-    isHttpServerProtocol.value ||
-    isMqttProtocol.value ||
-    isModbusProtocol.value ||
-    isBacnetProtocol.value ||
-    isOpcUaProtocol.value
+  () => isHttpServer.value || isHttpClient.value || isMqtt.value || isModbus.value || isBacnet.value || isOpcUa.value
 );
-const dataFormatDisabled = computed(
-  () => isMqttProtocol.value || isModbusProtocol.value || isBacnetProtocol.value || isOpcUaProtocol.value
-);
+const dataFormatDisabled = computed(() => isMqtt.value || isModbus.value || isBacnet.value || isOpcUa.value);
 
 const rules: Record<string, App.Global.FormRule | App.Global.FormRule[]> = {
   'bacnet.ip.interface_name': createRequiredRule('请选择目标地址'),
@@ -130,7 +81,7 @@ const rules: Record<string, App.Global.FormRule | App.Global.FormRule[]> = {
   'opcua.security_policy.policy_uri': createRequiredRule('请输入安全策略 URI')
 };
 
-function createDefaultModel(): Model {
+function createDefaultModel(): Api.Gateway.GatewayOperateDrawerModel {
   return {
     bacnet: {
       ip: {
@@ -142,6 +93,7 @@ function createDefaultModel(): Model {
     },
     data_format: 2,
     desc: '',
+    http_client: createGatewayHttpClientModel(),
     key: '',
     modbus: {
       poll_interval: 5,
@@ -239,6 +191,27 @@ function createProtocolParams(): Api.Gateway.GatewayCreateProtocol {
     };
   }
 
+  if (model.value.protocol_type === 3) {
+    protocol.data_format = model.value.data_format;
+    protocol.http_client = {
+      poll_interval: model.value.http_client.poll_interval ?? 5,
+      poll_route: createGatewayHttpClientRouteParams(model.value.http_client.poll_route),
+      send_route: createGatewayHttpClientRouteParams(model.value.http_client.send_route),
+      server: model.value.http_client.server,
+      timeout: model.value.http_client.timeout ?? 10,
+      token: {
+        body: gatewayHttpClientKeyValueRowsToMap(model.value.http_client.token.body),
+        expire_field: model.value.http_client.token.expire_field,
+        expire_seconds: model.value.http_client.token.expire_seconds ?? 0,
+        headers: gatewayHttpClientKeyValueRowsToMap(model.value.http_client.token.headers),
+        is_enable: model.value.http_client.token.is_enable,
+        method: model.value.http_client.token.method,
+        path: model.value.http_client.token.path,
+        token_field: model.value.http_client.token.token_field
+      }
+    };
+  }
+
   if (model.value.protocol_type === 4) {
     protocol.modbus = {
       mode: 1,
@@ -329,7 +302,7 @@ watch(visible, () => {
 watch(
   () => model.value.protocol_type,
   protocolType => {
-    if (protocolType !== 2) {
+    if (![2, 3].includes(protocolType)) {
       model.value.data_format = 2;
     }
   }
@@ -360,7 +333,8 @@ watch(
             placeholder="请选择数据格式"
           />
         </NFormItem>
-        <template v-if="isModbusProtocol">
+        <GatewayHttpClientConfig v-if="isHttpClient" v-model="model.http_client" />
+        <template v-if="isModbus">
           <div class="protocol-config-panel">
             <div class="protocol-config-title">Modbus TCP参数</div>
             <NGrid responsive="screen" item-responsive :x-gap="16">
@@ -398,7 +372,7 @@ watch(
             </NGrid>
           </div>
         </template>
-        <template v-if="isBacnetProtocol">
+        <template v-if="isBacnet">
           <div class="protocol-config-panel">
             <div class="protocol-config-title">BACnet IP参数</div>
             <NGrid responsive="screen" item-responsive :x-gap="16">
@@ -443,7 +417,7 @@ watch(
             </NGrid>
           </div>
         </template>
-        <template v-if="isOpcUaProtocol">
+        <template v-if="isOpcUa">
           <div class="protocol-config-panel">
             <div class="protocol-config-title">OPC UA 连接参数</div>
             <NGrid responsive="screen" item-responsive :x-gap="16">

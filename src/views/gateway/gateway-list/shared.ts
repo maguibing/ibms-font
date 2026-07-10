@@ -20,21 +20,6 @@ export const opcUaAuthTypeOptions: CommonType.Option<Api.Gateway.OpcUaAuthType, 
   { label: '用户名', value: 2 }
 ];
 
-export const httpMethodOptions = ['POST', 'GET', 'PUT', 'DELETE', 'PATCH'];
-
-export const tokenPlacementOptions = [
-  { label: '标准认证头（Bearer Token）', value: 1 },
-  { label: '标准认证头（Raw Token）', value: 2 },
-  { label: '自定义请求头（Header）', value: 3 },
-  { label: 'URL 查询参数（Query）', value: 4 },
-  { label: '请求体参数（Body）', value: 5 }
-];
-
-export const tokenKeyFixedByPlacement = {
-  1: 'Authorization Bearer',
-  2: 'Athorization'
-};
-
 export const dataFormatOptions: CommonType.Option<Api.Gateway.DataFormat, string>[] = [
   { label: 'Key-Value格式', value: 1 },
   { label: '标准格式', value: 2 },

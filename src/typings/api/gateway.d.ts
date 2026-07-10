@@ -25,6 +25,67 @@ declare namespace Api {
       path: string;
     };
 
+    type TokenPlacement = 1 | 2 | 3 | 4 | 5;
+
+    type GatewayHttpClientRoute = {
+      method: string;
+      path: string;
+      token_key: string;
+      token_placement: TokenPlacement;
+      with_auth: boolean;
+    };
+
+    type GatewayHttpClientToken = {
+      body: Record<string, string>;
+      expire_field: string;
+      expire_seconds: number;
+      headers: Record<string, string>;
+      is_enable: boolean;
+      method: string;
+      path: string;
+      token_field: string;
+    };
+
+    type GatewayHttpClientProtocol = {
+      poll_interval: number;
+      poll_route: GatewayHttpClientRoute;
+      send_route: GatewayHttpClientRoute;
+      server: string;
+      timeout: number;
+      token: GatewayHttpClientToken;
+    };
+
+    type GatewayHttpClientKeyValueRow = {
+      key: string;
+      value: string;
+    };
+
+    type GatewayHttpClientRouteModel = {
+      method: string;
+      path: string;
+      token_key: string;
+      token_placement: TokenPlacement;
+      with_auth: boolean;
+    };
+
+    type GatewayHttpClientModel = {
+      poll_interval: number | null;
+      poll_route: GatewayHttpClientRouteModel;
+      send_route: GatewayHttpClientRouteModel;
+      server: string;
+      timeout: number | null;
+      token: {
+        body: GatewayHttpClientKeyValueRow[];
+        expire_field: string;
+        expire_seconds: number | null;
+        headers: GatewayHttpClientKeyValueRow[];
+        is_enable: boolean;
+        method: string;
+        path: string;
+        token_field: string;
+      };
+    };
+
     type GatewayModbusProtocol = {
       mode: 1;
       poll_interval: number;
@@ -73,6 +134,7 @@ declare namespace Api {
     type GatewayCreateProtocol = {
       bacnet?: GatewayBacnetProtocol;
       data_format?: DataFormat;
+      http_client?: GatewayHttpClientProtocol;
       http_server?: GatewayHttpServerProtocol;
       modbus?: GatewayModbusProtocol;
       mqtt?: GatewayMqttProtocol;
@@ -89,6 +151,56 @@ declare namespace Api {
       protocol: GatewayCreateProtocol;
       protocol_type: ProtocolType;
       space_id: CommonType.IdType;
+      status: GatewayStatus;
+      username: string;
+    };
+
+    type GatewayOperateDrawerModel = {
+      bacnet: {
+        ip: {
+          interface_name: string;
+          local_port: number | null;
+        };
+        poll_interval: number | null;
+        timeout: number | null;
+      };
+      data_format: DataFormat;
+      desc: string;
+      http_client: GatewayHttpClientModel;
+      key: string;
+      modbus: {
+        poll_interval: number | null;
+        tcp: {
+          host: string;
+          port: number | null;
+        };
+        timeout: number | null;
+      };
+      name: string;
+      opcua: {
+        authentication: {
+          auth_type: OpcUaAuthType;
+          user_auth: {
+            password: string;
+            username: string;
+          };
+        };
+        endpoint_url: string;
+        is_auto_discovery: boolean;
+        is_subscription: boolean;
+        poll_interval: number | null;
+        request_timeout: number | null;
+        security_policy: {
+          mode: OpcUaSecurityMode;
+          policy_uri: string;
+        };
+        session_timeout: number | null;
+        timeout: number | null;
+      };
+      p_key: string;
+      password: string;
+      protocol_type: ProtocolType;
+      space_id: CommonType.IdType | null;
       status: GatewayStatus;
       username: string;
     };
