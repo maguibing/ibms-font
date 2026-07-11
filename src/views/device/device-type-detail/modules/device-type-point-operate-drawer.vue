@@ -1,21 +1,17 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue';
 import { useLoading } from '@sa/hooks';
-import {
-  fetchCreateDeviceTypeTemplatePoint,
-  fetchGetDeviceTypeTemplatePoint,
-  fetchUpdateDeviceTypeTemplatePoint
-} from '@/service/api/device-type-template';
+import { fetchCreateDeviceTypePoint, fetchGetDeviceTypePoint, fetchUpdateDeviceTypePoint } from '@/service/api/device';
 import PointOperateFields from '@/views/device/shared/device-point-form/point-operate-fields.vue';
 import { usePointOperateForm } from '@/views/device/shared/device-point-form/use-point-operate-form';
 import { $t } from '@/locales';
 
 defineOptions({
-  name: 'PointOperateDrawer'
+  name: 'DeviceTypePointOperateDrawer'
 });
 
 interface Props {
-  templateId?: CommonType.IdType | null;
+  deviceTypeId?: CommonType.IdType | null;
   operateType?: NaiveUI.TableOperateType;
   rowId?: CommonType.IdType | null;
 }
@@ -25,7 +21,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  templateId: null,
+  deviceTypeId: null,
   operateType: 'add',
   rowId: null
 });
@@ -67,16 +63,16 @@ async function handleUpdateModel() {
   resetModel();
 
   if (isEdit.value && props.rowId !== null && props.rowId !== undefined) {
-    const { data, error } = await fetchGetDeviceTypeTemplatePoint({ id: props.rowId });
+    const { data, error } = await fetchGetDeviceTypePoint({ id: props.rowId });
     if (error) return;
 
-    resetModel(data.device_type_template_point);
+    resetModel(data.device_type_point);
   }
 }
 
-function buildSubmitParams(): Api.System.DeviceTypeTemplatePointOperateParams {
-  const params: Api.System.DeviceTypeTemplatePointOperateParams = {
-    template_id: Number(props.templateId),
+function buildSubmitParams(): Api.Device.DeviceTypePointOperateParams {
+  const params: Api.Device.DeviceTypePointOperateParams = {
+    device_type_id: Number(props.deviceTypeId),
     ...buildPointSubmitParams()
   };
 
@@ -88,8 +84,8 @@ function buildSubmitParams(): Api.System.DeviceTypeTemplatePointOperateParams {
 }
 
 async function handleSubmit() {
-  if (!props.templateId) {
-    window.$message?.warning('缺少模板ID');
+  if (!props.deviceTypeId) {
+    window.$message?.warning('缺少设备类型ID');
     return;
   }
 
@@ -103,7 +99,7 @@ async function handleSubmit() {
   if (!validateEnumList()) return;
 
   startLoading();
-  const request = isEdit.value ? fetchUpdateDeviceTypeTemplatePoint : fetchCreateDeviceTypeTemplatePoint;
+  const request = isEdit.value ? fetchUpdateDeviceTypePoint : fetchCreateDeviceTypePoint;
   const { error } = await request(buildSubmitParams()).finally(endLoading);
   if (error) return;
 

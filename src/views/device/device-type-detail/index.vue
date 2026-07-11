@@ -9,6 +9,7 @@ import { useRouterPush } from '@/hooks/common/router';
 import { useAppStore } from '@/store/modules/app';
 import { displayValue, formatTime } from '@/utils/common-methods';
 import DeviceListPanel from '../device-list/modules/device-list-panel.vue';
+import DeviceTypePointPanel from './modules/device-type-point-panel.vue';
 
 defineOptions({
   name: 'DeviceTypeDetail'
@@ -23,10 +24,7 @@ const appStore = useAppStore();
 const deviceType = shallowRef<Api.Device.DeviceType | null>(null);
 const activeModule = shallowRef('devices');
 
-const modulePanels = [
-  { name: 'points', tab: '点位', description: '暂无点位' },
-  { name: 'alarms', tab: '报警', description: '暂无报警' }
-];
+const modulePanels = [{ name: 'alarms', tab: '报警', description: '暂无报警' }];
 
 async function getDeviceTypeDetail(id: number) {
   startLoading();
@@ -106,6 +104,9 @@ onMounted(() => {
             :show-device-type-search="false"
             :show-device-group-search="false"
           />
+        </NTabPane>
+        <NTabPane name="points" tab="点位">
+          <DeviceTypePointPanel :device-type-id="deviceTypeId" />
         </NTabPane>
         <NTabPane v-for="item in modulePanels" :key="item.name" :name="item.name" :tab="item.tab">
           <NEmpty :description="item.description" class="min-h-260px justify-center" />

@@ -279,7 +279,7 @@ function handleSearch() {
       :show-device-group="props.showDeviceGroupSearch"
       @search="handleSearch"
     />
-    <NCard title="设备列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard title="设备列表" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

@@ -90,6 +90,51 @@ export function fetchDeleteDeviceType(data: Api.Common.CommonIdList) {
   });
 }
 
+/** 获取设备类型点位列表 */
+export function fetchGetDeviceTypePointList(data: CommonType.CommonListQueryParams) {
+  return request<Api.Device.DeviceTypePointList>({
+    url: '/ListDeviceTypePoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 获取设备类型点位详情 */
+export function fetchGetDeviceTypePoint(data: { id: CommonType.IdType }) {
+  return request<Api.Device.DeviceTypePointDetailResponse>({
+    url: '/GetDeviceTypePoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 新增设备类型点位 */
+export function fetchCreateDeviceTypePoint(data: Api.Device.DeviceTypePointOperateParams) {
+  return request({
+    url: '/CreateDeviceTypePoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 修改设备类型点位 */
+export function fetchUpdateDeviceTypePoint(data: Api.Device.DeviceTypePointOperateParams) {
+  return request({
+    url: '/UpdateDeviceTypePoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 删除设备类型点位 */
+export function fetchDeleteDeviceTypePoint(data: Api.Common.CommonIdList) {
+  return request({
+    url: '/DeleteDeviceTypePoint',
+    method: 'post',
+    data
+  });
+}
+
 /** 获取设备分组树 */
 export function fetchGetDeviceGroupTrees(data?: CommonType.CommonListQueryParams) {
   return request<Api.Device.DeviceGroupTreeResponse>({

@@ -88,6 +88,55 @@ declare namespace Api {
       Pick<DeviceType, 'name' | 'key'> & Api.Common.CommonSearchParams
     >;
 
+    type DeviceTypePointValueItem = Api.System.DeviceTypeTemplatePointValueItem;
+
+    type DeviceTypePointSetting = {
+      data_type: CommonType.DataType;
+      num_val?: {
+        default_value?: number;
+        scale?: 1 | 2 | 3 | 4;
+        unit?: string;
+      };
+      switch_val?: {
+        cmd_val_data_type?: 1 | 2 | 3;
+        false_val?: DeviceTypePointValueItem;
+        true_val?: DeviceTypePointValueItem;
+      };
+      str_val?: {
+        default_value?: string;
+      };
+      enum_val?: {
+        cmd_val_data_type?: 1 | 2;
+        enum_list?: DeviceTypePointValueItem[];
+      };
+    };
+
+    type DeviceTypePoint = Api.Common.CommonRecord<{
+      id: CommonType.IdType;
+      project_id: CommonType.IdType;
+      device_type_id: CommonType.IdType;
+      name: string;
+      key: string;
+      data_type: CommonType.DataType;
+      energy_type?: number;
+      setting: DeviceTypePointSetting;
+      desc?: string;
+    }>;
+
+    type DeviceTypePointList = Api.Common.PaginatingQueryRecord<DeviceTypePoint>;
+
+    type DeviceTypePointDetailResponse = {
+      device_type_point: DeviceTypePoint;
+    };
+
+    type DeviceTypePointOperateParams = CommonType.RecordNullable<
+      Pick<DeviceTypePoint, 'id' | 'device_type_id' | 'name' | 'key' | 'energy_type' | 'data_type' | 'setting' | 'desc'>
+    >;
+
+    type DeviceTypePointSearchParams = CommonType.RecordNullable<
+      Pick<DeviceTypePoint, 'name' | 'key'> & Api.Common.CommonSearchParams
+    >;
+
     type DeviceGroup = {
       group_id: CommonType.IdType;
       group_name: string;
