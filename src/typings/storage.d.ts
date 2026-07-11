@@ -12,6 +12,8 @@ declare namespace StorageType {
       data: any;
       time: number;
     };
+    /** Weather coordinates from IP location */
+    weatherCoordinates: Api.Home.WeatherCoordinates;
   }
 
   interface Local {

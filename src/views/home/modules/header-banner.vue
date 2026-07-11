@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, shallowRef } from 'vue';
+import { fetchGetWeather } from '@/service/api/home';
 import { useAppStore } from '@/store/modules/app';
 import { useAuthStore } from '@/store/modules/auth';
+import { sessionStg } from '@/utils/storage';
 import defaultAvatar from '@/assets/imgs/soybean.jpg';
 import { $t } from '@/locales';
 
@@ -9,40 +11,65 @@ defineOptions({
   name: 'HeaderBanner'
 });
 
+const ipLocationUrl = 'https://api.ip.sb/geoip/';
+
 const appStore = useAppStore();
 const authStore = useAuthStore();
 
+const weather = shallowRef<Api.Home.Weather | null>(null);
 const gap = computed(() => (appStore.isMobile ? 0 : 16));
 
-// interface StatisticData {
-//   id: number;
-//   label: string;
-//   value: string;
-// }
+const weatherSummary = computed(() => {
+  if (!weather.value) {
+    return '';
+  }
 
-// const statisticData = computed<StatisticData[]>(() => [
-//   {
-//     id: 0,
-//     label: $t('page.home.projectCount'),
-//     value: '25'
-//   },
-//   {
-//     id: 1,
-//     label: $t('page.home.todo'),
-//     value: '4/16'
-//   },
-//   {
-//     id: 2,
-//     label: $t('page.home.message'),
-//     value: '12'
-//   }
-// ]);
+  return `${weather.value.date}，${weather.value.weather}，${weather.value.min_temperature}℃ - ${weather.value.max_temperature}℃，${weather.value.wind_direction} ${weather.value.wind_speed}`;
+});
+
+async function getWeatherCoordinates() {
+  const cachedCoordinates = sessionStg.get('weatherCoordinates');
+  if (cachedCoordinates) {
+    return cachedCoordinates;
+  }
+
+  const response = await fetch(ipLocationUrl);
+  const data = (await response.json()) as Api.Home.WeatherCoordinates;
+  const coordinates = {
+    latitude: data.latitude,
+    longitude: data.longitude
+  };
+
+  sessionStg.set('weatherCoordinates', coordinates);
+
+  return coordinates;
+}
+
+async function loadWeather() {
+  try {
+    const coordinates = await getWeatherCoordinates();
+    const { data, error } = await fetchGetWeather({
+      coordinates,
+      weather_way: 1
+    });
+
+    if (error || !data) {
+      return;
+    }
+
+    weather.value = data.weather;
+  } catch {
+    weather.value = null;
+  }
+}
+
+onMounted(loadWeather);
 </script>
 
 <template>
   <NCard :bordered="false" class="card-wrapper">
     <NGrid :x-gap="gap" :y-gap="16" responsive="screen" item-responsive>
-      <NGi span="24 s:24 m:18">
+      <NGi span="24">
         <div class="flex-y-center">
           <div class="size-72px shrink-0 overflow-hidden rd-1/2">
             <img :src="defaultAvatar" class="size-full" />
@@ -55,14 +82,9 @@ const gap = computed(() => (appStore.isMobile ? 0 : 16));
                 })
               }}
             </h3>
-            <p class="text-#999 leading-30px">{{ $t('page.home.weatherDesc') }}</p>
+            <p v-if="weatherSummary" class="text-#999 leading-30px">{{ weatherSummary }}</p>
           </div>
         </div>
-      </NGi>
-      <NGi span="24 s:24 m:6">
-        <NSpace :size="24" justify="end">
-          <!-- <NStatistic v-for="item in statisticData" :key="item.id" class="whitespace-nowrap" v-bind="item" /> -->
-        </NSpace>
       </NGi>
     </NGrid>
   </NCard>
