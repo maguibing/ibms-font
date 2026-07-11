@@ -2,6 +2,7 @@
 import { computed, h, onMounted, ref, shallowRef, watch } from 'vue';
 import type { DataTableColumns, UploadFileInfo } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
+import { StatusTag, type StatusTagMap } from '@sa/materials';
 import { fetchCreateDeviceType } from '@/service/api/device';
 import {
   fetchGetDeviceTypeTemplateCategoryList,
@@ -29,6 +30,11 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 type ImportModel = Pick<Api.Device.DeviceTypeOperateParams, 'desc' | 'icon' | 'key' | 'name' | 'status'>;
+
+const DEVICE_TYPE_STATUS_MAP: StatusTagMap = {
+  '1': { label: '启用', type: 'success' },
+  '2': { label: '禁用', type: 'default' }
+};
 
 const { formRef, validate, restoreValidation } = useNaiveForm();
 const { createRequiredRule } = useFormRules();
@@ -431,8 +437,12 @@ defineExpose({
             </span>
             <span class="min-w-0 flex items-center justify-between gap-8px">
               <span :class="getTemplateMetaClass(template)">{{ template.key || '-' }}</span>
-              <NTag v-if="Number(template.status) === 1" type="success" size="small" :bordered="false">启用</NTag>
-              <NTag v-else size="small" :bordered="false">停用</NTag>
+              <StatusTag
+                :value="template.status"
+                preset="none"
+                :status-map="DEVICE_TYPE_STATUS_MAP"
+                :tag-props="{ size: 'small', bordered: false }"
+              />
             </span>
           </button>
           <NEmpty
@@ -475,7 +485,7 @@ defineExpose({
               <NFormItemGi span="24 m:12" label="状态" path="status">
                 <NSwitch v-model:value="model.status" :checked-value="1" :unchecked-value="2">
                   <template #checked>启用</template>
-                  <template #unchecked>停用</template>
+                  <template #unchecked>禁用</template>
                 </NSwitch>
               </NFormItemGi>
               <NFormItemGi span="24 m:12" label="图标" path="icon">

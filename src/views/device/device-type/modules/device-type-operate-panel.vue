@@ -155,7 +155,7 @@ defineExpose({
       <NFormItem label="状态" path="status">
         <NSwitch v-model:value="model.status" :checked-value="1" :unchecked-value="2">
           <template #checked>启用</template>
-          <template #unchecked>停用</template>
+          <template #unchecked>禁用</template>
         </NSwitch>
       </NFormItem>
       <NFormItem label="描述" path="desc">

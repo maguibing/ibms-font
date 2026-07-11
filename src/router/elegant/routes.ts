@@ -107,12 +107,30 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'device_device-list',
+        path: '/device/device-list',
+        component: 'view.device_device-list',
+        meta: {
+          title: 'device_device-list',
+          i18nKey: 'route.device_device-list'
+        }
+      },
+      {
         name: 'device_device-type',
         path: '/device/device-type',
         component: 'view.device_device-type',
         meta: {
           title: 'device_device-type',
           i18nKey: 'route.device_device-type'
+        }
+      },
+      {
+        name: 'device_device-type-detail',
+        path: '/device/device-type-detail',
+        component: 'view.device_device-type-detail',
+        meta: {
+          title: 'device_device-type-detail',
+          i18nKey: 'route.device_device-type-detail'
         }
       }
     ]
