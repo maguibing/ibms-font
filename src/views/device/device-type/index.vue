@@ -1,11 +1,12 @@
 <script setup lang="tsx">
 import { ref, shallowRef } from 'vue';
 import { NDivider, NImage } from 'naive-ui';
-import { StatusTag, type StatusTagMap } from '@sa/materials';
+import { StatusTag } from '@sa/materials';
 import { formatDateTime } from '@sa/utils';
 import { fetchDeleteDeviceType, fetchGetDeviceTypeList } from '@/service/api/device';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
+import { useRouterPush } from '@/hooks/common/router';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import DeviceTypeOperateDrawer from './modules/device-type-operate-drawer.vue';
@@ -16,13 +17,10 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { routerPushByKey } = useRouterPush();
 const operateDrawerVisible = shallowRef(false);
 const operateType = shallowRef<NaiveUI.TableOperateType>('add');
 const operateRowId = shallowRef<CommonType.IdType | null>(null);
-const DEVICE_TYPE_STATUS_MAP: StatusTagMap = {
-  '1': { label: '启用', type: 'success' },
-  '2': { label: '禁用', type: 'default' }
-};
 
 const searchParams = ref<Api.Device.DeviceTypeSearchParams>({
   pageNum: 1,
@@ -105,7 +103,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         title: '状态',
         align: 'center',
         minWidth: 100,
-        render: row => <StatusTag value={row.status} preset="none" statusMap={DEVICE_TYPE_STATUS_MAP} />
+        render: row => <StatusTag value={row.status} />
       },
       {
         key: 'created_at',
@@ -126,7 +124,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               type="primary"
               icon="material-symbols:visibility-outline"
               tooltipContent="查看"
-              onClick={handleDeveloping}
+              onClick={() => handleView(row.id)}
             />,
             <ButtonIcon
               text
@@ -162,8 +160,12 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
 
 const { checkedRowKeys, onBatchDeleted, onDeleted } = useTableOperate(data, 'id', getData);
 
-function handleDeveloping() {
-  window.$message?.info('功能待开发');
+function handleView(id: CommonType.IdType) {
+  routerPushByKey('device_device-type-detail', {
+    query: {
+      id: String(id)
+    }
+  });
 }
 
 function handleAdd() {

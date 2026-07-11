@@ -2,7 +2,7 @@
 import { computed, h, onMounted, ref, shallowRef, watch } from 'vue';
 import type { DataTableColumns, UploadFileInfo } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
-import { StatusTag, type StatusTagMap } from '@sa/materials';
+import { StatusTag } from '@sa/materials';
 import { fetchCreateDeviceType } from '@/service/api/device';
 import {
   fetchGetDeviceTypeTemplateCategoryList,
@@ -30,11 +30,6 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 type ImportModel = Pick<Api.Device.DeviceTypeOperateParams, 'desc' | 'icon' | 'key' | 'name' | 'status'>;
-
-const DEVICE_TYPE_STATUS_MAP: StatusTagMap = {
-  '1': { label: '启用', type: 'success' },
-  '2': { label: '禁用', type: 'default' }
-};
 
 const { formRef, validate, restoreValidation } = useNaiveForm();
 const { createRequiredRule } = useFormRules();
@@ -437,12 +432,7 @@ defineExpose({
             </span>
             <span class="min-w-0 flex items-center justify-between gap-8px">
               <span :class="getTemplateMetaClass(template)">{{ template.key || '-' }}</span>
-              <StatusTag
-                :value="template.status"
-                preset="none"
-                :status-map="DEVICE_TYPE_STATUS_MAP"
-                :tag-props="{ size: 'small', bordered: false }"
-              />
+              <StatusTag :value="template.status" :tag-props="{ size: 'small', bordered: false }" />
             </span>
           </button>
           <NEmpty

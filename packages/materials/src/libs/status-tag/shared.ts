@@ -32,18 +32,18 @@ export const DEFAULT_UNKNOWN_OPTION: StatusTagOption = {
 };
 
 const ENABLE_PRESET_MAP: StatusTagMap = {
-  enabled: {
-    label: '正常',
+  '1': {
+    label: '启用',
     type: 'success'
   },
-  disabled: {
-    label: '禁用',
+  '2': {
+    label: '停用',
     type: 'default'
   }
 };
 
 const ENABLE_ALIASES = new Set(['1', 'true', 'on', 'open', 'enable', 'enabled', 'normal', 'active']);
-const DISABLE_ALIASES = new Set(['0', 'false', 'off', 'close', 'disable', 'disabled', 'inactive']);
+const DISABLE_ALIASES = new Set(['2', 'false', 'off', 'close', 'disable', 'disabled', 'inactive']);
 
 function normalizeRawValue(value: StatusTagValue): string {
   if (value === null || value === undefined) {
@@ -59,11 +59,11 @@ function normalizeRawValue(value: StatusTagValue): string {
 
 function toCanonicalStatusKey(rawKey: string): string {
   if (ENABLE_ALIASES.has(rawKey)) {
-    return 'enabled';
+    return '1';
   }
 
   if (DISABLE_ALIASES.has(rawKey)) {
-    return 'disabled';
+    return '2';
   }
 
   return rawKey;

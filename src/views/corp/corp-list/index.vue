@@ -35,23 +35,12 @@ const CORP_AUDIT_STATUS_MAP: StatusTagMap = {
   }
 };
 
-const CORP_STATUS_MAP: StatusTagMap = {
-  '1': {
-    label: '启用',
-    type: 'success'
-  },
-  '2': {
-    label: '停用',
-    type: 'default'
-  }
-};
-
 function renderCorpStatusTag(row: Api.System.Corp) {
   if (row.audit_status !== AUDIT_PASS_STATUS) {
     return <StatusTag value={row.audit_status} statusMap={CORP_AUDIT_STATUS_MAP} />;
   }
 
-  return <StatusTag value={row.status} statusMap={CORP_STATUS_MAP} />;
+  return <StatusTag value={row.status} />;
 }
 
 function createDefaultCorpSearchParams(): Api.System.CorpSearchParams {

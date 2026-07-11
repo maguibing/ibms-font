@@ -1,7 +1,7 @@
 <script setup lang="tsx">
 import { computed, ref } from 'vue';
 import { NCard, NDivider, NImage } from 'naive-ui';
-import { StatusTag, type StatusTagMap } from '@sa/materials';
+import { StatusTag } from '@sa/materials';
 import { formatDateTime } from '@sa/utils';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
@@ -21,17 +21,6 @@ const { routerPushByKey } = useRouterPush();
 const drawerVisible = ref(false);
 const editingData = ref<Api.Visual.ProjectSysScreen | null>(null);
 const editingCoverUrl = ref('');
-
-const SCREEN_STATUS_MAP: StatusTagMap = {
-  '1': {
-    label: '启用',
-    type: 'success'
-  },
-  '2': {
-    label: '停用',
-    type: 'default'
-  }
-};
 
 const searchParams = ref<Api.Visual.ProjectSysScreenSearchParams>({
   pageNum: 1,
@@ -112,7 +101,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         title: '状态',
         align: 'center',
         minWidth: 100,
-        render: row => <StatusTag value={row.status} statusMap={SCREEN_STATUS_MAP} />
+        render: row => <StatusTag value={row.status} />
       },
       {
         key: 'created_at',

@@ -1,3 +1,5 @@
+import { formatDateTime } from '@sa/utils';
+
 /**
  * 空值转兜底文案，非空值转字符串。
  * @param value 入参：原始值
@@ -8,6 +10,18 @@ export function displayValue(value: unknown, fallback = '-') {
   if (value === null || value === undefined || value === '') return fallback;
 
   return String(value);
+}
+
+/**
+ * 时间戳格式化为展示时间。
+ * @param value 入参：时间戳
+ * @param fallback 入参：兜底文案
+ * @returns 出参：时间字符串
+ */
+export function formatTime(value?: number | null, fallback = '-') {
+  if (!value) return fallback;
+
+  return formatDateTime(value);
 }
 
 /**

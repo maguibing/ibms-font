@@ -27,11 +27,6 @@ export const dataFormatOptions: CommonType.Option<Api.Gateway.DataFormat, string
   { label: 'NZ格式', value: 4 }
 ];
 
-export const GATEWAY_STATUS_MAP: StatusTagMap = {
-  '1': { label: '启用', type: 'success' },
-  '2': { label: '禁用', type: 'default' }
-};
-
 export const GATEWAY_LINK_STATUS_MAP: StatusTagMap = {
   '1': { label: '未激活', type: 'warning' },
   '2': { label: '在线', type: 'success' },

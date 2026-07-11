@@ -1,7 +1,7 @@
 <script setup lang="tsx">
 import { computed, ref, shallowRef } from 'vue';
 import { NDivider } from 'naive-ui';
-import { StatusTag, type StatusTagMap } from '@sa/materials';
+import { StatusTag } from '@sa/materials';
 import { formatDateTime } from '@sa/utils';
 import { fetchDeleteDevice, fetchGetDeviceList } from '@/service/api/device';
 import { useAppStore } from '@/store/modules/app';
@@ -19,10 +19,6 @@ const appStore = useAppStore();
 
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
 const operateDrawerVisible = shallowRef(false);
-const DEVICE_STATUS_MAP: StatusTagMap = {
-  '1': { label: '启用', type: 'success' },
-  '2': { label: '禁用', type: 'default' }
-};
 
 const searchParams = ref<Api.Device.DeviceSearchParams>({
   pageNum: 1,
@@ -123,7 +119,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         title: '状态',
         align: 'center',
         minWidth: 100,
-        render: row => <StatusTag value={row.status} preset="none" statusMap={DEVICE_STATUS_MAP} />
+        render: row => <StatusTag value={row.status} />
       },
       {
         key: 'updated_at',

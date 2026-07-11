@@ -12,7 +12,6 @@ import GatewayOperateDrawer from './modules/gateway-operate-drawer.vue';
 import GatewaySearch from './modules/gateway-search.vue';
 import {
   GATEWAY_LINK_STATUS_MAP,
-  GATEWAY_STATUS_MAP,
   GATEWAY_UNKNOWN_STATUS,
   getGatewayProtocolLabel
 } from './shared';
@@ -106,7 +105,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         title: '状态',
         align: 'center',
         minWidth: 100,
-        render: row => <StatusTag value={row.status} statusMap={GATEWAY_STATUS_MAP} unknown={GATEWAY_UNKNOWN_STATUS} />
+        render: row => <StatusTag value={row.status} unknown={GATEWAY_UNKNOWN_STATUS} />
       },
       {
         key: 'link_status',

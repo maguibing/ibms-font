@@ -1,7 +1,104 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { onMounted, shallowRef } from 'vue';
+import { useRoute } from 'vue-router';
+import { useLoading } from '@sa/hooks';
+import { StatusTag } from '@sa/materials';
+import { fetchGetDeviceType } from '@/service/api/device';
+import CopyableValue from '@/components/custom/copyable-value.vue';
+import { useRouterPush } from '@/hooks/common/router';
+import { useAppStore } from '@/store/modules/app';
+import { displayValue, formatTime } from '@/utils/common-methods';
+
+defineOptions({
+  name: 'DeviceTypeDetail'
+});
+
+const route = useRoute();
+const rawDeviceTypeId = Array.isArray(route.query.id) ? route.query.id[0] : route.query.id;
+const deviceTypeId = Number(rawDeviceTypeId || 0);
+const { routerBack } = useRouterPush();
+const { loading, startLoading, endLoading } = useLoading();
+const appStore = useAppStore();
+
+const deviceType = shallowRef<Api.Device.DeviceType | null>(null);
+const activeModule = shallowRef('devices');
+
+const modulePanels = [
+  { name: 'devices', tab: '关联设备', description: '暂无关联设备' },
+  { name: 'points', tab: '点位', description: '暂无点位' },
+  { name: 'alarms', tab: '报警', description: '暂无报警' }
+];
+
+async function getDeviceTypeDetail(id: number) {
+  startLoading();
+  const { data, error } = await fetchGetDeviceType({ id }).finally(endLoading);
+  if (error) return;
+  deviceType.value = data.device_type;
+}
+
+onMounted(() => {
+  if (!deviceTypeId) return;
+  getDeviceTypeDetail(deviceTypeId);
+});
+</script>
 
 <template>
-  <div>device_device-type-detail</div>
-</template>
+  <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
+    <NCard :bordered="false" size="small" class="card-wrapper">
+      <NPageHeader title="设备类型详情" @back="routerBack">
+        <NSpin :show="loading">
+          <NEmpty v-if="!deviceTypeId" description="缺少设备类型ID" class="py-48px" />
+          <NEmpty v-else-if="!deviceType && !loading" description="暂无设备类型详情" class="py-48px" />
+          <div
+            v-else-if="deviceType"
+            class="mt-16px grid grid-cols-[128px_minmax(0,1fr)] items-stretch lt-sm:grid-cols-1"
+          >
+            <div
+              class="flex min-h-full items-center justify-center rounded-l-8px border border-r-0 border-[var(--n-border-color)] lt-sm:min-h-104px lt-sm:rounded-b-0 lt-sm:rounded-t-8px lt-sm:border-b-0 lt-sm:border-r"
+            >
+              <span class="size-72px inline-flex items-center justify-center rounded-6px">
+                <NImage
+                  v-if="deviceType.icon"
+                  :src="deviceType.icon"
+                  :preview-disabled="true"
+                  object-fit="contain"
+                  class="size-56px"
+                />
+                <SvgIcon v-else icon="material-symbols:category-outline-rounded" class="text-32px text-primary" />
+              </span>
+            </div>
+            <NDescriptions
+              label-placement="left"
+              :column="appStore.isMobile ? 1 : 2"
+              bordered
+              size="small"
+              label-class="min-w-88px"
+              class="min-w-0 [&_.n-descriptions-table-wrapper]:rounded-bl-0 [&_.n-descriptions-table-wrapper]:rounded-tl-0 lt-sm:[&_.n-descriptions-table-wrapper]:rounded-bl-8px lt-sm:[&_.n-descriptions-table-wrapper]:rounded-t-0"
+            >
+              <NDescriptionsItem label="名称">{{ displayValue(deviceType.name) }}</NDescriptionsItem>
+              <NDescriptionsItem label="标识">
+                <CopyableValue :value="deviceType.key" />
+              </NDescriptionsItem>
+              <NDescriptionsItem label="状态">
+                <StatusTag :value="deviceType.status" />
+              </NDescriptionsItem>
+              <NDescriptionsItem label="创建时间">{{ formatTime(deviceType.created_at) }}</NDescriptionsItem>
+              <NDescriptionsItem label="更新时间">{{ formatTime(deviceType.updated_at) }}</NDescriptionsItem>
+              <NDescriptionsItem label="描述" :span="appStore.isMobile ? 1 : 2">
+                <span class="whitespace-pre-line">{{ displayValue(deviceType.desc) }}</span>
+              </NDescriptionsItem>
+            </NDescriptions>
+          </div>
+        </NSpin>
+      </NPageHeader>
+    </NCard>
 
-<style scoped></style>
+    <NCard :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+      <NTabs v-model:value="activeModule" type="line" animated>
+        <NTabPane v-for="item in modulePanels" :key="item.name" :name="item.name" :tab="item.tab">
+          <NEmpty :description="item.description" class="min-h-260px justify-center" />
+        </NTabPane>
+      </NTabs>
+    </NCard>
+  </div>
+</template>
