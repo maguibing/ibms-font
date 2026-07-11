@@ -8,14 +8,14 @@ import CopyableValue from '@/components/custom/copyable-value.vue';
 import { useRouterPush } from '@/hooks/common/router';
 import { useAppStore } from '@/store/modules/app';
 import { displayValue, formatTime } from '@/utils/common-methods';
+import DeviceListPanel from '../device-list/modules/device-list-panel.vue';
 
 defineOptions({
   name: 'DeviceTypeDetail'
 });
 
 const route = useRoute();
-const rawDeviceTypeId = Array.isArray(route.query.id) ? route.query.id[0] : route.query.id;
-const deviceTypeId = Number(rawDeviceTypeId || 0);
+const deviceTypeId = Number(route.query.id);
 const { routerBack } = useRouterPush();
 const { loading, startLoading, endLoading } = useLoading();
 const appStore = useAppStore();
@@ -24,7 +24,6 @@ const deviceType = shallowRef<Api.Device.DeviceType | null>(null);
 const activeModule = shallowRef('devices');
 
 const modulePanels = [
-  { name: 'devices', tab: '关联设备', description: '暂无关联设备' },
   { name: 'points', tab: '点位', description: '暂无点位' },
   { name: 'alarms', tab: '报警', description: '暂无报警' }
 ];
@@ -37,18 +36,16 @@ async function getDeviceTypeDetail(id: number) {
 }
 
 onMounted(() => {
-  if (!deviceTypeId) return;
   getDeviceTypeDetail(deviceTypeId);
 });
 </script>
 
 <template>
-  <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
+  <div class="h-full min-h-500px flex-col-stretch gap-16px overflow-auto">
     <NCard :bordered="false" size="small" class="card-wrapper">
       <NPageHeader title="设备类型详情" @back="routerBack">
         <NSpin :show="loading">
-          <NEmpty v-if="!deviceTypeId" description="缺少设备类型ID" class="py-48px" />
-          <NEmpty v-else-if="!deviceType && !loading" description="暂无设备类型详情" class="py-48px" />
+          <NEmpty v-if="!deviceType && !loading" description="暂无设备类型详情" class="py-48px" />
           <div
             v-else-if="deviceType"
             class="mt-16px grid grid-cols-[128px_minmax(0,1fr)] items-stretch lt-sm:grid-cols-1"
@@ -93,8 +90,23 @@ onMounted(() => {
       </NPageHeader>
     </NCard>
 
-    <NCard :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
-      <NTabs v-model:value="activeModule" type="line" animated>
+    <NCard
+      :bordered="false"
+      size="small"
+      class="device-type-module-card card-wrapper"
+      content-class="h-full min-h-0 flex-col-stretch"
+    >
+      <NTabs v-model:value="activeModule" type="line" animated class="h-full min-h-0">
+        <NTabPane name="devices" tab="关联设备">
+          <DeviceListPanel
+            embedded
+            :fixed-device-type-id="deviceTypeId"
+            :fixed-device-type="deviceType"
+            :search-collapsible="false"
+            :show-device-type-search="false"
+            :show-device-group-search="false"
+          />
+        </NTabPane>
         <NTabPane v-for="item in modulePanels" :key="item.name" :name="item.name" :tab="item.tab">
           <NEmpty :description="item.description" class="min-h-260px justify-center" />
         </NTabPane>
@@ -102,3 +114,23 @@ onMounted(() => {
     </NCard>
   </div>
 </template>
+
+<style scoped>
+.device-type-module-card :deep(.n-tabs) {
+  display: flex;
+  flex-direction: column;
+}
+
+.device-type-module-card {
+  height: max(560px, calc(100vh - 360px));
+  overflow: hidden;
+}
+
+.device-type-module-card :deep(.n-tabs-pane-wrapper),
+.device-type-module-card :deep(.n-tab-pane) {
+  height: 100% !important;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+</style>

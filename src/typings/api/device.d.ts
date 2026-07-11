@@ -10,8 +10,10 @@ declare namespace Api {
       device_type_id: CommonType.IdType;
       device_group_id?: CommonType.IdType;
       group_id?: CommonType.IdType;
+      space_id?: CommonType.IdType;
       key: string;
       name: string;
+      desc?: string;
       status: number;
     }>;
 
@@ -27,10 +29,14 @@ declare namespace Api {
 
     type DeviceListExtra = {
       device_type_map?: Record<string, DeviceType>;
-      device_group_map?: Record<string, DeviceGroup>;
+      device_group_map?: Record<string, DeviceGroupMapItem>;
     };
 
     type DeviceList = Api.Common.PaginatingQueryRecord<Device, DeviceListExtra>;
+
+    type DeviceDetailResponse = {
+      device: Device;
+    };
 
     type CreateDeviceParams = {
       add_key_start: string;
@@ -42,6 +48,13 @@ declare namespace Api {
       name: string;
       space_id: CommonType.IdType;
       status: number;
+    };
+
+    type UpdateDeviceParams = Pick<
+      CreateDeviceParams,
+      'desc' | 'device_group_id' | 'device_type_id' | 'space_id' | 'status'
+    > & {
+      id: CommonType.IdType;
     };
 
     type DeviceSearchParams = CommonType.RecordNullable<
@@ -81,6 +94,11 @@ declare namespace Api {
       parent_id?: CommonType.IdType;
       desc?: string;
       children?: DeviceGroup[];
+    };
+
+    type DeviceGroupMapItem = CommonType.IdNameRecord & {
+      group_id?: CommonType.IdType;
+      group_name?: string;
     };
 
     type DeviceGroupTreeResponse = {

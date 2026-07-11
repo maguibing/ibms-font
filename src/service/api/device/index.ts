@@ -9,6 +9,15 @@ export function fetchGetDeviceList(data?: CommonType.CommonListQueryParams) {
   });
 }
 
+/** 获取设备详情 */
+export function fetchGetDevice(data: { id: CommonType.IdType }) {
+  return request<Api.Device.DeviceDetailResponse>({
+    url: '/GetDevice',
+    method: 'post',
+    data
+  });
+}
+
 /** 创建设备 */
 export function fetchCreateDevice(data: Api.Device.CreateDeviceParams) {
   return request({
@@ -22,6 +31,15 @@ export function fetchCreateDevice(data: Api.Device.CreateDeviceParams) {
 export function fetchDeleteDevice(data: Api.Common.CommonIdList) {
   return request({
     url: '/DeleteDevice',
+    method: 'post',
+    data
+  });
+}
+
+/** 修改设备 */
+export function fetchUpdateDevice(data: Api.Device.UpdateDeviceParams) {
+  return request({
+    url: '/UpdateDevice',
     method: 'post',
     data
   });
