@@ -1,0 +1,74 @@
+<script setup lang="ts">
+import { toRaw } from 'vue';
+import { jsonClone } from '@sa/utils';
+import { useNaiveForm } from '@/hooks/common/form';
+import { $t } from '@/locales';
+
+defineOptions({
+  name: 'DeviceTypeSearch'
+});
+
+interface Emits {
+  (e: 'search'): void;
+}
+
+const emit = defineEmits<Emits>();
+
+const { formRef, validate, restoreValidation } = useNaiveForm();
+
+const model = defineModel<Api.Device.DeviceTypeSearchParams>('model', { required: true });
+
+const defaultModel = jsonClone(toRaw(model.value));
+
+function resetModel() {
+  Object.assign(model.value, defaultModel);
+}
+
+async function reset() {
+  await restoreValidation();
+  resetModel();
+  emit('search');
+}
+
+async function search() {
+  await validate();
+  emit('search');
+}
+</script>
+
+<template>
+  <NCard :bordered="false" size="small" class="card-wrapper">
+    <NCollapse>
+      <NCollapseItem :title="$t('common.search')" name="device-type-search">
+        <NForm ref="formRef" :model="model" label-placement="left" :label-width="100">
+          <NGrid responsive="screen" item-responsive>
+            <NFormItemGi span="24 s:12 m:8" label="设备类型名称" path="name" class="pr-24px" label-width="auto">
+              <NInput v-model:value="model.name" clearable placeholder="请输入设备类型名称" @keyup.enter="search" />
+            </NFormItemGi>
+            <NFormItemGi span="24 s:12 m:8" label="设备类型标识" path="key" class="pr-24px" label-width="auto">
+              <NInput v-model:value="model.key" clearable placeholder="请输入设备类型标识" @keyup.enter="search" />
+            </NFormItemGi>
+            <NFormItemGi :show-feedback="false" span="24 s:12 m:8" class="pr-24px">
+              <NSpace class="w-full" justify="end">
+                <NButton type="primary" ghost @click="search">
+                  <template #icon>
+                    <icon-ic-round-search class="text-icon" />
+                  </template>
+                  {{ $t('common.search') }}
+                </NButton>
+                <NButton @click="reset">
+                  <template #icon>
+                    <icon-ic-round-refresh class="text-icon" />
+                  </template>
+                  {{ $t('common.reset') }}
+                </NButton>
+              </NSpace>
+            </NFormItemGi>
+          </NGrid>
+        </NForm>
+      </NCollapseItem>
+    </NCollapse>
+  </NCard>
+</template>
+
+<style scoped></style>

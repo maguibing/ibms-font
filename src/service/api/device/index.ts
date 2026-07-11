@@ -9,6 +9,51 @@ export function fetchGetDeviceList(data?: CommonType.CommonListQueryParams) {
   });
 }
 
+/** 获取设备类型列表 */
+export function fetchGetDeviceTypeList(data: CommonType.CommonListQueryParams) {
+  return request<Api.Device.DeviceTypeList>({
+    url: '/ListDeviceType',
+    method: 'post',
+    data
+  });
+}
+
+/** 获取设备类型详情 */
+export function fetchGetDeviceType(data: { id: CommonType.IdType }) {
+  return request<Api.Device.DeviceTypeDetailResponse>({
+    url: '/GetDeviceType',
+    method: 'post',
+    data
+  });
+}
+
+/** 新增设备类型 */
+export function fetchCreateDeviceType(data: Api.Device.DeviceTypeOperateParams) {
+  return request({
+    url: '/CreateDeviceType',
+    method: 'post',
+    data
+  });
+}
+
+/** 修改设备类型 */
+export function fetchUpdateDeviceType(data: Api.Device.UpdateDeviceTypeParams) {
+  return request({
+    url: '/UpdateDeviceType',
+    method: 'post',
+    data
+  });
+}
+
+/** 删除设备类型 */
+export function fetchDeleteDeviceType(data: Api.Common.CommonIdList) {
+  return request({
+    url: '/DeleteDeviceType',
+    method: 'post',
+    data
+  });
+}
+
 /** 获取设备分组树 */
 export function fetchGetDeviceGroupTrees(data?: CommonType.CommonListQueryParams) {
   return request<Api.Device.DeviceGroupTreeResponse>({

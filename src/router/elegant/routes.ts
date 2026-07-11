@@ -105,6 +105,15 @@ export const generatedRoutes: GeneratedRoute[] = [
           title: 'device_device-group',
           i18nKey: 'route.device_device-group'
         }
+      },
+      {
+        name: 'device_device-type',
+        path: '/device/device-type',
+        component: 'view.device_device-type',
+        meta: {
+          title: 'device_device-type',
+          i18nKey: 'route.device_device-type'
+        }
       }
     ]
   },

@@ -13,13 +13,45 @@ declare namespace Api {
       status: number;
     }>;
 
-    type DeviceType = CommonType.IdNameRecord;
+    type DeviceType = CommonType.IdNameRecord & {
+      project_id?: CommonType.IdType;
+      desc?: string;
+      key?: string;
+      icon?: string;
+      status?: number;
+      created_at?: number;
+      updated_at?: number;
+    };
 
     type DeviceListExtra = {
       device_type_map: Record<string, DeviceType>;
     };
 
     type DeviceList = Api.Common.PaginatingQueryRecord<Device, DeviceListExtra>;
+
+    type DeviceTypeList = Api.Common.PaginatingQueryRecord<DeviceType>;
+
+    type DeviceTypeDetailResponse = {
+      device_type: DeviceType;
+    };
+
+    type DeviceTypeOperateParams = {
+      desc: string;
+      icon: string;
+      is_auto_create_point?: boolean;
+      device_type_template_point_id_list?: CommonType.IdType[];
+      key: string;
+      name: string;
+      status: number;
+    };
+
+    type UpdateDeviceTypeParams = Pick<DeviceTypeOperateParams, 'desc' | 'icon' | 'key' | 'name' | 'status'> & {
+      id: CommonType.IdType;
+    };
+
+    type DeviceTypeSearchParams = CommonType.RecordNullable<
+      Pick<DeviceType, 'name' | 'key'> & Api.Common.CommonSearchParams
+    >;
 
     type DeviceGroup = {
       group_id: CommonType.IdType;
