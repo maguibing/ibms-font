@@ -98,6 +98,15 @@ export const generatedRoutes: GeneratedRoute[] = [
     },
     children: [
       {
+        name: 'device_device-detail',
+        path: '/device/device-detail',
+        component: 'view.device_device-detail',
+        meta: {
+          title: 'device_device-detail',
+          i18nKey: 'route.device_device-detail'
+        }
+      },
+      {
         name: 'device_device-group',
         path: '/device/device-group',
         component: 'view.device_device-group',
@@ -116,6 +125,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'device_device-point-manage',
+        path: '/device/device-point-manage',
+        component: 'view.device_device-point-manage',
+        meta: {
+          title: 'device_device-point-manage',
+          i18nKey: 'route.device_device-point-manage'
+        }
+      },
+      {
         name: 'device_device-type',
         path: '/device/device-type',
         component: 'view.device_device-type',
@@ -131,6 +149,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'device_device-type-detail',
           i18nKey: 'route.device_device-type-detail'
+        }
+      },
+      {
+        name: 'device_physical-point-detail',
+        path: '/device/physical-point-detail',
+        component: 'view.device_physical-point-detail',
+        meta: {
+          title: 'device_physical-point-detail',
+          i18nKey: 'route.device_physical-point-detail'
         }
       }
     ]

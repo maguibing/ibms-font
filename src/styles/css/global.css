@@ -14,3 +14,20 @@ html {
   overflow-x: hidden;
   color: rgb(var(--base-text-color));
 }
+
+.n-descriptions.n-descriptions--bordered
+  .n-descriptions-table-wrapper
+  .n-descriptions-table
+  .n-descriptions-table-row
+  .n-descriptions-table-header,
+.n-descriptions.n-descriptions--bordered
+  .n-descriptions-table-wrapper
+  .n-descriptions-table
+  .n-descriptions-table-row
+  .n-descriptions-table-content {
+  vertical-align: middle;
+}
+
+.n-descriptions.n-descriptions--bordered.n-descriptions--left-label-placement .n-descriptions-table-content > * {
+  vertical-align: middle;
+}

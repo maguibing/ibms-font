@@ -6,6 +6,7 @@ import { formatDateTime } from '@sa/utils';
 import { fetchDeleteDevice, fetchGetDeviceList } from '@/service/api/device';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
+import { useRouterPush } from '@/hooks/common/router';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import DeviceOperateDrawer from './device-operate-drawer.vue';
@@ -34,7 +35,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const appStore = useAppStore();
-
+const { routerPushByKey } = useRouterPush();
 
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
 const operateDrawerVisible = shallowRef(false);
@@ -168,7 +169,13 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         fixed: 'right',
         render: row => {
           const buttons = [
-            <ButtonIcon text type="primary" icon="material-symbols:visibility-outline" tooltipContent="查看" onClick={handleDeveloping} />,
+            <ButtonIcon
+              text
+              type="primary"
+              icon="material-symbols:visibility-outline"
+              tooltipContent="查看"
+              onClick={() => handleView(row.id)}
+            />,
             <ButtonIcon
               text
               type="primary"
@@ -227,8 +234,12 @@ function getDeviceGroupName(row: Api.Device.Device) {
   return deviceGroup?.name ?? '-';
 }
 
-function handleDeveloping() {
-  window.$message?.info('功能待开发');
+function handleView(id: CommonType.IdType) {
+  routerPushByKey('device_device-detail', {
+    query: {
+      id: String(id)
+    }
+  });
 }
 
 function handleAdd() {

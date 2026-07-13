@@ -36,6 +36,7 @@ declare namespace Api {
 
     type DeviceDetailResponse = {
       device: Device;
+      device_type_map?: Record<string, DeviceType>;
     };
 
     type CreateDeviceParams = {
@@ -187,10 +188,104 @@ declare namespace Api {
       device_type_point_id: CommonType.IdType;
       key: string;
       name: string;
+      data_type?: CommonType.DataType;
       physical_point_id: CommonType.IdType;
       source_type: number;
     }>;
 
-    type LogicPointList = Api.Common.PaginatingQueryRecord<LogicPoint>;
+    type LogicPointListExtra = {
+      device_type_point_map?: Record<string, Pick<DeviceTypePoint, 'id' | 'data_type' | 'setting'>>;
+    };
+
+    type LogicPointList = Api.Common.PaginatingQueryRecord<LogicPoint, LogicPointListExtra>;
+
+    type LogicPointSearchParams = CommonType.RecordNullable<
+      Pick<LogicPoint, 'name' | 'key'> & Api.Common.CommonSearchParams
+    >;
+
+    type LogicPointTreeNode = {
+      id: CommonType.IdType;
+      name: string;
+      key: string;
+      type: number;
+      data_type?: CommonType.DataType;
+      setting?: DeviceTypePointSetting;
+      children?: LogicPointTreeNode[];
+    };
+
+    type LogicPointTreeResponse = {
+      trees: LogicPointTreeNode[];
+    };
+
+    type PhysicalPointProtocol = {
+      protocol_type?: Api.Gateway.ProtocolType;
+      scale?: number;
+      access_level?: number;
+      [key: string]: unknown;
+    };
+
+    type PhysicalPoint = Api.Common.CommonRecord<{
+      id: CommonType.IdType;
+      project_id: CommonType.IdType;
+      gateway_id: CommonType.IdType;
+      logic_point_id?: CommonType.IdType;
+      key: string;
+      name: string;
+      is_storage: boolean;
+      data_type: CommonType.DataType;
+      taos_table_name?: string;
+      protocol_type?: Api.Gateway.ProtocolType;
+      source_type: number;
+      is_hidden?: boolean;
+      protocol?: PhysicalPointProtocol;
+    }>;
+
+    type PhysicalPointCurrentValue = {
+      ts?: number;
+      logic_point?: PointOption;
+      device_type?: PointOption;
+      device?: PointOption;
+      device_type_point?: PointOption;
+      physical_point?: PointOption;
+      data_type?: CommonType.DataType | number;
+      num_val?: {
+        value?: number;
+        unit?: string;
+        scale?: number;
+        [key: string]: unknown;
+      };
+      switch_val?: {
+        value?: string | number | boolean;
+        alias?: string;
+        [key: string]: unknown;
+      };
+      str_val?: {
+        value?: string;
+        [key: string]: unknown;
+      };
+      enum_val?: {
+        value?: string | number;
+        alias?: string;
+        [key: string]: unknown;
+      };
+      [key: string]: unknown;
+    };
+
+    type PhysicalPointListExtra = {
+      gateway_map?: Record<string, Pick<Api.Gateway.Gateway, 'id' | 'name'>>;
+      logic_point_map?: Record<string, PointOption>;
+      current_value_map?: Record<string, PhysicalPointCurrentValue>;
+    };
+
+    type PhysicalPointList = Api.Common.PaginatingQueryRecord<PhysicalPoint, PhysicalPointListExtra>;
+
+    type PhysicalPointSearchParams = CommonType.RecordNullable<
+      Api.Common.CommonSearchParams & {
+        gateway_id: CommonType.IdType;
+        name: string;
+        key: string;
+        data_type: CommonType.DataType;
+      }
+    >;
   }
 }

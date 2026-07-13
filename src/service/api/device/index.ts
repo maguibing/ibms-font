@@ -10,7 +10,7 @@ export function fetchGetDeviceList(data?: CommonType.CommonListQueryParams) {
 }
 
 /** 获取设备详情 */
-export function fetchGetDevice(data: { id: CommonType.IdType }) {
+export function fetchGetDevice(data: { id: CommonType.IdType; options?: CommonType.CommonKeysOptions[] }) {
   return request<Api.Device.DeviceDetailResponse>({
     url: '/GetDevice',
     method: 'post',
@@ -184,6 +184,23 @@ export function fetchDeleteDeviceGroup(data: Api.Common.CommonIdList) {
 export function fetchGetLogicPointList(data?: CommonType.CommonListQueryParams) {
   return request<Api.Device.LogicPointList>({
     url: '/ListLogicPoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 获取逻辑点位树 */
+export function fetchGetLogicPointTree() {
+  return request<Api.Device.LogicPointTreeResponse>({
+    url: '/GetLogicPointTree',
+    method: 'post',
+  });
+}
+
+/** 获取物理点位列表 */
+export function fetchGetPhysicalPointList(data?: CommonType.CommonListQueryParams) {
+  return request<Api.Device.PhysicalPointList>({
+    url: '/ListPhysicalPoint',
     method: 'post',
     data
   });

@@ -1,0 +1,148 @@
+<script setup lang="ts">
+import { computed, onMounted, shallowRef } from 'vue';
+import type { TreeOption } from 'naive-ui';
+import { fetchGetLogicPointTree } from '@/service/api/device';
+
+defineOptions({
+  name: 'LogicPointTree'
+});
+
+type LogicPointTreeOption = TreeOption & {
+  key: string;
+  label: string;
+  name: string;
+  pointKey: string;
+  children?: LogicPointTreeOption[];
+};
+
+const treeKeyword = shallowRef('');
+const treeLoading = shallowRef(false);
+const selectedTreeKeys = shallowRef<Array<string | number>>([]);
+const expandedTreeKeys = shallowRef<Array<string | number>>([]);
+const treeData = shallowRef<LogicPointTreeOption[]>([]);
+
+const selectable = computed(() => !treeLoading.value);
+
+function getTreeKey(node: Api.Device.LogicPointTreeNode) {
+  return `${node.type}-${node.id}`;
+}
+
+function logicPointFilter(pattern: string, node: TreeOption) {
+  const keyword = pattern.trim().toLowerCase();
+  const name = String(node.name || '').toLowerCase();
+  const key = String(node.pointKey || '').toLowerCase();
+
+  return name.includes(keyword) || key.includes(keyword);
+}
+
+function transformTreeNode(node: Api.Device.LogicPointTreeNode): LogicPointTreeOption {
+  const treeNode: LogicPointTreeOption = {
+    key: getTreeKey(node),
+    label: node.name,
+    name: node.name,
+    pointKey: node.key
+  };
+
+  if (node.type === 1 && node.children) {
+    const children = node.children.filter(child => child.type === 2).map(child => transformTreeNode(child));
+
+    if (children.length) {
+      treeNode.children = children;
+    }
+  }
+
+  return treeNode;
+}
+
+async function getTreeData() {
+  if (treeLoading.value) return;
+
+  treeLoading.value = true;
+
+  try {
+    const { data: responseData, error } = await fetchGetLogicPointTree();
+    const data = error ? [] : responseData.trees.map(item => transformTreeNode(item));
+
+    treeData.value = data;
+    expandedTreeKeys.value = data.map(item => item.key);
+    selectedTreeKeys.value = [];
+  } catch {
+    treeData.value = [];
+    expandedTreeKeys.value = [];
+    selectedTreeKeys.value = [];
+  } finally {
+    treeLoading.value = false;
+  }
+}
+
+defineExpose({
+  refresh: getTreeData
+});
+
+onMounted(() => {
+  getTreeData();
+});
+</script>
+
+<template>
+  <div class="h-full min-h-0 flex-col-stretch gap-12px overflow-hidden">
+    <NInput v-model:value="treeKeyword" clearable :placeholder="$t('common.keywordSearch')" />
+    <NSpin class="logic-point-tree" :show="treeLoading">
+      <NTree
+        v-model:selected-keys="selectedTreeKeys"
+        v-model:expanded-keys="expandedTreeKeys"
+        block-node
+        show-line
+        :data="treeData"
+        :show-irrelevant-nodes="false"
+        :pattern="treeKeyword"
+        :filter="logicPointFilter"
+        :selectable="selectable"
+        class="infinite-scroll h-full min-h-200px overflow-auto py-3"
+      >
+        <template #empty>
+          <NEmpty description="暂无逻辑点位树" class="h-full min-h-200px justify-center" />
+        </template>
+      </NTree>
+    </NSpin>
+  </div>
+</template>
+
+<style scoped lang="scss">
+.logic-point-tree {
+  :deep(.n-tree__empty) {
+    height: 100%;
+    justify-content: center;
+  }
+
+  :deep(.n-spin-content) {
+    height: 100%;
+  }
+
+  :deep(.infinite-scroll) {
+    height: calc(100vh - 270px - var(--calc-footer-height, 0px)) !important;
+    max-height: calc(100vh - 270px - var(--calc-footer-height, 0px)) !important;
+  }
+
+  @media screen and (max-width: 1024px) {
+    :deep(.infinite-scroll) {
+      height: calc(100vh - 269px - var(--calc-footer-height, 0px)) !important;
+      max-height: calc(100vh - 269px - var(--calc-footer-height, 0px)) !important;
+    }
+  }
+
+  :deep(.n-tree-node) {
+    height: 30px;
+  }
+
+  :deep(.n-tree-node-switcher) {
+    height: 30px;
+  }
+
+  :deep(.n-tree-node-switcher__icon) {
+    font-size: 16px !important;
+    height: 16px !important;
+    width: 16px !important;
+  }
+}
+</style>

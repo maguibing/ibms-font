@@ -30,10 +30,13 @@ declare module "@elegant-router/types" {
     "corp_corp-list": "/corp/corp-list";
     "corp_version": "/corp/version";
     "device": "/device";
+    "device_device-detail": "/device/device-detail";
     "device_device-group": "/device/device-group";
     "device_device-list": "/device/device-list";
+    "device_device-point-manage": "/device/device-point-manage";
     "device_device-type": "/device/device-type";
     "device_device-type-detail": "/device/device-type-detail";
+    "device_physical-point-detail": "/device/physical-point-detail";
     "gateway": "/gateway";
     "gateway_gateway-list": "/gateway/gateway-list";
     "global": "/global";
@@ -154,10 +157,13 @@ declare module "@elegant-router/types" {
     | "corp_corp-detail"
     | "corp_corp-list"
     | "corp_version"
+    | "device_device-detail"
     | "device_device-group"
     | "device_device-list"
+    | "device_device-point-manage"
     | "device_device-type-detail"
     | "device_device-type"
+    | "device_physical-point-detail"
     | "gateway_gateway-list"
     | "global_activate"
     | "global_device-type-template-point"
