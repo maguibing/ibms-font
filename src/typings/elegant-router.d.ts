@@ -75,6 +75,8 @@ declare module "@elegant-router/types" {
     "visual_custom-screen": "/visual/custom-screen";
     "visual_sys-screen": "/visual/sys-screen";
     "visual_sys-screen-tag": "/visual/sys-screen-tag";
+    "workorder": "/workorder";
+    "workorder_workorder-list": "/workorder/workorder-list";
   };
 
   /**
@@ -130,6 +132,7 @@ declare module "@elegant-router/types" {
     | "user-center"
     | "version"
     | "visual"
+    | "workorder"
   >;
 
   /**
@@ -189,6 +192,7 @@ declare module "@elegant-router/types" {
     | "visual_custom-screen"
     | "visual_sys-screen-tag"
     | "visual_sys-screen"
+    | "workorder_workorder-list"
   >;
 
   /**

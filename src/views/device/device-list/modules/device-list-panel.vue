@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { computed, ref, shallowRef } from 'vue';
+import { computed, h, ref, shallowRef } from 'vue';
 import { NDivider } from 'naive-ui';
 import { StatusTag } from '@sa/materials';
 import { formatDateTime } from '@sa/utils';
@@ -11,6 +11,7 @@ import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import DeviceOperateDrawer from './device-operate-drawer.vue';
 import DeviceListSearch from './device-list-search.vue';
+import CopyableValue from '@/components/custom/copyable-value.vue';
 
 defineOptions({
   name: 'DeviceListPanel'
@@ -125,7 +126,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         ellipsis: {
           tooltip: true
         },
-        render: row => row.key || '-'
+        render: row => h(CopyableValue, { value: row.key })
       },
       {
         key: 'device_type_id',

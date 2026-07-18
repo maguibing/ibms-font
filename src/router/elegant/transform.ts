@@ -220,7 +220,9 @@ const routeMap: RouteMap = {
   "visual_configuration": "/visual/configuration",
   "visual_custom-screen": "/visual/custom-screen",
   "visual_sys-screen": "/visual/sys-screen",
-  "visual_sys-screen-tag": "/visual/sys-screen-tag"
+  "visual_sys-screen-tag": "/visual/sys-screen-tag",
+  "workorder": "/workorder",
+  "workorder_workorder-list": "/workorder/workorder-list"
 };
 
 /**

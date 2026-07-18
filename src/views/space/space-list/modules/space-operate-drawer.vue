@@ -25,7 +25,7 @@ interface Emits {
 }
 
 type Model = CommonType.RecordNullable<
-  Pick<Api.Space.UpdateSpaceParams, 'id' | 'parent_id' | 'name' | 'desc' | 'space_type_id'>
+  Pick<Api.Space.UpdateSpaceParams, 'id' | 'parent_id' | 'name' | 'key' | 'desc' | 'space_type_id'>
 >;
 
 const props = defineProps<Props>();
@@ -52,7 +52,8 @@ const title = computed(() => {
 });
 
 const rules: Record<string, App.Global.FormRule> = {
-  name: createRequiredRule('请输入空间名称')
+  name: createRequiredRule('请输入空间名称'),
+  space_key: createRequiredRule('请输入空间标识')
 };
 
 function getRowSpaceId(row = props.rowData): CommonType.IdType | undefined {
@@ -64,6 +65,7 @@ function createDefaultModel(): Model {
     id: null,
     parent_id: getRowSpaceId() || 0,
     name: '',
+    key: '',
     desc: '',
     space_type_id: null
   };
@@ -81,12 +83,13 @@ async function handleUpdateModel() {
 
     if (!data?.space) return;
 
-    const { id, name, desc, space_type_id } = data.space;
+    const { id, name, space_key, desc, space_type_id } = data.space;
 
     model.value = {
       id,
       parent_id: props.rowData.parent_id ?? 0,
       name,
+      key: space_key,
       desc,
       space_type_id
     };
@@ -112,10 +115,11 @@ function closeDrawer() {
 async function handleSubmit() {
   await validate();
 
-  const { id, parent_id, name, desc, space_type_id } = model.value;
+  const { id, parent_id, name, key, desc, space_type_id } = model.value;
   const submitData: Api.Space.CreateSpaceParams = {
     parent_id: parent_id ?? 0,
     name: name as string,
+    key: key as string,
     desc: desc as string,
     space_type_id: space_type_id ?? null
   };
@@ -168,6 +172,9 @@ watch(visible, () => {
         </NFormItem>
         <NFormItem label="空间名称" path="name">
           <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入空间名称" />
+        </NFormItem>
+        <NFormItem label="空间标识" path="key">
+          <NInput v-model:value="model.key" maxlength="48" show-count placeholder="请输入空间标识" />
         </NFormItem>
         <NFormItem label="空间类型" path="space_type_id">
           <ApiSelect

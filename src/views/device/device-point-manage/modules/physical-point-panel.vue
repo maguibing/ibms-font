@@ -6,7 +6,7 @@ import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import CopyableValue from '@/components/custom/copyable-value.vue';
-import DataTypeTag from '@/components/custom/data-type-tag.vue';
+import EnumTag from '@/components/custom/enum-tag.vue';
 import { DATA_TYPE_OPTIONS } from '@/constants/device-point';
 import { displayValue } from '@/utils/common-methods';
 import { getGatewayProtocolLabel } from '@/views/gateway/gateway-list/shared';
@@ -60,112 +60,102 @@ function transformSearchParamsToRequest(
   };
 }
 
-const {
-  columns,
-  columnChecks,
-  data,
-  extraData,
-  getData,
-  getDataByPage,
-  loading,
-  mobilePagination,
-  pagination,
-  scrollX
-} = useNaivePaginatedTable({
-  api: () => fetchGetPhysicalPointList(transformSearchParamsToRequest(searchParams.value)),
-  transform: response => defaultTransform<Api.Device.PhysicalPoint>(response),
-  onPaginationParamsChange: params => {
-    searchParams.value.pageNum = params.page ?? 1;
-    searchParams.value.pageSize = params.pageSize ?? 10;
-  },
-  columns: (): NaiveUI.TableColumn<Api.Device.PhysicalPoint>[] => [
-    {
-      key: 'index',
-      title: $t('common.index'),
-      align: 'center',
-      width: 64,
-      render: (_, index) => index + 1
+const { columns, columnChecks, data, extraData, getData, getDataByPage, loading, mobilePagination, scrollX } =
+  useNaivePaginatedTable({
+    api: () => fetchGetPhysicalPointList(transformSearchParamsToRequest(searchParams.value)),
+    transform: response => defaultTransform<Api.Device.PhysicalPoint>(response),
+    onPaginationParamsChange: params => {
+      searchParams.value.pageNum = params.page ?? 1;
+      searchParams.value.pageSize = params.pageSize ?? 10;
     },
-    {
-      key: 'name',
-      title: '点位名称',
-      align: 'center',
-      minWidth: 150,
-      ellipsis: {
-        tooltip: true
+    columns: (): NaiveUI.TableColumn<Api.Device.PhysicalPoint>[] => [
+      {
+        key: 'index',
+        title: $t('common.index'),
+        align: 'center',
+        width: 64,
+        render: (_, index) => index + 1
       },
-      render: row => row.name || '-'
-    },
-    {
-      key: 'key',
-      title: '点位标识',
-      align: 'center',
-      minWidth: 150,
-      ellipsis: {
-        tooltip: true
+      {
+        key: 'name',
+        title: '点位名称',
+        align: 'center',
+        minWidth: 150,
+        ellipsis: {
+          tooltip: true
+        },
+        render: row => row.name || '-'
       },
-      render: row => h(CopyableValue, { value: row.key })
-    },
-    {
-      key: 'gateway_id',
-      title: '边缘设备',
-      align: 'center',
-      minWidth: 150,
-      ellipsis: {
-        tooltip: true
+      {
+        key: 'key',
+        title: '点位标识',
+        align: 'center',
+        minWidth: 150,
+        ellipsis: {
+          tooltip: true
+        },
+        render: row => h(CopyableValue, { value: row.key })
       },
-      render: row => getGatewayName(row.gateway_id)
-    },
-    {
-      key: 'protocol_type',
-      title: '协议类型',
-      align: 'center',
-      minWidth: 120,
-      render: row => getPhysicalPointProtocolLabel(row)
-    },
-    {
-      key: 'data_type',
-      title: '数据类型',
-      align: 'center',
-      minWidth: 120,
-      render: row => h(DataTypeTag, { value: row.data_type })
-    },
-    {
-      key: 'current_value',
-      title: '当前值',
-      align: 'center',
-      minWidth: 140,
-      ellipsis: {
-        tooltip: true
+      {
+        key: 'gateway_id',
+        title: '边缘设备',
+        align: 'center',
+        minWidth: 150,
+        ellipsis: {
+          tooltip: true
+        },
+        render: row => getGatewayName(row.gateway_id)
       },
-      render: row => formatCurrentValue(row)
-    },
-    {
-      key: 'logic_point_id',
-      title: '关联逻辑点位',
-      align: 'center',
-      minWidth: 160,
-      ellipsis: {
-        tooltip: true
+      {
+        key: 'protocol_type',
+        title: '协议类型',
+        align: 'center',
+        minWidth: 120,
+        render: row => getPhysicalPointProtocolLabel(row)
       },
-      render: row => getLogicPointName(row.logic_point_id)
-    },
-    {
-      key: 'access_level',
-      title: '访问等级',
-      align: 'center',
-      minWidth: 100,
-      render: row => row.protocol?.access_level ?? '-'
-    },
-    {
-      key: 'updated_at',
-      title: '更新时间',
-      align: 'center',
-      minWidth: 180,
-      render: row => (row.updated_at ? formatDateTime(row.updated_at) : '-')
-    }
-  ]
-});
+      {
+        key: 'data_type',
+        title: '数据类型',
+        align: 'center',
+        minWidth: 120,
+        render: row => h(EnumTag, { value: row.data_type })
+      },
+      {
+        key: 'current_value',
+        title: '当前值',
+        align: 'center',
+        minWidth: 140,
+        ellipsis: {
+          tooltip: true
+        },
+        render: row => formatCurrentValue(row)
+      },
+      {
+        key: 'logic_point_id',
+        title: '关联逻辑点位',
+        align: 'center',
+        minWidth: 160,
+        ellipsis: {
+          tooltip: true
+        },
+        render: row => getLogicPointName(row.logic_point_id)
+      },
+      {
+        key: 'access_level',
+        title: '访问等级',
+        align: 'center',
+        minWidth: 100,
+        render: row => h(EnumTag, { variant: 'accessLevel', value: row.protocol?.access_level })
+      },
+      {
+        key: 'updated_at',
+        title: '更新时间',
+        align: 'center',
+        minWidth: 180,
+        render: row => (row.updated_at ? formatDateTime(row.updated_at) : '-')
+      }
+    ]
+  });
 
 const gatewayByIdMap = computed(() => {
   const map: Record<string, Api.Gateway.Gateway> = {};
@@ -318,7 +308,6 @@ watch(
     <NCard :title="physicalPointTitle" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <NSpace align="center" :size="12">
-          <NTag size="small" :bordered="false">共 {{ pagination.itemCount || 0 }} 个点位</NTag>
           <TableHeaderOperation
             v-model:columns="columnChecks"
             :loading="loading"

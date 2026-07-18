@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { ref, shallowRef } from 'vue';
+import { h, ref, shallowRef } from 'vue';
 import { NDivider, NImage } from 'naive-ui';
 import { StatusTag } from '@sa/materials';
 import { formatDateTime } from '@sa/utils';
@@ -11,6 +11,7 @@ import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import DeviceTypeOperateDrawer from './modules/device-type-operate-drawer.vue';
 import DeviceTypeSearch from './modules/device-type-search.vue';
+import CopyableValue from '@/components/custom/copyable-value.vue';
 
 defineOptions({
   name: 'DeviceType'
@@ -89,7 +90,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         ellipsis: {
           tooltip: true
         },
-        render: row => row.key || '-'
+        render: row => h(CopyableValue, { value: row.key })
       },
       {
         key: 'icon',

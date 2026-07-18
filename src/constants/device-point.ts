@@ -239,3 +239,9 @@ export const UNIT_GROUPS: SelectOption[] = [
     ]
   }
 ];
+
+export const ACCESS_LEVEL_OPTIONS: SelectOption[] = [
+  { value: 1, label: '只读' },
+  { value: 2, label: '只写' },
+  { value: 3, label: '读写' }
+];

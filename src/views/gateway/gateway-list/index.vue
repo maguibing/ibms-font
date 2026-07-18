@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { ref } from 'vue';
+import { h, ref } from 'vue';
 import { NDivider } from 'naive-ui';
 import { StatusTag } from '@sa/materials';
 import { formatDateTime } from '@sa/utils';
@@ -10,6 +10,7 @@ import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import GatewayOperateDrawer from './modules/gateway-operate-drawer.vue';
 import GatewaySearch from './modules/gateway-search.vue';
+import CopyableValue from '@/components/custom/copyable-value.vue';
 import {
   GATEWAY_LINK_STATUS_MAP,
   GATEWAY_UNKNOWN_STATUS,
@@ -91,7 +92,8 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         minWidth: 160,
         ellipsis: {
           tooltip: true
-        }
+        },
+        render: row => h(CopyableValue, { value: row.key })
       },
       {
         key: 'protocol_type',

@@ -126,7 +126,8 @@ function handleBackLogin() {
 }
 
 async function handleLoginResult(result: Exclude<Api.Auth.LoginResult, undefined>) {
-  const selectData = result.type === 'corp-list' ? createCorpSelectData(result.data) : createProjectSelectData(result.data);
+  const selectData =
+    result.type === 'corp-list' ? createCorpSelectData(result.data) : createProjectSelectData(result.data);
 
   await handleSelectData(selectData);
 }
@@ -243,7 +244,7 @@ async function loginWithProject(loginToken: string, item: Api.Auth.ProjectLoginI
       @keyup.enter="() => !authStore.loginLoading && handleSubmit()"
     >
       <NFormItem path="phone">
-        <NInput v-model:value="model.phone" :placeholder="$t('page.login.common.phonePlaceholder')" />
+        <NInput v-model:value="model.phone" :placeholder="$t('page.login.common.phonePlaceholder')" maxlength="11" />
       </NFormItem>
       <NFormItem path="rsa_pwd">
         <NInput

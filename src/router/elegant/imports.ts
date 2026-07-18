@@ -57,4 +57,5 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "visual_custom-screen": () => import("@/views/visual/custom-screen/index.vue"),
   "visual_sys-screen-tag": () => import("@/views/visual/sys-screen-tag/index.vue"),
   "visual_sys-screen": () => import("@/views/visual/sys-screen/index.vue"),
+  "workorder_workorder-list": () => import("@/views/workorder/workorder-list/index.vue"),
 };

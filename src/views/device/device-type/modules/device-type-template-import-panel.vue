@@ -10,7 +10,7 @@ import {
   fetchGetDeviceTypeTemplatePointList
 } from '@/service/api/device-type-template';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
-import DataTypeTag from '@/components/custom/data-type-tag.vue';
+import EnumTag from '@/components/custom/enum-tag.vue';
 import FileUpload from '@/components/custom/file-upload.vue';
 import { $t } from '@/locales';
 
@@ -101,7 +101,7 @@ const pointColumns = computed<DataTableColumns<Api.System.DeviceTypeTemplatePoin
     title: '数据类型',
     align: 'center',
     width: 110,
-    render: row => h(DataTypeTag, { value: row.data_type })
+    render: row => h(EnumTag, { value: row.data_type })
   }
 ]);
 

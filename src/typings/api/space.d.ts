@@ -25,6 +25,7 @@ declare namespace Api {
       space_id: CommonType.IdType;
       parent_id?: CommonType.IdType;
       space_name: string;
+      space_key: string;
       desc: string;
       space_type_id: CommonType.IdType | null;
       children?: Space[];
@@ -45,6 +46,7 @@ declare namespace Api {
         id: CommonType.IdType;
         project_id: CommonType.IdType;
         name: string;
+        space_key: string;
         space_type_id: CommonType.IdType | null;
         desc: string;
         level: number;
@@ -56,6 +58,7 @@ declare namespace Api {
       desc: string;
       name: string;
       parent_id: CommonType.IdType;
+      key: string;
       space_type_id: CommonType.IdType | null;
     };
 

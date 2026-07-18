@@ -536,5 +536,25 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       }
     ]
+  },
+  {
+    name: 'workorder',
+    path: '/workorder',
+    component: 'layout.base',
+    meta: {
+      title: 'workorder',
+      i18nKey: 'route.workorder'
+    },
+    children: [
+      {
+        name: 'workorder_workorder-list',
+        path: '/workorder/workorder-list',
+        component: 'view.workorder_workorder-list',
+        meta: {
+          title: 'workorder_workorder-list',
+          i18nKey: 'route.workorder_workorder-list'
+        }
+      }
+    ]
   }
 ];

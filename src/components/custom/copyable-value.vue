@@ -44,7 +44,7 @@ async function handleCopy() {
 
 <template>
   <span
-    class="group inline-flex max-w-full items-center gap-6px text-[var(--n-text-color)]"
+    class="group inline-flex max-w-full items-center gap-6px text-primary"
     :class="canCopy ? 'cursor-pointer' : 'cursor-default'"
     :role="canCopy ? 'button' : undefined"
     :tabindex="canCopy ? 0 : -1"
@@ -54,10 +54,6 @@ async function handleCopy() {
     @keydown.space.prevent="handleCopy"
   >
     <NEllipsis class="max-w-240px">{{ displayValue }}</NEllipsis>
-    <SvgIcon
-      v-if="canCopy"
-      icon="ep:copy-document"
-      class="flex-none text-16px text-[var(--n-text-color-3)] group-hover:text-[rgb(var(--primary-color))]"
-    />
+    <SvgIcon v-if="canCopy" icon="ep:copy-document" class="flex-none text-16px text-primary" />
   </span>
 </template>

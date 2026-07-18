@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { ref } from 'vue';
+import { h, ref } from 'vue';
 import { NButton, NDivider } from 'naive-ui';
 import { jsonClone } from '@sa/utils';
 import { fetchDeleteSpace, fetchGetSpaceTrees } from '@/service/api/space';
@@ -7,6 +7,7 @@ import { useAppStore } from '@/store/modules/app';
 import { treeTransform, useNaiveTreeTable, useTableOperate } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
+import CopyableValue from '@/components/custom/copyable-value.vue';
 import SpaceOperateDrawer from './modules/space-operate-drawer.vue';
 import SpaceSearch from './modules/space-search.vue';
 
@@ -63,6 +64,16 @@ const {
       align: 'center',
       width: 160,
       ellipsis: true
+    },
+    {
+      key: 'space_key',
+      title: '空间标识',
+      align: 'center',
+      minWidth: 150,
+      ellipsis: {
+        tooltip: true
+      },
+      render: row => h(CopyableValue, { value: row.space_key })
     },
     {
       key: 'space_type_id',

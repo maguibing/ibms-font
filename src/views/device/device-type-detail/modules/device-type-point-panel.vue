@@ -7,7 +7,7 @@ import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
-import DataTypeTag from '@/components/custom/data-type-tag.vue';
+import EnumTag from '@/components/custom/enum-tag.vue';
 import DeviceTypePointOperateDrawer from './device-type-point-operate-drawer.vue';
 
 defineOptions({
@@ -102,7 +102,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         title: '数据类型',
         align: 'center',
         minWidth: 120,
-        render: row => <DataTypeTag value={row.data_type} />
+        render: row => <EnumTag value={row.data_type} />
       },
       {
         key: 'desc',

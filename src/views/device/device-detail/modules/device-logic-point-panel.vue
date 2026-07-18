@@ -4,7 +4,7 @@ import { fetchGetLogicPointList } from '@/service/api/device';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
-import DataTypeTag from '@/components/custom/data-type-tag.vue';
+import EnumTag from '@/components/custom/enum-tag.vue';
 
 defineOptions({
   name: 'DeviceLogicPointPanel'
@@ -89,7 +89,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         title: '数据类型',
         align: 'center',
         minWidth: 120,
-        render: row => h(DataTypeTag, { value: getLogicPointDataType(row) })
+        render: row => h(EnumTag, { value: getLogicPointDataType(row) })
       }
     ]
   });
