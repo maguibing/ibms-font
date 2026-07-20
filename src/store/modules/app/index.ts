@@ -1,8 +1,9 @@
-import { effectScope, nextTick, onScopeDispose, ref, watch } from 'vue';
+import { effectScope, nextTick, onScopeDispose, ref, shallowRef, watch } from 'vue';
 import { breakpointsTailwind, useBreakpoints, useEventListener, useTitle } from '@vueuse/core';
 import { defineStore } from 'pinia';
 import { useBoolean } from '@sa/hooks';
 import { router } from '@/router';
+import { fetchGetOssDomain } from '@/service/api/common';
 import { localStg } from '@/utils/storage';
 import { SetupStoreId } from '@/enum';
 import { $t, setLocale } from '@/locales';
@@ -27,6 +28,8 @@ export const useAppStore = defineStore(SetupStoreId.App, () => {
     setBool: setMixSiderFixed,
     toggle: toggleMixSiderFixed
   } = useBoolean(localStg.get('mixSiderFixed') === 'Y');
+  const ossDomain = shallowRef(localStg.get('ossDomain') || '');
+  let ossDomainPromise: Promise<string> | null = null;
 
   /** Is mobile layout */
   const isMobile = breakpoints.smaller('sm');
@@ -66,6 +69,34 @@ export const useAppStore = defineStore(SetupStoreId.App, () => {
     locale.value = lang;
     setLocale(lang);
     localStg.set('lang', lang);
+  }
+
+  /** 获取 OSS 基本域名 */
+  async function getOssDomain() {
+    if (ossDomain.value) return ossDomain.value;
+
+    const cachedOssDomain = localStg.get('ossDomain');
+
+    if (cachedOssDomain) {
+      ossDomain.value = cachedOssDomain;
+      return ossDomain.value;
+    }
+
+    if (!ossDomainPromise) {
+      ossDomainPromise = fetchGetOssDomain().then(({ data, error }) => {
+        if (error) {
+          ossDomainPromise = null;
+          throw error;
+        }
+
+        localStg.set('ossDomain', data.domain);
+        return data.domain;
+      });
+    }
+
+    ossDomain.value = await ossDomainPromise;
+
+    return ossDomain.value;
   }
 
   /** Update document title by locale */
@@ -147,6 +178,8 @@ export const useAppStore = defineStore(SetupStoreId.App, () => {
     reloadFlag,
     reloadPage,
     fullContent,
+    ossDomain,
+    getOssDomain,
     locale,
     localeOptions,
     changeLocale,

@@ -4,6 +4,7 @@ import { useLoading } from '@sa/hooks';
 import CryptoJS from 'crypto-js';
 import { encryptByRsa } from '@sa/utils';
 import { fetchCaptchaCode } from '@/service/api';
+import { useAppStore } from '@/store/modules/app';
 import { useAuthStore } from '@/store/modules/auth';
 import { useRouterPush } from '@/hooks/common/router';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
@@ -20,6 +21,7 @@ defineOptions({
 });
 
 const authStore = useAuthStore();
+const appStore = useAppStore();
 const { toggleLoginModule } = useRouterPush();
 const { formRef, validate } = useNaiveForm();
 const { loading: codeLoading, startLoading: startCodeLoading, endLoading: endCodeLoading } = useLoading();
@@ -91,7 +93,10 @@ async function handleSubmit() {
 
     if (result) {
       await handleLoginResult(result);
+      return;
     }
+
+    await appStore.getOssDomain().catch(() => undefined);
   } catch {
     handleFetchCaptchaCode();
   }
@@ -209,6 +214,8 @@ async function loginWithCorp(loginToken: string, item: Api.Auth.CorpLoginItem) {
     login_token: loginToken,
     user_id: item.user.user_id
   });
+
+  await appStore.getOssDomain().catch(() => undefined);
 }
 
 async function loginWithProject(loginToken: string, item: Api.Auth.ProjectLoginItem) {
@@ -217,6 +224,8 @@ async function loginWithProject(loginToken: string, item: Api.Auth.ProjectLoginI
     login_token: loginToken,
     user_id: item.user_id
   });
+
+  await appStore.getOssDomain().catch(() => undefined);
 }
 </script>
 

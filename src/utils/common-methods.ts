@@ -1,4 +1,5 @@
 import { formatDateTime } from '@sa/utils';
+import { localStg } from '@/utils/storage';
 
 /**
  * 空值转兜底文案，非空值转字符串。
@@ -34,6 +35,15 @@ export function formatPrice(value?: number | null, fallback = '-') {
   if (value === null || value === undefined) return fallback;
 
   return Number(value).toFixed(2);
+}
+
+/**
+ * 获取 OSS 域名缓存。
+ * @param ossDomain 入参：Pinia 中的 OSS 域名
+ * @returns 出参：OSS 域名
+ */
+export function getCachedOssDomain(ossDomain?: string | null) {
+  return ossDomain || localStg.get('ossDomain') || '';
 }
 
 /**

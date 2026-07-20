@@ -62,6 +62,11 @@ declare namespace Api {
       id_list: CommonType.IdType[];
     };
 
+    /** OSS 基本域名 */
+    interface OssDomainResponse {
+      domain: string;
+    }
+
     type CommonTenantRecord<T = any> = {
       /** record tenant id */
       tenantId: string;

@@ -1,5 +1,6 @@
 export * from './auth';
 export * from './route';
+export * from './common';
 export * from './corp';
 export * from './industry';
 export * from './sys-screen';
@@ -8,5 +9,6 @@ export * from './device';
 export * from './space';
 export * from './ledger';
 export * from './gateway';
+export * from './workorder';
 export * from './system/system-log';
 export * from './visual/screen';
