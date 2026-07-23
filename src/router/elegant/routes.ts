@@ -449,6 +449,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'system_toolbox',
+        path: '/system/toolbox',
+        component: 'view.system_toolbox',
+        meta: {
+          title: 'system_toolbox',
+          i18nKey: 'route.system_toolbox'
+        }
+      },
+      {
         name: 'system_user',
         path: '/system/user',
         component: 'view.system_user',

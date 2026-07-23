@@ -37,13 +37,13 @@ declare namespace Api {
 
     type MenuAuth =
       | {
-        menu_id_list: number[];
-        has_all?: false;
-      }
+          menu_id_list: number[];
+          has_all?: false;
+        }
       | {
-        has_all: true;
-        menu_id_list?: number[];
-      };
+          has_all: true;
+          menu_id_list?: number[];
+        };
 
     interface PermAuth {
       menu_auth?: MenuAuth;
@@ -300,34 +300,34 @@ declare namespace Api {
     /** device type template point setting */
     type DeviceTypeTemplatePointSetting =
       | {
-        data_type: 1;
-        num_val: {
-          default_value: number;
-          scale: 1 | 2 | 3 | 4;
-          unit: string;
-        };
-      }
+          data_type: 1;
+          num_val: {
+            default_value: number;
+            scale: 1 | 2 | 3 | 4;
+            unit: string;
+          };
+        }
       | {
-        data_type: 2;
-        switch_val: {
-          cmd_val_data_type: 1 | 2 | 3;
-          false_val: DeviceTypeTemplatePointValueItem;
-          true_val: DeviceTypeTemplatePointValueItem;
-        };
-      }
+          data_type: 2;
+          switch_val: {
+            cmd_val_data_type: 1 | 2 | 3;
+            false_val: DeviceTypeTemplatePointValueItem;
+            true_val: DeviceTypeTemplatePointValueItem;
+          };
+        }
       | {
-        data_type: 3;
-        str_val: {
-          default_value: string;
-        };
-      }
+          data_type: 3;
+          str_val: {
+            default_value: string;
+          };
+        }
       | {
-        data_type: 4;
-        enum_val: {
-          cmd_val_data_type: 1 | 2;
-          enum_list: DeviceTypeTemplatePointValueItem[];
+          data_type: 4;
+          enum_val: {
+            cmd_val_data_type: 1 | 2;
+            enum_list: DeviceTypeTemplatePointValueItem[];
+          };
         };
-      };
 
     /** device type template point */
     type DeviceTypeTemplatePoint = Common.CommonRecord<{
@@ -703,33 +703,33 @@ declare namespace Api {
 
     type MenuNodeDetail =
       | (MenuNodeBaseDetail & {
-        type: 1;
-        detail: {
-          dir: {
-            component_path: string;
-            route_path: string;
+          type: 1;
+          detail: {
+            dir: {
+              component_path: string;
+              route_path: string;
+            };
           };
-        };
-      })
+        })
       | (MenuNodeBaseDetail & {
-        type: 2;
-        detail: {
-          page: {
-            component_path: string;
-            keep_alive?: PlatformBooleanStatus;
-            route_name: string;
-            route_path: string;
+          type: 2;
+          detail: {
+            page: {
+              component_path: string;
+              keep_alive?: PlatformBooleanStatus;
+              route_name: string;
+              route_path: string;
+            };
           };
-        };
-      })
+        })
       | (MenuNodeBaseDetail & {
-        type: 3;
-        detail: {
-          button: {
-            perm_key: string;
+          type: 3;
+          detail: {
+            button: {
+              perm_key: string;
+            };
           };
-        };
-      });
+        });
 
     interface MenuNode {
       id?: CommonType.IdType;
@@ -910,5 +910,66 @@ declare namespace Api {
         dateRange: [number, number];
       }
     >;
+
+    type NetworkInterfaceInfo = {
+      name: string;
+      local_addr?: string;
+      cidr?: string;
+      broadcast_addr?: string;
+      mac?: string;
+    };
+
+    type NetworkInterfaceData = {
+      interfaces: NetworkInterfaceInfo[];
+      os?: string;
+    };
+
+    type DiscoverNetworkParams = {
+      interface_name: string;
+    };
+
+    type DiscoverNetworkHost = {
+      ip: string;
+      latency_ms?: number;
+      method?: string;
+    };
+
+    type DiscoverNetworkData = {
+      completed_count: number;
+      hosts: DiscoverNetworkHost[];
+    };
+
+    type PingParams = {
+      host: string;
+      count: number;
+      timeout_ms: number;
+    };
+
+    type PingPacket = {
+      sequence: number;
+      success: boolean;
+      latency_ms?: number;
+      error?: string;
+    };
+
+    type PingData = {
+      ip?: string;
+      min_latency_ms?: number;
+      avg_latency_ms?: number;
+      max_latency_ms?: number;
+      packets: PingPacket[];
+    };
+
+    type TelnetParams = {
+      host: string;
+      port: number;
+      timeout_ms: number;
+    };
+
+    type TelnetData = {
+      status: number;
+      ip?: string;
+      latency_ms?: number;
+    };
   }
 }

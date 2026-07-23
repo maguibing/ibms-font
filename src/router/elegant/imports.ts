@@ -51,6 +51,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   system_dept: () => import("@/views/system/dept/index.vue"),
   system_role: () => import("@/views/system/role/index.vue"),
   "system_system-log": () => import("@/views/system/system-log/index.vue"),
+  system_toolbox: () => import("@/views/system/toolbox/index.vue"),
   system_user: () => import("@/views/system/user/index.vue"),
   "version_version-list": () => import("@/views/version/version-list/index.vue"),
   visual_configuration: () => import("@/views/visual/configuration/index.vue"),
