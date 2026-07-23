@@ -1,10 +1,12 @@
 <script setup lang="tsx">
-import { computed, ref, shallowRef } from 'vue';
-import { NDivider, NTag } from 'naive-ui';
+import { computed, h, ref, shallowRef } from 'vue';
+import { NDivider, NImage, NTag } from 'naive-ui';
+import type { ImageRenderToolbar } from 'naive-ui/es/image';
 import { formatDateTime } from '@sa/utils';
 import { fetchDeleteAssets, fetchGetAssetsList } from '@/service/api/ledger';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
+import { downloadLedgerQrCode, downloadLedgerQrCodes, getLedgerQrCodeUrl } from '@/utils/ledger-qr-code';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import AssetsOperateDrawer from './modules/assets-operate-drawer.vue';
@@ -95,6 +97,13 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         ellipsis: {
           tooltip: true
         }
+      },
+      {
+        key: 'qr_code',
+        title: '二维码',
+        align: 'center',
+        width: 100,
+        render: row => renderLedgerQrCode(row)
       },
       {
         key: 'assets_type_id',
@@ -236,6 +245,63 @@ function renderAssetsStatus(status?: number | string) {
   return status ?? '-';
 }
 
+function renderLedgerQrToolbar(row: Api.Ledger.Assets): ImageRenderToolbar {
+  return ({ nodes }) => (
+    <>
+      {nodes.rotateCounterclockwise}
+      {nodes.rotateClockwise}
+      {nodes.resizeToOriginalSize}
+      {nodes.zoomOut}
+      {nodes.zoomIn}
+      {h(
+        'span',
+        {
+          class: 'ledger-qr-download-wrap',
+          onClickCapture: (event: MouseEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
+            downloadLedgerQrCode(row);
+          }
+        },
+        nodes.download
+      )}
+      {nodes.close}
+    </>
+  );
+}
+
+function renderLedgerQrCode(row: Api.Ledger.Assets) {
+  const qrCodeUrl = getLedgerQrCodeUrl(row);
+
+  if (!qrCodeUrl) return '-';
+
+  return (
+    <NImage
+      class="ledger-qr-image"
+      src={qrCodeUrl}
+      previewSrc={qrCodeUrl}
+      width={56}
+      height={56}
+      objectFit="contain"
+      alt="资产二维码"
+      imgProps={{ style: { imageRendering: 'pixelated' } }}
+      previewedImgProps={{ style: { imageRendering: 'pixelated' } }}
+      renderToolbar={renderLedgerQrToolbar(row)}
+    />
+  );
+}
+
+function handleBatchDownloadLedgerQrCodes() {
+  const count = downloadLedgerQrCodes(data.value);
+
+  if (!count) {
+    window.$message?.warning('当前列表暂无可下载二维码');
+    return;
+  }
+
+  window.$message?.success(`已开始下载 ${count} 个二维码压缩包`);
+}
+
 function handleAdd() {
   operateType.value = 'add';
   editingData.value = null;
@@ -283,7 +349,16 @@ async function handleDelete(id: CommonType.IdType) {
           @add="handleAdd"
           @delete="handleBatchDelete"
           @refresh="getData"
-        />
+        >
+          <template #after>
+            <NButton size="small" ghost :disabled="data.length === 0" @click="handleBatchDownloadLedgerQrCodes">
+              <template #icon>
+                <icon-material-symbols-download-rounded class="text-icon" />
+              </template>
+              批量下载二维码
+            </NButton>
+          </template>
+        </TableHeaderOperation>
       </template>
       <DataTable
         v-model:checked-row-keys="checkedRowKeys"
@@ -308,4 +383,14 @@ async function handleDelete(id: CommonType.IdType) {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.ledger-qr-download-wrap {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.ledger-qr-image {
+  cursor: pointer;
+}
+</style>
