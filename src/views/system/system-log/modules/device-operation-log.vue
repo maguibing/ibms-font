@@ -97,7 +97,7 @@ function normalizeDateRange(value?: [number, number] | null) {
 
   if (!Number.isFinite(start) || !Number.isFinite(end)) return null;
 
-  return `${Math.floor(start / 1000)},${Math.floor(end / 1000)}`;
+  return `${start},${end}`;
 }
 
 function transformSearchParamsToRequest(

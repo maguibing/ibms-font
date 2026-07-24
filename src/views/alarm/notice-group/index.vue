@@ -1,53 +1,67 @@
 <script setup lang="tsx">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { NDivider, NTag } from 'naive-ui';
 import { formatDateTime } from '@sa/utils';
-import { fetchDeleteAssetsType, fetchGetAssetsTypeList } from '@/service/api/ledger';
-import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
+import { useAppStore } from '@/store/modules/app';
+import { fetchDeleteNoticeGroup, fetchGetNoticeGroupList } from '@/service/api/alarm';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
-import AssetsTypeOperateDrawer from './modules/assets-type-operate-drawer.vue';
-import AssetsTypeSearch from './modules/assets-type-search.vue';
+import NoticeGroupOperateDrawer from './modules/notice-group-operate-drawer.vue';
+import NoticeGroupSearch from './modules/notice-group-search.vue';
 
 defineOptions({
-  name: 'LedgerAssetsType'
+  name: 'AlarmNoticeGroup'
 });
+
+const NOTICE_TYPE_LABELS: Record<Api.Alarm.NoticeGroupNoticeType, string> = {
+  1: '成员'
+};
+
+const NOTICE_WAY_LABELS: Record<Api.Alarm.NoticeWay, string> = {
+  1: '短信',
+  2: '站内通知',
+  3: 'App 通知'
+};
 
 const appStore = useAppStore();
 
-const searchParams = ref<Api.Ledger.AssetsTypeSearchParams>({
+const searchParams = ref<Api.Alarm.NoticeGroupSearchParams>({
   pageNum: 1,
   pageSize: 10,
-  name: null,
-  status: null
+  name: null
 });
 
-function transformSearchParamsToRequest(params: Api.Ledger.AssetsTypeSearchParams): CommonType.CommonListQueryParams {
+function transformSearchParamsToRequest(params: Api.Alarm.NoticeGroupSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
   const pageSize = params.pageSize || 10;
-  const filterConfigs = [
-    { type: 1, value: params.name },
-    { type: 2, value: params.status }
-  ];
+  const options: CommonType.CommonTypeOptions[] = [{ type: 104, value: '101' }];
 
-  const options = filterConfigs
-    .filter(item => item.value !== null && item.value !== undefined && item.value !== '')
-    .map(({ type, value }) => ({ type, value: String(value) }));
+  if (params.name) {
+    options.push({ type: 1, value: params.name });
+  }
 
   return {
     list_option: {
+      options,
       offset: (pageNum - 1) * pageSize,
-      limit: pageSize,
-      options
-    }
+      limit: pageSize
+    },
+    options: [{ key: 1 }]
   };
 }
 
-const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagination, scrollX } =
+const { columns, columnChecks, data, extraData, getData, getDataByPage, loading, mobilePagination, scrollX } =
   useNaivePaginatedTable({
-    api: () => fetchGetAssetsTypeList(transformSearchParamsToRequest(searchParams.value)),
-    transform: response => defaultTransform<Api.Ledger.AssetsType>(response),
+    api: () => fetchGetNoticeGroupList(transformSearchParamsToRequest(searchParams.value)),
+    transform: response => {
+      const result = defaultTransform<Api.Alarm.NoticeGroup>(response);
+
+      return {
+        ...result,
+        pageNum: searchParams.value.pageNum || 1
+      };
+    },
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page;
       searchParams.value.pageSize = params.pageSize;
@@ -67,7 +81,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '资产类型名称',
+        title: '通知组名称',
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -75,17 +89,29 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         }
       },
       {
-        key: 'status',
-        title: '状态',
+        key: 'notice_type',
+        title: '通知类型',
         align: 'center',
-        minWidth: 100,
+        minWidth: 120,
         render: row => {
-          if (Number(row.status) === 1) {
-            return <NTag type="success">启用</NTag>;
-          }
+          const noticeType = row.notice?.notice_type ?? row.notice_type;
 
-          return <NTag type="default">停用</NTag>;
+          return <NTag type="info">{NOTICE_TYPE_LABELS[noticeType] ?? noticeType}</NTag>;
         }
+      },
+      {
+        key: 'user_id_list',
+        title: '接收人',
+        align: 'center',
+        minWidth: 180,
+        render: row => renderUserTags(row.notice?.user?.user_id_list ?? [])
+      },
+      {
+        key: 'notice_way_list',
+        title: '通知方式',
+        align: 'center',
+        minWidth: 160,
+        render: row => formatNoticeWays(row.notice?.user?.notice_way_list ?? [])
       },
       {
         key: 'desc',
@@ -109,6 +135,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         title: $t('common.operate'),
         align: 'center',
         width: 130,
+        fixed: 'right',
         render: row => {
           const buttons = [
             <ButtonIcon
@@ -143,21 +170,56 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
     ]
   });
 
+const baseUserMap = computed<Api.Alarm.NoticeGroupListExtra['base_user_map']>(() => {
+  const rawMap = extraData.value?.base_user_map;
+
+  if (!rawMap || typeof rawMap !== 'object') return {};
+
+  return rawMap as Api.Alarm.NoticeGroupListExtra['base_user_map'];
+});
+
 const { drawerVisible, operateType, editingData, handleAdd, handleEdit, checkedRowKeys, onBatchDeleted, onDeleted } =
   useTableOperate(data, 'id', getData);
 
+function renderUserTags(userIdList: CommonType.IdType[]) {
+  if (!userIdList.length) return '-';
+
+  return (
+    <div class="flex-center flex-wrap gap-4px">
+      {userIdList.map(userId => {
+        const user = baseUserMap.value[String(userId)];
+        const label = user?.username || String(userId);
+
+        return <NTag key={userId}>{label}</NTag>;
+      })}
+    </div>
+  );
+}
+
+function formatNoticeWays(noticeWayList: Api.Alarm.NoticeWay[]) {
+  if (!noticeWayList.length) return '-';
+
+  return noticeWayList.map(item => NOTICE_WAY_LABELS[item]).join('、');
+}
+
+function handleSearch() {
+  getDataByPage(1);
+}
+
 async function handleBatchDelete() {
-  const { error } = await fetchDeleteAssetsType({ id_list: checkedRowKeys.value });
+  if (checkedRowKeys.value.length === 0) return;
+
+  const { error } = await fetchDeleteNoticeGroup({ id_list: checkedRowKeys.value });
   if (error) return;
 
-  onBatchDeleted();
+  await onBatchDeleted();
 }
 
 async function handleDelete(id: CommonType.IdType) {
-  const { error } = await fetchDeleteAssetsType({ id_list: [id] });
+  const { error } = await fetchDeleteNoticeGroup({ id_list: [id] });
   if (error) return;
 
-  onDeleted();
+  await onDeleted();
 }
 
 function edit(id: CommonType.IdType) {
@@ -167,8 +229,9 @@ function edit(id: CommonType.IdType) {
 
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
-    <AssetsTypeSearch v-model:model="searchParams" @search="getDataByPage" />
-    <NCard title="资产类型管理" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NoticeGroupSearch v-model:model="searchParams" @search="handleSearch" />
+    <TableRowCheckAlert v-model:checked-row-keys="checkedRowKeys" />
+    <NCard title="通知组管理" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"
@@ -194,10 +257,11 @@ function edit(id: CommonType.IdType) {
         :pagination="mobilePagination"
         class="sm:h-full"
       />
-      <AssetsTypeOperateDrawer
+      <NoticeGroupOperateDrawer
         v-model:visible="drawerVisible"
         :operate-type="operateType"
         :row-data="editingData"
+        :base-user-map="baseUserMap"
         @submitted="getDataByPage"
       />
     </NCard>

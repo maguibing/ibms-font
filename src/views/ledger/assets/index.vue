@@ -31,29 +31,26 @@ const searchParams = ref<Api.Ledger.AssetsSearchParams>({
 function transformSearchParamsToRequest(params: Api.Ledger.AssetsSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
   const pageSize = params.pageSize || 10;
-  const options: CommonType.CommonTypeOptions[] = [{ type: 104, value: '101' }];
+  const filterConfigs = [
+    { type: 104, value: '101' },
+    { type: 1, value: params.sn },
+    { type: 2, value: params.name },
+    { type: 4, value: params.status },
+    {
+      type: 103,
+      value: Array.isArray(params.dateRange) && params.dateRange.length === 2 ? `${params.dateRange[0]},${params.dateRange[1]}` : null
+    }
+  ];
 
-  if (params.sn) {
-    options.push({ type: 1, value: params.sn });
-  }
-
-  if (params.name) {
-    options.push({ type: 2, value: params.name });
-  }
-
-  if (params.status) {
-    options.push({ type: 4, value: String(params.status) });
-  }
-
-  if (Array.isArray(params.dateRange) && params.dateRange.length === 2) {
-    options.push({ type: 103, value: `${params.dateRange[0]},${params.dateRange[1]}` });
-  }
+  const options = filterConfigs
+    .filter(item => item.value !== null && item.value !== undefined && item.value !== '')
+    .map(({ type, value }) => ({ type, value: String(value) }));
 
   return {
     list_option: {
-      options,
       offset: (pageNum - 1) * pageSize,
-      limit: pageSize
+      limit: pageSize,
+      options
     },
     options: [{ key: 1 }, { key: 2 }]
   };

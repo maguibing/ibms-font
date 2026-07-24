@@ -67,35 +67,30 @@ const searchParams = ref<Api.Workorder.WorkorderSearchParams>({
 function transformSearchParamsToRequest(params: Api.Workorder.WorkorderSearchParams) {
   const pageNum = params.pageNum || 1;
   const pageSize = params.pageSize || 10;
-  const options: CommonType.CommonTypeOptions[] = [
+  const filterConfigs = [
     { type: 104, value: '101' },
-    { type: 51, value: workorderMode.value === 'repair' ? '1' : '2' }
+    { type: 51, value: workorderMode.value === 'repair' ? '1' : '2' },
+    { type: 4, value: workorderMode.value === 'repair' ? params.repairman_uid : null },
+    { type: 5, value: workorderMode.value === 'deal' ? params.dealer_uid : null },
+    { type: 7, value: params.deal_status },
+    {
+      type: 103,
+      value:
+        params.dateRange?.length === 2
+          ? `${params.dateRange[0]},${params.dateRange[1]}`
+          : null
+    }
   ];
 
-  if (workorderMode.value === 'repair' && params.repairman_uid !== null && params.repairman_uid !== undefined) {
-    options.push({ type: 4, value: String(params.repairman_uid) });
-  }
-
-  if (workorderMode.value === 'deal' && params.dealer_uid !== null && params.dealer_uid !== undefined) {
-    options.push({ type: 5, value: String(params.dealer_uid) });
-  }
-
-  if (params.deal_status) {
-    options.push({ type: 7, value: String(params.deal_status) });
-  }
-
-  if (params.dateRange?.length === 2) {
-    options.push({
-      type: 103,
-      value: `${Math.floor(params.dateRange[0] / 1000)},${Math.floor(params.dateRange[1] / 1000)}`
-    });
-  }
+  const options = filterConfigs
+    .filter(item => item.value !== null && item.value !== undefined && item.value !== '')
+    .map(({ type, value }) => ({ type, value: String(value) }));
 
   return {
     list_option: {
-      options,
       offset: (pageNum - 1) * pageSize,
-      limit: pageSize
+      limit: pageSize,
+      options
     },
     options: [{ key: 1 }, { key: 2 }, { key: 3 }, { key: 4 }]
   };

@@ -25,6 +25,10 @@ declare module "@elegant-router/types" {
     "404": "/404";
     "500": "/500";
     "about": "/about";
+    "alarm": "/alarm";
+    "alarm_notice-group": "/alarm/notice-group";
+    "alarm_record": "/alarm/record";
+    "alarm_rule": "/alarm/rule";
     "corp": "/corp";
     "corp_corp-detail": "/corp/corp-detail";
     "corp_corp-list": "/corp/corp-list";
@@ -119,6 +123,7 @@ declare module "@elegant-router/types" {
     | "404"
     | "500"
     | "about"
+    | "alarm"
     | "corp"
     | "device"
     | "gateway"
@@ -161,6 +166,9 @@ declare module "@elegant-router/types" {
     | "login"
     | "user-center"
     | "about"
+    | "alarm_notice-group"
+    | "alarm_record"
+    | "alarm_rule"
     | "corp_corp-detail"
     | "corp_corp-list"
     | "corp_version"

@@ -9,6 +9,7 @@ export * from './device';
 export * from './space';
 export * from './ledger';
 export * from './rule';
+export * from './alarm';
 export * from './gateway';
 export * from './workorder';
 export * from './system/system-log';
