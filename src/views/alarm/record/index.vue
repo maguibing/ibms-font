@@ -14,8 +14,8 @@ import {
 } from '@/service/api/alarm';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
-import AlarmRecordDetailDrawer from './modules/alarm-record-detail-drawer.vue';
 import AlarmRecordSearch from './modules/alarm-record-search.vue';
+import AlarmRecordViewDrawer from './modules/alarm-record-view-drawer.vue';
 
 defineOptions({
   name: 'AlarmRecord'
@@ -373,6 +373,22 @@ async function handleDelete(id: CommonType.IdType) {
   await fetchAlarmRecordStat();
 }
 
+async function handleBatchTransfer(transferStatus: Api.Alarm.AlarmRecordTransferStatus) {
+  if (checkedRowKeys.value.length === 0) return;
+
+  const actionText = transferStatus === 2 ? '批量确认' : '批量解除';
+  const { error } = await fetchTransferAlarmRecord({
+    transfer_status: transferStatus,
+    id_list: checkedRowKeys.value
+  });
+
+  if (error) return;
+
+  window.$message?.success(`${actionText}成功`);
+  checkedRowKeys.value = [];
+  await handleRefresh();
+}
+
 async function handleBatchDelete() {
   if (checkedRowKeys.value.length === 0) return;
 
@@ -414,17 +430,41 @@ onMounted(fetchAlarmRecordStat);
 
     <NCard title="报警记录" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
-        <NPopconfirm @positive-click="handleBatchDelete">
-          <template #trigger>
-            <NButton size="small" ghost type="error" :disabled="checkedRowKeys.length === 0">
-              <template #icon>
-                <icon-material-symbols-delete-outline class="text-icon" />
-              </template>
-              {{ $t('common.batchDelete') }}
-            </NButton>
-          </template>
-          {{ $t('common.confirmDelete') }}
-        </NPopconfirm>
+        <NSpace align="center">
+          <NPopconfirm @positive-click="() => handleBatchTransfer(2)">
+            <template #trigger>
+              <NButton size="small" ghost type="primary" :disabled="checkedRowKeys.length === 0">
+                <template #icon>
+                  <SvgIcon icon="material-symbols:check-circle-outline" class="text-icon" />
+                </template>
+                批量确认
+              </NButton>
+            </template>
+            确认处理选中的报警记录吗？
+          </NPopconfirm>
+          <NPopconfirm @positive-click="() => handleBatchTransfer(3)">
+            <template #trigger>
+              <NButton size="small" ghost type="success" :disabled="checkedRowKeys.length === 0">
+                <template #icon>
+                  <SvgIcon icon="material-symbols:alarm-off-outline-rounded" class="text-icon" />
+                </template>
+                批量解除
+              </NButton>
+            </template>
+            确认解除选中的报警记录吗？
+          </NPopconfirm>
+          <NPopconfirm @positive-click="handleBatchDelete">
+            <template #trigger>
+              <NButton size="small" ghost type="error" :disabled="checkedRowKeys.length === 0">
+                <template #icon>
+                  <icon-material-symbols-delete-outline class="text-icon" />
+                </template>
+                {{ $t('common.batchDelete') }}
+              </NButton>
+            </template>
+            {{ $t('common.confirmDelete') }}
+          </NPopconfirm>
+        </NSpace>
       </template>
       <DataTable
         v-model:checked-row-keys="checkedRowKeys"
@@ -438,7 +478,7 @@ onMounted(fetchAlarmRecordStat);
         :pagination="mobilePagination"
         class="sm:h-full"
       />
-      <AlarmRecordDetailDrawer
+      <AlarmRecordViewDrawer
         v-model:visible="detailDrawerVisible"
         :row-data="detailRowData"
         :extra-data="alarmRecordExtra"
