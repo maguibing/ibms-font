@@ -41,6 +41,9 @@ declare module "@elegant-router/types" {
     "device_device-type": "/device/device-type";
     "device_device-type-detail": "/device/device-type-detail";
     "device_physical-point-detail": "/device/physical-point-detail";
+    "energy": "/energy";
+    "energy_energy-list": "/energy/energy-list";
+    "energy_run-time": "/energy/run-time";
     "gateway": "/gateway";
     "gateway_gateway-list": "/gateway/gateway-list";
     "global": "/global";
@@ -60,7 +63,8 @@ declare module "@elegant-router/types" {
     "menu_platform-menu": "/menu/platform-menu";
     "menu_project-menu": "/menu/project-menu";
     "monitor": "/monitor";
-    "monitor_operlog": "/monitor/operlog";
+    "monitor_monitor-device": "/monitor/monitor-device";
+    "monitor_producer": "/monitor/producer";
     "project": "/project";
     "project_project-list": "/project/project-list";
     "rule": "/rule";
@@ -80,6 +84,7 @@ declare module "@elegant-router/types" {
     "visual": "/visual";
     "visual_configuration": "/visual/configuration";
     "visual_custom-screen": "/visual/custom-screen";
+    "visual_fuxa": "/visual/fuxa";
     "visual_sys-screen": "/visual/sys-screen";
     "visual_sys-screen-tag": "/visual/sys-screen-tag";
     "workorder": "/workorder";
@@ -126,6 +131,7 @@ declare module "@elegant-router/types" {
     | "alarm"
     | "corp"
     | "device"
+    | "energy"
     | "gateway"
     | "global"
     | "home"
@@ -179,6 +185,8 @@ declare module "@elegant-router/types" {
     | "device_device-type-detail"
     | "device_device-type"
     | "device_physical-point-detail"
+    | "energy_energy-list"
+    | "energy_run-time"
     | "gateway_gateway-list"
     | "global_activate"
     | "global_device-type-template-point"
@@ -191,7 +199,8 @@ declare module "@elegant-router/types" {
     | "menu_corp-menu"
     | "menu_platform-menu"
     | "menu_project-menu"
-    | "monitor_operlog"
+    | "monitor_monitor-device"
+    | "monitor_producer"
     | "project_project-list"
     | "rule_message-rule"
     | "space_space-list"
@@ -204,6 +213,7 @@ declare module "@elegant-router/types" {
     | "version_version-list"
     | "visual_configuration"
     | "visual_custom-screen"
+    | "visual_fuxa"
     | "visual_sys-screen-tag"
     | "visual_sys-screen"
     | "workorder_workorder-list"

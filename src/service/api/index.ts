@@ -12,5 +12,6 @@ export * from './rule';
 export * from './alarm';
 export * from './gateway';
 export * from './workorder';
+export * from './energy';
 export * from './system/system-log';
 export * from './visual/screen';

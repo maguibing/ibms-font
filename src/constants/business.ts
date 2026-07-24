@@ -1,12 +1,12 @@
-import { transformRecordToOption } from '@/utils/common';
+import { transformRecordToOption, transformRecordToNumberOption } from '@/utils/common';
 
 /** enable status */
 export const enableStatusRecord: Record<Api.Common.EnableStatus, string> = {
-  '0': '正常',
-  '1': '停用'
+  '1': '启用',
+  '2': '停用'
 };
 
-export const enableStatusOptions = transformRecordToOption(enableStatusRecord);
+export const enableStatusOptions = transformRecordToNumberOption(enableStatusRecord);
 
 /** yes or no status */
 export const yesOrNoStatusRecord: Record<Api.Common.YesOrNoStatus, string> = {

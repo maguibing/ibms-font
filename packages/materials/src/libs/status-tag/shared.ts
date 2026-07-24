@@ -38,7 +38,7 @@ const ENABLE_PRESET_MAP: StatusTagMap = {
   },
   '2': {
     label: '停用',
-    type: 'default'
+    type: 'error'
   }
 };
 

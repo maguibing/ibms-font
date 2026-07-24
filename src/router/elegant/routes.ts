@@ -201,6 +201,35 @@ export const generatedRoutes: GeneratedRoute[] = [
     ]
   },
   {
+    name: 'energy',
+    path: '/energy',
+    component: 'layout.base',
+    meta: {
+      title: 'energy',
+      i18nKey: 'route.energy'
+    },
+    children: [
+      {
+        name: 'energy_energy-list',
+        path: '/energy/energy-list',
+        component: 'view.energy_energy-list',
+        meta: {
+          title: 'energy_energy-list',
+          i18nKey: 'route.energy_energy-list'
+        }
+      },
+      {
+        name: 'energy_run-time',
+        path: '/energy/run-time',
+        component: 'view.energy_run-time',
+        meta: {
+          title: 'energy_run-time',
+          i18nKey: 'route.energy_run-time'
+        }
+      }
+    ]
+  },
+  {
     name: 'gateway',
     path: '/gateway',
     component: 'layout.base',
@@ -389,12 +418,21 @@ export const generatedRoutes: GeneratedRoute[] = [
     },
     children: [
       {
-        name: 'monitor_operlog',
-        path: '/monitor/operlog',
-        component: 'view.monitor_operlog',
+        name: 'monitor_monitor-device',
+        path: '/monitor/monitor-device',
+        component: 'view.monitor_monitor-device',
         meta: {
-          title: 'monitor_operlog',
-          i18nKey: 'route.monitor_operlog'
+          title: 'monitor_monitor-device',
+          i18nKey: 'route.monitor_monitor-device'
+        }
+      },
+      {
+        name: 'monitor_producer',
+        path: '/monitor/producer',
+        component: 'view.monitor_producer',
+        meta: {
+          title: 'monitor_producer',
+          i18nKey: 'route.monitor_producer'
         }
       }
     ]
@@ -582,6 +620,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'visual_custom-screen',
           i18nKey: 'route.visual_custom-screen'
+        }
+      },
+      {
+        name: 'visual_fuxa',
+        path: '/visual/fuxa',
+        component: 'view.visual_fuxa',
+        meta: {
+          title: 'visual_fuxa',
+          i18nKey: 'route.visual_fuxa'
         }
       },
       {
