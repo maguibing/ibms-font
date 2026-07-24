@@ -205,6 +205,8 @@ const routeMap: RouteMap = {
   "monitor_operlog": "/monitor/operlog",
   "project": "/project",
   "project_project-list": "/project/project-list",
+  "rule": "/rule",
+  "rule_message-rule": "/rule/message-rule",
   "space": "/space",
   "space_space-list": "/space/space-list",
   "space_space-type": "/space/space-type",

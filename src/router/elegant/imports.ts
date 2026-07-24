@@ -46,6 +46,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "menu_project-menu": () => import("@/views/menu/project-menu/index.vue"),
   monitor_operlog: () => import("@/views/monitor/operlog/index.vue"),
   "project_project-list": () => import("@/views/project/project-list/index.vue"),
+  "rule_message-rule": () => import("@/views/rule/message-rule/index.vue"),
   "space_space-list": () => import("@/views/space/space-list/index.vue"),
   "space_space-type": () => import("@/views/space/space-type/index.vue"),
   system_dept: () => import("@/views/system/dept/index.vue"),

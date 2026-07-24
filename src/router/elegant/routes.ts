@@ -382,6 +382,26 @@ export const generatedRoutes: GeneratedRoute[] = [
     ]
   },
   {
+    name: 'rule',
+    path: '/rule',
+    component: 'layout.base',
+    meta: {
+      title: 'rule',
+      i18nKey: 'route.rule'
+    },
+    children: [
+      {
+        name: 'rule_message-rule',
+        path: '/rule/message-rule',
+        component: 'view.rule_message-rule',
+        meta: {
+          title: 'rule_message-rule',
+          i18nKey: 'route.rule_message-rule'
+        }
+      }
+    ]
+  },
+  {
     name: 'space',
     path: '/space',
     component: 'layout.base',
