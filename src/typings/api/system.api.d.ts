@@ -37,13 +37,13 @@ declare namespace Api {
 
     type MenuAuth =
       | {
-          menu_id_list: number[];
-          has_all?: false;
-        }
+        menu_id_list: number[];
+        has_all?: false;
+      }
       | {
-          has_all: true;
-          menu_id_list?: number[];
-        };
+        has_all: true;
+        menu_id_list?: number[];
+      };
 
     interface PermAuth {
       menu_auth?: MenuAuth;
@@ -300,34 +300,34 @@ declare namespace Api {
     /** device type template point setting */
     type DeviceTypeTemplatePointSetting =
       | {
-          data_type: 1;
-          num_val: {
-            default_value: number;
-            scale: 1 | 2 | 3 | 4;
-            unit: string;
-          };
-        }
-      | {
-          data_type: 2;
-          switch_val: {
-            cmd_val_data_type: 1 | 2 | 3;
-            false_val: DeviceTypeTemplatePointValueItem;
-            true_val: DeviceTypeTemplatePointValueItem;
-          };
-        }
-      | {
-          data_type: 3;
-          str_val: {
-            default_value: string;
-          };
-        }
-      | {
-          data_type: 4;
-          enum_val: {
-            cmd_val_data_type: 1 | 2;
-            enum_list: DeviceTypeTemplatePointValueItem[];
-          };
+        data_type: 1;
+        num_val: {
+          default_value: number;
+          scale: 1 | 2 | 3 | 4;
+          unit: string;
         };
+      }
+      | {
+        data_type: 2;
+        switch_val: {
+          cmd_val_data_type: 1 | 2 | 3;
+          false_val: DeviceTypeTemplatePointValueItem;
+          true_val: DeviceTypeTemplatePointValueItem;
+        };
+      }
+      | {
+        data_type: 3;
+        str_val: {
+          default_value: string;
+        };
+      }
+      | {
+        data_type: 4;
+        enum_val: {
+          cmd_val_data_type: 1 | 2;
+          enum_list: DeviceTypeTemplatePointValueItem[];
+        };
+      };
 
     /** device type template point */
     type DeviceTypeTemplatePoint = Common.CommonRecord<{
@@ -703,33 +703,33 @@ declare namespace Api {
 
     type MenuNodeDetail =
       | (MenuNodeBaseDetail & {
-          type: 1;
-          detail: {
-            dir: {
-              component_path: string;
-              route_path: string;
-            };
+        type: 1;
+        detail: {
+          dir: {
+            component_path: string;
+            route_path: string;
           };
-        })
+        };
+      })
       | (MenuNodeBaseDetail & {
-          type: 2;
-          detail: {
-            page: {
-              component_path: string;
-              keep_alive?: PlatformBooleanStatus;
-              route_name: string;
-              route_path: string;
-            };
+        type: 2;
+        detail: {
+          page: {
+            component_path: string;
+            keep_alive?: PlatformBooleanStatus;
+            route_name: string;
+            route_path: string;
           };
-        })
+        };
+      })
       | (MenuNodeBaseDetail & {
-          type: 3;
-          detail: {
-            button: {
-              perm_key: string;
-            };
+        type: 3;
+        detail: {
+          button: {
+            perm_key: string;
           };
-        });
+        };
+      });
 
     interface MenuNode {
       id?: CommonType.IdType;
@@ -925,7 +925,7 @@ declare namespace Api {
     };
 
     type DiscoverNetworkParams = {
-      interface_name: string;
+      interface_name: string | null;
     };
 
     type DiscoverNetworkHost = {

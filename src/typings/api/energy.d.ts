@@ -4,7 +4,7 @@ declare namespace Api {
       logic_point_id: CommonType.IdType;
       logic_point_key: string;
       energy_type: number;
-      value: number;
+      value?: number;
     };
 
     type DevicePointEnergy = {
@@ -25,6 +25,14 @@ declare namespace Api {
 
     type DevicePointEnergySearchParams = Api.Common.CommonSearchParams & {
       device_names: string[];
+      dateRange: [number, number] | null;
+    };
+
+    type DevicePointEnergyListSearchParams = Api.Common.CommonSearchParams & {
+      aggregation_type: number;
+      energy_types: number[];
+      space_id: CommonType.IdType | null;
+      device_ids: CommonType.IdType[];
       dateRange: [number, number] | null;
     };
 

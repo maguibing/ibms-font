@@ -168,7 +168,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'value',
-        title: '运行时间',
+        title: '运行时间(h)',
         align: 'center',
         minWidth: 120,
         render: row => getRunTimeValue(row)

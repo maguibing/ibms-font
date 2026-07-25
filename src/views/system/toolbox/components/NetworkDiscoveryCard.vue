@@ -9,7 +9,7 @@ import { getErrorMessage, type TestStatus } from './shared';
 
 const formRef = useTemplateRef<FormInst>('formRef');
 const form = reactive<Api.System.DiscoverNetworkParams>({
-  interface_name: ''
+  interface_name: null
 });
 
 const networkInterfaces = shallowRef<Api.System.NetworkInterfaceInfo[]>([]);
