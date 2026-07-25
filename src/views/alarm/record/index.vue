@@ -2,7 +2,6 @@
 import { computed, onMounted, ref, shallowRef } from 'vue';
 import { NDivider, NTag } from 'naive-ui';
 import type { TagProps } from 'naive-ui';
-import { formatDateTime } from '@sa/utils';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { useAppStore } from '@/store/modules/app';
 import {
@@ -13,6 +12,7 @@ import {
   fetchTransferAlarmRecord
 } from '@/service/api/alarm';
 import { $t } from '@/locales';
+import { formatUnixDateTime } from '@/utils/common-methods';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import AlarmRecordSearch from './modules/alarm-record-search.vue';
 import AlarmRecordViewDrawer from './modules/alarm-record-view-drawer.vue';
@@ -96,14 +96,7 @@ function transformSearchParamsToRequest(params: Api.Alarm.AlarmRecordSearchParam
 const { columns, data, extraData, getData, getDataByPage, loading, mobilePagination, scrollX } =
   useNaivePaginatedTable({
     api: () => fetchGetAlarmRecordList(transformSearchParamsToRequest(searchParams.value)),
-    transform: response => {
-      const result = defaultTransform<Api.Alarm.AlarmRecord>(response);
-
-      return {
-        ...result,
-        pageNum: searchParams.value.pageNum || 1
-      };
-    },
+    transform: response => defaultTransform<Api.Alarm.AlarmRecord>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page;
       searchParams.value.pageSize = params.pageSize;
@@ -157,7 +150,7 @@ const { columns, data, extraData, getData, getDataByPage, loading, mobilePaginat
         title: '报警时间',
         align: 'center',
         minWidth: 180,
-        render: row => formatTimestamp(row.alarm_at)
+        render: row => formatUnixDateTime(row.alarm_at)
       },
       {
         key: 'status',
@@ -264,10 +257,6 @@ const alarmRecordExtra = computed<Api.Alarm.AlarmRecordListExtra>(() => {
     base_user_map: raw?.base_user_map ?? {}
   };
 });
-
-function formatTimestamp(timestamp?: number) {
-  return timestamp ? formatDateTime(timestamp * 1000) : '-';
-}
 
 function getAlarmRuleName(alarmRuleId: CommonType.IdType) {
   return alarmRecordExtra.value.alarm_rule_map[String(alarmRuleId)]?.name ?? '-';

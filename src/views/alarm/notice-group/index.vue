@@ -54,14 +54,7 @@ function transformSearchParamsToRequest(params: Api.Alarm.NoticeGroupSearchParam
 const { columns, columnChecks, data, extraData, getData, getDataByPage, loading, mobilePagination, scrollX } =
   useNaivePaginatedTable({
     api: () => fetchGetNoticeGroupList(transformSearchParamsToRequest(searchParams.value)),
-    transform: response => {
-      const result = defaultTransform<Api.Alarm.NoticeGroup>(response);
-
-      return {
-        ...result,
-        pageNum: searchParams.value.pageNum || 1
-      };
-    },
+    transform: response => defaultTransform<Api.Alarm.NoticeGroup>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page;
       searchParams.value.pageSize = params.pageSize;

@@ -54,14 +54,7 @@ function transformSearchParamsToRequest(params: Api.Rule.MessageRuleSearchParams
 const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagination, scrollX } =
   useNaivePaginatedTable({
     api: () => fetchGetMessageRuleList(transformSearchParamsToRequest(searchParams.value)),
-    transform: response => {
-      const result = defaultTransform<Api.Rule.MessageRule>(response);
-
-      return {
-        ...result,
-        pageNum: searchParams.value.pageNum || 1
-      };
-    },
+    transform: response => defaultTransform<Api.Rule.MessageRule>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page;
       searchParams.value.pageSize = params.pageSize;

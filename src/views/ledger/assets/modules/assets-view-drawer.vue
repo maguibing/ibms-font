@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { computed, shallowRef, watch } from 'vue';
 import { useLoading } from '@sa/hooks';
-import { formatDateTime } from '@sa/utils';
 import { fetchGetAssets } from '@/service/api/ledger';
 import { $t } from '@/locales';
-import { displayValue, formatPrice } from '@/utils/common-methods';
+import { displayValue, formatPrice, formatUnixDateTime } from '@/utils/common-methods';
 
 defineOptions({
   name: 'AssetsViewDrawer'
@@ -58,12 +57,6 @@ const statusTag = computed(() => {
   return null;
 });
 
-function formatUnixTime(value?: number | null) {
-  if (!value) return '-';
-
-  return formatDateTime(value * 1000);
-}
-
 async function getAssetsDetail(id: CommonType.IdType) {
   startLoading();
   const { data, error } = await fetchGetAssets({
@@ -108,8 +101,8 @@ watch(visible, () => {
                 <NTag v-if="statusTag" :type="statusTag.type">{{ statusTag.label }}</NTag>
                 <span v-else>{{ displayValue(assets.status) }}</span>
               </NDescriptionsItem>
-              <NDescriptionsItem label="创建时间">{{ formatUnixTime(assets.created_at) }}</NDescriptionsItem>
-              <NDescriptionsItem label="更新时间">{{ formatUnixTime(assets.updated_at) }}</NDescriptionsItem>
+              <NDescriptionsItem label="创建时间">{{ formatUnixDateTime(assets.created_at) }}</NDescriptionsItem>
+              <NDescriptionsItem label="更新时间">{{ formatUnixDateTime(assets.updated_at) }}</NDescriptionsItem>
             </NDescriptions>
           </div>
 
@@ -137,10 +130,10 @@ watch(visible, () => {
           <div>
             <div class="mb-10px text-15px font-600">采购信息</div>
             <NDescriptions label-placement="left" bordered size="small" :column="2">
-              <NDescriptionsItem label="采购日期">{{ formatUnixTime(procurement.purchase_at) }}</NDescriptionsItem>
+              <NDescriptionsItem label="采购日期">{{ formatUnixDateTime(procurement.purchase_at) }}</NDescriptionsItem>
               <NDescriptionsItem label="采购金额">{{ formatPrice(procurement.purchase_price) }}</NDescriptionsItem>
               <NDescriptionsItem label="供应商">{{ displayValue(procurement.supplier) }}</NDescriptionsItem>
-              <NDescriptionsItem label="到期时间">{{ formatUnixTime(procurement.expire_at) }}</NDescriptionsItem>
+              <NDescriptionsItem label="到期时间">{{ formatUnixDateTime(procurement.expire_at) }}</NDescriptionsItem>
               <NDescriptionsItem label="到期提前通知">
                 {{ displayValue(procurement.expire_notice_days) }}
               </NDescriptionsItem>

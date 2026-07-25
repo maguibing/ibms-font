@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { computed, h, shallowRef, watch } from 'vue';
 import { NTag } from 'naive-ui';
-import type { TagProps } from 'naive-ui';
 import dayjs from 'dayjs';
 import { useLoading } from '@sa/hooks';
-import { formatDateTime } from '@sa/utils';
 import { fetchGetTaskLog } from '@/service/api/task';
 import { $t } from '@/locales';
-import { displayValue } from '@/utils/common-methods';
+import { displayValue, formatUnixDateTime } from '@/utils/common-methods';
+import { repeatTypeMap, scheduleTypeMap, taskTypeMap, weekdayMap } from '../../constants';
 
 defineOptions({
   name: 'TaskLogDetailDrawer'
@@ -30,33 +29,6 @@ const props = defineProps<{
 const visible = defineModel<boolean>('visible', {
   default: false
 });
-
-const taskTypeMap: Record<Api.Task.TaskType, { label: string; type: NonNullable<TagProps['type']> }> = {
-  1: { label: '条件任务', type: 'success' },
-  2: { label: '定时任务', type: 'info' }
-};
-
-const scheduleTypeMap: Record<number, string> = {
-  1: '一次执行',
-  2: '按周期执行',
-  3: '间隔时间重复执行',
-  4: '按日程执行'
-};
-
-const weekdayMap: Record<number, string> = {
-  0: '周日',
-  1: '周一',
-  2: '周二',
-  3: '周三',
-  4: '周四',
-  5: '周五',
-  6: '周六'
-};
-
-const repeatTypeMap: Record<number, string> = {
-  1: '每天',
-  2: '自定义'
-};
 
 const { loading, startLoading, endLoading } = useLoading();
 const detail = shallowRef<Api.Task.TaskLogDetailData | null>(null);
@@ -194,12 +166,6 @@ const scheduleItems = computed(() => {
 
   return items;
 });
-
-function formatUnixDateTime(value?: number | null) {
-  if (!value) return '-';
-
-  return formatDateTime(value * 1000);
-}
 
 function formatUnixList(values: number[] | undefined, template: string) {
   return formatList(values, value => dayjs(value * 1000).format(template));

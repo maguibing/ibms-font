@@ -67,14 +67,7 @@ function transformSearchParamsToRequest(params: Api.Monitor.MonitorSearchParams)
 const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagination, scrollX } =
   useNaivePaginatedTable({
     api: () => fetchGetMonitorList(transformSearchParamsToRequest(searchParams.value)),
-    transform: response => {
-      const result = defaultTransform<Api.Monitor.Monitor>(response);
-
-      return {
-        ...result,
-        pageNum: searchParams.value.pageNum || result.pageNum
-      };
-    },
+    transform: response => defaultTransform<Api.Monitor.Monitor>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page ?? 1;
       searchParams.value.pageSize = params.pageSize ?? 10;

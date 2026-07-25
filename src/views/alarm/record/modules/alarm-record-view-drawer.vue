@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { TagProps } from 'naive-ui';
-import { formatDateTime } from '@sa/utils';
 import { $t } from '@/locales';
+import { formatUnixDateTime } from '@/utils/common-methods';
 
 defineOptions({
   name: 'AlarmRecordViewDrawer'
@@ -69,10 +69,6 @@ const operateLogList = computed(() =>
   [...(props.rowData?.detail?.operate_log_list ?? [])].sort((a, b) => a.operate_at - b.operate_at)
 );
 
-function formatTimestamp(timestamp?: number) {
-  return timestamp ? formatDateTime(timestamp * 1000) : '-';
-}
-
 function getLogicPointName(logicPointId: CommonType.IdType) {
   return props.extraData.logic_point_map[String(logicPointId)]?.name ?? '-';
 }
@@ -107,7 +103,7 @@ function closeDrawer() {
               <NTag v-if="dealStatus" :type="dealStatus.type">{{ dealStatus.label }}</NTag>
               <span v-else>-</span>
             </NDescriptionsItem>
-            <NDescriptionsItem label="报警时间" :span="2">{{ formatTimestamp(rowData.alarm_at) }}</NDescriptionsItem>
+            <NDescriptionsItem label="报警时间" :span="2">{{ formatUnixDateTime(rowData.alarm_at) }}</NDescriptionsItem>
           </NDescriptions>
         </section>
 
@@ -154,7 +150,7 @@ function closeDrawer() {
                       {{ operateStatusMap[item.status].label }}
                     </NTag>
                   </NSpace>
-                  <span class="step-time">{{ formatTimestamp(item.operate_at) }}</span>
+                  <span class="step-time">{{ formatUnixDateTime(item.operate_at) }}</span>
                 </div>
                 <div class="operator-line">
                   <SvgIcon icon="material-symbols:person-outline-rounded" class="text-16px" />

@@ -101,6 +101,22 @@ function getPaginatedExtraData(response: unknown): Record<string, unknown> | nul
   return rest;
 }
 
+function getPaginatedPageNum(response: unknown, fallbackPageNum: number) {
+  const payload = unwrapResponseData(response);
+
+  if (!isRecord(payload) || !isRecord(payload.paginate)) {
+    return fallbackPageNum;
+  }
+
+  const { offset, limit } = payload.paginate;
+
+  if (typeof offset !== 'number' || typeof limit !== 'number' || limit <= 0) {
+    return fallbackPageNum;
+  }
+
+  return Math.floor(offset / limit) + 1;
+}
+
 function getTreeExtraData(response: unknown): Record<string, unknown> | null {
   const payload = unwrapResponseData(response);
 
@@ -179,8 +195,11 @@ export function useNaivePaginatedTable<ResponseData, ApiData>(
     transform: response => {
       responseData.value = response;
       extraData.value = getPaginatedExtraData(response);
+      const data = options.transform(response);
+      const pageNum = getPaginatedPageNum(response, pagination.page ?? 1);
 
-      return options.transform(response);
+      // Some backends omit offset when it would be 0; keep the current page in that case.
+      return data.pageNum === pageNum ? data : { ...data, pageNum };
     },
     getColumnChecks: cols => getColumnChecks(cols, options.getColumnVisible),
     getColumns,

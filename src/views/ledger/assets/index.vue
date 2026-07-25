@@ -2,12 +2,12 @@
 import { computed, h, ref, shallowRef } from 'vue';
 import { NDivider, NImage, NTag } from 'naive-ui';
 import type { ImageRenderToolbar } from 'naive-ui/es/image';
-import { formatDateTime } from '@sa/utils';
 import { fetchDeleteAssets, fetchGetAssetsList } from '@/service/api/ledger';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { downloadLedgerQrCode, downloadLedgerQrCodes, getLedgerQrCodeUrl } from '@/utils/ledger-qr-code';
 import { $t } from '@/locales';
+import { formatUnixDateTime } from '@/utils/common-methods';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import AssetsOperateDrawer from './modules/assets-operate-drawer.vue';
 import AssetsSearch from './modules/assets-search.vue';
@@ -141,7 +141,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         title: '创建时间',
         align: 'center',
         minWidth: 180,
-        render: row => (row.created_at ? formatDateTime(row.created_at * 1000) : '-')
+        render: row => formatUnixDateTime(row.created_at)
       },
       {
         key: 'operate',

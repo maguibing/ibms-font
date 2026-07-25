@@ -2,13 +2,13 @@
 import { computed, onMounted, ref } from 'vue';
 import { NDivider, NTag } from 'naive-ui';
 import type { TagProps } from 'naive-ui';
-import { formatDateTime } from '@sa/utils';
 import { fetchDeleteWorkorder, fetchGetWorkorderList, fetchGetWorkorderStat } from '@/service/api/workorder';
 import { useAppStore } from '@/store/modules/app';
 import { useAuthStore } from '@/store/modules/auth';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { useAuth } from '@/hooks/business/auth';
 import { $t } from '@/locales';
+import { formatUnixDateTime } from '@/utils/common-methods';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import PhoneReveal from '@/components/business/phone-reveal.vue';
 import WorkorderOperateDrawer from './modules/workorder-operate-drawer.vue';
@@ -154,7 +154,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         title: '创建时间',
         align: 'center',
         minWidth: 180,
-        render: row => (row.created_at ? formatDateTime(row.created_at * 1000) : '-')
+        render: row => formatUnixDateTime(row.created_at)
       },
       {
         key: 'deal_status',

@@ -1,13 +1,13 @@
 <script setup lang="tsx">
 import { computed, ref, shallowRef } from 'vue';
 import { NTag } from 'naive-ui';
-import type { TagProps } from 'naive-ui';
-import { formatDateTime } from '@sa/utils';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { useAppStore } from '@/store/modules/app';
 import { fetchGetTaskLogList } from '@/service/api/task';
 import { $t } from '@/locales';
+import { formatUnixDateTime } from '@/utils/common-methods';
 import ButtonIcon from '@/components/custom/button-icon.vue';
+import { taskTypeMap } from '../constants';
 import TaskLogViewDrawer from './modules/task-log-view-drawer.vue';
 import TaskLogSearch from './modules/task-log-search.vue';
 
@@ -18,11 +18,6 @@ defineOptions({
 const appStore = useAppStore();
 
 const taskLogRelatedOptions: CommonType.CommonKeysOptions[] = [{ key: 1 }, { key: 2 }, { key: 3 }];
-
-const taskTypeMap: Record<Api.Task.TaskType, { label: string; type: NonNullable<TagProps['type']> }> = {
-  1: { label: '条件任务', type: 'success' },
-  2: { label: '定时任务', type: 'info' }
-};
 
 const searchParams = ref<Api.Task.TaskLogSearchParams>({
   pageNum: 1,
@@ -60,14 +55,7 @@ function transformSearchParamsToRequest(params: Api.Task.TaskLogSearchParams): C
 const { columns, columnChecks, data, extraData, getData, getDataByPage, loading, mobilePagination, scrollX } =
   useNaivePaginatedTable({
     api: () => fetchGetTaskLogList(transformSearchParamsToRequest(searchParams.value)),
-    transform: response => {
-      const result = defaultTransform<Api.Task.TaskLog>(response);
-
-      return {
-        ...result,
-        pageNum: searchParams.value.pageNum || 1
-      };
-    },
+    transform: response => defaultTransform<Api.Task.TaskLog>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page;
       searchParams.value.pageSize = params.pageSize;
@@ -138,12 +126,6 @@ const taskLogExtra = computed<Api.Task.TaskLogListExtra>(() => {
     device_type_point_map: raw?.device_type_point_map ?? {}
   };
 });
-
-function formatUnixDateTime(value?: number | null) {
-  if (!value) return '-';
-
-  return formatDateTime(value * 1000);
-}
 
 function getTaskName(taskId: CommonType.IdType) {
   return taskLogExtra.value.task_map[String(taskId)]?.name ?? '-';

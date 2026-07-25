@@ -197,6 +197,53 @@ export const generatedRoutes: GeneratedRoute[] = [
           title: 'device_physical-point-detail',
           i18nKey: 'route.device_physical-point-detail'
         }
+      },
+      {
+        name: 'device_virtual-point',
+        path: '/device/virtual-point',
+        component: 'view.device_virtual-point',
+        meta: {
+          title: 'device_virtual-point',
+          i18nKey: 'route.device_virtual-point'
+        }
+      }
+    ]
+  },
+  {
+    name: 'effroom',
+    path: '/effroom',
+    component: 'layout.base',
+    meta: {
+      title: 'effroom',
+      i18nKey: 'route.effroom'
+    },
+    children: [
+      {
+        name: 'effroom_energy-calendar',
+        path: '/effroom/energy-calendar',
+        component: 'view.effroom_energy-calendar',
+        meta: {
+          title: 'effroom_energy-calendar',
+          i18nKey: 'route.effroom_energy-calendar'
+        }
+      },
+      {
+        name: 'effroom_overview',
+        path: '/effroom/overview',
+        component: 'view.effroom_overview',
+        meta: {
+          title: 'effroom_overview',
+          i18nKey: 'route.effroom_overview'
+        }
+      },
+      {
+        name: 'effroom_point-compare',
+        path: '/effroom/point-compare',
+        component: 'view.effroom_point-compare',
+        meta: {
+          title: 'effroom_point-compare',
+          i18nKey: 'route.effroom_point-compare'
+        }
       }
     ]
   },
@@ -427,6 +474,15 @@ export const generatedRoutes: GeneratedRoute[] = [
         }
       },
       {
+        name: 'monitor_player',
+        path: '/monitor/player',
+        component: 'view.monitor_player',
+        meta: {
+          title: 'monitor_player',
+          i18nKey: 'route.monitor_player'
+        }
+      },
+      {
         name: 'monitor_producer',
         path: '/monitor/producer',
         component: 'view.monitor_producer',
@@ -560,6 +616,35 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'system_user',
           i18nKey: 'route.system_user'
+        }
+      }
+    ]
+  },
+  {
+    name: 'task',
+    path: '/task',
+    component: 'layout.base',
+    meta: {
+      title: 'task',
+      i18nKey: 'route.task'
+    },
+    children: [
+      {
+        name: 'task_task-list',
+        path: '/task/task-list',
+        component: 'view.task_task-list',
+        meta: {
+          title: 'task_task-list',
+          i18nKey: 'route.task_task-list'
+        }
+      },
+      {
+        name: 'task_task-log',
+        path: '/task/task-log',
+        component: 'view.task_task-log',
+        meta: {
+          title: 'task_task-log',
+          i18nKey: 'route.task_task-log'
         }
       }
     ]

@@ -42,6 +42,10 @@ declare module "@elegant-router/types" {
     "device_device-type-detail": "/device/device-type-detail";
     "device_physical-point-detail": "/device/physical-point-detail";
     "device_virtual-point": "/device/virtual-point";
+    "effroom": "/effroom";
+    "effroom_energy-calendar": "/effroom/energy-calendar";
+    "effroom_overview": "/effroom/overview";
+    "effroom_point-compare": "/effroom/point-compare";
     "energy": "/energy";
     "energy_energy-list": "/energy/energy-list";
     "energy_run-time": "/energy/run-time";
@@ -65,6 +69,7 @@ declare module "@elegant-router/types" {
     "menu_project-menu": "/menu/project-menu";
     "monitor": "/monitor";
     "monitor_monitor-device": "/monitor/monitor-device";
+    "monitor_player": "/monitor/player";
     "monitor_producer": "/monitor/producer";
     "project": "/project";
     "project_project-list": "/project/project-list";
@@ -135,6 +140,7 @@ declare module "@elegant-router/types" {
     | "alarm"
     | "corp"
     | "device"
+    | "effroom"
     | "energy"
     | "gateway"
     | "global"
@@ -191,6 +197,9 @@ declare module "@elegant-router/types" {
     | "device_device-type"
     | "device_physical-point-detail"
     | "device_virtual-point"
+    | "effroom_energy-calendar"
+    | "effroom_overview"
+    | "effroom_point-compare"
     | "energy_energy-list"
     | "energy_run-time"
     | "gateway_gateway-list"
@@ -206,6 +215,7 @@ declare module "@elegant-router/types" {
     | "menu_platform-menu"
     | "menu_project-menu"
     | "monitor_monitor-device"
+    | "monitor_player"
     | "monitor_producer"
     | "project_project-list"
     | "rule_message-rule"

@@ -26,6 +26,18 @@ export function formatTime(value?: number | null, fallback = '-') {
 }
 
 /**
+ * Unix 秒级时间戳格式化为展示时间。
+ * @param value 入参：秒级时间戳
+ * @param fallback 入参：兜底文案
+ * @returns 出参：时间字符串
+ */
+export function formatUnixDateTime(value?: number | null, fallback = '-') {
+  if (!value) return fallback;
+
+  return formatDateTime(value * 1000);
+}
+
+/**
  * 金额格式化为两位小数字符串。
  * @param value 入参：金额
  * @param fallback 入参：兜底文案
