@@ -8,6 +8,7 @@ export * from './device-type-template';
 export * from './device';
 export * from './space';
 export * from './ledger';
+export * from './task';
 export * from './rule';
 export * from './alarm';
 export * from './gateway';

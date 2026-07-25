@@ -41,6 +41,7 @@ declare module "@elegant-router/types" {
     "device_device-type": "/device/device-type";
     "device_device-type-detail": "/device/device-type-detail";
     "device_physical-point-detail": "/device/physical-point-detail";
+    "device_virtual-point": "/device/virtual-point";
     "energy": "/energy";
     "energy_energy-list": "/energy/energy-list";
     "energy_run-time": "/energy/run-time";
@@ -78,6 +79,9 @@ declare module "@elegant-router/types" {
     "system_system-log": "/system/system-log";
     "system_toolbox": "/system/toolbox";
     "system_user": "/system/user";
+    "task": "/task";
+    "task_task-list": "/task/task-list";
+    "task_task-log": "/task/task-log";
     "user-center": "/user-center";
     "version": "/version";
     "version_version-list": "/version/version-list";
@@ -144,6 +148,7 @@ declare module "@elegant-router/types" {
     | "rule"
     | "space"
     | "system"
+    | "task"
     | "user-center"
     | "version"
     | "visual"
@@ -185,6 +190,7 @@ declare module "@elegant-router/types" {
     | "device_device-type-detail"
     | "device_device-type"
     | "device_physical-point-detail"
+    | "device_virtual-point"
     | "energy_energy-list"
     | "energy_run-time"
     | "gateway_gateway-list"
@@ -210,6 +216,8 @@ declare module "@elegant-router/types" {
     | "system_system-log"
     | "system_toolbox"
     | "system_user"
+    | "task_task-list"
+    | "task_task-log"
     | "version_version-list"
     | "visual_configuration"
     | "visual_custom-screen"
