@@ -216,7 +216,7 @@ function formatList<T>(values: T[] | undefined, formatter: (value: T) => string)
 
 function formatPointValue(point: Api.Task.TaskPointValue) {
   if (point.data_type === 1) {
-    const value = point.num_val?.value;
+    const value = point.num_val?.value ?? 0;
     const unit = point.num_val?.unit;
     const unitText = unit ? ` ${unit}` : '';
 

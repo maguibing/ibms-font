@@ -139,7 +139,8 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
                     type="success"
                     icon="material-symbols:play-arrow-outline"
                     tooltipContent="一键执行"
-                    onClick={() => handleExecuteTask(row.id)}
+                    popconfirmContent="确认执行该任务？"
+                    onPositiveClick={() => handleExecuteTask(row.id)}
                   />
                 ]
               : []),

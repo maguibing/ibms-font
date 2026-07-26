@@ -208,7 +208,12 @@ watch(visible, () => {
                 <NInput v-model:value="model.name" maxlength="50" show-count placeholder="请输入任务名称" />
               </NFormItemGi>
               <NFormItemGi span="24 m:6" label="任务类型" path="task_type">
-                <NSelect v-model:value="model.task_type" :options="taskTypeOptions" placeholder="请选择任务类型" />
+                <NSelect
+                  v-model:value="model.task_type"
+                  :options="taskTypeOptions"
+                  :disabled="isEdit"
+                  placeholder="请选择任务类型"
+                />
               </NFormItemGi>
               <NFormItemGi span="24 m:6" label="状态" path="status">
                 <NSelect v-model:value="model.status" :options="statusOptions" placeholder="请选择状态" />

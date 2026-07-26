@@ -29,7 +29,8 @@ const popoverPlacement = shallowRef<'top-end' | 'bottom-end'>('bottom-end');
 const popoverMaxHeight = shallowRef('calc(50vh - 24px)');
 
 let dateDragMode: DateDragMode | null = null;
-let draggedDates = new Set<number>();
+let dragStartTimestamp: number | null = null;
+let dragBaseDates = new Set<number>();
 let suppressMouseClick = false;
 let suppressMouseClickTimer: number | undefined;
 
@@ -56,6 +57,8 @@ const months = computed<CalendarMonth[]>(() =>
     };
   })
 );
+const yearDateTimestamps = computed(() => months.value.flatMap(month => month.days.map(day => day.timestamp)));
+const isAllYearSelected = computed(() => yearDateTimestamps.value.every(timestamp => selectedDates.value.has(timestamp)));
 
 watch(model, dates => {
   if (!dates.length) {
@@ -79,15 +82,29 @@ function toggleDate(timestamp: number) {
     : [...model.value, timestamp].sort((a, b) => a - b);
 }
 
-function applyDraggedDate(timestamp: number) {
-  if (!dateDragMode || draggedDates.has(timestamp)) return;
+function getDateRangeTimestamps(startTimestamp: number, endTimestamp: number) {
+  const start = Math.min(startTimestamp, endTimestamp);
+  const end = Math.max(startTimestamp, endTimestamp);
+  const cursor = new Date(start);
+  const dates: number[] = [];
 
-  draggedDates.add(timestamp);
+  while (cursor.getTime() <= end) {
+    dates.push(cursor.getTime());
+    cursor.setDate(cursor.getDate() + 1);
+  }
 
-  if (dateDragMode === 'select' && !selectedDates.value.has(timestamp)) {
-    model.value = [...model.value, timestamp].sort((a, b) => a - b);
-  } else if (dateDragMode === 'deselect' && selectedDates.value.has(timestamp)) {
-    model.value = model.value.filter(value => value !== timestamp);
+  return dates;
+}
+
+function applyDraggedDateRange(timestamp: number) {
+  if (!dateDragMode || dragStartTimestamp === null) return;
+
+  const rangeDates = getDateRangeTimestamps(dragStartTimestamp, timestamp);
+  if (dateDragMode === 'select') {
+    model.value = Array.from(new Set([...dragBaseDates, ...rangeDates])).sort((a, b) => a - b);
+  } else {
+    const rangeDateSet = new Set(rangeDates);
+    model.value = Array.from(dragBaseDates).filter(value => !rangeDateSet.has(value));
   }
 }
 
@@ -98,7 +115,8 @@ function removeDateDragListeners() {
 
 function endDateDrag() {
   dateDragMode = null;
-  draggedDates.clear();
+  dragStartTimestamp = null;
+  dragBaseDates.clear();
   removeDateDragListeners();
 
   if (!suppressMouseClick) return;
@@ -117,8 +135,9 @@ function startDateDrag(timestamp: number, event: MouseEvent) {
 
   suppressMouseClick = true;
   dateDragMode = selectedDates.value.has(timestamp) ? 'deselect' : 'select';
-  draggedDates = new Set<number>();
-  applyDraggedDate(timestamp);
+  dragStartTimestamp = timestamp;
+  dragBaseDates = new Set(model.value);
+  applyDraggedDateRange(timestamp);
 
   window.addEventListener('mouseup', endDateDrag, { once: true });
   window.addEventListener('blur', endDateDrag, { once: true });
@@ -132,7 +151,7 @@ function handleDateMouseEnter(timestamp: number, event: MouseEvent) {
     return;
   }
 
-  applyDraggedDate(timestamp);
+  applyDraggedDateRange(timestamp);
 }
 
 function handleDateClick(timestamp: number, event: MouseEvent) {
@@ -185,6 +204,10 @@ function clearDates() {
   model.value = [];
 }
 
+function selectYearDates() {
+  model.value = Array.from(new Set([...model.value, ...yearDateTimestamps.value])).sort((a, b) => a - b);
+}
+
 function isToday(timestamp: number) {
   const today = new Date();
   const date = new Date(timestamp);
@@ -223,7 +246,7 @@ onBeforeUnmount(() => {
       </div>
     </template>
 
-    <div class="w-full">
+    <div class="calendar-panel w-full">
       <div
         class="mb-12px flex items-center justify-between gap-12px border-b border-b-#edf1f7 border-b-solid pb-12px dark:border-b-#2f3338"
       >
@@ -235,6 +258,12 @@ onBeforeUnmount(() => {
         />
         <div class="text-15px text-[var(--n-text-color-1)] font-600">{{ year }} 年</div>
         <div class="flex items-center gap-8px">
+          <NButton size="small" quaternary :disabled="isAllYearSelected" @click="selectYearDates">
+            <template #icon>
+              <SvgIcon icon="material-symbols:select-all-rounded" />
+            </template>
+            全选
+          </NButton>
           <NButton size="small" quaternary :disabled="selectedCount === 0" @click="clearDates">
             <template #icon>
               <SvgIcon icon="material-symbols:delete-sweep-outline-rounded" />
@@ -290,6 +319,10 @@ onBeforeUnmount(() => {
 <style scoped>
 .year-date-trigger :deep(.n-button__content) {
   width: 100%;
+}
+
+.calendar-panel {
+  user-select: none;
 }
 
 .calendar-months {
