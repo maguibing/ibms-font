@@ -22,6 +22,7 @@ interface Props {
   valueField?: string;
   disabledField?: string;
   debounce?: number;
+  immediate?: boolean;
   selectedOptions?: RemoteSelectRecord | RemoteSelectRecord[] | null;
   optionsExtractor?: (response: any) => RemoteSelectRecord[];
   totalExtractor?: (response: any) => number | undefined;
@@ -34,6 +35,7 @@ const props = withDefaults(defineProps<Props>(), {
   valueField: 'value',
   disabledField: '',
   debounce: 300,
+  immediate: true,
   selectedOptions: null,
   optionsExtractor: undefined,
   totalExtractor: undefined
@@ -278,13 +280,19 @@ watch(
   () => [props.requestParams, props.searchType, props.limit],
   () => {
     fetched.value = false;
-    resetAndFetch();
+    if (props.immediate) {
+      resetAndFetch();
+    } else {
+      resetOptions();
+    }
   },
   { deep: true }
 );
 
 nextTick(() => {
-  fetchOptions();
+  if (props.immediate) {
+    fetchOptions();
+  }
 });
 
 defineExpose({

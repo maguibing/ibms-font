@@ -18,6 +18,24 @@ export function fetchGetTask(data: { id: CommonType.IdType; options?: CommonType
   });
 }
 
+/** 创建任务 */
+export function fetchCreateTask(data: Api.Task.TaskOperateParams) {
+  return request({
+    url: '/CreateTask',
+    method: 'post',
+    data
+  });
+}
+
+/** 修改任务 */
+export function fetchUpdateTask(data: Api.Task.TaskUpdateParams) {
+  return request({
+    url: '/UpdateTask',
+    method: 'post',
+    data
+  });
+}
+
 /** 执行任务 */
 export function fetchExecuteTask(data: Api.Common.CommonIdList) {
   return request({

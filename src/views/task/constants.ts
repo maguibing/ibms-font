@@ -35,5 +35,5 @@ export const repeatTypeMap: Record<number, string> = {
 export const intervalTimeTypeMap: Record<number, string> = {
   1: '秒',
   2: '分',
-  3: '时'
+  3: '小时'
 };

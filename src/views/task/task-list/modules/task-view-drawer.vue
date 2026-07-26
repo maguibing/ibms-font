@@ -254,7 +254,7 @@ async function getTaskDetail(id: CommonType.IdType) {
   startLoading();
   const { data, error } = await fetchGetTask({
     id,
-    options: [{ key: 1 }, { key: 2 }, { key: 3 }, { key: 4 }]
+    options: [{ key: 1 }, { key: 2 }]
   }).finally(endLoading);
 
   if (error) return;

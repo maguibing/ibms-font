@@ -10,6 +10,7 @@ import { formatUnixDateTime } from '@/utils/common-methods';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import { taskTypeMap } from '../constants';
 import TaskListSearch from './modules/task-list-search.vue';
+import TaskOperateDrawer from './modules/task-operate-drawer.vue';
 import TaskViewDrawer from './modules/task-view-drawer.vue';
 
 defineOptions({
@@ -18,6 +19,9 @@ defineOptions({
 
 const appStore = useAppStore();
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
+const operateDrawerVisible = shallowRef(false);
+const operateType = shallowRef<NaiveUI.TableOperateType>('add');
+const operateRowData = shallowRef<Api.Task.Task | null>(null);
 const detailDrawerVisible = shallowRef(false);
 const detailRowData = shallowRef<Api.Task.Task | null>(null);
 
@@ -126,7 +130,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
-              onClick={() => handleDeveloping($t('common.edit'))}
+              onClick={() => handleEdit(row)}
             />,
             ...(row.task_type === 2
               ? [
@@ -206,8 +210,16 @@ function handleSearch() {
   getDataByPage(1);
 }
 
-function handleDeveloping(action: string) {
-  window.$message?.info(`${action}功能待开发`);
+function handleAdd() {
+  operateType.value = 'add';
+  operateRowData.value = null;
+  operateDrawerVisible.value = true;
+}
+
+function handleEdit(row: Api.Task.Task) {
+  operateType.value = 'edit';
+  operateRowData.value = row;
+  operateDrawerVisible.value = true;
 }
 
 async function handleExecuteTask(id: CommonType.IdType) {
@@ -256,7 +268,7 @@ async function handleBatchDelete() {
           :show-add="true"
           :show-delete="true"
           :show-export="false"
-          @add="handleDeveloping($t('common.add'))"
+          @add="handleAdd"
           @delete="handleBatchDelete"
           @refresh="getData"
         />
@@ -272,6 +284,12 @@ async function handleBatchDelete() {
         :row-key="row => row.id"
         :pagination="mobilePagination"
         class="sm:h-full"
+      />
+      <TaskOperateDrawer
+        v-model:visible="operateDrawerVisible"
+        :operate-type="operateType"
+        :row-data="operateRowData"
+        @submitted="getData"
       />
       <TaskViewDrawer v-model:visible="detailDrawerVisible" :row-data="detailRowData" />
     </NCard>
