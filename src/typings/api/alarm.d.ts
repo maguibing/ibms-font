@@ -2,18 +2,100 @@ declare namespace Api {
   namespace Alarm {
     type AlarmLevel = 1 | 2 | 3;
 
+    type AlarmRuleStatus = 1 | 2;
+
+    type AlarmRuleTriggerType = 1;
+
+    type AlarmRuleDeviceSourceType = 1 | 2;
+
+    type AlarmRuleLogicOperatorType = 1 | 2;
+
+    type AlarmRuleThresholdType = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+
+    type AlarmRuleConditionTimeType = 1 | 2 | 3;
+
     type AlarmRecordDealStatus = 1 | 2 | 3;
+
+    type AlarmRulePointValueContent = {
+      value?: CommonType.IdType | boolean | null;
+      alias?: string | null;
+      unit?: string | null;
+      scale?: number | null;
+    };
+
+    type AlarmRuleConditionSingleValue = {
+      data_type?: CommonType.DataType;
+      num_val?: AlarmRulePointValueContent | null;
+      switch_val?: AlarmRulePointValueContent | null;
+      str_val?: AlarmRulePointValueContent | null;
+      enum_val?: AlarmRulePointValueContent | null;
+    };
+
+    type AlarmRuleConditionRangeValue = {
+      min_val?: number | null;
+      max_val?: number | null;
+    };
+
+    type AlarmRuleSubCondition = {
+      logic_operator_type?: AlarmRuleLogicOperatorType | null;
+      device_type_point_id?: CommonType.IdType | null;
+      threshold_type?: AlarmRuleThresholdType | null;
+      single_val?: AlarmRuleConditionSingleValue | null;
+      range_val?: AlarmRuleConditionRangeValue | null;
+    };
+
+    type AlarmRuleCondition = {
+      logic_operator_type?: AlarmRuleLogicOperatorType | null;
+      device_source_type?: AlarmRuleDeviceSourceType | null;
+      device_source_id?: CommonType.IdType | null;
+      sub_conds?: AlarmRuleSubCondition[];
+    };
+
+    type AlarmRuleValidTimeRange = {
+      start_at?: number | null;
+      end_at?: number | null;
+    };
+
+    type AlarmRuleConditionFreq = {
+      time_type?: AlarmRuleConditionTimeType;
+      durations?: number;
+      repeat_times?: number;
+    };
 
     type AlarmRule = Api.Common.CommonRecord<{
       id: CommonType.IdType;
       project_id?: CommonType.IdType;
       name: string;
+      trigger_type: AlarmRuleTriggerType;
       alarm_level: AlarmLevel;
+      device_source_type: AlarmRuleDeviceSourceType;
+      status: AlarmRuleStatus;
+      cond_setting?: {
+        conds?: AlarmRuleCondition[];
+        notice_group_id_list?: CommonType.IdType[];
+        notice_limit?: number;
+        valid_time_ranges?: AlarmRuleValidTimeRange[];
+        freq?: AlarmRuleConditionFreq;
+      };
     }>;
 
     type AlarmRuleMapItem = Pick<AlarmRule, 'id' | 'name' | 'alarm_level'>;
 
-    type AlarmRuleList = Api.Common.PaginatingQueryRecord<AlarmRule>;
+    type AlarmRuleListExtra = {
+      device_map: CommonType.IdNameMap;
+      device_type_map?: CommonType.IdNameMap;
+      device_type_point_map?: CommonType.IdNameMap;
+      notice_group_map?: CommonType.IdNameMap;
+    };
+
+    type AlarmRuleList = Api.Common.PaginatingQueryRecord<AlarmRule, AlarmRuleListExtra>;
+
+    type AlarmRuleSearchParams = CommonType.RecordNullable<
+      Api.Common.CommonSearchParams & {
+        name: string;
+        alarm_level: AlarmLevel;
+      }
+    >;
 
     type AlarmPointRecord = {
       logic_point_id: CommonType.IdType;

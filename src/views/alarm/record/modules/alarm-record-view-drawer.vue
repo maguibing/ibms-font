@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import type { TagProps } from 'naive-ui';
 import { $t } from '@/locales';
 import { formatUnixDateTime } from '@/utils/common-methods';
+import { alarmLevelMap } from '../../shared';
 
 defineOptions({
   name: 'AlarmRecordViewDrawer'
@@ -32,12 +33,6 @@ const operateStatusMap: Record<
   1: { label: '待处理', type: 'error' },
   2: { label: '确认', type: 'primary' },
   3: { label: '解除', type: 'success' }
-};
-
-const alarmLevelMap: Record<Api.Alarm.AlarmLevel, { label: string; type: NonNullable<TagProps['type']> }> = {
-  1: { label: '普通', type: 'info' },
-  2: { label: '重要', type: 'warning' },
-  3: { label: '紧急', type: 'error' }
 };
 
 const alarmRule = computed(() => {

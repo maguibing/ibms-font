@@ -14,6 +14,7 @@ import {
 import { $t } from '@/locales';
 import { formatUnixDateTime } from '@/utils/common-methods';
 import ButtonIcon from '@/components/custom/button-icon.vue';
+import { alarmLevelMap, createAlarmBaseOptions } from '../shared';
 import AlarmRecordSearch from './modules/alarm-record-search.vue';
 import AlarmRecordViewDrawer from './modules/alarm-record-view-drawer.vue';
 
@@ -32,12 +33,6 @@ const dealStatusMap: Record<
   1: { label: '待处理', type: 'error', icon: 'material-symbols:alarm-outline-rounded', colorClass: 'text-error' },
   2: { label: '已确认', type: 'primary', icon: 'material-symbols:progress-activity', colorClass: 'text-primary' },
   3: { label: '已解除', type: 'success', icon: 'material-symbols:check-circle-outline', colorClass: 'text-success' }
-};
-
-const alarmLevelMap: Record<Api.Alarm.AlarmLevel, { label: string; type: NonNullable<TagProps['type']> }> = {
-  1: { label: '普通', type: 'info' },
-  2: { label: '重要', type: 'warning' },
-  3: { label: '紧急', type: 'error' }
 };
 
 const alarmRecordStat = ref<Partial<Record<Api.Alarm.AlarmRecordDealStatus, number>>>({});
@@ -67,7 +62,7 @@ function transformSearchParamsToRequest(params: Api.Alarm.AlarmRecordSearchParam
   const pageNum = params.pageNum || 1;
   const pageSize = params.pageSize || 10;
   const filterConfigs = [
-    { type: 104, value: '101' },
+    ...createAlarmBaseOptions(),
     { type: 2, value: params.alarm_rule_id },
     { type: 51, value: params.alarm_level },
     {

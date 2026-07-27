@@ -4,6 +4,7 @@ import type { SelectOption } from 'naive-ui';
 import { jsonClone } from '@sa/utils';
 import { fetchGetAlarmRuleList } from '@/service/api/alarm';
 import { $t } from '@/locales';
+import { alarmLevelOptions, createAlarmBaseOptions } from '../../shared';
 
 defineOptions({
   name: 'AlarmRecordSearch'
@@ -21,16 +22,6 @@ const defaultModel = jsonClone(toRaw(model.value));
 const dateRange = ref<[string, string] | null>(null);
 const alarmRuleLoading = shallowRef(false);
 const alarmRuleOptions = shallowRef<SelectOption[]>([]);
-
-const alarmLevelOptions: CommonType.Option<Api.Alarm.AlarmLevel>[] = [
-  { label: '普通', value: 1 },
-  { label: '重要', value: 2 },
-  { label: '紧急', value: 3 }
-];
-
-function createBaseOptions(): CommonType.CommonTypeOptions[] {
-  return [{ type: 104, value: '101' }];
-}
 
 function handleDateRangeUpdate(value: [string, string] | null) {
   dateRange.value = value;
@@ -51,7 +42,7 @@ async function fetchAlarmRuleOptions() {
   alarmRuleLoading.value = true;
   const { data: response, error } = await fetchGetAlarmRuleList({
     list_option: {
-      options: createBaseOptions(),
+      options: createAlarmBaseOptions(),
       offset: 0,
       limit: 100
     },

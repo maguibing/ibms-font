@@ -9,6 +9,15 @@ export function fetchGetAlarmRuleList(data: CommonType.CommonListQueryParams) {
   });
 }
 
+/** 删除报警规则 */
+export function fetchDeleteAlarmRule(data: Api.Common.CommonIdList) {
+  return request({
+    url: '/DeleteAlarmRule',
+    method: 'post',
+    data
+  });
+}
+
 /** 获取报警记录列表 */
 export function fetchGetAlarmRecordList(data: CommonType.CommonListQueryParams) {
   return request<Api.Alarm.AlarmRecordList>({
