@@ -8,6 +8,7 @@ import { fetchDeleteAlarmRule, fetchGetAlarmRuleList } from '@/service/api/alarm
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import { alarmLevelMap, createAlarmBaseOptions, formatAlarmRuleFreq } from '../shared';
+import AlarmRuleOperateDrawer from './modules/alarm-rule-operate-drawer.vue';
 import AlarmRuleSearch from './modules/alarm-rule-search.vue';
 
 defineOptions({
@@ -152,7 +153,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
-              onClick={() => handleEdit(row)}
+              onClick={() => edit(row.id)}
             />,
             <ButtonIcon
               text
@@ -179,7 +180,8 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
     ]
   });
 
-const { checkedRowKeys, onBatchDeleted, onDeleted } = useTableOperate(data, 'id', getData);
+const { drawerVisible, operateType, editingData, handleAdd, handleEdit, checkedRowKeys, onBatchDeleted, onDeleted } =
+  useTableOperate(data, 'id', getData);
 
 const alarmRuleExtra = computed<Api.Alarm.AlarmRuleListExtra>(() => {
   const raw = extraData.value as Partial<Api.Alarm.AlarmRuleListExtra> | null;
@@ -187,6 +189,7 @@ const alarmRuleExtra = computed<Api.Alarm.AlarmRuleListExtra>(() => {
   return {
     device_map: raw?.device_map ?? {},
     device_type_map: raw?.device_type_map ?? {},
+    device_type_point_map: raw?.device_type_point_map ?? {},
     notice_group_map: raw?.notice_group_map ?? {}
   };
 });
@@ -247,14 +250,6 @@ function handleSearch() {
   getDataByPage(1);
 }
 
-function handleAdd() {
-  window.$message?.info('新增功能稍后补充');
-}
-
-function handleEdit(_row: Api.Alarm.AlarmRule) {
-  window.$message?.info('编辑功能稍后补充');
-}
-
 async function handleDelete(id: CommonType.IdType) {
   const { error } = await fetchDeleteAlarmRule({ id_list: [id] });
   if (error) return;
@@ -270,6 +265,10 @@ async function handleBatchDelete() {
   if (error) return;
 
   await onBatchDeleted();
+}
+
+function edit(id: CommonType.IdType) {
+  handleEdit(id);
 }
 </script>
 
@@ -302,6 +301,13 @@ async function handleBatchDelete() {
         :row-key="row => row.id"
         :pagination="mobilePagination"
         class="sm:h-full"
+      />
+      <AlarmRuleOperateDrawer
+        v-model:visible="drawerVisible"
+        :operate-type="operateType"
+        :row-data="editingData"
+        :extra-data="alarmRuleExtra"
+        @submitted="getDataByPage"
       />
     </NCard>
   </div>

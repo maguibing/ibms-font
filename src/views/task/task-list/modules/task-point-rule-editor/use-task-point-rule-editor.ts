@@ -2,6 +2,8 @@ import type { SelectOption } from 'naive-ui';
 
 export type TaskPointRuleEditorMode = 'condition' | 'action';
 
+export type TaskRuleDeviceSourceType = 1 | 2;
+
 export type TaskRuleDeviceOption = CommonType.IdNameRecord & {
   device_type_id?: CommonType.IdType;
 } & Record<string, unknown>;
@@ -38,7 +40,7 @@ export type TaskConditionSubCondEditor = {
 export type TaskConditionEditor = {
   _key: string;
   logic_operator_type: Api.Task.TaskLogicalOperatorType;
-  device_source_type: 1;
+  device_source_type: TaskRuleDeviceSourceType;
   device_source_id: CommonType.IdType | null;
   selected_device?: TaskRuleDeviceOption | null;
   sub_conds: TaskConditionSubCondEditor[];
@@ -76,6 +78,7 @@ export type TaskPointRuleEditorModel = TaskConditionEditorModel | TaskActionEdit
 
 export type TaskRuleEditorOptionMaps = {
   deviceMap?: CommonType.IdNameMap;
+  deviceTypeMap?: CommonType.IdNameMap;
   deviceTypePointMap?: Record<string, Api.Task.TaskDeviceTypePointMapItem>;
 };
 
@@ -84,6 +87,9 @@ type UnknownRecord = Record<string, unknown>;
 const DEFAULT_DEVICE_SOURCE_TYPE = 1;
 const DEFAULT_LOGIC_OPERATOR_TYPE: Api.Task.TaskLogicalOperatorType = 1;
 const DEFAULT_THRESHOLD_TYPE: Api.Task.TaskThresholdType = 7;
+const DEFAULT_CONDITION_TIME_TYPE: Api.Task.TaskConditionTimeType = 2;
+const DEFAULT_CONDITION_DURATIONS = 30;
+const DEFAULT_CONDITION_REPEAT_TIMES = 10;
 
 let editorKeySeed = 0;
 
@@ -154,12 +160,13 @@ export function createDefaultConditionSubCond(): TaskConditionSubCondEditor {
 }
 
 export function createDefaultCondition(
-  logicOperatorType: Api.Task.TaskLogicalOperatorType = DEFAULT_LOGIC_OPERATOR_TYPE
+  logicOperatorType: Api.Task.TaskLogicalOperatorType = DEFAULT_LOGIC_OPERATOR_TYPE,
+  deviceSourceType: TaskRuleDeviceSourceType = DEFAULT_DEVICE_SOURCE_TYPE
 ): TaskConditionEditor {
   return {
     _key: createEditorKey('condition'),
     logic_operator_type: logicOperatorType,
-    device_source_type: DEFAULT_DEVICE_SOURCE_TYPE,
+    device_source_type: deviceSourceType,
     device_source_id: null,
     selected_device: null,
     sub_conds: [createDefaultConditionSubCond()]
@@ -168,16 +175,18 @@ export function createDefaultCondition(
 
 export function createDefaultConditionFreq(): Required<Api.Task.TaskConditionFreq> {
   return {
-    time_type: 1,
-    durations: 0,
-    repeat_times: 0
+    time_type: DEFAULT_CONDITION_TIME_TYPE,
+    durations: DEFAULT_CONDITION_DURATIONS,
+    repeat_times: DEFAULT_CONDITION_REPEAT_TIMES
   };
 }
 
-export function createDefaultTaskConditionModel(): TaskConditionEditorModel {
+export function createDefaultTaskConditionModel(
+  deviceSourceType: TaskRuleDeviceSourceType = DEFAULT_DEVICE_SOURCE_TYPE
+): TaskConditionEditorModel {
   return {
     task_type: 1,
-    conds: [createDefaultCondition()],
+    conds: [createDefaultCondition(DEFAULT_LOGIC_OPERATOR_TYPE, deviceSourceType)],
     freq: createDefaultConditionFreq()
   };
 }
@@ -237,9 +246,25 @@ export function normalizeTaskActionModel(
 }
 
 export function buildDeviceTypePointRequestParams(
-  device?: TaskRuleDeviceOption | null
+  device?: TaskRuleDeviceOption | null,
+  deviceSourceType: TaskRuleDeviceSourceType = DEFAULT_DEVICE_SOURCE_TYPE
 ): CommonType.CommonListQueryParams {
   const deviceId = device?.id;
+
+  if (deviceSourceType === 2) {
+    const options: CommonType.CommonTypeOptions[] = [{ type: 1, value: '' }];
+
+    if (deviceId !== null && deviceId !== undefined && deviceId !== '') {
+      options.push({ type: 3, value: String(deviceId) });
+    }
+
+    return {
+      list_option: {
+        options
+      }
+    };
+  }
+
   const options: CommonType.CommonTypeOptions[] = [{ type: 104, value: '101' }];
 
   if (deviceId !== null && deviceId !== undefined && deviceId !== '') {
@@ -335,6 +360,8 @@ export function syncPointValueAlias(value: TaskRulePointValue, selected: unknown
 export function normalizeConditionFreq(
   freq: Api.Task.TaskConditionFreq | undefined
 ): Required<Api.Task.TaskConditionFreq> {
+  if (!freq) return createDefaultConditionFreq();
+
   const durations = clampInteger(freq?.durations, 0, Number.MAX_SAFE_INTEGER);
 
   return {
@@ -436,7 +463,7 @@ export function buildTaskConditionSubmitModel(model: TaskConditionEditorModel): 
     task_type: 1,
     conds: model.conds.map(condition => ({
       logic_operator_type: condition.logic_operator_type,
-      device_source_type: DEFAULT_DEVICE_SOURCE_TYPE,
+      device_source_type: condition.device_source_type,
       device_source_id: condition.device_source_id ?? undefined,
       sub_conds: condition.sub_conds.map(point => {
         const subCond: Api.Task.TaskConditionSubCond = {
@@ -513,14 +540,15 @@ function normalizeCondition(
   index: number
 ): TaskConditionEditor {
   const deviceId = condition.device_source_id ?? null;
+  const deviceSourceType = condition.device_source_type === 2 ? 2 : DEFAULT_DEVICE_SOURCE_TYPE;
   const subConds = Array.isArray(condition.sub_conds) ? condition.sub_conds : [];
 
   return {
     _key: createEditorKey('condition'),
     logic_operator_type: index > 0 ? 2 : normalizeLogicOperatorType(condition.logic_operator_type),
-    device_source_type: DEFAULT_DEVICE_SOURCE_TYPE,
+    device_source_type: deviceSourceType,
     device_source_id: deviceId,
-    selected_device: createSelectedDevice(deviceId, maps.deviceMap),
+    selected_device: createSelectedDevice(deviceId, deviceSourceType === 2 ? maps.deviceTypeMap : maps.deviceMap),
     sub_conds: subConds.length
       ? subConds.map(subCond => normalizeConditionSubCond(subCond, maps.deviceTypePointMap))
       : [createDefaultConditionSubCond()]

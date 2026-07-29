@@ -2,8 +2,9 @@
 import { computed } from 'vue';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import RemoteSearchSelect from '@/components/custom/remote-search-select.vue';
+import SectionHeader from '@/components/custom/section-header.vue';
 import SvgIcon from '@/components/custom/svg-icon.vue';
-import { fetchGetDeviceList, fetchGetDeviceTypePointList } from '@/service/api/device';
+import { fetchGetDeviceList, fetchGetDeviceTypeList, fetchGetDeviceTypePointList } from '@/service/api/device';
 import TaskPointValueInput from './task-point-value-input.vue';
 import {
   buildDeviceTypePointRequestParams,
@@ -34,7 +35,8 @@ import {
   type TaskConditionEditorModel,
   type TaskPointRuleEditorMode,
   type TaskPointRuleEditorModel,
-  type TaskRuleDeviceOption
+  type TaskRuleDeviceOption,
+  type TaskRuleDeviceSourceType
 } from './use-task-point-rule-editor';
 
 defineOptions({
@@ -44,10 +46,12 @@ defineOptions({
 interface Props {
   mode: TaskPointRuleEditorMode;
   disabled?: boolean;
+  deviceSourceType?: TaskRuleDeviceSourceType;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  disabled: false
+  disabled: false,
+  deviceSourceType: 1
 });
 
 const model = defineModel<TaskPointRuleEditorModel>('model', { required: true });
@@ -57,9 +61,17 @@ const actionModel = computed(() => model.value as TaskActionEditorModel);
 
 const isConditionMode = computed(() => props.mode === 'condition');
 const conditionFreq = computed(() => conditionModel.value.freq);
+const conditionDeviceLabel = computed(() => (props.deviceSourceType === 2 ? '设备类型' : '触发设备'));
+const conditionDevicePlaceholder = computed(() => (props.deviceSourceType === 2 ? '请选择设备类型' : '请选择设备'));
 
 function fetchDeviceList(params: Record<string, any>) {
   return fetchGetDeviceList(withDefaultTaskSearchOption(params, { type: 1, value: '' }));
+}
+
+function fetchConditionDeviceSourceList(params: Record<string, any>) {
+  if (props.deviceSourceType === 1) return fetchDeviceList(params);
+
+  return fetchGetDeviceTypeList(withDefaultTaskSearchOption(params, { type: 1, value: '' }));
 }
 
 function fetchDeviceTypePointList(params: Record<string, any>) {
@@ -67,17 +79,17 @@ function fetchDeviceTypePointList(params: Record<string, any>) {
 }
 
 function getDeviceTypePointRequestParams(device?: TaskRuleDeviceOption | null) {
-  return buildDeviceTypePointRequestParams(device);
+  return buildDeviceTypePointRequestParams(device, props.deviceSourceType);
 }
 
 function addCondition() {
   addItem(conditionModel.value.conds, maxConditionCount, `条件项最多添加 ${maxConditionCount} 个`, () =>
-    createDefaultCondition(2)
+    createDefaultCondition(2, props.deviceSourceType)
   );
 }
 
 function removeCondition(index: number) {
-  removeItem(conditionModel.value.conds, index, createDefaultCondition);
+  removeItem(conditionModel.value.conds, index, () => createDefaultCondition(1, props.deviceSourceType));
 }
 
 function addConditionPoint(condition: TaskConditionEditor) {
@@ -158,20 +170,16 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
 <template>
   <div class="flex flex-col gap-16px p-2px">
     <template v-if="isConditionMode">
-      <div class="min-h-40px flex items-center justify-between gap-16px lt-sm:flex-col lt-sm:items-start">
-        <div class="min-w-0 flex items-center gap-10px">
-          <span class="h-28px w-4px flex-none rounded-4px bg-#2563eb shadow-[0_6px_14px_rgba(37,99,235,0.16)]"></span>
-          <div>
-            <div class="text-15px text-[var(--n-text-color-1)] font-600 leading-20px">触发条件</div>
-          </div>
-        </div>
-        <NButton class="flex-none" size="small" type="primary" :disabled="props.disabled" @click="addCondition">
-          <template #icon>
-            <SvgIcon icon="material-symbols:add-rounded" />
-          </template>
-          新增条件项
-        </NButton>
-      </div>
+      <SectionHeader title="触发条件">
+        <template #actions>
+          <NButton class="flex-none" size="small" type="primary" :disabled="props.disabled" @click="addCondition">
+            <template #icon>
+              <SvgIcon icon="material-symbols:add-rounded" />
+            </template>
+            新增条件项
+          </NButton>
+        </template>
+      </SectionHeader>
 
       <div class="flex flex-col gap-14px">
         <section
@@ -208,16 +216,16 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
 
           <NForm class="mt-14px" label-placement="top" :show-feedback="false" :disabled="props.disabled">
             <NGrid responsive="screen" item-responsive :x-gap="16" :y-gap="4">
-              <NFormItemGi span="24 m:16" label="触发设备">
+              <NFormItemGi span="24 m:16" :label="conditionDeviceLabel">
                 <RemoteSearchSelect
                   v-model:value="condition.device_source_id"
-                  :request="fetchDeviceList"
+                  :request="fetchConditionDeviceSourceList"
                   :search-type="1"
                   :immediate="false"
                   :selected-options="condition.selected_device"
                   label-field="name"
                   value-field="id"
-                  placeholder="请选择设备"
+                  :placeholder="conditionDevicePlaceholder"
                   clearable
                   @selected-change="syncConditionDevice(condition, $event)"
                 />
@@ -376,20 +384,16 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
     </template>
 
     <template v-else>
-      <div class="min-h-40px flex items-center justify-between gap-16px lt-sm:flex-col lt-sm:items-start">
-        <div class="min-w-0 flex items-center gap-10px">
-          <span class="h-28px w-4px flex-none rounded-4px bg-#0891b2 shadow-[0_6px_14px_rgba(8,145,178,0.16)]"></span>
-          <div>
-            <div class="text-15px text-[var(--n-text-color-1)] font-600 leading-20px">执行动作</div>
-          </div>
-        </div>
-        <NButton class="flex-none" size="small" type="primary" :disabled="props.disabled" @click="addAction">
-          <template #icon>
-            <SvgIcon icon="material-symbols:add-rounded" />
-          </template>
-          新增执行项
-        </NButton>
-      </div>
+      <SectionHeader title="执行动作" type="info">
+        <template #actions>
+          <NButton class="flex-none" size="small" type="primary" :disabled="props.disabled" @click="addAction">
+            <template #icon>
+              <SvgIcon icon="material-symbols:add-rounded" />
+            </template>
+            新增执行项
+          </NButton>
+        </template>
+      </SectionHeader>
 
       <div class="flex flex-col gap-14px">
         <section

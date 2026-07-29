@@ -9,6 +9,33 @@ export function fetchGetAlarmRuleList(data: CommonType.CommonListQueryParams) {
   });
 }
 
+/** 获取报警规则详情 */
+export function fetchGetAlarmRule(data: { id: CommonType.IdType; options?: CommonType.CommonKeysOptions[] }) {
+  return request<Api.Alarm.AlarmRuleDetailData>({
+    url: '/GetAlarmRule',
+    method: 'post',
+    data
+  });
+}
+
+/** 新增报警规则 */
+export function fetchCreateAlarmRule(data: Api.Alarm.AlarmRuleCreateParams) {
+  return request({
+    url: '/CreateAlarmRule',
+    method: 'post',
+    data
+  });
+}
+
+/** 修改报警规则 */
+export function fetchUpdateAlarmRule(data: Api.Alarm.AlarmRuleUpdateParams) {
+  return request({
+    url: '/UpdateAlarmRule',
+    method: 'post',
+    data
+  });
+}
+
 /** 删除报警规则 */
 export function fetchDeleteAlarmRule(data: Api.Common.CommonIdList) {
   return request({

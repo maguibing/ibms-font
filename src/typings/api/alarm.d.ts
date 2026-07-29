@@ -62,21 +62,26 @@ declare namespace Api {
       repeat_times?: number;
     };
 
+    type AlarmRuleConditionSetting = {
+      conds?: AlarmRuleCondition[];
+      notice_group_id_list?: CommonType.IdType[];
+      notice_limit?: number;
+      valid_time_ranges?: AlarmRuleValidTimeRange[];
+      freq?: AlarmRuleConditionFreq;
+      is_autogen_workorder?: boolean;
+      is_system_auto_recover?: boolean;
+    };
+
     type AlarmRule = Api.Common.CommonRecord<{
       id: CommonType.IdType;
       project_id?: CommonType.IdType;
       name: string;
+      desc?: string;
       trigger_type: AlarmRuleTriggerType;
       alarm_level: AlarmLevel;
       device_source_type: AlarmRuleDeviceSourceType;
       status: AlarmRuleStatus;
-      cond_setting?: {
-        conds?: AlarmRuleCondition[];
-        notice_group_id_list?: CommonType.IdType[];
-        notice_limit?: number;
-        valid_time_ranges?: AlarmRuleValidTimeRange[];
-        freq?: AlarmRuleConditionFreq;
-      };
+      cond_setting?: AlarmRuleConditionSetting;
     }>;
 
     type AlarmRuleMapItem = Pick<AlarmRule, 'id' | 'name' | 'alarm_level'>;
@@ -84,11 +89,32 @@ declare namespace Api {
     type AlarmRuleListExtra = {
       device_map: CommonType.IdNameMap;
       device_type_map?: CommonType.IdNameMap;
-      device_type_point_map?: CommonType.IdNameMap;
+      device_type_point_map?: Record<string, Api.Task.TaskDeviceTypePointMapItem>;
       notice_group_map?: CommonType.IdNameMap;
     };
 
     type AlarmRuleList = Api.Common.PaginatingQueryRecord<AlarmRule, AlarmRuleListExtra>;
+
+    type AlarmRuleDetailData = AlarmRuleListExtra & {
+      alarm_rule: AlarmRule;
+    };
+
+    type AlarmRuleOperateParams = {
+      id?: CommonType.IdType | null;
+      alarm_level: AlarmLevel;
+      cond_setting: AlarmRuleConditionSetting;
+      desc: string;
+      device_source_type: AlarmRuleDeviceSourceType;
+      name: string;
+      status: AlarmRuleStatus;
+      trigger_type: AlarmRuleTriggerType;
+    };
+
+    type AlarmRuleCreateParams = Omit<AlarmRuleOperateParams, 'id'>;
+
+    type AlarmRuleUpdateParams = AlarmRuleCreateParams & {
+      id: CommonType.IdType;
+    };
 
     type AlarmRuleSearchParams = CommonType.RecordNullable<
       Api.Common.CommonSearchParams & {

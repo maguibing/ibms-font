@@ -63,7 +63,7 @@ const cardData = computed<CardData[]>(() => [
     key: 'userCount',
     title: $t('page.home.userCount'),
     value: statisticData.value?.user_stat?.total_num ?? 0,
-    unit: '$',
+    unit: '',
     color: {
       start: '#865ec0',
       end: '#5144b4'
