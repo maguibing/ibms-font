@@ -8,6 +8,7 @@ import CopyableValue from '@/components/custom/copyable-value.vue';
 import { useRouterPush } from '@/hooks/common/router';
 import { useAppStore } from '@/store/modules/app';
 import { displayValue, formatTime } from '@/utils/common-methods';
+import AlarmRulePanel from '@/views/alarm/rule/modules/alarm-rule-panel.vue';
 import DeviceLogicPointPanel from './modules/device-logic-point-panel.vue';
 
 defineOptions({
@@ -25,7 +26,6 @@ const deviceTypeMap = shallowRef<Record<string, Api.Device.DeviceType>>({});
 const activeModule = shallowRef('logic-points');
 
 const modulePanels = [
-  { name: 'alarms', tab: '报警', description: '暂无报警' },
   { name: 'work-orders', tab: '工单', description: '暂无工单' },
   { name: 'tasks', tab: '任务', description: '暂无任务' }
 ];
@@ -113,6 +113,9 @@ onMounted(() => {
       <NTabs v-model:value="activeModule" type="line" animated class="h-full min-h-0">
         <NTabPane name="logic-points" tab="逻辑点位">
           <DeviceLogicPointPanel :device-id="deviceId" />
+        </NTabPane>
+        <NTabPane name="alarms" tab="报警">
+          <AlarmRulePanel :fixed-device-id="deviceId" />
         </NTabPane>
         <NTabPane v-for="item in modulePanels" :key="item.name" :name="item.name" :tab="item.tab">
           <NEmpty :description="item.description" class="min-h-260px justify-center" />

@@ -12,6 +12,12 @@ defineOptions({
 type RemoteSelectValue = CommonType.IdType | CommonType.IdType[] | null;
 type RemoteSelectOption = CommonType.Option<CommonType.IdType, string> & { disabled?: boolean };
 type RemoteSelectRecord = Record<string, any>;
+type RemoteOptionsSnapshot = {
+  options: RemoteSelectRecord[];
+  offset: number;
+  total: number | null;
+  loadedAll: boolean;
+};
 
 interface Props {
   request: (params: RemoteSelectRecord) => Promise<any>;
@@ -48,6 +54,7 @@ const emit = defineEmits<{
 const value = defineModel<RemoteSelectValue>('value', { required: false });
 const attrs = useAttrs() as SelectProps;
 const { loading, startLoading, endLoading } = useLoading();
+const requestParamsKey = computed(() => JSON.stringify(props.requestParams));
 
 const keyword = shallowRef('');
 const remoteOptions = shallowRef<RemoteSelectRecord[]>([]);
@@ -56,37 +63,23 @@ const offset = shallowRef(0);
 const total = shallowRef<number | null>(null);
 const loadedAll = shallowRef(false);
 const fetched = shallowRef(false);
+const unfilteredOptionsSnapshot = shallowRef<RemoteOptionsSnapshot | null>(null);
 let requestId = 0;
 
 const recordMap = computed(() => {
   const map = new Map<CommonType.IdType, RemoteSelectRecord>();
 
   for (const item of [...selectedRecords.value, ...remoteOptions.value]) {
-    const key = getRecordValue(item);
-    if (key !== undefined && key !== null) {
-      map.set(key, item);
+    const recordValue = item[props.valueField] as CommonType.IdType | undefined | null;
+    if (recordValue !== undefined && recordValue !== null) {
+      map.set(recordValue, item);
     }
   }
 
   return map;
 });
 
-const options = computed<RemoteSelectOption[]>(() => {
-  const optionMap = new Map<CommonType.IdType, RemoteSelectOption>();
-
-  for (const item of [...selectedRecords.value, ...remoteOptions.value]) {
-    const option = transformOption(item);
-    if (option.value !== undefined && option.value !== null) {
-      optionMap.set(option.value, option);
-    }
-  }
-
-  return Array.from(optionMap.values());
-});
-
-function getRecordValue(item: RemoteSelectRecord) {
-  return item[props.valueField] as CommonType.IdType | undefined | null;
-}
+const options = computed<RemoteSelectOption[]>(() => Array.from(recordMap.value.values(), transformOption));
 
 function transformOption(item: RemoteSelectRecord): RemoteSelectOption {
   const option: RemoteSelectOption = {
@@ -101,14 +94,14 @@ function transformOption(item: RemoteSelectRecord): RemoteSelectOption {
   return option;
 }
 
-function normalizeSelectedOptions() {
-  if (!props.selectedOptions) return [];
-
-  return Array.isArray(props.selectedOptions) ? props.selectedOptions : [props.selectedOptions];
-}
-
 function isRecord(input: unknown): input is RemoteSelectRecord {
   return typeof input === 'object' && input !== null;
+}
+
+function toArray<T>(input: T | T[] | null | undefined): T[] {
+  if (input === null || input === undefined) return [];
+
+  return Array.isArray(input) ? input : [input];
 }
 
 function unwrapPayload(response: any) {
@@ -169,6 +162,7 @@ async function fetchOptions(nextOffset = 0, force = false) {
   if ((!force && loading.value) || (nextOffset > 0 && loadedAll.value)) return;
 
   const currentRequestId = ++requestId;
+  const isUnfilteredRequest = !keyword.value.trim();
   startLoading();
 
   try {
@@ -187,6 +181,15 @@ async function fetchOptions(nextOffset = 0, force = false) {
     remoteOptions.value = nextOffset === 0 ? list : [...remoteOptions.value, ...list];
     loadedAll.value = list.length < props.limit || (total.value !== null && remoteOptions.value.length >= total.value);
     fetched.value = true;
+
+    if (isUnfilteredRequest) {
+      unfilteredOptionsSnapshot.value = {
+        options: remoteOptions.value,
+        offset: offset.value,
+        total: total.value,
+        loadedAll: loadedAll.value
+      };
+    }
   } catch {
     if (nextOffset === 0) {
       remoteOptions.value = [];
@@ -202,6 +205,7 @@ async function fetchOptions(nextOffset = 0, force = false) {
 }
 
 function resetAndFetch() {
+  unfilteredOptionsSnapshot.value = null;
   resetOptions();
 
   fetchOptions(0, true);
@@ -239,26 +243,40 @@ function handleScroll(event: Event) {
   }
 }
 
-function handleUpdateValue(nextValue: RemoteSelectValue) {
-  if (Array.isArray(nextValue)) {
-    const nextSelectedRecords = nextValue
-      .map(item => recordMap.value.get(item))
-      .filter(Boolean) as RemoteSelectRecord[];
-    selectedRecords.value = nextSelectedRecords;
-    emit('selectedChange', nextSelectedRecords);
-    return;
-  }
+function restoreUnfilteredOptions() {
+  keyword.value = '';
+  const snapshot = unfilteredOptionsSnapshot.value;
+  if (!snapshot) return false;
 
-  const nextSelectedRecord = nextValue === null ? null : (recordMap.value.get(nextValue) ?? null);
-  selectedRecords.value = nextSelectedRecord ? [nextSelectedRecord] : [];
-  emit('selectedChange', nextSelectedRecord);
+  remoteOptions.value = snapshot.options;
+  offset.value = snapshot.offset;
+  total.value = snapshot.total;
+  loadedAll.value = snapshot.loadedAll;
+  fetched.value = true;
+
+  return true;
+}
+
+function handleUpdateValue(nextValue: RemoteSelectValue) {
+  const selectedValues = toArray(nextValue);
+  const records = selectedValues.map(item => recordMap.value.get(item)).filter(isRecord);
+
+  selectedRecords.value = records;
+  emit('selectedChange', Array.isArray(nextValue) ? records : (records[0] ?? null));
+
+  if (selectedValues.length > 0 && keyword.value.trim()) {
+    restoreUnfilteredOptions();
+  }
 }
 
 function handleClear() {
-  keyword.value = '';
   selectedRecords.value = [];
-  resetOptions(false);
-  fetchOptions(0, true);
+
+  if (!restoreUnfilteredOptions()) {
+    resetOptions(false);
+    fetchOptions(0, true);
+  }
+
   emit('selectedChange', Array.isArray(value.value) ? [] : null);
 }
 
@@ -270,23 +288,23 @@ function handleFocus() {
 
 watch(
   () => props.selectedOptions,
-  () => {
-    selectedRecords.value = normalizeSelectedOptions();
+  selectedOptions => {
+    selectedRecords.value = toArray(selectedOptions);
   },
   { immediate: true }
 );
 
 watch(
-  () => [props.requestParams, props.searchType, props.limit],
+  () => [requestParamsKey.value, props.searchType, props.limit],
   () => {
     fetched.value = false;
     if (props.immediate) {
       resetAndFetch();
     } else {
+      unfilteredOptionsSnapshot.value = null;
       resetOptions();
     }
-  },
-  { deep: true }
+  }
 );
 
 nextTick(() => {
@@ -317,5 +335,3 @@ defineExpose({
     @update:value="handleUpdateValue"
   />
 </template>
-
-<style scoped></style>
