@@ -11,6 +11,7 @@ import { $t } from '@/locales';
 import { formatUnixDateTime } from '@/utils/common-methods';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import PhoneReveal from '@/components/business/phone-reveal.vue';
+import { buildWorkorderListRequest, type WorkorderMode } from './modules/workorder-request';
 import WorkorderOperateDrawer from './modules/workorder-operate-drawer.vue';
 import WorkorderSearch from './modules/workorder-search.vue';
 
@@ -18,7 +19,17 @@ defineOptions({
   name: 'WorkorderList'
 });
 
-type WorkorderMode = 'repair' | 'deal';
+interface Props {
+  defaultDevice?: Api.Device.Device | null;
+  embedded?: boolean;
+  fixedDeviceId?: CommonType.IdType | null;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  defaultDevice: null,
+  embedded: false,
+  fixedDeviceId: null
+});
 
 const appStore = useAppStore();
 const authStore = useAuthStore();
@@ -36,6 +47,7 @@ const workorderModeOptions = [
 ];
 const workorderStatuses: Api.Workorder.WorkorderDealStatus[] = [1, 2, 3, 4];
 const currentUserId = computed(() => authStore.userInfo.user?.user_id ?? null);
+const fixedDeviceId = computed(() => props.defaultDevice?.id ?? props.fixedDeviceId ?? null);
 
 const statusMap: Record<
   Api.Workorder.WorkorderDealStatus,
@@ -54,6 +66,11 @@ const statusCards = computed(() =>
     count: workorderStat.value[status] ?? 0
   }))
 );
+const containerClass = computed(() => [
+  props.embedded
+    ? 'h-full min-h-0 flex-col-stretch gap-12px overflow-hidden lt-sm:overflow-auto'
+    : 'min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto'
+]);
 
 const searchParams = ref<Api.Workorder.WorkorderSearchParams>({
   pageNum: 1,
@@ -64,41 +81,9 @@ const searchParams = ref<Api.Workorder.WorkorderSearchParams>({
   dateRange: null
 });
 
-function transformSearchParamsToRequest(params: Api.Workorder.WorkorderSearchParams) {
-  const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
-  const filterConfigs = [
-    { type: 104, value: '101' },
-    { type: 51, value: workorderMode.value === 'repair' ? '1' : '2' },
-    { type: 4, value: workorderMode.value === 'repair' ? params.repairman_uid : null },
-    { type: 5, value: workorderMode.value === 'deal' ? params.dealer_uid : null },
-    { type: 7, value: params.deal_status },
-    {
-      type: 103,
-      value:
-        params.dateRange?.length === 2
-          ? `${params.dateRange[0]},${params.dateRange[1]}`
-          : null
-    }
-  ];
-
-  const options = filterConfigs
-    .filter(item => item.value !== null && item.value !== undefined && item.value !== '')
-    .map(({ type, value }) => ({ type, value: String(value) }));
-
-  return {
-    list_option: {
-      offset: (pageNum - 1) * pageSize,
-      limit: pageSize,
-      options
-    },
-    options: [{ key: 1 }, { key: 2 }, { key: 3 }, { key: 4 }]
-  };
-}
-
 const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagination, scrollX, extraData } =
   useNaivePaginatedTable({
-    api: () => fetchGetWorkorderList(transformSearchParamsToRequest(searchParams.value)),
+    api: () => fetchGetWorkorderList(buildWorkorderListRequest(searchParams.value, workorderMode.value, fixedDeviceId.value)),
     transform: response => defaultTransform<Api.Workorder.Workorder>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page;
@@ -324,6 +309,11 @@ function showWorkorderOperateDrawer(type: Api.Workorder.WorkorderOperateType, ro
 }
 
 async function handleRefresh() {
+  if (props.embedded) {
+    await getData();
+    return;
+  }
+
   await Promise.all([getData(), fetchWorkorderStat()]);
 }
 
@@ -347,12 +337,16 @@ async function handleBatchDelete() {
   await handleRefresh();
 }
 
-onMounted(fetchWorkorderStat);
+onMounted(() => {
+  if (!props.embedded) {
+    fetchWorkorderStat();
+  }
+});
 </script>
 
 <template>
-  <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
-    <NGrid cols="1 s:2 l:4" responsive="screen" :x-gap="16" :y-gap="16">
+  <div :class="containerClass">
+    <NGrid v-if="!embedded" cols="1 s:2 l:4" responsive="screen" :x-gap="16" :y-gap="16">
       <NGridItem v-for="item in statusCards" :key="item.status">
         <NCard :bordered="false" size="small" class="card-wrapper">
           <div class="flex items-center justify-between">
@@ -366,9 +360,15 @@ onMounted(fetchWorkorderStat);
       </NGridItem>
     </NGrid>
 
-    <WorkorderSearch v-model:model="searchParams" :mode="workorderMode" @search="handleSearch" />
+    <WorkorderSearch
+      v-model:model="searchParams"
+      :bordered="embedded"
+      :collapsible="!embedded"
+      :mode="workorderMode"
+      @search="handleSearch"
+    />
 
-    <NCard title="工单列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard title="工单列表" :bordered="embedded" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <NSpace align="center">
           <NTabs v-model:value="workorderMode" type="segment" animated class="w-200px" @update:value="handleModeChange">
@@ -399,6 +399,7 @@ onMounted(fetchWorkorderStat);
       />
       <WorkorderOperateDrawer
         v-model:visible="operateDrawerVisible"
+        :default-device="props.defaultDevice"
         :operate-type="operateType"
         :row-data="operateRowData"
         @submitted="handleRefresh"

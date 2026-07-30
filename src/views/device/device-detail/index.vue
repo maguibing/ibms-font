@@ -9,6 +9,8 @@ import { useRouterPush } from '@/hooks/common/router';
 import { useAppStore } from '@/store/modules/app';
 import { displayValue, formatTime } from '@/utils/common-methods';
 import AlarmRulePanel from '@/views/alarm/rule/modules/alarm-rule-panel.vue';
+import TaskList from '@/views/task/task-list/index.vue';
+import WorkorderList from '@/views/workorder/workorder-list/index.vue';
 import DeviceLogicPointPanel from './modules/device-logic-point-panel.vue';
 
 defineOptions({
@@ -24,11 +26,6 @@ const appStore = useAppStore();
 const device = shallowRef<Api.Device.Device | null>(null);
 const deviceTypeMap = shallowRef<Record<string, Api.Device.DeviceType>>({});
 const activeModule = shallowRef('logic-points');
-
-const modulePanels = [
-  { name: 'work-orders', tab: '工单', description: '暂无工单' },
-  { name: 'tasks', tab: '任务', description: '暂无任务' }
-];
 
 const deviceTypeName = computed(() => {
   if (!device.value) return '-';
@@ -117,8 +114,11 @@ onMounted(() => {
         <NTabPane name="alarms" tab="报警">
           <AlarmRulePanel :fixed-device-id="deviceId" />
         </NTabPane>
-        <NTabPane v-for="item in modulePanels" :key="item.name" :name="item.name" :tab="item.tab">
-          <NEmpty :description="item.description" class="min-h-260px justify-center" />
+        <NTabPane name="work-orders" tab="工单">
+          <WorkorderList embedded :default-device="device" />
+        </NTabPane>
+        <NTabPane name="tasks" tab="任务">
+          <TaskList embedded :fixed-device-id="deviceId" />
         </NTabPane>
       </NTabs>
     </NCard>

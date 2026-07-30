@@ -17,6 +17,7 @@ defineOptions({
 });
 
 interface Props {
+  defaultDevice?: Pick<Api.Device.Device, 'id' | 'name' | 'space_id'> | null;
   operateType?: Api.Workorder.WorkorderOperateType;
   rowData?: Api.Workorder.Workorder | null;
 }
@@ -42,6 +43,7 @@ type SubmitAction = 'create' | 'allocation' | 'cancelAllocation' | 'deal';
 type DealerOption = Api.System.User & { label: string };
 
 const props = withDefaults(defineProps<Props>(), {
+  defaultDevice: null,
   operateType: 'add_workorder',
   rowData: null
 });
@@ -251,6 +253,17 @@ function resetModel() {
   selectedDealer.value = null;
 }
 
+function syncDefaultDevice() {
+  if (!isAddMode.value || !props.defaultDevice) return;
+
+  model.value.space_id = props.defaultDevice.space_id ?? null;
+  model.value.device_id = props.defaultDevice.id;
+  selectedDevice.value = {
+    id: props.defaultDevice.id,
+    name: props.defaultDevice.name
+  };
+}
+
 function closeDrawer() {
   visible.value = false;
 }
@@ -417,6 +430,7 @@ watch(visible, async () => {
   if (!visible.value) return;
 
   resetModel();
+  syncDefaultDevice();
   getSpaceData();
   await handleUpdateModel();
   restoreValidation();

@@ -11,10 +11,21 @@ import ButtonIcon from '@/components/custom/button-icon.vue';
 import { taskTypeMap } from '../constants';
 import TaskListSearch from './modules/task-list-search.vue';
 import TaskOperateDrawer from './modules/task-operate-drawer.vue';
+import { buildTaskListRequest } from './modules/task-request';
 import TaskViewDrawer from './modules/task-view-drawer.vue';
 
 defineOptions({
   name: 'TaskList'
+});
+
+interface Props {
+  embedded?: boolean;
+  fixedDeviceId?: CommonType.IdType | null;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  embedded: false,
+  fixedDeviceId: null
 });
 
 const appStore = useAppStore();
@@ -31,31 +42,15 @@ const searchParams = ref<Api.Task.TaskSearchParams>({
   name: null
 });
 
-function transformSearchParamsToRequest(params: Api.Task.TaskSearchParams): CommonType.CommonListQueryParams {
-  const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
-  const filterConfigs = [
-    { type: 104, value: '101' },
-    { type: 1, value: params.name }
-  ];
-
-  const options = filterConfigs
-    .filter(item => item.value !== null && item.value !== undefined && item.value !== '')
-    .map(({ type, value }) => ({ type, value: String(value) }));
-
-  return {
-    list_option: {
-      offset: (pageNum - 1) * pageSize,
-      limit: pageSize,
-      options
-    },
-    options: [{ key: 1 }]
-  };
-}
+const containerClass = computed(() => [
+  props.embedded
+    ? 'h-full min-h-0 flex-col-stretch gap-12px overflow-hidden lt-sm:overflow-auto'
+    : 'min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto'
+]);
 
 const { columns, columnChecks, data, extraData, getData, getDataByPage, loading, mobilePagination, scrollX } =
   useNaivePaginatedTable({
-    api: () => fetchGetTaskList(transformSearchParamsToRequest(searchParams.value)),
+    api: () => fetchGetTaskList(buildTaskListRequest(searchParams.value, props.fixedDeviceId)),
     transform: response => defaultTransform<Api.Task.Task>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page;
@@ -257,10 +252,10 @@ async function handleBatchDelete() {
 </script>
 
 <template>
-  <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
-    <TaskListSearch v-model:model="searchParams" @search="handleSearch" />
+  <div :class="containerClass">
+    <TaskListSearch v-model:model="searchParams" :bordered="embedded" :collapsible="!embedded" @search="handleSearch" />
 
-    <NCard title="任务列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard title="任务列表" :bordered="embedded" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

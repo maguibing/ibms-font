@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref, shallowRef, toRaw } from 'vue';
-import type { SelectOption } from 'naive-ui';
+import { computed, onMounted, ref, shallowRef, toRaw } from 'vue';
+import { NCollapse, NCollapseItem, type SelectOption } from 'naive-ui';
 import { jsonClone } from '@sa/utils';
 import { fetchGetUserList } from '@/service/api/system';
 import { useNaiveForm } from '@/hooks/common/form';
@@ -11,10 +11,15 @@ defineOptions({
 });
 
 interface Props {
+  bordered?: boolean;
+  collapsible?: boolean;
   mode: 'repair' | 'deal';
 }
 
-defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  bordered: false,
+  collapsible: true
+});
 
 const emit = defineEmits<{
   search: [];
@@ -26,6 +31,12 @@ const defaultModel = jsonClone(toRaw(model.value));
 const dateRange = ref<[string, string] | null>(null);
 const userLoading = shallowRef(false);
 const userOptions = shallowRef<SelectOption[]>([]);
+const searchWrapper = computed(() => (props.collapsible ? NCollapse : 'div'));
+const searchContentWrapper = computed(() => (props.collapsible ? NCollapseItem : 'div'));
+const searchContentProps = computed(() =>
+  props.collapsible ? { title: $t('common.search'), name: 'workorder-search' } : {}
+);
+const searchItemSpan = '24 s:12 m:6';
 
 const statusOptions = [
   { label: '待处理', value: 1 },
@@ -73,14 +84,14 @@ onMounted(fetchUserOptions);
 </script>
 
 <template>
-  <NCard :bordered="false" size="small" class="table-search card-wrapper">
-    <NCollapse>
-      <NCollapseItem :title="$t('common.search')" name="workorder-search">
-        <NForm ref="formRef" :model="model" label-placement="left" :label-width="80">
+  <NCard :bordered="props.bordered" size="small" class="table-search card-wrapper">
+    <component :is="searchWrapper">
+      <component :is="searchContentWrapper" v-bind="searchContentProps">
+        <NForm ref="formRef" :model="model" label-placement="left" :show-feedback="props.collapsible">
           <NGrid responsive="screen" item-responsive>
             <NFormItemGi
               v-if="mode === 'repair'"
-              span="24 s:12 m:8"
+              :span="searchItemSpan"
               label="报修人"
               path="repairman_uid"
               class="pr-24px"
@@ -94,7 +105,7 @@ onMounted(fetchUserOptions);
                 placeholder="请选择报修人"
               />
             </NFormItemGi>
-            <NFormItemGi v-else span="24 s:12 m:8" label="处理人" path="dealer_uid" class="pr-24px">
+            <NFormItemGi v-else :span="searchItemSpan" label="处理人" path="dealer_uid" class="pr-24px">
               <NSelect
                 v-model:value="model.dealer_uid"
                 :options="userOptions"
@@ -104,7 +115,7 @@ onMounted(fetchUserOptions);
                 placeholder="请选择处理人"
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="工单状态" path="deal_status" class="pr-24px">
+            <NFormItemGi :span="searchItemSpan" label="工单状态" path="deal_status" class="pr-24px">
               <NSelect
                 v-model:value="model.deal_status"
                 :options="statusOptions"
@@ -112,7 +123,7 @@ onMounted(fetchUserOptions);
                 placeholder="请选择工单状态"
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="创建时间" path="dateRange" class="pr-24px">
+            <NFormItemGi :span="searchItemSpan" label="创建时间" path="dateRange" class="pr-24px">
               <NDatePicker
                 v-model:formatted-value="dateRange"
                 type="datetimerange"
@@ -122,7 +133,7 @@ onMounted(fetchUserOptions);
                 @update:formatted-value="handleDateRangeUpdate"
               />
             </NFormItemGi>
-            <NFormItemGi :show-feedback="false" span="24" class="pr-24px">
+            <NFormItemGi :show-feedback="false" :span="searchItemSpan" class="pr-24px">
               <NSpace class="w-full" justify="end">
                 <NButton type="primary" ghost @click="search">
                   <template #icon>
@@ -140,8 +151,8 @@ onMounted(fetchUserOptions);
             </NFormItemGi>
           </NGrid>
         </NForm>
-      </NCollapseItem>
-    </NCollapse>
+      </component>
+    </component>
   </NCard>
 </template>
 
