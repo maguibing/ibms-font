@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import { computed, h, ref, watch } from 'vue';
+import { computed, h, ref, useTemplateRef, watch } from 'vue';
+import { NButton, NDivider, NTooltip } from 'naive-ui';
 import { formatDateTime } from '@sa/utils';
-import { fetchGetPhysicalPointList } from '@/service/api/device';
+import { fetchDeletePhysicalPoint, fetchGetPhysicalPointList } from '@/service/api/device';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
+import { useRouterPush } from '@/hooks/common/router';
 import { $t } from '@/locales';
+import ButtonIcon from '@/components/custom/button-icon.vue';
 import CopyableValue from '@/components/custom/copyable-value.vue';
 import EnumTag from '@/components/custom/enum-tag.vue';
 import { DATA_TYPE_OPTIONS } from '@/constants/device-point';
 import { displayValue } from '@/utils/common-methods';
-import { getGatewayProtocolLabel } from '@/views/gateway/gateway-list/shared';
+import DevicePointCommandModal from './device-point-command-modal.vue';
 
 defineOptions({
   name: 'PhysicalPointPanel'
@@ -18,18 +21,28 @@ defineOptions({
 interface Props {
   selectedGatewayId: CommonType.IdType | null;
   gatewayList: Api.Gateway.Gateway[];
+  initialSearchKey?: string;
+}
+
+interface Emits {
+  (e: 'jumpToLogicPoint', key: string): void;
 }
 
 const props = defineProps<Props>();
+const emit = defineEmits<Emits>();
 
 const appStore = useAppStore();
+const { routerPushByKey } = useRouterPush();
+const devicePointCommandModalRef =
+  useTemplateRef<InstanceType<typeof DevicePointCommandModal>>('devicePointCommandModalRef');
+const checkedRowKeys = ref<CommonType.IdType[]>([]);
 
 const searchParams = ref<Api.Device.PhysicalPointSearchParams>({
   pageNum: 1,
   pageSize: 10,
   gateway_id: null,
   name: null,
-  key: null,
+  key: props.initialSearchKey || null,
   data_type: null
 });
 
@@ -60,6 +73,18 @@ function transformSearchParamsToRequest(
   };
 }
 
+function renderPointLink(label: string, onClick: () => void) {
+  return h(NTooltip, null, {
+    trigger: () =>
+      h(
+        NButton,
+        { text: true, type: 'primary', class: 'max-w-full', onClick },
+        { default: () => h('span', { class: 'block max-w-120px truncate' }, label) }
+      ),
+    default: () => h('span', { class: 'text-white' }, label)
+  });
+}
+
 const { columns, columnChecks, data, extraData, getData, getDataByPage, loading, mobilePagination, scrollX } =
   useNaivePaginatedTable({
     api: () => fetchGetPhysicalPointList(transformSearchParamsToRequest(searchParams.value)),
@@ -70,35 +95,13 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
     },
     columns: (): NaiveUI.TableColumn<Api.Device.PhysicalPoint>[] => [
       {
-        key: 'index',
-        title: $t('common.index'),
+        type: 'selection',
         align: 'center',
-        width: 64,
-        render: (_, index) => index + 1
-      },
-      {
-        key: 'name',
-        title: '点位名称',
-        align: 'center',
-        minWidth: 150,
-        ellipsis: {
-          tooltip: true
-        },
-        render: row => row.name || '-'
-      },
-      {
-        key: 'key',
-        title: '点位标识',
-        align: 'center',
-        minWidth: 150,
-        ellipsis: {
-          tooltip: true
-        },
-        render: row => h(CopyableValue, { value: row.key })
+        width: 48
       },
       {
         key: 'gateway_id',
-        title: '边缘设备',
+        title: '所属边缘设备',
         align: 'center',
         minWidth: 150,
         ellipsis: {
@@ -108,10 +111,41 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'protocol_type',
-        title: '协议类型',
+        title: '协议',
         align: 'center',
         minWidth: 120,
-        render: row => getPhysicalPointProtocolLabel(row)
+        render: row => h(EnumTag, { variant: 'protocol', value: getPhysicalPointProtocolType(row) })
+      },
+      {
+        key: 'name',
+        title: '名称',
+        align: 'center',
+        minWidth: 150,
+        ellipsis: { tooltip: true },
+        render: row => row.name || '-'
+      },
+      {
+        key: 'key',
+        title: '标识',
+        align: 'center',
+        minWidth: 150,
+        ellipsis: { tooltip: true },
+        render: row => h(CopyableValue, { value: row.key })
+      },
+      {
+        key: 'report_at',
+        title: '最新更新时间',
+        align: 'center',
+        minWidth: 180,
+        render: row => formatReportAt(row)
+      },
+      {
+        key: 'current_value',
+        title: '最新值',
+        align: 'center',
+        minWidth: 140,
+        ellipsis: { tooltip: true },
+        render: row => formatCurrentValue(row)
       },
       {
         key: 'data_type',
@@ -121,38 +155,31 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         render: row => h(EnumTag, { value: row.data_type })
       },
       {
-        key: 'current_value',
-        title: '当前值',
-        align: 'center',
-        minWidth: 140,
-        ellipsis: {
-          tooltip: true
-        },
-        render: row => formatCurrentValue(row)
-      },
-      {
-        key: 'logic_point_id',
-        title: '关联逻辑点位',
-        align: 'center',
-        minWidth: 160,
-        ellipsis: {
-          tooltip: true
-        },
-        render: row => getLogicPointName(row.logic_point_id)
-      },
-      {
         key: 'access_level',
-        title: '访问等级',
+        title: '访问级别',
         align: 'center',
         minWidth: 100,
         render: row => h(EnumTag, { variant: 'accessLevel', value: row.protocol?.access_level })
       },
       {
-        key: 'updated_at',
-        title: '更新时间',
+        key: 'logic_point_id',
+        title: '逻辑点位',
         align: 'center',
-        minWidth: 180,
-        render: row => (row.updated_at ? formatDateTime(row.updated_at) : '-')
+        minWidth: 160,
+        render: row => {
+          const logicPoint = getLogicPoint(row.logic_point_id);
+          if (!logicPoint?.key) return logicPoint?.name ?? '-';
+
+          return renderPointLink(logicPoint.name, () => emit('jumpToLogicPoint', logicPoint.key!));
+        }
+      },
+      {
+        key: 'operate',
+        title: $t('common.operate'),
+        align: 'center',
+        width: 220,
+        fixed: 'right',
+        render: row => renderOperate(row)
       }
     ]
   });
@@ -196,21 +223,31 @@ function getGatewayName(gatewayId: CommonType.IdType) {
   );
 }
 
-function getLogicPointName(logicPointId?: CommonType.IdType) {
-  if (!logicPointId) return '-';
+function getLogicPoint(logicPointId?: CommonType.IdType) {
+  if (!logicPointId) return null;
 
-  return physicalPointExtra.value.logic_point_map?.[String(logicPointId)]?.name ?? '-';
+  return physicalPointExtra.value.logic_point_map?.[String(logicPointId)] ?? null;
 }
 
-function getPhysicalPointProtocolLabel(row: Api.Device.PhysicalPoint) {
-  const protocolType =
-    row.protocol_type ?? row.protocol?.protocol_type ?? gatewayByIdMap.value[String(row.gateway_id)]?.protocol_type;
+function getPhysicalPointProtocolType(row: Api.Device.PhysicalPoint) {
+  return (
+    row.protocol_type ?? row.protocol?.protocol_type ?? gatewayByIdMap.value[String(row.gateway_id)]?.protocol_type
+  );
+}
 
-  return getGatewayProtocolLabel(protocolType);
+function getCurrentValue(row: Api.Device.PhysicalPoint) {
+  return physicalPointExtra.value.current_value_map?.[String(row.id)] ?? null;
+}
+
+function formatReportAt(row: Api.Device.PhysicalPoint) {
+  const timestamp = getCurrentValue(row)?.ts;
+  if (!timestamp) return '-';
+
+  return formatDateTime(timestamp < 1e12 ? timestamp * 1000 : timestamp);
 }
 
 function formatCurrentValue(row: Api.Device.PhysicalPoint) {
-  const currentValue = physicalPointExtra.value.current_value_map?.[String(row.id)];
+  const currentValue = getCurrentValue(row);
   if (!currentValue) return '-';
 
   const dataType = Number(currentValue.data_type ?? row.data_type);
@@ -235,6 +272,94 @@ function formatCurrentValue(row: Api.Device.PhysicalPoint) {
   }
 
   return '-';
+}
+
+function handleView(row: Api.Device.PhysicalPoint) {
+  routerPushByKey('device_physical-point-detail', {
+    query: {
+      id: String(row.id),
+      tab: 'physical'
+    }
+  });
+}
+
+function handleCommand(row: Api.Device.PhysicalPoint) {
+  const logicPoint = getLogicPoint(row.logic_point_id);
+
+  devicePointCommandModalRef.value?.open({
+    source: 'physical',
+    logicPoint: logicPoint?.key
+      ? {
+          id: logicPoint.id,
+          name: logicPoint.name,
+          key: logicPoint.key
+        }
+      : undefined,
+    physicalPoint: row,
+    currentValue: getCurrentValue(row)
+  });
+}
+
+function renderOperate(row: Api.Device.PhysicalPoint) {
+  const isReadOnly = row.protocol?.access_level === 1;
+  const buttons = [
+    h(ButtonIcon, {
+      text: true,
+      type: 'primary',
+      icon: 'material-symbols:visibility-outline',
+      tooltipContent: '查看',
+      onClick: () => handleView(row)
+    }),
+    h(ButtonIcon, {
+      text: true,
+      type: 'primary',
+      icon: 'material-symbols:edit-outline-rounded',
+      tooltipContent: '编辑',
+      disabled: true
+    }),
+    h(ButtonIcon, {
+      text: true,
+      type: 'primary',
+      icon: 'material-symbols:send-rounded',
+      tooltipContent: '下发',
+      disabled: isReadOnly,
+      onClick: () => handleCommand(row)
+    }),
+    h(ButtonIcon, {
+      text: true,
+      type: 'error',
+      icon: 'material-symbols:delete-outline-rounded',
+      tooltipContent: '删除',
+      popconfirmContent: $t('common.confirmDelete'),
+      onPositiveClick: () => handleDelete(row.id)
+    })
+  ];
+
+  return h(
+    'div',
+    { class: 'flex-center gap-8px' },
+    buttons.flatMap((button, index) => (index ? [h(NDivider, { vertical: true }), button] : [button]))
+  );
+}
+
+async function handleDelete(id: CommonType.IdType) {
+  const { error } = await fetchDeletePhysicalPoint({ id_list: [id] });
+  if (error) return;
+
+  window.$message?.success($t('common.deleteSuccess'));
+  checkedRowKeys.value = checkedRowKeys.value.filter(item => item !== id);
+  await getData();
+}
+
+async function handleBatchDelete() {
+  if (checkedRowKeys.value.length === 0) return;
+
+  const { error } = await fetchDeletePhysicalPoint({ id_list: checkedRowKeys.value });
+  if (error) return;
+
+  window.$message?.success($t('common.deleteSuccess'));
+  checkedRowKeys.value = [];
+  await getData();
 }
 
 function handleSearch() {
@@ -310,15 +435,18 @@ watch(
         <NSpace align="center" :size="12">
           <TableHeaderOperation
             v-model:columns="columnChecks"
+            :disabled-delete="checkedRowKeys.length === 0"
             :loading="loading"
             :show-add="false"
-            :show-delete="false"
+            :show-delete="true"
             :show-export="false"
+            @delete="handleBatchDelete"
             @refresh="getData"
           />
         </NSpace>
       </template>
       <DataTable
+        v-model:checked-row-keys="checkedRowKeys"
         :columns="columns"
         :data="data"
         :flex-height="!appStore.isMobile"
@@ -330,5 +458,7 @@ watch(
         class="sm:h-full"
       />
     </NCard>
+
+    <DevicePointCommandModal ref="devicePointCommandModalRef" />
   </div>
 </template>

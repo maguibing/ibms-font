@@ -189,15 +189,63 @@ declare namespace Api {
       key: string;
       name: string;
       data_type?: CommonType.DataType;
-      physical_point_id: CommonType.IdType;
+      physical_point_id?: CommonType.IdType;
       source_type: number;
     }>;
 
+    type DevicePointBinding = {
+      logic_point_id: CommonType.IdType;
+      physical_point_id: CommonType.IdType;
+    };
+
+    type BindDevicePointParams = {
+      op_type: 1 | 2 | 3;
+      bind_list?: DevicePointBinding[];
+      unbind_list?: DevicePointBinding[];
+    };
+
     type LogicPointListExtra = {
+      device_type_map?: Record<string, DeviceType>;
+      device_map?: Record<string, Pick<Device, 'id' | 'name' | 'key'>>;
+      physical_point_map?: Record<string, Pick<PhysicalPoint, 'id' | 'name' | 'key'>>;
       device_type_point_map?: Record<string, Pick<DeviceTypePoint, 'id' | 'data_type' | 'setting'>>;
+      current_value_map?: Record<string, PhysicalPointCurrentValue>;
     };
 
     type LogicPointList = Api.Common.PaginatingQueryRecord<LogicPoint, LogicPointListExtra>;
+
+    type LogicPointDetailParams = CommonType.CommonRequestOptions & {
+      id: CommonType.IdType;
+    };
+
+    type LogicPointDetailResponse = {
+      logic_point: LogicPoint;
+      device_type_point_map?: LogicPointListExtra['device_type_point_map'];
+    };
+
+    type DevicePointCommandValue = {
+      data_type: CommonType.DataType;
+      num_val?: {
+        value: number;
+        scale?: number;
+        unit?: string;
+      };
+      switch_val?: DeviceTypePointValueItem;
+      str_val?: {
+        value: string;
+      };
+      enum_val?: DeviceTypePointValueItem;
+    };
+
+    type DevicePointCommand = {
+      logic_point_key: string;
+      physical_point_key: string;
+      point_val: DevicePointCommandValue;
+    };
+
+    type DevicePointCmdParams = {
+      cmd_list: DevicePointCommand[];
+    };
 
     type LogicPointSearchParams = CommonType.RecordNullable<
       Pick<LogicPoint, 'name' | 'key'> & Api.Common.CommonSearchParams
@@ -239,6 +287,14 @@ declare namespace Api {
       is_hidden?: boolean;
       protocol?: PhysicalPointProtocol;
     }>;
+
+    type PhysicalPointDetailParams = {
+      id: CommonType.IdType;
+    };
+
+    type PhysicalPointDetailResponse = {
+      physical_point: PhysicalPoint;
+    };
 
     type PhysicalPointCurrentValue = {
       ts?: number;

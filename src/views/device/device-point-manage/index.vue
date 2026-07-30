@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { computed, shallowRef, useTemplateRef } from 'vue';
+import { computed, nextTick, shallowRef, useTemplateRef } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import DeviceGatewayTree from './modules/device-gateway-tree.vue';
+import LogicPointPanel from './modules/logic-point-panel.vue';
 import LogicPointTree from './modules/logic-point-tree.vue';
 import PhysicalPointPanel from './modules/physical-point-panel.vue';
 
@@ -8,11 +10,36 @@ defineOptions({
   name: 'DevicePointManage'
 });
 
-const activePointKind = shallowRef<'physical' | 'logic'>('physical');
+type PointKind = 'physical' | 'logic';
+
+type LogicPointTreeSelection = {
+  id: CommonType.IdType;
+  type: 1 | 2;
+};
+
+const route = useRoute();
+const router = useRouter();
 const deviceGatewayTreeRef = useTemplateRef<InstanceType<typeof DeviceGatewayTree>>('deviceGatewayTreeRef');
 const logicPointTreeRef = useTemplateRef<InstanceType<typeof LogicPointTree>>('logicPointTreeRef');
 const selectedGatewayId = shallowRef<CommonType.IdType | null>(null);
+const selectedLogicPointNode = shallowRef<LogicPointTreeSelection | null>(null);
+const physicalPointSearchKey = shallowRef('');
+const logicPointSearchKey = shallowRef('');
 const gatewayList = shallowRef<Api.Gateway.Gateway[]>([]);
+
+const activePointKind = computed<PointKind>({
+  get: () => (route.query.tab === 'logic' ? 'logic' : 'physical'),
+  set: tab => {
+    physicalPointSearchKey.value = '';
+    logicPointSearchKey.value = '';
+    router.replace({
+      query: {
+        ...route.query,
+        tab
+      }
+    });
+  }
+});
 
 const siderTitle = computed(() => (activePointKind.value === 'physical' ? '边缘设备' : '设备类型'));
 
@@ -27,6 +54,22 @@ function refreshSiderTree() {
 
 function handleUpdateGateways(gateways: Api.Gateway.Gateway[]) {
   gatewayList.value = gateways;
+}
+
+async function handleJumpToPhysicalPoint(key: string) {
+  physicalPointSearchKey.value = key;
+  selectedGatewayId.value = null;
+  await router.replace({ query: { ...route.query, tab: 'physical' } });
+  await nextTick();
+  physicalPointSearchKey.value = '';
+}
+
+async function handleJumpToLogicPoint(key: string) {
+  logicPointSearchKey.value = key;
+  selectedLogicPointNode.value = null;
+  await router.replace({ query: { ...route.query, tab: 'logic' } });
+  await nextTick();
+  logicPointSearchKey.value = '';
 }
 </script>
 
@@ -46,7 +89,11 @@ function handleUpdateGateways(gateways: Api.Gateway.Gateway[]) {
         v-model:selected-gateway-id="selectedGatewayId"
         @update:gateways="handleUpdateGateways"
       />
-      <LogicPointTree v-if="activePointKind === 'logic'" ref="logicPointTreeRef" />
+      <LogicPointTree
+        v-if="activePointKind === 'logic'"
+        ref="logicPointTreeRef"
+        v-model:selected-node="selectedLogicPointNode"
+      />
     </template>
 
     <div class="h-full min-h-0 flex-col-stretch overflow-hidden lt-sm:overflow-auto">
@@ -56,12 +103,21 @@ function handleUpdateGateways(gateways: Api.Gateway.Gateway[]) {
       </NTabs>
 
       <div v-if="activePointKind === 'physical'" class="min-h-0 flex-col-stretch gap-12px sm:flex-1-hidden">
-        <PhysicalPointPanel :selected-gateway-id="selectedGatewayId" :gateway-list="gatewayList" />
+        <PhysicalPointPanel
+          :selected-gateway-id="selectedGatewayId"
+          :gateway-list="gatewayList"
+          :initial-search-key="physicalPointSearchKey"
+          @jump-to-logic-point="handleJumpToLogicPoint"
+        />
       </div>
 
-      <NCard v-else :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
-        <NEmpty description="逻辑点位待接入" class="h-full min-h-320px justify-center" />
-      </NCard>
+      <div v-else class="min-h-0 flex-col-stretch gap-12px sm:flex-1-hidden">
+        <LogicPointPanel
+          :selected-node="selectedLogicPointNode"
+          :initial-search-key="logicPointSearchKey"
+          @jump-to-physical-point="handleJumpToPhysicalPoint"
+        />
+      </div>
     </div>
   </TableSiderLayout>
 </template>

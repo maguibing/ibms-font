@@ -189,11 +189,38 @@ export function fetchGetLogicPointList(data?: CommonType.CommonListQueryParams) 
   });
 }
 
+/** 获取逻辑点位详情 */
+export function fetchGetLogicPoint(data: Api.Device.LogicPointDetailParams) {
+  return request<Api.Device.LogicPointDetailResponse>({
+    url: '/GetLogicPoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 下发点位指令 */
+export function fetchDevicePointCmd(data: Api.Device.DevicePointCmdParams) {
+  return request({
+    url: '/DevicePointCmd',
+    method: 'post',
+    data
+  });
+}
+
 /** 获取逻辑点位树 */
 export function fetchGetLogicPointTree() {
   return request<Api.Device.LogicPointTreeResponse>({
     url: '/GetLogicPointTree',
+    method: 'post'
+  });
+}
+
+/** 绑定设备点位 */
+export function fetchBindDevicePoint(data: Api.Device.BindDevicePointParams) {
+  return request({
+    url: '/BindDevicePoint',
     method: 'post',
+    data
   });
 }
 
@@ -201,6 +228,24 @@ export function fetchGetLogicPointTree() {
 export function fetchGetPhysicalPointList(data?: CommonType.CommonListQueryParams) {
   return request<Api.Device.PhysicalPointList>({
     url: '/ListPhysicalPoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 获取物理点位详情 */
+export function fetchGetPhysicalPoint(data: Api.Device.PhysicalPointDetailParams) {
+  return request<Api.Device.PhysicalPointDetailResponse>({
+    url: '/GetPhysicalPoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 删除物理点位 */
+export function fetchDeletePhysicalPoint(data: Api.Common.CommonIdList) {
+  return request({
+    url: '/DeletePhysicalPoint',
     method: 'post',
     data
   });

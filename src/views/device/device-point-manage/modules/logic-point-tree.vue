@@ -7,21 +7,32 @@ defineOptions({
   name: 'LogicPointTree'
 });
 
+type LogicPointTreeSelection = {
+  id: CommonType.IdType;
+  type: 1 | 2;
+};
+
 type LogicPointTreeOption = TreeOption & {
   key: string;
   label: string;
   name: string;
   pointKey: string;
+  pointId: CommonType.IdType;
+  nodeType: number;
   children?: LogicPointTreeOption[];
 };
 
+const selectedNode = defineModel<LogicPointTreeSelection | null>('selectedNode', { required: true });
+
 const treeKeyword = shallowRef('');
 const treeLoading = shallowRef(false);
-const selectedTreeKeys = shallowRef<Array<string | number>>([]);
 const expandedTreeKeys = shallowRef<Array<string | number>>([]);
 const treeData = shallowRef<LogicPointTreeOption[]>([]);
 
 const selectable = computed(() => !treeLoading.value);
+const selectedTreeKeys = computed(() =>
+  selectedNode.value ? [`${selectedNode.value.type}-${selectedNode.value.id}`] : []
+);
 
 function getTreeKey(node: Api.Device.LogicPointTreeNode) {
   return `${node.type}-${node.id}`;
@@ -40,7 +51,9 @@ function transformTreeNode(node: Api.Device.LogicPointTreeNode): LogicPointTreeO
     key: getTreeKey(node),
     label: node.name,
     name: node.name,
-    pointKey: node.key
+    pointKey: node.key,
+    pointId: node.id,
+    nodeType: node.type
   };
 
   if (node.type === 1 && node.children) {
@@ -64,15 +77,24 @@ async function getTreeData() {
     const data = error ? [] : responseData.trees.map(item => transformTreeNode(item));
 
     treeData.value = data;
-    expandedTreeKeys.value = data.map(item => item.key);
-    selectedTreeKeys.value = [];
+    expandedTreeKeys.value = [];
+    selectedNode.value = null;
   } catch {
     treeData.value = [];
     expandedTreeKeys.value = [];
-    selectedTreeKeys.value = [];
+    selectedNode.value = null;
   } finally {
     treeLoading.value = false;
   }
+}
+
+function handleUpdateSelectedKeys(_: Array<string | number>, options: Array<TreeOption | null>) {
+  const selectedOption = options[0] as LogicPointTreeOption | null;
+
+  selectedNode.value =
+    selectedOption?.nodeType === 1 || selectedOption?.nodeType === 2
+      ? { id: selectedOption.pointId, type: selectedOption.nodeType }
+      : null;
 }
 
 defineExpose({
@@ -89,8 +111,8 @@ onMounted(() => {
     <NInput v-model:value="treeKeyword" clearable :placeholder="$t('common.keywordSearch')" />
     <NSpin class="logic-point-tree" :show="treeLoading">
       <NTree
-        v-model:selected-keys="selectedTreeKeys"
         v-model:expanded-keys="expandedTreeKeys"
+        :selected-keys="selectedTreeKeys"
         block-node
         show-line
         :data="treeData"
@@ -99,6 +121,7 @@ onMounted(() => {
         :filter="logicPointFilter"
         :selectable="selectable"
         class="infinite-scroll h-full min-h-200px overflow-auto py-3"
+        @update:selected-keys="handleUpdateSelectedKeys"
       >
         <template #empty>
           <NEmpty description="暂无逻辑点位树" class="h-full min-h-200px justify-center" />

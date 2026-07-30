@@ -1,0 +1,454 @@
+<script setup lang="ts">
+import { computed, h, ref, useTemplateRef, watch } from 'vue';
+import { NButton, NDivider, NTooltip } from 'naive-ui';
+import { useLoading } from '@sa/hooks';
+import { formatDateTime } from '@sa/utils';
+import { fetchBindDevicePoint, fetchGetLogicPointList } from '@/service/api/device';
+import { useAppStore } from '@/store/modules/app';
+import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
+import { useRouterPush } from '@/hooks/common/router';
+import { $t } from '@/locales';
+import ButtonIcon from '@/components/custom/button-icon.vue';
+import CopyableValue from '@/components/custom/copyable-value.vue';
+import EnumTag from '@/components/custom/enum-tag.vue';
+import { displayValue } from '@/utils/common-methods';
+import BindPhysicalPointDrawer from './bind-physical-point-drawer.vue';
+import DevicePointCommandModal from './device-point-command-modal.vue';
+
+defineOptions({
+  name: 'LogicPointPanel'
+});
+
+type LogicPointTreeSelection = {
+  id: CommonType.IdType;
+  type: 1 | 2;
+};
+
+interface Props {
+  selectedNode: LogicPointTreeSelection | null;
+  initialSearchKey?: string;
+}
+
+interface Emits {
+  (e: 'jumpToPhysicalPoint', key: string): void;
+}
+
+type SearchParams = CommonType.RecordNullable<
+  Api.Common.CommonSearchParams & {
+    name: string;
+    key: string;
+  }
+>;
+
+const props = defineProps<Props>();
+const emit = defineEmits<Emits>();
+const appStore = useAppStore();
+const { routerPushByKey } = useRouterPush();
+const { loading: operationLoading, startLoading, endLoading } = useLoading();
+const bindPhysicalPointDrawerRef =
+  useTemplateRef<InstanceType<typeof BindPhysicalPointDrawer>>('bindPhysicalPointDrawerRef');
+const devicePointCommandModalRef =
+  useTemplateRef<InstanceType<typeof DevicePointCommandModal>>('devicePointCommandModalRef');
+
+const searchParams = ref<SearchParams>({
+  pageNum: 1,
+  pageSize: 10,
+  name: null,
+  key: props.initialSearchKey || null
+});
+
+function transformSearchParamsToRequest(): CommonType.CommonListQueryParams {
+  const pageNum = searchParams.value.pageNum || 1;
+  const pageSize = searchParams.value.pageSize || 10;
+  const options: CommonType.CommonTypeOptions[] = [];
+
+  if (props.selectedNode) {
+    options.push({ type: props.selectedNode.type, value: String(props.selectedNode.id) });
+  }
+
+  const name = searchParams.value.name?.trim();
+  const key = searchParams.value.key?.trim();
+
+  if (name) options.push({ type: 6, value: name });
+  if (key) options.push({ type: 4, value: key });
+
+  return {
+    list_option: {
+      options,
+      offset: (pageNum - 1) * pageSize,
+      limit: pageSize
+    },
+    options: [{ key: 1 }, { key: 2 }, { key: 3 }, { key: 4 }, { key: 5 }]
+  };
+}
+
+function renderPointLink(label: string, onClick: () => void) {
+  return h(NTooltip, null, {
+    trigger: () =>
+      h(
+        NButton,
+        { text: true, type: 'primary', class: 'max-w-full', onClick },
+        { default: () => h('span', { class: 'block max-w-120px truncate' }, label) }
+      ),
+    default: () => h('span', { class: 'text-white' }, label)
+  });
+}
+
+const { columns, columnChecks, data, extraData, getData, getDataByPage, loading, mobilePagination, scrollX } =
+  useNaivePaginatedTable({
+    api: () => fetchGetLogicPointList(transformSearchParamsToRequest()),
+    transform: response => defaultTransform<Api.Device.LogicPoint>(response),
+    onPaginationParamsChange: params => {
+      searchParams.value.pageNum = params.page ?? 1;
+      searchParams.value.pageSize = params.pageSize ?? 10;
+    },
+    columns: (): NaiveUI.TableColumn<Api.Device.LogicPoint>[] => [
+      {
+        key: 'index',
+        title: $t('common.index'),
+        align: 'center',
+        width: 64,
+        render: (_, index) => index + 1
+      },
+      {
+        key: 'device_type_id',
+        title: '设备类型',
+        align: 'center',
+        minWidth: 140,
+        render: row =>
+          renderPointLink(getExtraMapName('device_type_map', row.device_type_id), () =>
+            handleDeviceTypeView(row.device_type_id)
+          )
+      },
+      {
+        key: 'device_id',
+        title: '所属设备',
+        align: 'center',
+        minWidth: 140,
+        render: row =>
+          renderPointLink(getExtraMapName('device_map', row.device_id), () => handleDeviceView(row.device_id))
+      },
+      {
+        key: 'name',
+        title: '逻辑点位名称',
+        align: 'center',
+        minWidth: 180,
+        ellipsis: { tooltip: true },
+        render: row => row.name || '-'
+      },
+      {
+        key: 'key',
+        title: '逻辑点位标识',
+        align: 'center',
+        minWidth: 160,
+        ellipsis: { tooltip: true },
+        render: row => h(CopyableValue, { value: row.key })
+      },
+      {
+        key: 'data_type',
+        title: '数据类型',
+        align: 'center',
+        minWidth: 120,
+        render: row => h(EnumTag, { value: getLogicPointDataType(row) })
+      },
+      {
+        key: 'physical_point_id',
+        title: '物理点位',
+        align: 'center',
+        minWidth: 180,
+        ellipsis: { tooltip: true },
+        render: row => {
+          if (!row.physical_point_id) return '-';
+
+          return renderPointLink(getExtraMapName('physical_point_map', row.physical_point_id), () =>
+            handlePhysicalPointView(row.physical_point_id!)
+          );
+        }
+      },
+      {
+        key: 'report_at',
+        title: '最新更新时间',
+        align: 'center',
+        minWidth: 180,
+        render: row => formatReportAt(row)
+      },
+      {
+        key: 'current_value',
+        title: '最新值',
+        align: 'center',
+        minWidth: 140,
+        ellipsis: { tooltip: true },
+        render: row => formatCurrentValue(row)
+      },
+      {
+        key: 'operate',
+        title: $t('common.operate'),
+        align: 'center',
+        width: 160,
+        fixed: 'right',
+        render: row => renderOperate(row)
+      }
+    ]
+  });
+
+const logicPointExtra = computed<Api.Device.LogicPointListExtra>(() => {
+  const raw = (extraData.value ?? {}) as Api.Device.LogicPointListExtra;
+
+  return {
+    device_type_map: raw.device_type_map ?? {},
+    device_map: raw.device_map ?? {},
+    physical_point_map: raw.physical_point_map ?? {},
+    device_type_point_map: raw.device_type_point_map ?? {},
+    current_value_map: raw.current_value_map ?? {}
+  };
+});
+
+function getLogicPointDataType(row: Api.Device.LogicPoint) {
+  return logicPointExtra.value.device_type_point_map?.[String(row.device_type_point_id)]?.data_type ?? row.data_type;
+}
+
+type NameMapKey = 'device_type_map' | 'device_map' | 'physical_point_map';
+
+function getExtraMapName(mapKey: NameMapKey, id?: CommonType.IdType) {
+  if (!id) return '-';
+
+  return logicPointExtra.value[mapKey]?.[String(id)]?.name ?? '-';
+}
+
+function getPhysicalPointKey(id: CommonType.IdType) {
+  return logicPointExtra.value.physical_point_map?.[String(id)]?.key ?? '';
+}
+
+function getCurrentValue(row: Api.Device.LogicPoint) {
+  if (!row.physical_point_id) return null;
+
+  return logicPointExtra.value.current_value_map?.[String(row.physical_point_id)] ?? null;
+}
+
+function formatReportAt(row: Api.Device.LogicPoint) {
+  const timestamp = getCurrentValue(row)?.ts;
+  if (!timestamp) return '-';
+
+  return formatDateTime(timestamp < 1e12 ? timestamp * 1000 : timestamp);
+}
+
+function formatCurrentValue(row: Api.Device.LogicPoint) {
+  const currentValue = getCurrentValue(row);
+  if (!currentValue?.ts) return '-';
+
+  const dataType = Number(currentValue.data_type ?? getLogicPointDataType(row));
+
+  if (dataType === 1) {
+    const value = currentValue.num_val?.value;
+    const unit = currentValue.num_val?.unit;
+
+    return value === undefined || value === null ? '-' : `${value}${unit ? ` ${unit}` : ''}`;
+  }
+
+  if (dataType === 2) return displayValue(currentValue.switch_val?.alias ?? currentValue.switch_val?.value);
+  if (dataType === 3) return displayValue(currentValue.str_val?.value);
+  if (dataType === 4) return displayValue(currentValue.enum_val?.value);
+
+  return '-';
+}
+
+function handleDeviceTypeView(id: CommonType.IdType) {
+  routerPushByKey('device_device-type-detail', { query: { id: String(id) } });
+}
+
+function handleDeviceView(id: CommonType.IdType) {
+  routerPushByKey('device_device-detail', { query: { id: String(id) } });
+}
+
+function handlePhysicalPointView(id: CommonType.IdType) {
+  const key = getPhysicalPointKey(id);
+
+  if (!key) {
+    window.$message?.error('物理点位不存在');
+    return;
+  }
+
+  emit('jumpToPhysicalPoint', key);
+}
+
+function handleBindPhysicalPoint(row: Api.Device.LogicPoint) {
+  bindPhysicalPointDrawerRef.value?.open(row);
+}
+
+function handleDevicePointCommand(row: Api.Device.LogicPoint) {
+  const physicalPoint = logicPointExtra.value.physical_point_map?.[String(row.physical_point_id)];
+
+  if (!physicalPoint) {
+    window.$message?.error('物理点位不存在');
+    return;
+  }
+
+  devicePointCommandModalRef.value?.open({
+    source: 'logic',
+    logicPoint: row,
+    physicalPoint,
+    currentValue: getCurrentValue(row)
+  });
+}
+
+function renderOperate(row: Api.Device.LogicPoint) {
+  if (!row.physical_point_id) {
+    return h(ButtonIcon, {
+      text: true,
+      type: 'primary',
+      icon: 'material-symbols:add-link-rounded',
+      tooltipContent: '绑定物理点位',
+      onClick: () => handleBindPhysicalPoint(row)
+    });
+  }
+
+  const buttons = [
+    h(ButtonIcon, {
+      text: true,
+      type: 'primary',
+      icon: 'material-symbols:visibility-outline',
+      tooltipContent: '查看物理点位',
+      onClick: () => handlePhysicalPointView(row.physical_point_id!)
+    }),
+    h(ButtonIcon, {
+      text: true,
+      type: 'primary',
+      icon: 'material-symbols:send-rounded',
+      tooltipContent: '下发',
+      onClick: () => handleDevicePointCommand(row)
+    }),
+    h(ButtonIcon, {
+      text: true,
+      type: 'error',
+      icon: 'material-symbols:link-off-rounded',
+      tooltipContent: '解绑物理点位',
+      popconfirmContent: '确认解绑物理点位？',
+      onPositiveClick: () => handleUnbindPhysicalPoint(row)
+    })
+  ];
+
+  return h(
+    'div',
+    { class: 'flex-center gap-8px' },
+    buttons.flatMap((button, index) => (index ? [h(NDivider, { vertical: true }), button] : [button]))
+  );
+}
+
+async function handleSmartMatch() {
+  startLoading();
+  const { error } = await fetchBindDevicePoint({ op_type: 3 }).finally(endLoading);
+  if (error) return;
+
+  window.$message?.success('智能匹配成功');
+  handleRefresh();
+}
+
+async function handleUnbindPhysicalPoint(row: Api.Device.LogicPoint) {
+  if (!row.physical_point_id) return;
+
+  startLoading();
+  const { error } = await fetchBindDevicePoint({
+    op_type: 2,
+    unbind_list: [{ logic_point_id: row.id, physical_point_id: row.physical_point_id }]
+  }).finally(endLoading);
+
+  if (error) return;
+
+  window.$message?.success('解绑成功');
+  getData();
+}
+
+function handleSearch() {
+  getDataByPage(1);
+}
+
+function handleResetSearch() {
+  searchParams.value.name = null;
+  searchParams.value.key = null;
+  getDataByPage(1);
+}
+
+function handleRefresh() {
+  getData();
+}
+
+watch(
+  () => props.selectedNode,
+  () => getDataByPage(1)
+);
+</script>
+
+<template>
+  <div class="h-full min-h-0 flex-col-stretch gap-12px overflow-hidden lt-sm:overflow-auto">
+    <NCard size="small" class="card-wrapper shrink-0">
+      <NForm :show-feedback="false" label-placement="left">
+        <NGrid responsive="screen" item-responsive>
+          <NFormItemGi span="24 s:12 m:8" label="点位名称" class="pr-24px">
+            <NInput
+              v-model:value="searchParams.name"
+              clearable
+              placeholder="请输入点位名称"
+              @keyup.enter="handleSearch"
+            />
+          </NFormItemGi>
+          <NFormItemGi span="24 s:12 m:8" label="点位标识" class="pr-24px">
+            <NInput
+              v-model:value="searchParams.key"
+              clearable
+              placeholder="请输入点位标识"
+              @keyup.enter="handleSearch"
+            />
+          </NFormItemGi>
+          <NFormItemGi :show-feedback="false" span="24 s:24 m:8">
+            <NSpace class="w-full" justify="end">
+              <NButton type="primary" ghost @click="handleSearch">
+                <template #icon><icon-ic-round-search class="text-icon" /></template>
+                {{ $t('common.search') }}
+              </NButton>
+              <NButton @click="handleResetSearch">
+                <template #icon><icon-ic-round-refresh class="text-icon" /></template>
+                {{ $t('common.reset') }}
+              </NButton>
+            </NSpace>
+          </NFormItemGi>
+        </NGrid>
+      </NForm>
+    </NCard>
+
+    <NCard title="逻辑点位" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+      <template #header-extra>
+        <TableHeaderOperation
+          v-model:columns="columnChecks"
+          :loading="loading || operationLoading"
+          :show-add="false"
+          :show-delete="false"
+          :show-export="false"
+          @refresh="handleRefresh"
+        >
+          <template #prefix>
+            <NButton size="small" type="success" ghost :loading="operationLoading" @click="handleSmartMatch">
+              <template #icon><SvgIcon icon="material-symbols:wand-stars-rounded" /></template>
+              智能匹配
+            </NButton>
+          </template>
+        </TableHeaderOperation>
+      </template>
+      <DataTable
+        :columns="columns"
+        :data="data"
+        :flex-height="!appStore.isMobile"
+        :scroll-x="scrollX"
+        :loading="loading"
+        remote
+        :row-key="row => row.id"
+        :pagination="mobilePagination"
+        class="sm:h-full"
+      />
+    </NCard>
+
+    <BindPhysicalPointDrawer ref="bindPhysicalPointDrawerRef" @submitted="handleRefresh" />
+    <DevicePointCommandModal ref="devicePointCommandModalRef" />
+  </div>
+</template>
+
+<style scoped></style>
