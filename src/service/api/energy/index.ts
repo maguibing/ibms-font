@@ -8,3 +8,12 @@ export function fetchGetDevicePointEnergyList(data: Api.Energy.DevicePointEnergy
     data
   });
 }
+
+/** 获取能效日历 */
+export function fetchGetEnergyCalendar(data: Api.Energy.EnergyCalendarParams) {
+  return request<Api.Energy.EnergyCalendarData>({
+    url: '/GetEnergyCalendar',
+    method: 'post',
+    data
+  });
+}

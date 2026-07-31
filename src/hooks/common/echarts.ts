@@ -13,6 +13,7 @@ import type {
 } from 'echarts/charts';
 import {
   DatasetComponent,
+  DataZoomComponent,
   GridComponent,
   LegendComponent,
   TitleComponent,
@@ -22,6 +23,7 @@ import {
 } from 'echarts/components';
 import type {
   DatasetComponentOption,
+  DataZoomComponentOption,
   GridComponentOption,
   LegendComponentOption,
   TitleComponentOption,
@@ -46,6 +48,7 @@ export type ECOption = echarts.ComposeOption<
   | GridComponentOption
   | ToolboxComponentOption
   | DatasetComponentOption
+  | DataZoomComponentOption
 >;
 
 echarts.use([
@@ -54,6 +57,7 @@ echarts.use([
   TooltipComponent,
   GridComponent,
   DatasetComponent,
+  DataZoomComponent,
   TransformComponent,
   ToolboxComponent,
   BarChart,

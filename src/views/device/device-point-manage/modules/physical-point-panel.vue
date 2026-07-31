@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h, ref, useTemplateRef, watch } from 'vue';
+import { computed, h, ref, shallowRef, useTemplateRef, watch } from 'vue';
 import { NButton, NDivider, NTooltip } from 'naive-ui';
 import { formatDateTime } from '@sa/utils';
 import { fetchDeletePhysicalPoint, fetchGetPhysicalPointList } from '@/service/api/device';
@@ -13,6 +13,7 @@ import EnumTag from '@/components/custom/enum-tag.vue';
 import { DATA_TYPE_OPTIONS } from '@/constants/device-point';
 import { displayValue } from '@/utils/common-methods';
 import DevicePointCommandModal from './device-point-command-modal.vue';
+import PhysicalPointOperateDrawer from './physical-point-operate-drawer.vue';
 
 defineOptions({
   name: 'PhysicalPointPanel'
@@ -36,6 +37,7 @@ const { routerPushByKey } = useRouterPush();
 const devicePointCommandModalRef =
   useTemplateRef<InstanceType<typeof DevicePointCommandModal>>('devicePointCommandModalRef');
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
+const operateDrawerVisible = shallowRef(false);
 
 const searchParams = ref<Api.Device.PhysicalPointSearchParams>({
   pageNum: 1,
@@ -300,6 +302,10 @@ function handleCommand(row: Api.Device.PhysicalPoint) {
   });
 }
 
+function handleAdd() {
+  operateDrawerVisible.value = true;
+}
+
 function renderOperate(row: Api.Device.PhysicalPoint) {
   const isReadOnly = row.protocol?.access_level === 1;
   const buttons = [
@@ -437,9 +443,10 @@ watch(
             v-model:columns="columnChecks"
             :disabled-delete="checkedRowKeys.length === 0"
             :loading="loading"
-            :show-add="false"
+            :show-add="true"
             :show-delete="true"
             :show-export="false"
+            @add="handleAdd"
             @delete="handleBatchDelete"
             @refresh="getData"
           />
@@ -460,5 +467,10 @@ watch(
     </NCard>
 
     <DevicePointCommandModal ref="devicePointCommandModalRef" />
+    <PhysicalPointOperateDrawer
+      v-model:visible="operateDrawerVisible"
+      :prefill-gateway="selectedGateway"
+      @submitted="getDataByPage(1)"
+    />
   </div>
 </template>

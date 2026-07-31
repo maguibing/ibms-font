@@ -42,5 +42,24 @@ declare namespace Api {
         end_at: number;
       };
     };
+
+    type EnergyCalendarItem = {
+      ts: number;
+      energy?: number;
+      cooling?: number;
+      cop?: number;
+    };
+
+    type EnergyCalendarData = {
+      list: EnergyCalendarItem[];
+    };
+
+    type EnergyCalendarParams = {
+      stat_type: number;
+      time_range: {
+        start_at: number;
+        end_at: number;
+      };
+    };
   }
 }

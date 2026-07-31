@@ -247,6 +247,46 @@ declare namespace Api {
       cmd_list: DevicePointCommand[];
     };
 
+    type DevicePointHistoryParams = {
+      agg_type: number;
+      logic_point_key_list: string[];
+      stat_type: number;
+      time_range: {
+        start_at: number;
+        end_at: number;
+      };
+    };
+
+    type DevicePointHistoryValue = {
+      ts?: number;
+      logic_point?: PointOption;
+      num_val?: {
+        value?: number | string;
+        scale?: number;
+        unit?: string;
+      };
+    };
+
+    type DevicePointHistoryStatData = {
+      device_point_stat?: {
+        point_vals?: DevicePointHistoryValue[];
+      };
+    };
+
+    type DevicePointHistoryTrend = {
+      logic_point?: PointOption;
+      point_trends?: DevicePointHistoryValue[];
+    };
+
+    type DevicePointHistoryTrendData = {
+      stat_type?: number;
+      time_range?: {
+        start_at?: number;
+        end_at?: number;
+      };
+      trend_list?: DevicePointHistoryTrend[];
+    };
+
     type LogicPointSearchParams = CommonType.RecordNullable<
       Pick<LogicPoint, 'name' | 'key'> & Api.Common.CommonSearchParams
     >;
@@ -270,6 +310,51 @@ declare namespace Api {
       scale?: number;
       access_level?: number;
       [key: string]: unknown;
+    };
+
+    type PhysicalPointModbusParams = {
+      address: number;
+      bit_index: number;
+      byte_order?: number;
+      data_type: number;
+      register_type: number;
+      slave_id: number;
+    };
+
+    type PhysicalPointBacnetParams = {
+      device_instance: number;
+      object_instance: number;
+      object_type: number;
+      property_type_list: number[];
+    };
+
+    type PhysicalPointOpcUaParams = {
+      data_type: number;
+      node_id?: string | null;
+    };
+
+    type PhysicalPointOperateProtocol = {
+      access_level: number;
+      bacnet?: PhysicalPointBacnetParams;
+      modbus?: PhysicalPointModbusParams;
+      offset: number;
+      opcua?: PhysicalPointOpcUaParams;
+      protocol_type: Api.Gateway.ProtocolType;
+      scale: number;
+    };
+
+    type PhysicalPointOperateItem = {
+      data_type: CommonType.DataType;
+      is_storage: boolean;
+      key: string;
+      logic_point_id?: CommonType.IdType | null;
+      name: string;
+      protocol: PhysicalPointOperateProtocol;
+    };
+
+    type CreatePhysicalPointParams = {
+      gateway_id: CommonType.IdType;
+      physical_point_list: PhysicalPointOperateItem[];
     };
 
     type PhysicalPoint = Api.Common.CommonRecord<{
