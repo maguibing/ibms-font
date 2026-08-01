@@ -47,11 +47,17 @@ interface Props {
   mode: TaskPointRuleEditorMode;
   disabled?: boolean;
   deviceSourceType?: TaskRuleDeviceSourceType;
+  showConditionFreq?: boolean;
+  hideConditionRelation?: boolean;
+  conditionLogicOperatorType?: Api.Task.TaskLogicalOperatorType;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   disabled: false,
-  deviceSourceType: 1
+  deviceSourceType: 1,
+  showConditionFreq: true,
+  hideConditionRelation: false,
+  conditionLogicOperatorType: 1
 });
 
 const model = defineModel<TaskPointRuleEditorModel>('model', { required: true });
@@ -84,12 +90,14 @@ function getDeviceTypePointRequestParams(device?: TaskRuleDeviceOption | null) {
 
 function addCondition() {
   addItem(conditionModel.value.conds, maxConditionCount, `条件项最多添加 ${maxConditionCount} 个`, () =>
-    createDefaultCondition(2, props.deviceSourceType)
+    createDefaultCondition(props.conditionLogicOperatorType, props.deviceSourceType)
   );
 }
 
 function removeCondition(index: number) {
-  removeItem(conditionModel.value.conds, index, () => createDefaultCondition(1, props.deviceSourceType));
+  removeItem(conditionModel.value.conds, index, () =>
+    createDefaultCondition(props.conditionLogicOperatorType, props.deviceSourceType)
+  );
 }
 
 function addConditionPoint(condition: TaskConditionEditor) {
@@ -216,7 +224,7 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
 
           <NForm class="mt-14px" label-placement="top" :show-feedback="false" :disabled="props.disabled">
             <NGrid responsive="screen" item-responsive :x-gap="16" :y-gap="4">
-              <NFormItemGi span="24 m:16" :label="conditionDeviceLabel">
+              <NFormItemGi :span="props.hideConditionRelation ? 24 : '24 m:16'" :label="conditionDeviceLabel">
                 <RemoteSearchSelect
                   v-model:value="condition.device_source_id"
                   :request="fetchConditionDeviceSourceList"
@@ -230,7 +238,7 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
                   @selected-change="syncConditionDevice(condition, $event)"
                 />
               </NFormItemGi>
-              <NFormItemGi span="24 m:8" label="条件项关系">
+              <NFormItemGi v-if="!props.hideConditionRelation" span="24 m:8" label="条件项关系">
                 <NSelect
                   v-model:value="condition.logic_operator_type"
                   disabled
@@ -330,6 +338,7 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
       </div>
 
       <section
+        v-if="props.showConditionFreq"
         class="mt-2px rounded-8px border border-#e2e8f0/72 border-solid bg-white p-16px shadow-[0_8px_22px_rgba(15,23,42,0.05)] dark:border-#2f3338 dark:bg-#1f2228 dark:shadow-none [&_.n-form-item-label]:font-500 [&_.n-form-item]:mb-0"
       >
         <div

@@ -248,8 +248,9 @@ declare namespace Api {
     };
 
     type DevicePointHistoryParams = {
-      agg_type: number;
-      logic_point_key_list: string[];
+      agg_type?: number;
+      logic_point_key_list?: string[];
+      physical_point_key_list?: string[];
       stat_type: number;
       time_range: {
         start_at: number;
@@ -265,6 +266,20 @@ declare namespace Api {
         scale?: number;
         unit?: string;
       };
+      switch_val?: {
+        value?: string | number | boolean;
+        alias?: string;
+        unit?: string;
+      };
+      str_val?: {
+        value?: string;
+        unit?: string;
+      };
+      enum_val?: {
+        value?: string | number;
+        alias?: string;
+        unit?: string;
+      };
     };
 
     type DevicePointHistoryStatData = {
@@ -275,6 +290,8 @@ declare namespace Api {
 
     type DevicePointHistoryTrend = {
       logic_point?: PointOption;
+      physical_point?: PointOption;
+      data_type?: CommonType.DataType | number;
       point_trends?: DevicePointHistoryValue[];
     };
 
@@ -428,5 +445,113 @@ declare namespace Api {
         data_type: CommonType.DataType;
       }
     >;
+
+    type VirtualPointDurationSetting = {
+      durations: number;
+      time_type: Api.Task.TaskConditionTimeType;
+    };
+
+    type VirtualPointThresholdAssignRule = {
+      repeat_times?: number;
+      duration?: VirtualPointDurationSetting;
+      assign_value: Api.Task.TaskConditionSingleValue;
+    };
+
+    type VirtualPointThresholdAssignSetting = {
+      accumulate_type: 1 | 2 | 3;
+      immediate_assign?: {
+        assign_value: Api.Task.TaskConditionSingleValue;
+      };
+      count_accumulate?: {
+        window: VirtualPointDurationSetting;
+        assign_rules: VirtualPointThresholdAssignRule[];
+      };
+      duration_accumulate?: {
+        window: VirtualPointDurationSetting;
+        assign_rules: VirtualPointThresholdAssignRule[];
+      };
+      conds: Api.Task.TaskCondition[];
+    };
+
+    type VirtualPointSegmentMappingRule = {
+      min_val: number;
+      max_val: number;
+      bound_type: 1 | 2 | 3 | 4;
+      output_value: Api.Task.TaskConditionSingleValue;
+      remark: string;
+    };
+
+    type VirtualPointSegmentMappingSetting = {
+      match_source_type?: 1 | 2;
+      source_logic_point_id?: CommonType.IdType;
+      match_expression: string;
+      has_default_value: boolean;
+      default_value?: Api.Task.TaskConditionSingleValue;
+      default_bound_type: 1 | 2 | 3 | 4;
+      rules: VirtualPointSegmentMappingRule[];
+    };
+
+    type VirtualPointStatisticalSetting = {
+      conds: Api.Task.TaskCondition[];
+      accumulate_value: number;
+    };
+
+    type VirtualPointSetting = {
+      valid_time_ranges?: Array<{ start_at: number; end_at: number }>;
+      point?: DeviceTypePointSetting;
+      formula?: { expression?: string };
+      threshold_assign?: VirtualPointThresholdAssignSetting;
+      segment_mapping?: VirtualPointSegmentMappingSetting;
+      statistical?: VirtualPointStatisticalSetting;
+      [key: string]: unknown;
+    };
+
+    type VirtualPoint = Api.Common.CommonRecord<{
+      id: CommonType.IdType;
+      logic_point_id?: CommonType.IdType;
+      physical_point_id?: CommonType.IdType;
+      belong_device_id?: CommonType.IdType;
+      device_id?: CommonType.IdType;
+      compute_mode?: number;
+      status?: number;
+      setting?: VirtualPointSetting;
+    }>;
+
+    type VirtualPointListExtra = {
+      logic_point_map?: Record<string, Pick<LogicPoint, 'id' | 'name' | 'key' | 'device_id'>>;
+      physical_point_map?: Record<string, Pick<PhysicalPoint, 'id' | 'name' | 'key' | 'is_storage'>>;
+    };
+
+    type VirtualPointList = Api.Common.PaginatingQueryRecord<VirtualPoint, VirtualPointListExtra>;
+
+    type VirtualPointDetailResponse = VirtualPointListExtra & {
+      virtual_point: VirtualPoint;
+      device_map?: Record<string, Pick<Device, 'id' | 'name' | 'key'>>;
+      device_type_map?: CommonType.IdNameMap;
+      device_type_point_map?: Record<string, Api.Task.TaskDeviceTypePointMapItem>;
+    };
+
+    type VirtualPointOperateParams = {
+      id?: CommonType.IdType;
+      name: string;
+      key: string;
+      belong_device_id: CommonType.IdType;
+      compute_mode: number;
+      status: number;
+      is_storage: boolean;
+      setting: VirtualPointSetting;
+    };
+
+    type ValidateVirtualPointFormulaParams = {
+      expression: string;
+    };
+
+    type ValidateVirtualPointFormulaResponse = {
+      is_valid?: boolean;
+      result?: number | string;
+      err_msg?: string;
+      msg?: string;
+      detail?: string;
+    };
   }
 }

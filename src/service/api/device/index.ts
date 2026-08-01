@@ -228,6 +228,7 @@ export function fetchGetDevicePointHistoryTrend(data: Api.Device.DevicePointHist
 /** 获取逻辑点位树 */
 export function fetchGetLogicPointTree(data?: {
   filter_not_storage?: boolean;
+  filter_device_type?: boolean;
   data_type_list?: CommonType.DataType[];
 }) {
   return request<Api.Device.LogicPointTreeResponse>({
@@ -277,6 +278,60 @@ export function fetchCreatePhysicalPoint(data: Api.Device.CreatePhysicalPointPar
 export function fetchDeletePhysicalPoint(data: Api.Common.CommonIdList) {
   return request({
     url: '/DeletePhysicalPoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 获取虚拟点列表 */
+export function fetchGetVirtualPointList(data: CommonType.CommonListQueryParams) {
+  return request<Api.Device.VirtualPointList>({
+    url: '/ListVirtualPoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 获取虚拟点详情 */
+export function fetchGetVirtualPoint(data: CommonType.CommonRequestOptions & { id: CommonType.IdType }) {
+  return request<Api.Device.VirtualPointDetailResponse>({
+    url: '/GetVirtualPoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 新增虚拟点 */
+export function fetchCreateVirtualPoint(data: Api.Device.VirtualPointOperateParams) {
+  return request({
+    url: '/CreateVirtualPoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 修改虚拟点 */
+export function fetchUpdateVirtualPoint(data: Api.Device.VirtualPointOperateParams) {
+  return request({
+    url: '/UpdateVirtualPoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 删除虚拟点 */
+export function fetchDeleteVirtualPoint(data: Api.Common.CommonIdList) {
+  return request({
+    url: '/DeleteVirtualPoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 校验虚拟点公式 */
+export function fetchValidateVirtualPointFormula(data: Api.Device.ValidateVirtualPointFormulaParams) {
+  return request<Api.Device.ValidateVirtualPointFormulaResponse>({
+    url: '/ValidateVirtualPointFormula',
     method: 'post',
     data
   });

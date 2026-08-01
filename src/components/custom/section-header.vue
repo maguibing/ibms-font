@@ -28,10 +28,10 @@ const indicatorClass = computed(() => indicatorClassMap[props.type]);
 </script>
 
 <template>
-  <div class="min-h-40px flex items-center justify-between gap-16px lt-sm:flex-col lt-sm:items-start">
-    <div class="min-w-0 flex items-center gap-10px">
-      <span class="h-28px w-4px flex-none rounded-4px" :class="indicatorClass"></span>
-      <div class="min-w-0 text-15px text-[var(--n-text-color-1)] font-600 leading-20px">{{ title }}</div>
+  <div class="min-h-32px flex items-center justify-between gap-12px lt-sm:flex-col lt-sm:items-start">
+    <div class="min-w-0 flex items-center gap-8px">
+      <span class="h-24px w-4px flex-none rounded-4px" :class="indicatorClass"></span>
+      <div class="min-w-0 text-14px text-[var(--n-text-color-1)] font-600 leading-18px">{{ title }}</div>
     </div>
 
     <div v-if="slots.actions" class="flex flex-none items-center gap-8px lt-sm:w-full lt-sm:justify-end">
