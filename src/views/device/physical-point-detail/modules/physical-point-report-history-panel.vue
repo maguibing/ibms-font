@@ -30,7 +30,7 @@ const SECOND_MILLISECONDS = 1000;
 
 const props = defineProps<Props>();
 
-const reportViewMode = shallowRef<ReportViewMode>('chart');
+const reportViewMode = shallowRef<ReportViewMode>('table');
 const loading = shallowRef(false);
 const dateRange = shallowRef<[number, number]>(createRecentHourDateRange());
 const trend = shallowRef<Api.Device.DevicePointHistoryTrend | null>(null);

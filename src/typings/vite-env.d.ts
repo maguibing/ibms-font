@@ -119,6 +119,7 @@ declare namespace Env {
     readonly VITE_APP_RSA_PUBLIC_KEY?: string;
     readonly VITE_APP_RSA_PRIVATE_KEY?: string;
     readonly VITE_APP_WEBSOCKET: CommonType.YesOrNo;
+    readonly VITE_APP_WEBSOCKET_URL?: string;
     readonly VITE_APP_SSE: CommonType.YesOrNo;
     readonly VITE_APP_SCENE?: 'pt' | 'cp' | 'pj';
   }

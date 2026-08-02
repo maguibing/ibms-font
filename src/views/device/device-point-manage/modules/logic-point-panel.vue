@@ -161,7 +161,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
           if (!row.physical_point_id) return '-';
 
           return renderPointLink(getExtraMapName('physical_point_map', row.physical_point_id), () =>
-            handlePhysicalPointView(row.physical_point_id!)
+            handlePhysicalPointPanelJump(row.physical_point_id!)
           );
         }
       },
@@ -215,10 +215,6 @@ function getExtraMapName(mapKey: NameMapKey, id?: CommonType.IdType) {
   return logicPointExtra.value[mapKey]?.[String(id)]?.name ?? '-';
 }
 
-function getPhysicalPointKey(id: CommonType.IdType) {
-  return logicPointExtra.value.physical_point_map?.[String(id)]?.key ?? '';
-}
-
 function getCurrentValue(row: Api.Device.LogicPoint) {
   if (!row.physical_point_id) return null;
 
@@ -260,7 +256,11 @@ function handleDeviceView(id: CommonType.IdType) {
   routerPushByKey('device_device-detail', { query: { id: String(id) } });
 }
 
-function handlePhysicalPointView(id: CommonType.IdType) {
+function getPhysicalPointKey(id: CommonType.IdType) {
+  return logicPointExtra.value.physical_point_map?.[String(id)]?.key ?? '';
+}
+
+function handlePhysicalPointPanelJump(id: CommonType.IdType) {
   const key = getPhysicalPointKey(id);
 
   if (!key) {
@@ -269,6 +269,15 @@ function handlePhysicalPointView(id: CommonType.IdType) {
   }
 
   emit('jumpToPhysicalPoint', key);
+}
+
+function handlePhysicalPointView(id: CommonType.IdType) {
+  routerPushByKey('device_physical-point-detail', {
+    query: {
+      id: String(id),
+      tab: 'physical'
+    }
+  });
 }
 
 function handleBindPhysicalPoint(row: Api.Device.LogicPoint) {

@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import { onMounted, shallowRef } from 'vue';
+import { nextTick, onMounted, shallowRef } from 'vue';
 import { useRoute } from 'vue-router';
 import { useLoading } from '@sa/hooks';
 import { fetchGetPhysicalPoint } from '@/service/api/device';
 import CopyableValue from '@/components/custom/copyable-value.vue';
 import EnumTag from '@/components/custom/enum-tag.vue';
+import { MessageType } from '@/enum/business';
+import type { RealTimeType } from '@/enum/business';
+import { useRealtimeSubscription } from '@/hooks/business/use-realtime-subscription';
 import { useRouterPush } from '@/hooks/common/router';
 import { useAppStore } from '@/store/modules/app';
 import { displayValue } from '@/utils/common-methods';
+import { sendWebSocketMessage } from '@/utils/websocket';
 import PhysicalPointCommandHistoryPanel from './modules/physical-point-command-history-panel.vue';
+import PhysicalPointRealtimeDataPanel from './modules/physical-point-realtime-data-panel.vue';
 import PhysicalPointReportHistoryPanel from './modules/physical-point-report-history-panel.vue';
 
 defineOptions({
@@ -24,12 +29,37 @@ const appStore = useAppStore();
 const physicalPoint = shallowRef<Api.Device.PhysicalPoint | null>(null);
 const activeTab = shallowRef('realtime-data');
 
+function buildRealtimePayload(realTimeType: RealTimeType) {
+  if (!physicalPoint.value) return null;
+
+  return {
+    project_id: Number(physicalPoint.value.project_id),
+    real_time_type: realTimeType,
+    biz_type: 1,
+    physical_point_key_list: [String(physicalPoint.value.key)]
+  };
+}
+
+function sendRealtimeMessage(realTimeType: RealTimeType) {
+  const payload = buildRealtimePayload(realTimeType);
+  if (!payload) return false;
+
+  return sendWebSocketMessage({
+    type: MessageType.DevicePointRealTimeData,
+    payload
+  });
+}
+
+const { subscribe: subscribeRealtimeData, isActive: isRealtimeActive } = useRealtimeSubscription(sendRealtimeMessage);
+
 async function getPhysicalPointDetail(id: number) {
   startLoading();
   const { data, error } = await fetchGetPhysicalPoint({ id }).finally(endLoading);
-  if (error) return;
+  if (error || !isRealtimeActive()) return;
 
   physicalPoint.value = data.physical_point;
+  await nextTick();
+  subscribeRealtimeData();
 }
 
 onMounted(() => {
@@ -93,7 +123,9 @@ onMounted(() => {
       content-class="h-full min-h-0 flex-col-stretch"
     >
       <NTabs v-model:value="activeTab" type="line" animated class="h-full min-h-0">
-        <NTabPane name="realtime-data" tab="实时数据" />
+        <NTabPane name="realtime-data" tab="实时数据" display-directive="show">
+          <PhysicalPointRealtimeDataPanel :physical-point="physicalPoint" />
+        </NTabPane>
         <NTabPane name="report-history" tab="上报历史">
           <PhysicalPointReportHistoryPanel :physical-point="physicalPoint" />
         </NTabPane>
