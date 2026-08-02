@@ -239,15 +239,15 @@ function formatCurrentValue(row: Api.Device.LogicPoint) {
   const dataType = Number(currentValue.data_type ?? getLogicPointDataType(row));
 
   if (dataType === 1) {
-    const value = currentValue.num_val?.value;
+    const value = currentValue.num_val?.value ?? 0;
     const unit = currentValue.num_val?.unit;
 
-    return value === undefined || value === null ? '-' : `${value}${unit ? ` ${unit}` : ''}`;
+    return `${value}${unit ? ` ${unit}` : ''}`;
   }
 
-  if (dataType === 2) return displayValue(currentValue.switch_val?.alias ?? currentValue.switch_val?.value);
-  if (dataType === 3) return displayValue(currentValue.str_val?.value);
-  if (dataType === 4) return displayValue(currentValue.enum_val?.value);
+  if (dataType === 2) return displayValue(currentValue.switch_val?.alias || currentValue.switch_val?.value, '0');
+  if (dataType === 3) return displayValue(currentValue.str_val?.value, '0');
+  if (dataType === 4) return displayValue(currentValue.enum_val?.alias || currentValue.enum_val?.value, '0');
 
   return '-';
 }
