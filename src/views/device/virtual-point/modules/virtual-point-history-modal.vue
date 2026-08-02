@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, shallowRef, watch } from 'vue';
-import dayjs from 'dayjs';
 import type { DataTableColumns } from 'naive-ui';
 import { fetchGetDevicePointHistoryTrend } from '@/service/api/device';
 import { displayValue, formatUnixDateTime } from '@/utils/common-methods';
@@ -23,6 +22,8 @@ interface Props {
 }
 
 const HISTORY_STAT_TYPE = 5;
+const SECOND_MILLISECONDS = 1000;
+const HOUR_SECONDS = 60 * 60;
 
 const props = defineProps<Props>();
 const visible = defineModel<boolean>('visible', { default: false });
@@ -35,6 +36,10 @@ let requestSequence = 0;
 const computeModeLabel = computed(() => virtualPointComputeModeMap[props.row?.compute_mode ?? 0] ?? '-');
 const isStored = computed(() => Boolean(props.physicalPoint?.is_storage));
 const canQuery = computed(() => Boolean(props.physicalPoint?.key && dateRange.value.length === 2));
+const dateRangeFormattedValue = computed<[string, string]>(() => [
+  String(dateRange.value[0]),
+  String(dateRange.value[1])
+]);
 const tableData = computed<HistoryTableRow[]>(() =>
   (trend.value?.point_trends ?? []).map((item, index) => ({
     id: `${item.ts ?? 'empty'}-${index}`,
@@ -51,20 +56,22 @@ const columns: DataTableColumns<HistoryTableRow> = [
   },
   {
     key: 'value',
-    title: '数值',
+    title: '上报值',
     align: 'center',
     ellipsis: { tooltip: true }
   }
 ];
-const shortcuts = {
-  '近 1 小时': () => createDefaultDateRange(),
-  '近 1 天': () => [dayjs().subtract(1, 'day').valueOf(), dayjs().valueOf()] as [number, number],
-  '近 7 天': () => [dayjs().subtract(7, 'day').valueOf(), dayjs().valueOf()] as [number, number]
-};
 
 /** 默认查询最近一小时历史记录。 */
 function createDefaultDateRange(): [number, number] {
-  return [dayjs().subtract(1, 'hour').valueOf(), dayjs().valueOf()];
+  return createRecentDateRange(HOUR_SECONDS);
+}
+
+/** 生成最近一段时间的秒级时间范围。 */
+function createRecentDateRange(seconds: number): [number, number] {
+  const endAt = Math.floor(Date.now() / SECOND_MILLISECONDS);
+
+  return [endAt - seconds, endAt];
 }
 
 /** 兼容不同数据类型的历史值展示。 */
@@ -89,10 +96,10 @@ function reset() {
 }
 
 /** 选择时间范围后立即按新范围请求历史数据。 */
-function handleDateRangeUpdate(value: [number, number] | null) {
+function handleDateRangeUpdate(value: [string, string] | null) {
   if (!value) return;
 
-  dateRange.value = value;
+  dateRange.value = [Number(value[0]), Number(value[1])];
   getHistoryData();
 }
 
@@ -117,8 +124,8 @@ async function getHistoryData() {
       physical_point_key_list: [physicalPointKey],
       stat_type: HISTORY_STAT_TYPE,
       time_range: {
-        start_at: dayjs(dateRange.value[0]).unix(),
-        end_at: dayjs(dateRange.value[1]).unix()
+        start_at: dateRange.value[0],
+        end_at: dateRange.value[1]
       }
     });
     if (sequence !== requestSequence) return;
@@ -160,13 +167,13 @@ watch(visible, show => {
       <div class="flex flex-wrap items-center gap-12px">
         <span class="shrink-0 text-14px text-[var(--n-text-color-2)]">时间范围</span>
         <NDatePicker
-          :value="dateRange"
+          :formatted-value="dateRangeFormattedValue"
           type="datetimerange"
+          value-format="t"
           :clearable="false"
-          :shortcuts="shortcuts"
           :default-time="['00:00:00', '23:59:59']"
           class="min-w-300px flex-1 lt-sm:w-full"
-          @update:value="value => handleDateRangeUpdate(value as [number, number] | null)"
+          @update:formatted-value="value => handleDateRangeUpdate(value as [string, string] | null)"
         />
         <NButton type="primary" :loading="loading" :disabled="!canQuery" @click="handleRefresh">刷新</NButton>
       </div>
