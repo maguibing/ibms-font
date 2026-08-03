@@ -1,7 +1,12 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useLoading } from '@sa/hooks';
-import { fetchCreateGateway, fetchListIothubNetworkInterface } from '@/service/api/gateway';
+import {
+  fetchCreateGateway,
+  fetchGetGateway,
+  fetchListIothubNetworkInterface,
+  fetchUpdateGateway
+} from '@/service/api/gateway';
 import { fetchGetSpaceTrees } from '@/service/api/space';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
@@ -17,10 +22,18 @@ defineOptions({
   name: 'GatewayOperateDrawer'
 });
 
+interface Props {
+  operateType: NaiveUI.TableOperateType;
+  rowId?: CommonType.IdType | null;
+}
+
 interface Emits {
   (e: 'submitted'): void;
 }
 
+const props = withDefaults(defineProps<Props>(), {
+  rowId: null
+});
 const emit = defineEmits<Emits>();
 
 const visible = defineModel<boolean>('visible', {
@@ -35,12 +48,26 @@ const {
   startLoading: startNetworkInterfaceLoading,
   endLoading: endNetworkInterfaceLoading
 } = useLoading();
+const { loading: detailLoading, startLoading: startDetailLoading, endLoading: endDetailLoading } = useLoading();
 const { loading: submitLoading, startLoading: startSubmitLoading, endLoading: endSubmitLoading } = useLoading();
 
 const spaceData = ref<Api.Space.Space[]>([]);
 const networkInterfaceOptions = ref<CommonType.Option<string, string>[]>([]);
 const expandedKeys = ref<CommonType.IdType[]>([]);
 const model = ref<Api.Gateway.GatewayOperateDrawerModel>(createDefaultModel());
+const detailProtocol = ref<Api.Gateway.GatewayCreateProtocol | null>(null);
+const editingLoaded = ref(false);
+
+const title = computed(() => {
+  const titles: Record<NaiveUI.TableOperateType, string> = {
+    add: '新增边缘设备',
+    edit: '编辑边缘设备'
+  };
+
+  return titles[props.operateType];
+});
+const isEdit = computed(() => props.operateType === 'edit');
+const confirmDisabled = computed(() => isEdit.value && !editingLoaded.value);
 
 const statusOptions: CommonType.Option<Api.Gateway.GatewayStatus, string>[] = [
   { label: '启用', value: 1 },
@@ -133,6 +160,50 @@ function createDefaultModel(): Api.Gateway.GatewayOperateDrawerModel {
   };
 }
 
+function createNzHttpClientModel(
+  currentHttpClient: Api.Gateway.GatewayHttpClientModel
+): Api.Gateway.GatewayHttpClientModel {
+  return {
+    ...createGatewayHttpClientModel(),
+    poll_interval: 10,
+    poll_route: {
+      method: 'GET',
+      path: '/api/Point/GetAll?pageNumber=1&pageSize=2000',
+      token_key: 'Athorization',
+      token_placement: 2,
+      with_auth: true
+    },
+    send_route: {
+      method: 'POST',
+      path: '/api/Point/SendMqMessage',
+      token_key: 'Athorization',
+      token_placement: 2,
+      with_auth: true
+    },
+    server: currentHttpClient.server,
+    timeout: currentHttpClient.timeout,
+    token: {
+      body: [
+        {
+          key: 'userName',
+          value: ''
+        },
+        {
+          key: 'userPassword',
+          value: ''
+        }
+      ],
+      expire_field: '',
+      expire_seconds: 1800,
+      headers: [],
+      is_enable: true,
+      method: 'POST',
+      path: '/api/Account/Login',
+      token_field: 'data.0.token'
+    }
+  };
+}
+
 async function getSpaceData() {
   startSpaceLoading();
   const { data, error } = await fetchGetSpaceTrees().finally(endSpaceLoading);
@@ -164,20 +235,164 @@ async function getNetworkInterfaceOptions() {
 
 function resetModel() {
   model.value = createDefaultModel();
+  detailProtocol.value = null;
+  editingLoaded.value = false;
 }
 
 function closeDrawer() {
   visible.value = false;
 }
 
+function recordToKeyValueRows(
+  record: Api.Gateway.GatewayHttpClientToken['body']
+): Api.Gateway.GatewayHttpClientKeyValueRow[] {
+  return Object.entries(record || {}).map(([key, value]) => ({
+    key,
+    value
+  }));
+}
+
+function createHttpClientRouteModel(
+  route: Api.Gateway.GatewayHttpClientRoute
+): Api.Gateway.GatewayHttpClientRouteModel {
+  return {
+    method: route.method,
+    path: route.path,
+    token_key: route.token_key,
+    token_placement: route.token_placement,
+    with_auth: route.with_auth
+  };
+}
+
+function fillModelByGateway(gateway: Api.Gateway.GatewayDetail) {
+  const nextModel = createDefaultModel();
+  const { protocol } = gateway;
+
+  nextModel.desc = gateway.desc;
+  nextModel.key = gateway.key;
+  nextModel.name = gateway.name;
+  nextModel.p_key = gateway.p_key;
+  nextModel.password = gateway.password;
+  nextModel.protocol_type = gateway.protocol_type;
+  nextModel.space_id = gateway.space_id;
+  nextModel.status = gateway.status;
+  nextModel.username = gateway.username;
+  if (protocol.data_format) {
+    nextModel.data_format = protocol.data_format;
+  }
+
+  const httpClient = protocol.http_client;
+  if (httpClient) {
+    nextModel.http_client = {
+      poll_interval: httpClient.poll_interval,
+      poll_route: createHttpClientRouteModel(httpClient.poll_route),
+      send_route: createHttpClientRouteModel(httpClient.send_route),
+      server: httpClient.server,
+      timeout: httpClient.timeout,
+      token: {
+        body: recordToKeyValueRows(httpClient.token.body),
+        expire_field: httpClient.token.expire_field,
+        expire_seconds: httpClient.token.expire_seconds,
+        headers: recordToKeyValueRows(httpClient.token.headers),
+        is_enable: httpClient.token.is_enable,
+        method: httpClient.token.method,
+        path: httpClient.token.path,
+        token_field: httpClient.token.token_field
+      }
+    };
+  }
+
+  const modbus = protocol.modbus;
+  if (modbus) {
+    nextModel.modbus = {
+      poll_interval: modbus.poll_interval,
+      tcp: {
+        host: modbus.tcp.host,
+        port: modbus.tcp.port
+      },
+      timeout: modbus.timeout
+    };
+  }
+
+  const bacnet = protocol.bacnet;
+  if (bacnet) {
+    nextModel.bacnet = {
+      ip: {
+        interface_name: bacnet.ip.interface_name,
+        local_port: bacnet.ip.local_port
+      },
+      poll_interval: bacnet.poll_interval,
+      timeout: bacnet.timeout
+    };
+  }
+
+  const opcua = protocol.opcua;
+  if (opcua) {
+    nextModel.opcua = {
+      authentication: {
+        auth_type: opcua.authentication.auth_type,
+        user_auth: {
+          password: opcua.authentication.user_auth.password,
+          username: opcua.authentication.user_auth.username
+        }
+      },
+      endpoint_url: opcua.endpoint_url,
+      is_auto_discovery: opcua.is_auto_discovery,
+      is_subscription: opcua.is_subscription,
+      poll_interval: opcua.poll_interval,
+      request_timeout: opcua.request_timeout,
+      security_policy: {
+        mode: opcua.security_policy.mode,
+        policy_uri: opcua.security_policy.policy_uri
+      },
+      session_timeout: opcua.session_timeout,
+      timeout: opcua.timeout
+    };
+  }
+
+  model.value = nextModel;
+}
+
+async function getGatewayDetail(id: CommonType.IdType) {
+  startDetailLoading();
+  const { data, error } = await fetchGetGateway({ id, options: [{ key: 1 }, { key: 2 }] }).finally(endDetailLoading);
+
+  if (error) {
+    window.$message?.error('边缘设备详情获取失败');
+    return;
+  }
+
+  detailProtocol.value = data.gateway.protocol;
+  fillModelByGateway(data.gateway);
+  editingLoaded.value = true;
+}
+
+async function handleUpdateModel() {
+  resetModel();
+
+  if (isEdit.value) {
+    await getGatewayDetail(props.rowId!);
+  }
+}
+
+function handleDataFormatChange(value: Api.Gateway.DataFormat | null) {
+  model.value.data_format = (Number(value) || 2) as Api.Gateway.DataFormat;
+
+  if (isHttpClient.value && model.value.data_format === 4) {
+    model.value.http_client = createNzHttpClientModel(model.value.http_client);
+  }
+}
+
 function createProtocolParams(): Api.Gateway.GatewayCreateProtocol {
+  const currentDetailProtocol =
+    detailProtocol.value?.protocol_type === model.value.protocol_type ? detailProtocol.value : null;
   const protocol: Api.Gateway.GatewayCreateProtocol = {
     protocol_type: model.value.protocol_type
   };
 
   if (model.value.protocol_type === 1) {
     protocol.data_format = model.value.data_format;
-    protocol.mqtt = {
+    protocol.mqtt = currentDetailProtocol?.mqtt || {
       domain: '',
       port: 0
     };
@@ -185,7 +400,7 @@ function createProtocolParams(): Api.Gateway.GatewayCreateProtocol {
 
   if (model.value.protocol_type === 2) {
     protocol.data_format = model.value.data_format;
-    protocol.http_server = {
+    protocol.http_server = currentDetailProtocol?.http_server || {
       addr: '',
       path: ''
     };
@@ -281,21 +496,31 @@ function createSubmitPayload(): Api.Gateway.GatewayCreateParams {
 async function handleSubmit() {
   await validate();
 
-  startSubmitLoading();
-  const { error } = await fetchCreateGateway(createSubmitPayload()).finally(endSubmitLoading);
-  if (error) return;
+  const submitPayload = createSubmitPayload();
 
-  window.$message?.success($t('common.addSuccess'));
-  closeDrawer();
-  emit('submitted');
+  startSubmitLoading();
+  try {
+    const { error } = isEdit.value
+      ? await fetchUpdateGateway({
+          ...submitPayload,
+          id: props.rowId!
+        })
+      : await fetchCreateGateway(submitPayload);
+    if (error) return;
+
+    window.$message?.success(isEdit.value ? $t('common.updateSuccess') : $t('common.addSuccess'));
+    closeDrawer();
+    emit('submitted');
+  } finally {
+    endSubmitLoading();
+  }
 }
 
 watch(visible, () => {
   if (visible.value) {
-    resetModel();
     getSpaceData();
     getNetworkInterfaceOptions();
-    restoreValidation();
+    handleUpdateModel().then(() => restoreValidation());
   }
 });
 
@@ -310,20 +535,25 @@ watch(
 </script>
 
 <template>
-  <NDrawer v-model:show="visible" title="新增边缘设备" display-directive="show" :width="680" class="max-w-90%">
-    <NDrawerContent title="新增边缘设备" :native-scrollbar="false" closable>
+  <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="680" class="max-w-90%">
+    <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
         <NFormItem label="名称" path="name">
           <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入名称" />
         </NFormItem>
         <NFormItem label="主题" path="p_key">
-          <NInput v-model:value="model.p_key" maxlength="30" show-count placeholder="请输入主题" />
+          <NInput v-model:value="model.p_key" maxlength="30" show-count :disabled="isEdit" placeholder="请输入主题" />
         </NFormItem>
         <NFormItem label="标识" path="key">
-          <NInput v-model:value="model.key" maxlength="48" show-count placeholder="请输入标识" />
+          <NInput v-model:value="model.key" maxlength="48" show-count :disabled="isEdit" placeholder="请输入标识" />
         </NFormItem>
         <NFormItem label="协议" path="protocol_type">
-          <NSelect v-model:value="model.protocol_type" :options="GATEWAY_PROTOCOL_OPTIONS" placeholder="请选择协议" />
+          <NSelect
+            v-model:value="model.protocol_type"
+            :options="GATEWAY_PROTOCOL_OPTIONS"
+            :disabled="isEdit"
+            placeholder="请选择协议"
+          />
         </NFormItem>
         <NFormItem v-if="showDataFormat" label="数据格式" path="data_format">
           <NSelect
@@ -331,6 +561,7 @@ watch(
             :options="dataFormatOptions"
             :disabled="dataFormatDisabled"
             placeholder="请选择数据格式"
+            @update:value="handleDataFormatChange"
           />
         </NFormItem>
         <GatewayHttpClientConfig v-if="isHttpClient" v-model="model.http_client" />
@@ -523,13 +754,20 @@ watch(
           </NRadioGroup>
         </NFormItem>
         <NFormItem label="用户名" path="username">
-          <NInput v-model:value="model.username" maxlength="30" show-count placeholder="请输入用户名" />
+          <NInput
+            v-model:value="model.username"
+            maxlength="30"
+            show-count
+            :disabled="isEdit"
+            placeholder="请输入用户名"
+          />
         </NFormItem>
         <NFormItem label="密码" path="password">
           <NInput
             v-model:value="model.password"
             type="password"
             show-password-on="click"
+            :disabled="isEdit"
             :input-props="{ autocomplete: 'new-password' }"
             placeholder="请输入密码"
           />
@@ -549,7 +787,14 @@ watch(
       <template #footer>
         <NSpace :size="16">
           <NButton @click="closeDrawer">{{ $t('common.cancel') }}</NButton>
-          <NButton type="primary" :loading="submitLoading" @click="handleSubmit">{{ $t('common.confirm') }}</NButton>
+          <NButton
+            type="primary"
+            :disabled="confirmDisabled"
+            :loading="submitLoading || detailLoading"
+            @click="handleSubmit"
+          >
+            {{ $t('common.confirm') }}
+          </NButton>
         </NSpace>
       </template>
     </NDrawerContent>

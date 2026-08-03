@@ -6,21 +6,22 @@ declare namespace Api {
 
     type Gateway = Api.Common.CommonRecord<{
       id: CommonType.IdType;
+      desc?: string;
       name: string;
       key: string;
+      p_key: string;
+      password: string;
+      project_id?: CommonType.IdType;
+      protocol?: GatewayCreateProtocol;
       status: GatewayStatus;
       link_status: number;
+      space_id?: CommonType.IdType;
+      sync_status?: number;
+      username: string;
       protocol_type: ProtocolType;
     }>;
 
     type GatewayList = Api.Common.PaginatingQueryRecord<Gateway>;
-
-    type GatewayDetailResponse = {
-      gateway: Gateway & {
-        protocol?: Record<string, any>;
-      };
-      protocol_setting?: Record<string, any>;
-    };
 
     type GatewayMqttProtocol = {
       domain: string;
@@ -43,10 +44,10 @@ declare namespace Api {
     };
 
     type GatewayHttpClientToken = {
-      body: Record<string, string>;
+      body?: Record<string, string> | null;
       expire_field: string;
       expire_seconds: number;
-      headers: Record<string, string>;
+      headers?: Record<string, string> | null;
       is_enable: boolean;
       method: string;
       path: string;
@@ -149,6 +150,40 @@ declare namespace Api {
       protocol_type: ProtocolType;
     };
 
+    type GatewayDetailBacnetProtocol = Omit<GatewayBacnetProtocol, 'ip'> & {
+      ip: GatewayBacnetProtocol['ip'] & {
+        local_addr: string;
+      };
+    };
+
+    type GatewayDetailModbusProtocol = GatewayModbusProtocol & {
+      rtu: {
+        baud: number;
+        data_bits: number;
+        parity: string;
+        serial: string;
+        stop_bits: number;
+      };
+    };
+
+    type GatewayDetailOpcUaProtocol = GatewayOpcUaProtocol & {
+      authentication: GatewayOpcUaProtocol['authentication'] & {
+        cert_auth: {
+          cert_file: string;
+          key_file: string;
+        };
+      };
+    };
+
+    type GatewayDetailProtocol = GatewayCreateProtocol & {
+      bacnet?: GatewayDetailBacnetProtocol;
+      http_client?: GatewayHttpClientProtocol;
+      http_server?: GatewayHttpServerProtocol;
+      modbus?: GatewayDetailModbusProtocol;
+      mqtt?: GatewayMqttProtocol;
+      opcua?: GatewayDetailOpcUaProtocol;
+    };
+
     type GatewayCreateParams = {
       desc: string;
       key: string;
@@ -161,6 +196,25 @@ declare namespace Api {
       status: GatewayStatus;
       username: string;
     };
+
+    type GatewayDetail = Gateway & {
+      deleted_at: number;
+      desc: string;
+      is_hidden: boolean;
+      password: string;
+      project_id: CommonType.IdType;
+      protocol: GatewayDetailProtocol;
+      space_id: CommonType.IdType;
+      sync_status: number;
+      username: string;
+    };
+
+    type GatewayDetailResponse = {
+      gateway: GatewayDetail;
+      space_map: Record<string, { id: CommonType.IdType; name: string }>;
+    };
+
+    type GatewayUpdateParams = GatewayCreateParams & Pick<Gateway, 'id'>;
 
     type GatewayOperateDrawerModel = {
       bacnet: {

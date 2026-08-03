@@ -27,6 +27,15 @@ export function fetchCreateGateway(data: Api.Gateway.GatewayCreateParams) {
   });
 }
 
+/** 修改边缘设备 */
+export function fetchUpdateGateway(data: Api.Gateway.GatewayUpdateParams) {
+  return request({
+    url: '/UpdateGateway',
+    method: 'post',
+    data
+  });
+}
+
 /** 获取物联网网关网卡列表 */
 export function fetchListIothubNetworkInterface() {
   return request<Api.Gateway.IothubNetworkInterfaceResponse>({

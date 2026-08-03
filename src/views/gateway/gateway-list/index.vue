@@ -10,6 +10,7 @@ import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import GatewayOperateDrawer from './modules/gateway-operate-drawer.vue';
 import GatewaySearch from './modules/gateway-search.vue';
+import GatewayViewDrawer from './modules/gateway-view-drawer.vue';
 import CopyableValue from '@/components/custom/copyable-value.vue';
 import {
   GATEWAY_LINK_STATUS_MAP,
@@ -25,6 +26,10 @@ const appStore = useAppStore();
 
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
 const drawerVisible = ref(false);
+const viewDrawerVisible = ref(false);
+const operateType = ref<NaiveUI.TableOperateType>('add');
+const editingId = ref<CommonType.IdType | null>(null);
+const viewingId = ref<CommonType.IdType | null>(null);
 const searchParams = ref<Api.Gateway.GatewaySearchParams>({
   pageNum: 1,
   pageSize: 10,
@@ -138,13 +143,14 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               type="primary"
               icon="material-symbols:visibility-outline"
               tooltipContent="查看"
+              onClick={() => handleView(row.id)}
             />,
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
-              onClick={handleDeveloping}
+              onClick={() => handleEdit(row.id)}
             />,
             <ButtonIcon
               text
@@ -169,13 +175,22 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         }
       }
     ]
-});
-
-function handleDeveloping() {
-  window.$message?.info('功能待开发');
-}
+  });
 
 function handleAdd() {
+  operateType.value = 'add';
+  editingId.value = null;
+  drawerVisible.value = true;
+}
+
+function handleView(id: CommonType.IdType) {
+  viewingId.value = id;
+  viewDrawerVisible.value = true;
+}
+
+function handleEdit(id: CommonType.IdType) {
+  operateType.value = 'edit';
+  editingId.value = id;
   drawerVisible.value = true;
 }
 
@@ -233,7 +248,13 @@ function handleSearch() {
         :pagination="mobilePagination"
         class="sm:h-full"
       />
-      <GatewayOperateDrawer v-model:visible="drawerVisible" @submitted="getDataByPage" />
+      <GatewayOperateDrawer
+        v-model:visible="drawerVisible"
+        :operate-type="operateType"
+        :row-id="editingId"
+        @submitted="getDataByPage"
+      />
+      <GatewayViewDrawer v-model:visible="viewDrawerVisible" :row-id="viewingId" />
     </NCard>
   </div>
 </template>

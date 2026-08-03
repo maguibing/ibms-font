@@ -1,4 +1,4 @@
-export type GatewayWithProtocol = Api.Gateway.Gateway & {
+export type GatewayWithProtocol = Omit<Api.Gateway.Gateway, 'protocol'> & {
   protocol?: Record<string, any>;
 };
 

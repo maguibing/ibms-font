@@ -397,8 +397,8 @@ function applyGatewayRecord(gateway: GatewayWithProtocol) {
   return true;
 }
 
-function fillModbusFromGatewayDetail(protocolSetting: Record<string, any>) {
-  const modbus = protocolSetting?.modbus || {};
+function fillModbusFromGatewayDetail(gateway: GatewayWithProtocol) {
+  const modbus = gateway.protocol?.modbus || {};
   const endSlaveId = Number(modbus.end_slave_id);
 
   if (Number.isFinite(endSlaveId)) {
@@ -417,10 +417,8 @@ function fillModbusFromGatewayDetail(protocolSetting: Record<string, any>) {
   }
 }
 
-function fillBacnetFromGatewayDetail(gateway: GatewayWithProtocol, protocolSetting: Record<string, any>) {
-  const protocolBacnet = gateway.protocol?.bacnet || {};
-  const settingBacnet = protocolSetting?.bacnet || {};
-  const bacnet = Object.keys(protocolBacnet).length > 0 ? protocolBacnet : settingBacnet;
+function fillBacnetFromGatewayDetail(gateway: GatewayWithProtocol) {
+  const bacnet = gateway.protocol?.bacnet || {};
   const ip = bacnet.ip || {};
   const interfaceName = String(ip.interface_name || '');
   const localAddr = String(ip.local_addr || '');
@@ -431,14 +429,14 @@ function fillBacnetFromGatewayDetail(gateway: GatewayWithProtocol, protocolSetti
   scanForm.bacnet.timeout = Number.isFinite(timeout) && timeout > 0 ? timeout : 3;
 }
 
-function fillProtocolFormByDetail(gateway: GatewayWithProtocol, protocolSetting: Record<string, any>) {
+function fillProtocolFormByDetail(gateway: GatewayWithProtocol) {
   if (isModbusProtocol.value) {
-    fillModbusFromGatewayDetail(protocolSetting);
+    fillModbusFromGatewayDetail(gateway);
     return;
   }
 
   if (isBacnetProtocol.value) {
-    fillBacnetFromGatewayDetail(gateway, protocolSetting);
+    fillBacnetFromGatewayDetail(gateway);
   }
 }
 
@@ -453,7 +451,7 @@ async function loadGatewayDetail(gatewayId: number) {
     return;
   }
 
-  const detailGateway = (data?.gateway ?? {}) as GatewayWithProtocol;
+  const detailGateway = data.gateway as GatewayWithProtocol;
   const detailGatewayId = getGatewayId(detailGateway.id) ?? gatewayId;
 
   selectedGateway.value = selectedGateway.value
@@ -467,7 +465,7 @@ async function loadGatewayDetail(gatewayId: number) {
         id: detailGatewayId
       } as GatewayWithProtocol);
 
-  fillProtocolFormByDetail(selectedGateway.value, data?.protocol_setting ?? {});
+  fillProtocolFormByDetail(selectedGateway.value);
 }
 
 async function handleGatewaySelected(record: RemoteSelectRecord | RemoteSelectRecord[] | null) {
