@@ -57,7 +57,7 @@ function handleSelectDevice(device: ScannedDevice) {
           <div
             v-for="device in filteredDeviceList"
             :key="device.scanKey"
-            class="cursor-pointer rounded-8px border border-solid px-12px py-10px transition-colors"
+            class="cursor-pointer rounded-8px border border-solid px-12px py-8px transition-colors"
             :class="
               activeDeviceKey === device.scanKey
                 ? 'border-primary/32 bg-primary/8'
@@ -65,27 +65,21 @@ function handleSelectDevice(device: ScannedDevice) {
             "
             @click="handleSelectDevice(device)"
           >
-            <div class="flex items-center justify-between gap-8px">
+            <div class="flex items-start justify-between gap-8px">
               <div
-                class="min-w-0 overflow-hidden text-14px text-[var(--n-text-color-1)] font-600 text-ellipsis whitespace-nowrap"
+                class="min-w-0 overflow-hidden text-14px text-[var(--n-text-color-1)] font-600 leading-20px text-ellipsis whitespace-nowrap"
               >
                 {{ device.name }}
               </div>
-              <NTag size="small" :type="getProtocolTagType(device.protocol)" :bordered="false">
+              <NTag size="small" :type="getProtocolTagType(device.protocol)" :bordered="false" class="flex-none">
                 {{ getGatewayProtocolLabel(resolveProtocolType(device.protocol)) }}
               </NTag>
             </div>
-            <div class="mt-6px break-all text-12px text-[var(--n-text-color-3)] leading-1.4">
-              地址：{{ device.address }}
-            </div>
-            <div v-if="isBacnetProtocol" class="mt-6px break-all text-12px text-[var(--n-text-color-3)] leading-1.4">
-              设备实例：{{ device.deviceInstance }}
-            </div>
-            <div v-if="isModbusProtocol" class="mt-6px break-all text-12px text-[var(--n-text-color-3)] leading-1.4">
-              从站地址：{{ device.modbus?.slave_id ?? '-' }}
-            </div>
-            <div v-if="isOpcUaProtocol" class="mt-6px break-all text-12px text-[var(--n-text-color-3)] leading-1.4">
-              节点 ID：{{ device.opcua?.node_id ?? '-' }}
+            <div class="mt-4px flex flex-col gap-3px break-all text-12px text-[var(--n-text-color-3)] leading-18px">
+              <div>地址：{{ device.address }}</div>
+              <div v-if="isBacnetProtocol">设备实例：{{ device.deviceInstance }}</div>
+              <div v-if="isModbusProtocol">从站地址：{{ device.modbus?.slave_id ?? '-' }}</div>
+              <div v-if="isOpcUaProtocol">节点 ID：{{ device.opcua?.node_id ?? '-' }}</div>
             </div>
           </div>
         </template>
