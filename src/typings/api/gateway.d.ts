@@ -15,6 +15,13 @@ declare namespace Api {
 
     type GatewayList = Api.Common.PaginatingQueryRecord<Gateway>;
 
+    type GatewayDetailResponse = {
+      gateway: Gateway & {
+        protocol?: Record<string, any>;
+      };
+      protocol_setting?: Record<string, any>;
+    };
+
     type GatewayMqttProtocol = {
       domain: string;
       port: number;

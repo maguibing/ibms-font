@@ -14,6 +14,7 @@ import { DATA_TYPE_OPTIONS } from '@/constants/device-point';
 import { displayValue } from '@/utils/common-methods';
 import DevicePointCommandModal from './device-point-command-modal.vue';
 import PhysicalPointOperateDrawer from './physical-point-operate-drawer.vue';
+import PhysicalPointScanDrawer from './physical-point-scan-drawer.vue';
 
 defineOptions({
   name: 'PhysicalPointPanel'
@@ -38,6 +39,9 @@ const devicePointCommandModalRef =
   useTemplateRef<InstanceType<typeof DevicePointCommandModal>>('devicePointCommandModalRef');
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
 const operateDrawerVisible = shallowRef(false);
+const operateType = shallowRef<NaiveUI.TableOperateType>('add');
+const editingPhysicalPointId = shallowRef<CommonType.IdType | null>(null);
+const scanDrawerVisible = shallowRef(false);
 
 const searchParams = ref<Api.Device.PhysicalPointSearchParams>({
   pageNum: 1,
@@ -302,8 +306,31 @@ function handleCommand(row: Api.Device.PhysicalPoint) {
   });
 }
 
+/** 打开新增物理点位抽屉。 */
 function handleAdd() {
+  operateType.value = 'add';
+  editingPhysicalPointId.value = null;
   operateDrawerVisible.value = true;
+}
+
+/**
+ * 打开编辑物理点位抽屉。
+ *
+ * @param row 物理点位行
+ */
+function handleEdit(row: Api.Device.PhysicalPoint) {
+  operateType.value = 'edit';
+  editingPhysicalPointId.value = row.id;
+  operateDrawerVisible.value = true;
+}
+
+function handleScan() {
+  scanDrawerVisible.value = true;
+}
+
+function handlePhysicalPointSubmitted() {
+  checkedRowKeys.value = [];
+  getDataByPage(1);
 }
 
 function renderOperate(row: Api.Device.PhysicalPoint) {
@@ -321,7 +348,7 @@ function renderOperate(row: Api.Device.PhysicalPoint) {
       type: 'primary',
       icon: 'material-symbols:edit-outline-rounded',
       tooltipContent: '编辑',
-      disabled: true
+      onClick: () => handleEdit(row)
     }),
     h(ButtonIcon, {
       text: true,
@@ -449,7 +476,16 @@ watch(
             @add="handleAdd"
             @delete="handleBatchDelete"
             @refresh="getData"
-          />
+          >
+            <template #prefix>
+              <NButton size="small" ghost type="primary" @click="handleScan">
+                <template #icon>
+                  <SvgIcon icon="material-symbols:radar" class="text-icon" />
+                </template>
+                扫描点位
+              </NButton>
+            </template>
+          </TableHeaderOperation>
         </NSpace>
       </template>
       <DataTable
@@ -469,8 +505,11 @@ watch(
     <DevicePointCommandModal ref="devicePointCommandModalRef" />
     <PhysicalPointOperateDrawer
       v-model:visible="operateDrawerVisible"
+      :operate-type="operateType"
       :prefill-gateway="selectedGateway"
-      @submitted="getDataByPage(1)"
+      :row-id="editingPhysicalPointId"
+      @submitted="handlePhysicalPointSubmitted"
     />
+    <PhysicalPointScanDrawer v-model:visible="scanDrawerVisible" :prefill-gateway="selectedGateway" />
   </div>
 </template>

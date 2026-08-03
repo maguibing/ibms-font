@@ -325,7 +325,12 @@ declare namespace Api {
     type PhysicalPointProtocol = {
       protocol_type?: Api.Gateway.ProtocolType;
       scale?: number;
+      offset?: number;
       access_level?: number;
+      enable_linear_transform?: boolean;
+      modbus?: Partial<PhysicalPointModbusParams>;
+      bacnet?: Partial<PhysicalPointBacnetParams>;
+      opcua?: Partial<PhysicalPointOpcUaParams>;
       [key: string]: unknown;
     };
 
@@ -374,10 +379,112 @@ declare namespace Api {
       physical_point_list: PhysicalPointOperateItem[];
     };
 
+    type UpdatePhysicalPointParams = PhysicalPointOperateItem & {
+      id: CommonType.IdType;
+      gateway_id: CommonType.IdType;
+    };
+
+    type ScanPhysicalDeviceParams = {
+      bacnet?: {
+        interface_name: string;
+        timeout: number;
+      };
+      gateway_id: number;
+      modbus?: {
+        end_slave_id: number;
+        register_type: number;
+        start_slave_id: number;
+      };
+      opcua?: {
+        max_depth: number;
+        max_devices: number;
+      };
+    };
+
+    type ScanPhysicalDeviceItem = Record<string, any> & {
+      address?: string;
+      bacnet?: {
+        device_instance?: number;
+        [key: string]: any;
+      };
+      display_name?: string;
+      modbus?: {
+        slave_id?: number;
+        [key: string]: any;
+      };
+      name?: string;
+      opcua?: {
+        node_id?: string | string[];
+        [key: string]: any;
+      };
+      protocol?: string | number;
+      protocol_type?: Api.Gateway.ProtocolType | string;
+    };
+
+    type ScanPhysicalDeviceResponse = {
+      devices?: ScanPhysicalDeviceItem[];
+      list?: ScanPhysicalDeviceItem[];
+    };
+
+    type ScanPhysicalDevicePointParams = {
+      bacnet?: {
+        device_instance_list: number[];
+        local_interface: string;
+      };
+      gateway_id: number;
+      modbus?: {
+        count: number;
+        register_type: number;
+        slave_id: number;
+        start_register_address: number;
+      };
+      opcua?: {
+        max_depth: number;
+        max_points_per_node: number;
+        node_id_list: string[];
+      };
+    };
+
+    type ScanPhysicalPointItem = Record<string, any> & {
+      access_level?: number;
+      bacnet?: {
+        device_address?: string;
+        object_instance?: number;
+        object_type?: number;
+        [key: string]: any;
+      };
+      desc?: string;
+      key?: string;
+      modbus?: {
+        register_address?: number;
+        register_type?: number;
+        slave_id?: number;
+        [key: string]: any;
+      };
+      name?: string;
+      opcua?: {
+        data_type?: number;
+        node_id?: string;
+        [key: string]: any;
+      };
+      protocol_type?: Api.Gateway.ProtocolType | string;
+      value?: string | number;
+    };
+
+    type ScanPhysicalDevicePointGroup = {
+      device?: ScanPhysicalDeviceItem;
+      points?: ScanPhysicalPointItem[];
+    };
+
+    type ScanPhysicalDevicePointResponse = {
+      device_points?: ScanPhysicalDevicePointGroup[];
+    };
+
     type PhysicalPoint = Api.Common.CommonRecord<{
       id: CommonType.IdType;
       project_id: CommonType.IdType;
       gateway_id: CommonType.IdType;
+      device_id?: CommonType.IdType;
       logic_point_id?: CommonType.IdType;
       key: string;
       name: string;
@@ -390,12 +497,13 @@ declare namespace Api {
       protocol?: PhysicalPointProtocol;
     }>;
 
-    type PhysicalPointDetailParams = {
+    type PhysicalPointDetailParams = CommonType.CommonRequestOptions & {
       id: CommonType.IdType;
     };
 
     type PhysicalPointDetailResponse = {
       physical_point: PhysicalPoint;
+      gateway_map?: Record<string, Api.Gateway.Gateway>;
     };
 
     type PhysicalPointCurrentValue = {

@@ -274,6 +274,33 @@ export function fetchCreatePhysicalPoint(data: Api.Device.CreatePhysicalPointPar
   });
 }
 
+/** 修改物理点位 */
+export function fetchUpdatePhysicalPoint(data: Api.Device.UpdatePhysicalPointParams) {
+  return request({
+    url: '/UpdatePhysicalPoint',
+    method: 'post',
+    data
+  });
+}
+
+/** 扫描物理设备 */
+export function fetchScanPhysicalDevice(data: Api.Device.ScanPhysicalDeviceParams) {
+  return request<Api.Device.ScanPhysicalDeviceResponse>({
+    url: '/ScanPhysicalDevice',
+    method: 'post',
+    data
+  });
+}
+
+/** 扫描物理设备点位 */
+export function fetchScanPhysicalDevicePoint(data: Api.Device.ScanPhysicalDevicePointParams) {
+  return request<Api.Device.ScanPhysicalDevicePointResponse>({
+    url: '/ScanPhysicalDevicePoint',
+    method: 'post',
+    data
+  });
+}
+
 /** 删除物理点位 */
 export function fetchDeletePhysicalPoint(data: Api.Common.CommonIdList) {
   return request({

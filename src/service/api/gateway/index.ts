@@ -9,6 +9,15 @@ export function fetchGetGatewayList(data: CommonType.CommonListQueryParams) {
   });
 }
 
+/** 获取边缘设备详情 */
+export function fetchGetGateway(data: { id: CommonType.IdType; options?: CommonType.CommonKeysOptions[] }) {
+  return request<Api.Gateway.GatewayDetailResponse>({
+    url: '/GetGateway',
+    method: 'post',
+    data
+  });
+}
+
 /** 新增边缘设备 */
 export function fetchCreateGateway(data: Api.Gateway.GatewayCreateParams) {
   return request({
