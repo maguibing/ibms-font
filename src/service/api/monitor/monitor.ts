@@ -57,6 +57,36 @@ export function fetchGetMonitorChannelList(data: CommonType.CommonListQueryParam
   });
 }
 
+/** 获取监控通道详情 */
+export function fetchGetMonitorChannel(data: { id: CommonType.IdType }) {
+  return request<Api.Monitor.MonitorChannelDetailResponse>({
+    url: '/GetMonitorChannel',
+    method: 'post',
+    data
+  });
+}
+
+/** 获取监控通道实时播放地址 */
+export function fetchGetMonitorChannelLiveUrl(data: { id: CommonType.IdType }) {
+  return request<Api.Monitor.MonitorChannelLiveUrlResponse>({
+    url: '/GetMonitorChannelLiveURL',
+    method: 'post',
+    data
+  });
+}
+
+/** 关闭监控通道实时播放 */
+export function fetchCloseMonitorChannelLive(data: Api.Monitor.MonitorChannelLiveCloseParams) {
+  return request({
+    url: '/CloseMonitorChannelLive',
+    method: 'post',
+    data,
+    headers: {
+      repeatSubmit: false
+    }
+  });
+}
+
 /** 新增监控通道 */
 export function fetchCreateMonitorChannel(data: Api.Monitor.MonitorChannelCreateParams) {
   return request({

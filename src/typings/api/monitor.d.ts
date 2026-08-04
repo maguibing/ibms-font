@@ -94,7 +94,7 @@ declare namespace Api {
 
     type MonitorCreateParams = Omit<MonitorOperateParams, 'id'>;
 
-    type MonitorChannelPlayProtocol = 3 | 4;
+    type MonitorChannelPlayProtocol = 3 | 4 | 5;
 
     type MonitorChannelLocalPullSetting = {
       source_url: string;
@@ -116,6 +116,7 @@ declare namespace Api {
       channel_no: number;
       status: MonitorStatus;
       setting: MonitorChannelSetting;
+      proxy_key?: string;
     }>;
 
     type MonitorChannelListExtra = {
@@ -135,5 +136,27 @@ declare namespace Api {
     };
 
     type MonitorChannelCreateParams = Omit<MonitorChannelOperateParams, 'id'>;
+
+    type MonitorChannelDetailResponse = {
+      monitor_channel: MonitorChannel;
+    };
+
+    type MonitorChannelLiveUrlInfo = {
+      url?: string;
+      video_codec?: number;
+      access_token?: string;
+      live_access_token?: string;
+      [key: string]: unknown;
+    };
+
+    type MonitorChannelLiveUrlResponse = MonitorChannelLiveUrlInfo & {
+      live_url?: MonitorChannelLiveUrlInfo;
+      data?: MonitorChannelLiveUrlInfo;
+    };
+
+    type MonitorChannelLiveCloseParams = {
+      id: CommonType.IdType;
+      url: string;
+    };
   }
 }

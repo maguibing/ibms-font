@@ -120,7 +120,7 @@ onMounted(() => {
         :pattern="treeKeyword"
         :filter="logicPointFilter"
         :selectable="selectable"
-        class="infinite-scroll h-full min-h-200px overflow-auto py-3"
+        class="infinite-scroll h-full min-h-200px overflow-auto"
         @update:selected-keys="handleUpdateSelectedKeys"
       >
         <template #empty>

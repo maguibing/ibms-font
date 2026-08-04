@@ -62,9 +62,18 @@ importers:
       echarts:
         specifier: 6.0.0
         version: 6.0.0
+      ezuikit-js:
+        specifier: ^8.2.7
+        version: 8.2.7
+      flv.js:
+        specifier: ^1.6.2
+        version: 1.6.2
       highlight.js:
         specifier: ^11.11.1
         version: 11.11.1
+      hls.js:
+        specifier: ^1.6.16
+        version: 1.6.16
       jsencrypt:
         specifier: ^3.5.4
         version: 3.5.4
@@ -730,6 +739,30 @@ packages:
   '@eslint/plugin-kit@0.7.1':
     resolution: {integrity: sha512-rZAP3aVgB9ds9KOeUSL+zZ21hPmo8dh6fnIFwRQj5EAZl9gzR7wxYbYXYysAM8CTqGmUGyp2S4kUdV17MnGuWQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
+
+  '@ezuikit/player-ezopen@8.2.7-beta.1':
+    resolution: {integrity: sha512-5YhIQebB8IpNEtnsyrRAg0yR+ihrrcMSrM0iR0OTdCyzyw+e1rt/Btk5+6CkU6sJY+i4cUP8aOrLHl7l52T07w==}
+
+  '@ezuikit/player-plugin-record@8.2.5-beta.8':
+    resolution: {integrity: sha512-sKiD/4mUF2/G8MCfVP+5mi9uegymnN0v9pta9ApuDcLIaMRorea4jFc13VFOoQRAwbZpFu6cP0PmSB+KyxT1jQ==}
+
+  '@ezuikit/utils-collect@0.1.1':
+    resolution: {integrity: sha512-BgEOnTtAq8rQRBAKv5rLXbQLGOnfOZ6NS0QTmiviey80JbMJlxrLiqmjL5lxvkm4JtCcXCtSgPA4tskQKN4eDA==}
+
+  '@ezuikit/utils-i18n@2.0.0':
+    resolution: {integrity: sha512-gMkfdwFTRk3bAkUVWRGPyEsQl4aIImBpQp732aSSHA75LFPi1MmdaB2Xf34OeC+4v+Anpbt75vviCpUrKPMKlQ==}
+
+  '@ezuikit/utils-logger@2.0.0':
+    resolution: {integrity: sha512-xtq7Vwle75pfA1UfmcsO2cAdqu9n04fxXDu32fpta7A99ENgyk8saK1NRxeiLnqQHdibaIAmrIbfehgLAH6ecQ==}
+
+  '@ezuikit/utils-service@1.0.1':
+    resolution: {integrity: sha512-iNjYuU7AScBJxvKBM9PjiGI2y64QJNPT/H1Fy/Y7ZIAlw4DO//TP+x50qCho+i+EOUpWLtOqBQvtRb7a0O4X4Q==}
+
+  '@ezuikit/utils-tools@1.1.0':
+    resolution: {integrity: sha512-mujPtXIhZnuJrJySu1/Z6X90sMJQStZydurZcfetMCH6pqIYN4P+1w6+P8PCTR6k4LJp5nY9+eNnKa7AZ8OBKA==}
+
+  '@ezuikit/utils-tools@2.0.3':
+    resolution: {integrity: sha512-YvUGDU1ikjSc5YjQLh6kQWGBOpqkOczb3HiocWm7FOk9grW6IAGd3RbRu0e+XyWT20nefcEpbIhRwOYsTejjnA==}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -1429,6 +1462,9 @@ packages:
     resolution: {integrity: sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ==}
     engines: {node: '>=18'}
 
+  '@skax/delegate@4.0.2':
+    resolution: {integrity: sha512-8imP+fGESjlbU4mFhZMEuR3/qmYVtqQjXXzZ/C/imbzKqyaMWYpEDqQXNf6yGHzWHUJhZwn5AWNm645U1GjQsQ==}
+
   '@soybeanjs/changelog@0.4.7':
     resolution: {integrity: sha512-JKyRtJ4MY/8yb4T8m18dRQDvQEI2knxOCNGrk2ektjKvdSBEHKyltntPrAHfQDGiG8wuSw6uxbuNFNYOnu900g==}
 
@@ -1850,6 +1886,9 @@ packages:
       slate: ^0.123.0
       snabbdom: ^3.6.0
 
+  abortcontroller-polyfill@1.7.8:
+    resolution: {integrity: sha512-9f1iZ2uWh92VcrU9Y8x+LdM4DLj75VE0MJB8zuF1iUnroEptStw+DQ8EQPMUdfe5k+PkB1uUfDQfWbhstH8LrQ==}
+
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -2250,6 +2289,9 @@ packages:
   dayjs@1.11.20:
     resolution: {integrity: sha512-YbwwqR/uYpeoP4pu043q+LTDLFBLApUP6VxRihdfNTqu4ubqMlGDLd6ErXhEgsyvY0K6nCs7nggYumAN+9uEuQ==}
 
+  debounce-promise@3.1.2:
+    resolution: {integrity: sha512-rZHcgBkbYavBeD9ej6sP56XfG53d51CD4dnaw989YX/nZ/ZJfgRx/9ePKmTNiUiyQvh4mtrMoS3OAWW+yoYtpg==}
+
   debounce@1.2.1:
     resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==}
 
@@ -2276,6 +2318,10 @@ packages:
 
   deep-is@0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
+
+  deepmerge@4.3.1:
+    resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
+    engines: {node: '>=0.10.0'}
 
   default-browser-id@5.0.1:
     resolution: {integrity: sha512-x1VCxdX4t+8wVfd1so/9w+vQ4vx7lKd2Qp5tDRutErwmR85OgmfX7RlLRMWafRMY7hbEiXIbudNrjOAPa/hL8Q==}
@@ -2435,6 +2481,9 @@ packages:
   es6-iterator@2.0.3:
     resolution: {integrity: sha512-zw4SRzoUkd+cl+ZoE15A9o1oQd920Bb0iOJMQkQhl3jNc03YqVjAhG7scf9C5KWRU/R13Orf588uCC6525o02g==}
 
+  es6-promise@4.2.8:
+    resolution: {integrity: sha512-HJDGx5daxeIvxdBxvG2cb9g4tEvwIk3i8+nhX0yGrYmZUzbkdg8QbDevheDB8gd0//uPj4c1EQua8Q+MViT0/w==}
+
   es6-symbol@3.1.4:
     resolution: {integrity: sha512-U9bFFjX8tFiATgtkJ1zg25+KviIXpgRvRHS8sau3GfhVzThRQrOeksPeT0BWW2MNZs1OEWJ1DPXOQMn0KKRkvg==}
     engines: {node: '>=0.12'}
@@ -2534,6 +2583,9 @@ packages:
   event-emitter@0.3.5:
     resolution: {integrity: sha512-D9rRn9y7kLPnJ+hMq7S/nhvoKwwvVJahBi2BPmx3bvbsEdK3W9ii8cBSGjP+72/LnM4n6fo3+dkCX5FeTQruXA==}
 
+  eventemitter3@5.0.4:
+    resolution: {integrity: sha512-mlsTRyGaPBjPedk6Bvw+aqbsXDtoAyAzm5MO7JgU+yVRyMQ5O8bD4Kcci7BS85f93veegeCPkL8R4GLClnjLFw==}
+
   evtd@0.2.4:
     resolution: {integrity: sha512-qaeGN5bx63s/AXgQo8gj6fBkxge+OoLddLniox5qtLAEY5HSnuSlISXVPxnSae1dWblvTh4/HoMIB+mbMsvZzw==}
 
@@ -2563,6 +2615,9 @@ packages:
     resolution: {integrity: sha512-Nmb6QXkELsuBr24CJSkilo6UHHgbekK5UiZgfE6UHD3Eb27YC6oD+bhcT+tJ6cl8dmsgdQxnWlcry8ksBIBLpw==}
     engines: {node: '>=0.10.0'}
 
+  ezuikit-js@8.2.7:
+    resolution: {integrity: sha512-ftVynIS62/y3KjSL5NPIC2kNjxj8maWRGIV/BiQlvRxO41FcHyDgABU3HzGCgVvzyXkqV18GJRyZojTpKXGs5Q==}
+
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
 
@@ -2587,6 +2642,10 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  fetch-blob@3.2.0:
+    resolution: {integrity: sha512-7yAQpD2UMJzLi1Dqv7qFYnPbaPx7ZfFK6PiIxQ4PfkGPyNyl2Ugx+a/umUonmKqjhM4DnfbMvdX6otXq83soQQ==}
+    engines: {node: ^12.20 || >= 14.13}
 
   figures@6.1.0:
     resolution: {integrity: sha512-d+l3qxjSesT4V7v2fh+QnmFnUWv9lSpjarhShNTgBOfA0ttejbQUAlHLitbjkoRiDulW0OPoQPYIGhIC8ohejg==}
@@ -2615,6 +2674,9 @@ packages:
   flatted@3.4.2:
     resolution: {integrity: sha512-PjDse7RzhcPkIJwy5t7KPWQSZ9cAbzQXcafsetQoD7sOJRQlGikNbx7yZp2OotDnJyrDcbyRq3Ttb18iYOqkxA==}
 
+  flv.js@1.6.2:
+    resolution: {integrity: sha512-xre4gUbX1MPtgQRKj2pxJENp/RnaHaxYvy3YToVVCrSmAWUu85b9mug6pTXF6zakUjNP2lFWZ1rkSX7gxhB/2A==}
+
   follow-redirects@1.16.0:
     resolution: {integrity: sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==}
     engines: {node: '>=4.0'}
@@ -2639,6 +2701,10 @@ packages:
   form-data@4.0.5:
     resolution: {integrity: sha512-8RipRLol37bNs2bhoV67fiTEvdTrbMUYcFTiy3+wuuOnUog2QBHCZWXDRijWQfAkhBj2Uf5UnVaiWwA5vdd82w==}
     engines: {node: '>= 6'}
+
+  formdata-polyfill@4.0.10:
+    resolution: {integrity: sha512-buewHzMvYL29jdeQTVILecSaZKnt/RJWjoZCF5OW60Z67/GmSLBkOFM7qh1PI3zFNtJbaZL5eQu1vLfazOwj4g==}
+    engines: {node: '>=12.20.0'}
 
   fragment-cache@0.2.1:
     resolution: {integrity: sha512-GMBAbW9antB8iZRHLoGw0b3HANt57diZYFO/HL1JGIC1MjKrdmhxvrJbupnVvpys0zsz7yBApXdQyfepKly2kA==}
@@ -2794,6 +2860,9 @@ packages:
   highlight.js@11.11.1:
     resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
     engines: {node: '>=12.0.0'}
+
+  hls.js@1.6.16:
+    resolution: {integrity: sha512-VSIRpLfRwlAAdGL4wiTucx2ScRipo0ed1FBatWkyt832jC4CReKstga6yIhYVwGu9LOBjuX9wzmRMeQdBJtzEA==}
 
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
@@ -3397,6 +3466,11 @@ packages:
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
 
+  node-domexception@1.0.0:
+    resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
+    engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
+
   node-fetch-native@1.6.7:
     resolution: {integrity: sha512-g9yhqoedzIUm0nTnTqAQvueMPVOuIY16bqgAJJC8XOOubYFNwz6IER9qs0Gq2Xd0+CecCKFjtdDTMA4u4xG06Q==}
 
@@ -3821,6 +3895,10 @@ packages:
     resolution: {integrity: sha512-6R3J5M4AcbtLUdZmRv2SygeVaM7IhrLXu9BmnOGmmACak8fiUtOsYNWUS4uK7upbmHIBbLBeFeI//477BKLBzA==}
     engines: {node: '>=11.0.0'}
 
+  screenfull@5.2.0:
+    resolution: {integrity: sha512-9BakfsO2aUQN2K9Fdbj87RJIEZ82Q9IGim7FqM5OsebfoFC6ZHXgDq/KvniuLTPdeM8wY2o6Dj3WQ7KeQCj3cA==}
+    engines: {node: '>=0.10.0'}
+
   scroll-into-view-if-needed@3.1.0:
     resolution: {integrity: sha512-49oNpRjWRvnU8NyGVmUaYG4jtTkNonFZI86MmGRDqBphEK2EXT9gdEUoQPZhuBM8yWHxCWbobltqYO5M4XrUvQ==}
 
@@ -4152,6 +4230,9 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  ua-parser-js@1.0.37:
+    resolution: {integrity: sha512-bhTyI94tZofjo+Dn8SN6Zv8nBDvyXTymAdM3LDI/0IboIUwTu1rEhW7v2TfiVsoYWgkQ4kOVqnI8APUFbIQIFQ==}
+
   ufo@1.6.4:
     resolution: {integrity: sha512-JFNbkD1Svwe0KvGi8GOeLcP4kAWQ609twvCdcHxq1oSL8svv39ZuSvajcD8B+5D0eL4+s1Is2D/O6KN3qcTeRA==}
 
@@ -4444,12 +4525,19 @@ packages:
   w3c-keyname@2.2.8:
     resolution: {integrity: sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ==}
 
+  web-streams-polyfill@3.3.3:
+    resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
+    engines: {node: '>= 8'}
+
   webpack-sources@3.5.0:
     resolution: {integrity: sha512-HPuy+uuoTCaaoEoI1LQ3JN9+vrPBvEesnnX1jADHy728cHSMlq4wUc4afYqahq2B1mhQVZxCXOkNTnXltr+2vQ==}
     engines: {node: '>=10.13.0'}
 
   webpack-virtual-modules@0.6.2:
     resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==}
+
+  webworkify-webpack@2.1.5:
+    resolution: {integrity: sha512-2akF8FIyUvbiBBdD+RoHpoTbHMQF2HwjcxfDvgztAX5YwbZNyrtfUMgvfgFVsgDhDPVTlkbb5vyasqDHfIDPQw==}
 
   which-boxed-primitive@1.1.1:
     resolution: {integrity: sha512-TbX3mj8n0odCBFVlY8AxkqcHASw3L60jIuF8jFP78az3C2YhmGvqbHBpAjTRH2/xqYunrJ9g1jSyjCjpoWzIAA==}
@@ -4970,6 +5058,38 @@ snapshots:
       '@eslint/core': 1.2.1
       levn: 0.4.1
 
+  '@ezuikit/player-ezopen@8.2.7-beta.1':
+    dependencies:
+      '@ezuikit/player-plugin-record': 8.2.5-beta.8
+      '@ezuikit/utils-i18n': 2.0.0
+      '@ezuikit/utils-logger': 2.0.0
+      '@ezuikit/utils-service': 1.0.1
+      '@ezuikit/utils-tools': 2.0.3
+      dayjs: 1.11.20
+      deepmerge: 4.3.1
+      eventemitter3: 5.0.4
+      screenfull: 5.2.0
+      ua-parser-js: 1.0.37
+
+  '@ezuikit/player-plugin-record@8.2.5-beta.8': {}
+
+  '@ezuikit/utils-collect@0.1.1': {}
+
+  '@ezuikit/utils-i18n@2.0.0':
+    dependencies:
+      deepmerge: 4.3.1
+
+  '@ezuikit/utils-logger@2.0.0': {}
+
+  '@ezuikit/utils-service@1.0.1':
+    dependencies:
+      '@ezuikit/utils-tools': 1.1.0
+      dayjs: 1.11.20
+
+  '@ezuikit/utils-tools@1.1.0': {}
+
+  '@ezuikit/utils-tools@2.0.3': {}
+
   '@humanfs/core@0.19.2':
     dependencies:
       '@humanfs/types': 0.15.0
@@ -5405,6 +5525,8 @@ snapshots:
   '@sec-ant/readable-stream@0.4.1': {}
 
   '@sindresorhus/merge-streams@4.0.0': {}
+
+  '@skax/delegate@4.0.2': {}
 
   '@soybeanjs/changelog@0.4.7':
     dependencies:
@@ -6039,6 +6161,8 @@ snapshots:
       slate: 0.123.0
       snabbdom: 3.6.3
 
+  abortcontroller-polyfill@1.7.8: {}
+
   acorn-jsx@5.3.2(acorn@8.16.0):
     dependencies:
       acorn: 8.16.0
@@ -6471,6 +6595,8 @@ snapshots:
 
   dayjs@1.11.20: {}
 
+  debounce-promise@3.1.2: {}
+
   debounce@1.2.1: {}
 
   debug@2.6.9:
@@ -6484,6 +6610,8 @@ snapshots:
   decode-uri-component@0.2.2: {}
 
   deep-is@0.1.4: {}
+
+  deepmerge@4.3.1: {}
 
   default-browser-id@5.0.1: {}
 
@@ -6698,6 +6826,8 @@ snapshots:
       es5-ext: 0.10.64
       es6-symbol: 3.1.4
 
+  es6-promise@4.2.8: {}
+
   es6-symbol@3.1.4:
     dependencies:
       d: 1.0.2
@@ -6839,6 +6969,8 @@ snapshots:
       d: 1.0.2
       es5-ext: 0.10.64
 
+  eventemitter3@5.0.4: {}
+
   evtd@0.2.4: {}
 
   execa@9.6.1:
@@ -6896,6 +7028,21 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  ezuikit-js@8.2.7:
+    dependencies:
+      '@ezuikit/player-ezopen': 8.2.7-beta.1
+      '@ezuikit/utils-collect': 0.1.1
+      '@ezuikit/utils-i18n': 2.0.0
+      '@ezuikit/utils-logger': 2.0.0
+      '@ezuikit/utils-tools': 2.0.3
+      '@juggle/resize-observer': 3.4.0
+      '@skax/delegate': 4.0.2
+      abortcontroller-polyfill: 1.7.8
+      debounce-promise: 3.1.2
+      deepmerge: 4.3.1
+      formdata-polyfill: 4.0.10
+      screenfull: 5.2.0
+
   fast-deep-equal@3.1.3: {}
 
   fast-glob@3.3.2:
@@ -6917,6 +7064,11 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.4):
     optionalDependencies:
       picomatch: 4.0.4
+
+  fetch-blob@3.2.0:
+    dependencies:
+      node-domexception: 1.0.0
+      web-streams-polyfill: 3.3.3
 
   figures@6.1.0:
     dependencies:
@@ -6949,6 +7101,11 @@ snapshots:
 
   flatted@3.4.2: {}
 
+  flv.js@1.6.2:
+    dependencies:
+      es6-promise: 4.2.8
+      webworkify-webpack: 2.1.5
+
   follow-redirects@1.16.0: {}
 
   for-each@0.3.5:
@@ -6969,6 +7126,10 @@ snapshots:
       es-set-tostringtag: 2.1.0
       hasown: 2.0.3
       mime-types: 2.1.35
+
+  formdata-polyfill@4.0.10:
+    dependencies:
+      fetch-blob: 3.2.0
 
   fragment-cache@0.2.1:
     dependencies:
@@ -7129,6 +7290,8 @@ snapshots:
   he@1.2.0: {}
 
   highlight.js@11.11.1: {}
+
+  hls.js@1.6.16: {}
 
   hookable@5.5.3: {}
 
@@ -7687,6 +7850,8 @@ snapshots:
   node-addon-api@7.1.1:
     optional: true
 
+  node-domexception@1.0.0: {}
+
   node-fetch-native@1.6.7: {}
 
   node-releases@2.0.46: {}
@@ -8158,6 +8323,8 @@ snapshots:
 
   sax@1.6.0: {}
 
+  screenfull@5.2.0: {}
+
   scroll-into-view-if-needed@3.1.0:
     dependencies:
       compute-scroll-into-view: 3.1.1
@@ -8558,6 +8725,8 @@ snapshots:
 
   typescript@6.0.3: {}
 
+  ua-parser-js@1.0.37: {}
+
   ufo@1.6.4: {}
 
   unbox-primitive@1.1.0:
@@ -8882,9 +9051,13 @@ snapshots:
 
   w3c-keyname@2.2.8: {}
 
+  web-streams-polyfill@3.3.3: {}
+
   webpack-sources@3.5.0: {}
 
   webpack-virtual-modules@0.6.2: {}
+
+  webworkify-webpack@2.1.5: {}
 
   which-boxed-primitive@1.1.1:
     dependencies:
