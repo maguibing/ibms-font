@@ -7,10 +7,9 @@ import { fetchGetSpaceTrees } from '@/service/api/space';
 import { fetchGetUserList } from '@/service/api/system';
 import { fetchCreateWorkorder, fetchGetWorkorder, fetchUpdateWorkorder } from '@/service/api/workorder';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
-import { useAppStore } from '@/store/modules/app';
 import { $t } from '@/locales';
 import FileUpload from '@/components/custom/file-upload.vue';
-import { getCachedOssDomain, toNumberValue } from '@/utils/common-methods';
+import { getOssUrl, toNumberValue } from '@/utils/common-methods';
 
 defineOptions({
   name: 'WorkorderOperateDrawer'
@@ -48,7 +47,6 @@ const props = withDefaults(defineProps<Props>(), {
   rowData: null
 });
 const emit = defineEmits<Emits>();
-const appStore = useAppStore();
 
 const visible = defineModel<boolean>('visible', {
   default: false
@@ -219,28 +217,11 @@ function validateImageFileList(fileList: UploadFileInfo[], message: string) {
     return new Error('请等待图片上传完成');
   }
 
-  if (getUploadedImageList(fileList).length === 0) {
+  if (!fileList.some(file => file.status === 'finished' && file.id)) {
     return new Error(message);
   }
 
   return true;
-}
-
-function createImageFileList(pathList: string[], type: 'break' | 'deal') {
-  if (pathList.length === 0) return [];
-
-  const ossDomain = getCachedOssDomain(appStore.ossDomain);
-
-  return pathList.map<UploadFileInfo>((path, index) => ({
-    id: path,
-    name: `${type}-image-${index + 1}`,
-    status: 'finished',
-    url: `${ossDomain.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`
-  }));
-}
-
-function getUploadedImageList(fileList: UploadFileInfo[]) {
-  return fileList.filter(file => file.status === 'finished' && file.id).map(file => String(file.id));
 }
 
 function resetModel() {
@@ -319,8 +300,6 @@ function fillModel(response: Api.Workorder.WorkorderDetailResponse) {
   selectedDealer.value = workorder.dealer_uid
     ? createDealerOption(response.base_user_map[String(workorder.dealer_uid)])
     : null;
-  breakImageFileList.value = createImageFileList(model.value.break_img_list, 'break');
-  dealImageFileList.value = createImageFileList(model.value.deal_img_list, 'deal');
 }
 
 async function handleUpdateModel() {
@@ -341,8 +320,6 @@ async function handleUpdateModel() {
 }
 
 function buildCreateSubmitData(): Api.Workorder.CreateWorkorderParams {
-  model.value.break_img_list = getUploadedImageList(breakImageFileList.value);
-
   return {
     break_desc: model.value.break_desc.trim(),
     break_img_list: model.value.break_img_list,
@@ -368,8 +345,6 @@ function buildCancelAllocationSubmitData(): Api.Workorder.UpdateWorkorderParams 
 }
 
 function buildDealSubmitData(): Api.Workorder.UpdateWorkorderParams {
-  model.value.deal_img_list = getUploadedImageList(dealImageFileList.value);
-
   return {
     id: toNumberValue(model.value.id),
     dealer_uid: toNumberValue(model.value.dealer_uid),
@@ -505,18 +480,20 @@ watch(visible, async () => {
           <NFormItem label="故障图片" path="break_img_list" :show-require-mark="isAddMode">
             <FileUpload
               v-if="isAddMode"
+              v-model:value="model.break_img_list"
               v-model:file-list="breakImageFileList"
+              module-name="workorder"
               upload-type="image"
               :max="5"
               :file-size="5"
               :show-tip="false"
             />
-            <NImageGroup v-else-if="breakImageFileList.length">
+            <NImageGroup v-else-if="model.break_img_list.length">
               <div class="flex flex-wrap gap-8px">
                 <NImage
-                  v-for="(file, index) in breakImageFileList"
-                  :key="`${file.id}-${index}`"
-                  :src="file.url || undefined"
+                  v-for="(path, index) in model.break_img_list"
+                  :key="`${path}-${index}`"
+                  :src="getOssUrl(path)"
                   width="92"
                   height="92"
                   object-fit="cover"
@@ -548,18 +525,20 @@ watch(visible, async () => {
             <NFormItem label="处理图片" path="deal_img_list" :show-require-mark="isDealMode">
               <FileUpload
                 v-if="isDealMode"
+                v-model:value="model.deal_img_list"
                 v-model:file-list="dealImageFileList"
+                module-name="workorder"
                 upload-type="image"
                 :max="5"
                 :file-size="5"
                 :show-tip="false"
               />
-              <NImageGroup v-else-if="dealImageFileList.length">
+              <NImageGroup v-else-if="model.deal_img_list.length">
                 <div class="flex flex-wrap gap-8px">
                   <NImage
-                    v-for="(file, index) in dealImageFileList"
-                    :key="`${file.id}-${index}`"
-                    :src="file.url || undefined"
+                    v-for="(path, index) in model.deal_img_list"
+                    :key="`${path}-${index}`"
+                    :src="getOssUrl(path)"
                     width="92"
                     height="92"
                     object-fit="cover"

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import type { UploadFileInfo } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
 import { fetchCreateDeviceType, fetchGetDeviceType, fetchUpdateDeviceType } from '@/service/api/device';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
@@ -28,7 +27,6 @@ const { createRequiredRule } = useFormRules();
 const { loading, startLoading, endLoading } = useLoading();
 
 const model = ref<Model>(createDefaultModel());
-const iconFileList = ref<UploadFileInfo[]>([]);
 
 const rules: Record<string, App.Global.FormRule> = {
   name: createRequiredRule('请输入设备类型名称'),
@@ -49,20 +47,6 @@ function createDefaultModel(): Model {
 
 function resetModel() {
   model.value = createDefaultModel();
-  iconFileList.value = [];
-}
-
-function buildIconFileList(url?: string | null): UploadFileInfo[] {
-  if (!url) return [];
-
-  return [
-    {
-      id: url,
-      name: url.split('/').pop() || '图标',
-      status: 'finished',
-      url
-    }
-  ];
 }
 
 function fillModel(deviceType: Api.Device.DeviceType) {
@@ -73,7 +57,6 @@ function fillModel(deviceType: Api.Device.DeviceType) {
     name: deviceType.name ?? '',
     status: Number(deviceType.status) === 1 ? 1 : 2
   };
-  iconFileList.value = buildIconFileList(deviceType.icon);
 }
 
 async function getDetail() {
@@ -124,17 +107,6 @@ watch(
   { immediate: true }
 );
 
-watch(
-  iconFileList,
-  value => {
-    const url = value.find(item => item.status === 'finished')?.url || '';
-    if (url !== model.value.icon) {
-      model.value.icon = url;
-    }
-  },
-  { deep: true }
-);
-
 defineExpose({
   submit
 });
@@ -150,7 +122,14 @@ defineExpose({
         <NInput v-model:value="model.key" maxlength="48" show-count placeholder="请输入设备类型标识" />
       </NFormItem>
       <NFormItem label="图标" path="icon">
-        <FileUpload v-model:file-list="iconFileList" upload-type="image" :max="1" :file-size="5" :show-tip="false" />
+        <FileUpload
+          v-model:value="model.icon"
+          module-name="device-type"
+          upload-type="image"
+          :max="1"
+          :file-size="5"
+          :show-tip="false"
+        />
       </NFormItem>
       <NFormItem label="状态" path="status">
         <NSwitch v-model:value="model.status" :checked-value="1" :unchecked-value="2">

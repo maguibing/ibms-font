@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import type { FormItemInst, UploadFileInfo } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
 import { jsonClone } from '@sa/utils';
 import { fetchGetIndustryList } from '@/service/api/industry';
@@ -51,8 +50,6 @@ const title = computed(() => {
 });
 
 const industryMap = ref<CommonType.IdNameMap>({});
-const coverFormItemRef = ref<FormItemInst | null>(null);
-const coverFileList = ref<UploadFileInfo[]>([]);
 const model = ref<Model>(createDefaultModel());
 const projectMap = ref<CommonType.IdNameMap>({});
 
@@ -149,19 +146,6 @@ function buildModelFromDetail(detail: Api.System.SysScreenDetailData): Model {
   };
 }
 
-function buildCoverFileList(url: string): UploadFileInfo[] {
-  if (!url) return [];
-
-  return [
-    {
-      id: url,
-      name: url.split('/').pop() || '缩略图',
-      status: 'finished',
-      url
-    }
-  ];
-}
-
 async function handleUpdateModel() {
   model.value = createDefaultModel();
   industryMap.value = {};
@@ -183,7 +167,6 @@ async function getSysScreenDetail(id: CommonType.IdType) {
   industryMap.value = data.industry_map || {};
   projectMap.value = data.project_map || {};
   model.value = buildModelFromDetail(data.sys_screen);
-  coverFileList.value = buildCoverFileList(model.value.url);
 }
 
 function closeDrawer() {
@@ -241,24 +224,9 @@ async function handleSubmit() {
 watch(visible, () => {
   if (visible.value) {
     handleUpdateModel();
-    coverFileList.value = [];
     restoreValidation();
   }
 });
-
-watch(
-  coverFileList,
-  value => {
-    const url = value.find(item => item.status === 'finished')?.url || '';
-    if (url !== model.value.url) {
-      model.value.url = url;
-      if (url) {
-        coverFormItemRef.value?.restoreValidation();
-      }
-    }
-  },
-  { deep: true }
-);
 </script>
 
 <template>
@@ -391,9 +359,15 @@ watch(
               </NSpace>
             </NRadioGroup>
           </NFormItemGi>
-          <NFormItemGi ref="coverFormItemRef" span="24" label="缩略图" path="url">
+          <NFormItemGi span="24" label="缩略图" path="url">
             <div class="w-full flex-col gap-12px">
-              <FileUpload v-model:file-list="coverFileList" upload-type="image" :max="1" :file-size="5" />
+              <FileUpload
+                v-model:value="model.url"
+                module-name="sys-screen"
+                upload-type="image"
+                :max="1"
+                :file-size="5"
+              />
             </div>
           </NFormItemGi>
         </NGrid>

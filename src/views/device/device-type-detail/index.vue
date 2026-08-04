@@ -7,7 +7,7 @@ import { fetchGetDeviceType } from '@/service/api/device';
 import CopyableValue from '@/components/custom/copyable-value.vue';
 import { useRouterPush } from '@/hooks/common/router';
 import { useAppStore } from '@/store/modules/app';
-import { displayValue, formatTime } from '@/utils/common-methods';
+import { displayValue, formatTime, getOssUrl } from '@/utils/common-methods';
 import AlarmRulePanel from '@/views/alarm/rule/modules/alarm-rule-panel.vue';
 import DeviceListPanel from '../device-list/modules/device-list-panel.vue';
 import DeviceTypePointPanel from './modules/device-type-point-panel.vue';
@@ -53,7 +53,7 @@ onMounted(() => {
               <span class="size-72px inline-flex items-center justify-center rounded-6px">
                 <NImage
                   v-if="deviceType.icon"
-                  :src="deviceType.icon"
+                  :src="getOssUrl(deviceType.icon)"
                   :preview-disabled="true"
                   object-fit="contain"
                   class="size-56px"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, h, onMounted, ref, shallowRef, watch } from 'vue';
-import type { DataTableColumns, UploadFileInfo } from 'naive-ui';
+import type { DataTableColumns } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
 import { StatusTag } from '@sa/materials';
 import { fetchCreateDeviceType } from '@/service/api/device';
@@ -48,7 +48,6 @@ const templatePage = shallowRef(1);
 const templatePageSize = shallowRef(10);
 const templateTotal = shallowRef(0);
 const checkedPointIds = ref<CommonType.IdType[]>([]);
-const iconFileList = ref<UploadFileInfo[]>([]);
 const model = ref<ImportModel>(createDefaultModel());
 
 const rules: Record<keyof Pick<ImportModel, 'key' | 'name' | 'status'>, App.Global.FormRule> = {
@@ -115,19 +114,6 @@ function createDefaultModel(): ImportModel {
   };
 }
 
-function buildIconFileList(url?: string | null): UploadFileInfo[] {
-  if (!url) return [];
-
-  return [
-    {
-      id: url,
-      name: url.split('/').pop() || '图标',
-      status: 'finished',
-      url
-    }
-  ];
-}
-
 function resetState() {
   categories.value = [];
   selectedCategoryId.value = null;
@@ -141,7 +127,6 @@ function clearSelectedTemplate() {
   selectedTemplate.value = null;
   points.value = [];
   checkedPointIds.value = [];
-  iconFileList.value = [];
   model.value = createDefaultModel();
 }
 
@@ -202,7 +187,6 @@ function fillModelFromTemplate(template: Api.System.DeviceTypeTemplate) {
     name: template.name ?? '',
     status: Number(template.status) === 1 ? 1 : 2
   };
-  iconFileList.value = buildIconFileList(template.icon);
 }
 
 function getTemplateItemClass(template: Api.System.DeviceTypeTemplate) {
@@ -338,17 +322,6 @@ watch(
   }
 );
 
-watch(
-  iconFileList,
-  value => {
-    const url = value.find(item => item.status === 'finished')?.url || '';
-    if (url !== model.value.icon) {
-      model.value.icon = url;
-    }
-  },
-  { deep: true }
-);
-
 watch(selectedPointCount, value => {
   emit('selectedCountChange', value);
 });
@@ -480,7 +453,8 @@ defineExpose({
               </NFormItemGi>
               <NFormItemGi span="24 m:12" label="图标" path="icon">
                 <FileUpload
-                  v-model:file-list="iconFileList"
+                  v-model:value="model.icon"
+                  module-name="device-type"
                   upload-type="image"
                   :max="1"
                   :file-size="5"

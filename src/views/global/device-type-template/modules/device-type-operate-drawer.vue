@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import type { SelectOption, UploadFileInfo } from 'naive-ui';
+import type { SelectOption } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
 import { jsonClone } from '@sa/utils';
 import { fetchCreateDeviceTypeTemplate, fetchUpdateDeviceTypeTemplate } from '@/service/api/device-type-template';
@@ -49,7 +49,6 @@ const { createRequiredRule } = useFormRules();
 const { loading, startLoading, endLoading } = useLoading();
 
 const model = ref<Model>(createDefaultModel());
-const iconFileList = ref<UploadFileInfo[]>([]);
 
 const title = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
@@ -85,19 +84,6 @@ function createDefaultModel(): Model {
   };
 }
 
-function buildIconFileList(url?: string | null): UploadFileInfo[] {
-  if (!url) return [];
-
-  return [
-    {
-      id: url,
-      name: url.split('/').pop() || '图标',
-      status: 'finished',
-      url
-    }
-  ];
-}
-
 function handleUpdateModel() {
   model.value = createDefaultModel();
 
@@ -105,8 +91,6 @@ function handleUpdateModel() {
     Object.assign(model.value, jsonClone(props.rowData));
     model.value.status = Number(props.rowData.status) === 1 ? 1 : 2;
   }
-
-  iconFileList.value = buildIconFileList(model.value.icon);
 }
 
 function closeDrawer() {
@@ -148,17 +132,6 @@ watch(visible, () => {
     restoreValidation();
   }
 });
-
-watch(
-  iconFileList,
-  value => {
-    const url = value.find(item => item.status === 'finished')?.url || '';
-    if (url !== model.value.icon) {
-      model.value.icon = url;
-    }
-  },
-  { deep: true }
-);
 </script>
 
 <template>
@@ -175,7 +148,14 @@ watch(
           <NInput v-model:value="model.key" maxlength="48" show-count placeholder="请输入类型标识，如：METER_001" />
         </NFormItem>
         <NFormItem label="图标" path="icon">
-          <FileUpload v-model:file-list="iconFileList" upload-type="image" :max="1" :file-size="5" :show-tip="false" />
+          <FileUpload
+            v-model:value="model.icon"
+            module-name="device-type-template"
+            upload-type="image"
+            :max="1"
+            :file-size="5"
+            :show-tip="false"
+          />
         </NFormItem>
         <NFormItem label="状态" path="status">
           <div class="flex items-center gap-12px">

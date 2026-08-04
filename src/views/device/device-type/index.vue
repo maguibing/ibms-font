@@ -12,6 +12,7 @@ import ButtonIcon from '@/components/custom/button-icon.vue';
 import DeviceTypeOperateDrawer from './modules/device-type-operate-drawer.vue';
 import DeviceTypeSearch from './modules/device-type-search.vue';
 import CopyableValue from '@/components/custom/copyable-value.vue';
+import { getOssUrl } from '@/utils/common-methods';
 
 defineOptions({
   name: 'DeviceType'
@@ -97,7 +98,12 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         title: '图标',
         align: 'center',
         minWidth: 120,
-        render: row => (row.icon ? <NImage src={row.icon} width={40} height={40} objectFit="contain" /> : '-')
+        render: row =>
+          row.icon ? (
+            <NImage src={getOssUrl(row.icon)} width={40} height={40} objectFit="contain" />
+          ) : (
+            '-'
+          )
       },
       {
         key: 'status',
