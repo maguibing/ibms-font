@@ -1,7 +1,13 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import VisualConfiguration from '../configuration/index.vue';
+
+defineOptions({
+  name: 'VisualFuxa'
+});
+</script>
 
 <template>
-  <div>visual_fuxa</div>
+  <VisualConfiguration :configuration-type="2" />
 </template>
 
 <style scoped></style>

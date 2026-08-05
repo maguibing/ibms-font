@@ -14,6 +14,7 @@ interface Props {
   rowData?: Api.Visual.Configuration | null;
   categories: Api.Visual.ConfigurationCategory[];
   categoryId?: CommonType.IdType | null;
+  configurationType?: number;
 }
 
 interface Emits {
@@ -26,7 +27,8 @@ type RuleKey = Extract<keyof Model, 'configuration_category_id' | 'name'>;
 
 const props = withDefaults(defineProps<Props>(), {
   rowData: null,
-  categoryId: 0
+  categoryId: 0,
+  configurationType: 1
 });
 
 const emit = defineEmits<Emits>();
@@ -56,7 +58,7 @@ function createDefaultModel(): Model {
     configuration_category_id: props.categoryId ?? 0,
     name: '',
     desc: '',
-    type: 1
+    type: props.configurationType
   };
 }
 
@@ -73,7 +75,7 @@ function handleUpdateModel() {
       configuration_category_id: props.rowData.configuration_category_id ?? props.categoryId ?? 0,
       name: props.rowData.name || '',
       desc: props.rowData.desc || '',
-      type: props.rowData.type ?? 1
+      type: props.rowData.type ?? props.configurationType
     };
   }
 }
@@ -83,7 +85,7 @@ function buildSubmitParams(): Model {
     configuration_category_id: model.value.configuration_category_id,
     name: model.value.name,
     desc: model.value.desc,
-    type: 1
+    type: props.configurationType
   };
 
   if (isEdit.value) {

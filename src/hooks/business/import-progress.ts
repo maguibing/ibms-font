@@ -23,6 +23,7 @@ type ImportParsedMessage = {
   rows: ImportResultRow[];
 };
 
+// 进度状态由上传弹窗启动，由全局进度组件消费。
 const dialogVisible = shallowRef(false);
 const importStatus = shallowRef(ImportStatus.NotStarted);
 const progress = shallowRef(0);
@@ -34,10 +35,17 @@ let importName = '导入数据';
 let importKey = '';
 let completedHandler: CompletedHandler | null = null;
 
+/** 规范化进度值。 */
 function normalizeProgress(value?: number) {
   return Math.min(100, Math.max(0, Number(value) || 0));
 }
 
+/**
+ * 解析导入失败明细。
+ *
+ * @param value 后端返回的错误明细
+ * @returns 可展示的错误行
+ */
 function parseImportResultRows(value: unknown): ImportResultRow[] {
   if (!Array.isArray(value)) return [];
 
@@ -59,6 +67,12 @@ function parseImportResultRows(value: unknown): ImportResultRow[] {
   return rows;
 }
 
+/**
+ * 解析导入结果消息。
+ *
+ * @param message 后端返回的原始消息
+ * @returns 导入结果摘要和错误行
+ */
 function getImportResult(message?: string): ImportParsedMessage {
   if (!message) return { message: '', rows: [] };
 
@@ -95,6 +109,7 @@ function getImportResult(message?: string): ImportParsedMessage {
   }
 }
 
+/** 重置导入结果弹窗状态。 */
 function resetImportResult() {
   resultVisible.value = false;
   resultTitle.value = '导入结果';
@@ -102,6 +117,12 @@ function resetImportResult() {
   resultRows.value = [];
 }
 
+/**
+ * 打开导入结果弹窗。
+ *
+ * @param title 弹窗标题
+ * @param result 导入结果
+ */
 function openImportResult(title: string, result: ImportParsedMessage) {
   resultTitle.value = title;
   resultMessage.value = result.message;
@@ -109,8 +130,43 @@ function openImportResult(title: string, result: ImportParsedMessage) {
   resultVisible.value = true;
 }
 
+/**
+ * 关闭当前导入任务并取出完成回调。
+ *
+ * @returns 当前任务完成回调
+ */
+function closeImportTask() {
+  dialogVisible.value = false;
+
+  const handler = completedHandler;
+  completedHandler = null;
+  importKey = '';
+
+  return handler;
+}
+
+/**
+ * 有错误明细时打开结果弹窗。
+ *
+ * @param title 弹窗标题
+ * @param result 导入结果
+ * @returns 是否打开了结果弹窗
+ */
+function openImportRows(title: string, result: ImportParsedMessage) {
+  if (!result.rows.length) return false;
+
+  openImportResult(title, result);
+
+  return true;
+}
+
 /** 管理导入任务进度。 */
 export function useImportProgress() {
+  /**
+   * 处理导入任务 WebSocket 消息。
+   *
+   * @param message WebSocket 消息
+   */
   function handleImportMessage(message: WebSocketMessage) {
     if (!dialogVisible.value) return;
 
@@ -122,18 +178,12 @@ export function useImportProgress() {
     progress.value = normalizeProgress(payload.progress);
 
     if (importStatus.value === ImportStatus.Completed || importStatus.value === ImportStatus.PartiallySuccess) {
-      dialogVisible.value = false;
+      const handler = closeImportTask();
       progress.value = 100;
-
-      const handler = completedHandler;
-      completedHandler = null;
-      importKey = '';
 
       if (importStatus.value === ImportStatus.PartiallySuccess) {
         const result = getImportResult(payload.err_msg || payload.msg);
-        if (result.rows.length) {
-          openImportResult('导入部分成功', result);
-        } else {
+        if (!openImportRows('导入部分成功', result)) {
           window.$notification?.warning({
             title: '导入部分成功',
             content: result.message || `${importName}部分成功`,
@@ -153,12 +203,9 @@ export function useImportProgress() {
     }
 
     if (importStatus.value === ImportStatus.Failed) {
-      dialogVisible.value = false;
-      completedHandler = null;
-      importKey = '';
+      closeImportTask();
       const result = getImportResult(payload.err_msg || payload.msg);
-      if (result.rows.length) {
-        openImportResult('导入失败', result);
+      if (openImportRows('导入失败', result)) {
         return;
       }
 
@@ -170,6 +217,12 @@ export function useImportProgress() {
     }
   }
 
+  /**
+   * 开始导入任务。
+   *
+   * @param importTaskName 导入任务名称
+   * @param onCompleted 完成回调
+   */
   function startImport(importTaskName = '导入数据', onCompleted?: CompletedHandler) {
     resetImportResult();
     dialogVisible.value = true;
@@ -180,15 +233,19 @@ export function useImportProgress() {
     completedHandler = onCompleted ?? null;
   }
 
+  /**
+   * 设置当前导入任务标识。
+   *
+   * @param key 导入任务标识
+   */
   function setImportKey(key?: string) {
     importKey = key ?? '';
   }
 
+  /** 停止导入任务。 */
   function stopImport() {
-    dialogVisible.value = false;
+    closeImportTask();
     resetImportResult();
-    importKey = '';
-    completedHandler = null;
   }
 
   return {

@@ -13,6 +13,7 @@ import {
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
+import { getOssUrl } from '@/utils/common-methods';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import CategoryOperateDrawer from './modules/category-operate-drawer.vue';
 import ConfigurationCloneModal from './modules/configuration-clone-modal.vue';
@@ -23,8 +24,18 @@ defineOptions({
   name: 'VisualConfiguration'
 });
 
+const props = withDefaults(
+  defineProps<{
+    configurationType?: number;
+  }>(),
+  {
+    configurationType: 1
+  }
+);
+
 const appStore = useAppStore();
 const LOCAL_CONFIGURATION_BASE_URL = 'http://localhost:7788/#/';
+const LOCAL_FUXA_BASE_URL = 'http://localhost:4200/#/';
 
 const ROOT_CATEGORY: Api.Visual.ConfigurationCategory = {
   id: 0,
@@ -101,7 +112,10 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         render: row => {
           if (!row.thumb_url) return '-';
 
-          return <NImage src={row.thumb_url} width={100} height={56} objectFit="cover" />;
+          return (<div class="flex-center">
+              <NImage src={getOssUrl(row.thumb_url)} width={100} height={56} objectFit="cover" />
+            </div>
+          );
         }
       },
       {
@@ -246,7 +260,7 @@ function transformSearchParamsToRequest(params: Api.Visual.ConfigurationSearchPa
   const pageSize = params.pageSize || 10;
   const options: CommonType.CommonTypeOptions[] = [
     { type: 104, value: '101' },
-    { type: 5, value: '1' },
+    { type: 5, value: String(props.configurationType) },
     { type: 2, value: String(selectedCategoryId.value ?? 0) },
     { type: 51, value: 'true' }
   ];
@@ -276,19 +290,20 @@ function normalizeUrlWithTrailingSlash(url: string) {
 }
 
 function isLocalConfigurationEnv() {
-  const localPatterns = ['localhost', '127.0.0.1', '[::1]'];
+  const localHostnames = ['localhost', '127.0.0.1', '::1', '[::1]'];
 
-  return localPatterns.some(pattern => window.location.origin.includes(pattern));
+  return localHostnames.includes(window.location.hostname);
 }
 
 function getConfigurationBaseUrl() {
   if (isLocalConfigurationEnv()) {
-    return LOCAL_CONFIGURATION_BASE_URL;
+    return props.configurationType === 2 ? LOCAL_FUXA_BASE_URL : LOCAL_CONFIGURATION_BASE_URL;
   }
 
   const origin = normalizeUrlWithTrailingSlash(window.location.origin);
+  const appPath = props.configurationType === 2 ? 'fuxa' : 'configuration';
 
-  return `${origin}configuration/#/`;
+  return `${origin}${appPath}/#/`;
 }
 
 function buildConfigurationUrl(path: 'edit' | 'view', params: Record<string, string>) {
@@ -368,7 +383,7 @@ function handleEditConfiguration(row: Api.Visual.Configuration) {
 }
 
 function handleOpenDesign(row: Api.Visual.Configuration) {
-  window.open(buildConfigurationUrl('edit', { key: row.key }), '_blank');
+  window.open(buildConfigurationUrl('edit', { key: row.key }), '_blank', 'noopener,noreferrer');
 }
 
 function handleOpenPreview(row: Api.Visual.Configuration) {
@@ -377,7 +392,7 @@ function handleOpenPreview(row: Api.Visual.Configuration) {
     return;
   }
 
-  window.open(buildConfigurationUrl('view', { key: row.key, isClose: 'true' }), '_blank');
+  window.open(buildConfigurationUrl('view', { key: row.key, isClose: 'true' }), '_blank', 'noopener,noreferrer');
 }
 
 function handleCloneConfiguration(row: Api.Visual.Configuration) {
@@ -581,6 +596,7 @@ getCategoryData();
         :row-data="configurationOperateData"
         :categories="treeData"
         :category-id="selectedCategoryId"
+        :configuration-type="props.configurationType"
         @submitted="handleSubmitConfiguration"
       />
       <ConfigurationCloneModal

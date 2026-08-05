@@ -7,6 +7,7 @@ import { fetchDeleteCustomScreen, fetchGetCustomScreenList } from '@/service/api
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
+import { getOssUrl } from '@/utils/common-methods';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import CustomScreenCloneModal from './modules/custom-screen-clone-modal.vue';
 import CustomScreenOperateDrawer from './modules/custom-screen-operate-drawer.vue';
@@ -61,7 +62,11 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         render: row => {
           if (!row.thumb_url) return '-';
 
-          return <NImage src={row.thumb_url} width={100} height={56} objectFit="cover" />;
+          return (
+            <div class="flex-center">
+              <NImage src={getOssUrl(row.thumb_url)} width={100} height={56} objectFit="cover" />
+            </div>
+          );
         }
       },
       {

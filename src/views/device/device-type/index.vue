@@ -100,7 +100,9 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         minWidth: 120,
         render: row =>
           row.icon ? (
-            <NImage src={getOssUrl(row.icon)} width={40} height={40} objectFit="contain" />
+            <div class="flex-center">
+              <NImage src={getOssUrl(row.icon)} width={40} height={40} objectFit="contain" />
+            </div>
           ) : (
             '-'
           )

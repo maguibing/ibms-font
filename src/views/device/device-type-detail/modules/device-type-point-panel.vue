@@ -2,11 +2,13 @@
 import { ref, shallowRef } from 'vue';
 import { NDivider } from 'naive-ui';
 import { formatDateTime } from '@sa/utils';
+import { ImportBizType, ImportTemplatePath } from '@/enum/business';
 import { fetchDeleteDeviceTypePoint, fetchGetDeviceTypePointList } from '@/service/api/device';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
+import DataImportModal from '@/components/custom/data-import-modal.vue';
 import EnumTag from '@/components/custom/enum-tag.vue';
 import DeviceTypePointOperateDrawer from './device-type-point-operate-drawer.vue';
 
@@ -24,6 +26,7 @@ const appStore = useAppStore();
 
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
 const operateDrawerVisible = shallowRef(false);
+const importPointVisible = shallowRef(false);
 const operateType = shallowRef<NaiveUI.TableOperateType>('add');
 const editingPointId = shallowRef<CommonType.IdType | null>(null);
 
@@ -177,6 +180,10 @@ function handleAdd() {
   operateDrawerVisible.value = true;
 }
 
+function handleImportPoint() {
+  importPointVisible.value = true;
+}
+
 function handleEdit(id: CommonType.IdType) {
   operateType.value = 'edit';
   editingPointId.value = id;
@@ -256,7 +263,16 @@ async function handleBatchDelete() {
           @add="handleAdd"
           @delete="handleBatchDelete"
           @refresh="getData"
-        />
+        >
+          <template #after>
+            <NButton size="small" ghost @click="handleImportPoint">
+              <template #icon>
+                <SvgIcon icon="material-symbols:upload-rounded" class="text-icon" />
+              </template>
+              导入
+            </NButton>
+          </template>
+        </TableHeaderOperation>
       </template>
       <DataTable
         v-model:checked-row-keys="checkedRowKeys"
@@ -275,6 +291,15 @@ async function handleBatchDelete() {
         :device-type-id="props.deviceTypeId"
         :operate-type="operateType"
         :row-id="editingPointId"
+        @submitted="getData"
+      />
+      <DataImportModal
+        v-model:visible="importPointVisible"
+        :biz-type="ImportBizType.DeviceTypePoint"
+        :template-path="ImportTemplatePath.DeviceTypePoint"
+        :template-file-name="`设备类型点位_${$t('common.importTemplate')}_${new Date().getTime()}.xlsx`"
+        :meta="{ device_type_point: { device_type_id: Number(props.deviceTypeId) } }"
+        task-name="设备类型点位"
         @submitted="getData"
       />
     </NCard>

@@ -1,17 +1,22 @@
 <script setup lang="ts">
-import { computed, h, ref, useTemplateRef, watch } from 'vue';
+import { computed, h, ref, shallowRef, useTemplateRef, watch } from 'vue';
 import { NButton, NDivider, NTooltip } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
 import { formatDateTime } from '@sa/utils';
 import { fetchBindDevicePoint, fetchGetLogicPointList } from '@/service/api/device';
+import { fetchExportTask } from '@/service/api/common';
 import { useAppStore } from '@/store/modules/app';
+import { useExportProgress } from '@/hooks/business/export-progress';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { useRouterPush } from '@/hooks/common/router';
+import { ExportBizType, ExportFileType, ImportBizType, ImportTemplatePath } from '@/enum/business';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import CopyableValue from '@/components/custom/copyable-value.vue';
+import DataImportModal from '@/components/custom/data-import-modal.vue';
 import EnumTag from '@/components/custom/enum-tag.vue';
 import { displayValue } from '@/utils/common-methods';
+import { getWebSocketConnectionId } from '@/utils/websocket';
 import BindPhysicalPointDrawer from './bind-physical-point-drawer.vue';
 import DevicePointCommandModal from './device-point-command-modal.vue';
 
@@ -45,10 +50,12 @@ const emit = defineEmits<Emits>();
 const appStore = useAppStore();
 const { routerPushByKey } = useRouterPush();
 const { loading: operationLoading, startLoading, endLoading } = useLoading();
+const { startExport, stopExport } = useExportProgress();
 const bindPhysicalPointDrawerRef =
   useTemplateRef<InstanceType<typeof BindPhysicalPointDrawer>>('bindPhysicalPointDrawerRef');
 const devicePointCommandModalRef =
   useTemplateRef<InstanceType<typeof DevicePointCommandModal>>('devicePointCommandModalRef');
+const importMappingVisible = shallowRef(false);
 
 const searchParams = ref<SearchParams>({
   pageNum: 1,
@@ -367,6 +374,35 @@ async function handleUnbindPhysicalPoint(row: Api.Device.LogicPoint) {
   getData();
 }
 
+async function handleExport() {
+  const connectionId = getWebSocketConnectionId();
+  if (!connectionId) {
+    window.$message?.warning('WebSocket 尚未连接，请稍后重试');
+    return;
+  }
+
+  const { list_option } = transformSearchParamsToRequest();
+  startExport('逻辑点位');
+
+  const { error } = await fetchExportTask({
+    connection_id: connectionId,
+    export_biz_type: ExportBizType.LogicPoint,
+    file_type: ExportFileType.Excel,
+    list_option: list_option!
+  });
+
+  if (error) {
+    stopExport();
+    return;
+  }
+
+  window.$message?.success('导出任务已提交');
+}
+
+function handleImportMapping() {
+  importMappingVisible.value = true;
+}
+
 function handleSearch() {
   getDataByPage(1);
 }
@@ -431,13 +467,22 @@ watch(
           :loading="loading || operationLoading"
           :show-add="false"
           :show-delete="false"
-          :show-export="false"
+          :show-export="true"
+          @export="handleExport"
           @refresh="handleRefresh"
         >
           <template #prefix>
             <NButton size="small" type="success" ghost :loading="operationLoading" @click="handleSmartMatch">
               <template #icon><SvgIcon icon="material-symbols:wand-stars-rounded" /></template>
               智能匹配
+            </NButton>
+          </template>
+          <template #after>
+            <NButton size="small" ghost @click="handleImportMapping">
+              <template #icon>
+                <SvgIcon icon="material-symbols:upload-rounded" class="text-icon" />
+              </template>
+              导入映射表
             </NButton>
           </template>
         </TableHeaderOperation>
@@ -457,6 +502,14 @@ watch(
 
     <BindPhysicalPointDrawer ref="bindPhysicalPointDrawerRef" @submitted="handleRefresh" />
     <DevicePointCommandModal ref="devicePointCommandModalRef" />
+    <DataImportModal
+      v-model:visible="importMappingVisible"
+      :biz-type="ImportBizType.DevicePointMapping"
+      :template-path="ImportTemplatePath.DevicePointMapping"
+      :template-file-name="`点位映射_${$t('common.importTemplate')}_${new Date().getTime()}.xlsx`"
+      task-name="点位映射"
+      @submitted="handleRefresh"
+    />
   </div>
 </template>
 

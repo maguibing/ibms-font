@@ -3,12 +3,17 @@ import { computed, h, ref, shallowRef } from 'vue';
 import { NDivider, NImage, NTag } from 'naive-ui';
 import type { ImageRenderToolbar } from 'naive-ui/es/image';
 import { fetchDeleteAssets, fetchGetAssetsList } from '@/service/api/ledger';
+import { fetchExportTask } from '@/service/api/common';
 import { useAppStore } from '@/store/modules/app';
+import { useExportProgress } from '@/hooks/business/export-progress';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { downloadLedgerQrCode, downloadLedgerQrCodes, getLedgerQrCodeUrl } from '@/utils/ledger-qr-code';
+import { ExportBizType, ExportFileType, ImportBizType, ImportTemplatePath } from '@/enum/business';
 import { $t } from '@/locales';
 import { formatUnixDateTime } from '@/utils/common-methods';
 import ButtonIcon from '@/components/custom/button-icon.vue';
+import DataImportModal from '@/components/custom/data-import-modal.vue';
+import { getWebSocketConnectionId } from '@/utils/websocket';
 import AssetsOperateDrawer from './modules/assets-operate-drawer.vue';
 import AssetsSearch from './modules/assets-search.vue';
 import AssetsViewDrawer from './modules/assets-view-drawer.vue';
@@ -18,6 +23,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { startExport, stopExport } = useExportProgress();
 
 const searchParams = ref<Api.Ledger.AssetsSearchParams>({
   pageNum: 1,
@@ -196,6 +202,7 @@ const viewDrawerVisible = ref(false);
 const operateType = shallowRef<NaiveUI.TableOperateType>('add');
 const editingData = shallowRef<Api.Ledger.Assets | null>(null);
 const viewingData = shallowRef<Api.Ledger.Assets | null>(null);
+const importAssetsVisible = shallowRef(false);
 
 const assetsExtra = computed<Api.Ledger.AssetsListExtra>(() => {
   const raw = extraData.value as Partial<Api.Ledger.AssetsListExtra> | null;
@@ -273,18 +280,21 @@ function renderLedgerQrCode(row: Api.Ledger.Assets) {
   if (!qrCodeUrl) return '-';
 
   return (
-    <NImage
-      class="ledger-qr-image"
-      src={qrCodeUrl}
-      previewSrc={qrCodeUrl}
-      width={56}
-      height={56}
-      objectFit="contain"
-      alt="资产二维码"
-      imgProps={{ style: { imageRendering: 'pixelated' } }}
-      previewedImgProps={{ style: { imageRendering: 'pixelated' } }}
-      renderToolbar={renderLedgerQrToolbar(row)}
-    />
+    <div class="flex-center">
+      <NImage
+        class="ledger-qr-image"
+        src={qrCodeUrl}
+        previewSrc={qrCodeUrl}
+        width={56}
+        height={56}
+        objectFit="contain"
+        alt="资产二维码"
+        imgProps={{ style: { imageRendering: 'pixelated' } }}
+        previewedImgProps={{ style: { imageRendering: 'pixelated' } }}
+        renderToolbar={renderLedgerQrToolbar(row)}
+      />
+    </div>
+
   );
 }
 
@@ -297,6 +307,35 @@ function handleBatchDownloadLedgerQrCodes() {
   }
 
   window.$message?.success(`已开始下载 ${count} 个二维码压缩包`);
+}
+
+async function handleExport() {
+  const connectionId = getWebSocketConnectionId();
+  if (!connectionId) {
+    window.$message?.warning('WebSocket 尚未连接，请稍后重试');
+    return;
+  }
+
+  const { list_option } = transformSearchParamsToRequest(searchParams.value);
+  startExport('台账资产');
+
+  const { error } = await fetchExportTask({
+    connection_id: connectionId,
+    export_biz_type: ExportBizType.Assets,
+    file_type: ExportFileType.Excel,
+    list_option: list_option!
+  });
+
+  if (error) {
+    stopExport();
+    return;
+  }
+
+  window.$message?.success('导出任务已提交');
+}
+
+function handleImportAssets() {
+  importAssetsVisible.value = true;
 }
 
 function handleAdd() {
@@ -342,12 +381,19 @@ async function handleDelete(id: CommonType.IdType) {
           :loading="loading"
           :show-add="true"
           :show-delete="true"
-          :show-export="false"
+          :show-export="true"
           @add="handleAdd"
           @delete="handleBatchDelete"
+          @export="handleExport"
           @refresh="getData"
         >
           <template #after>
+            <NButton size="small" ghost @click="handleImportAssets">
+              <template #icon>
+                <SvgIcon icon="material-symbols:upload-rounded" class="text-icon" />
+              </template>
+              导入
+            </NButton>
             <NButton size="small" ghost :disabled="data.length === 0" @click="handleBatchDownloadLedgerQrCodes">
               <template #icon>
                 <icon-material-symbols-download-rounded class="text-icon" />
@@ -376,6 +422,14 @@ async function handleDelete(id: CommonType.IdType) {
         @submitted="getDataByPage"
       />
       <AssetsViewDrawer v-model:visible="viewDrawerVisible" :row-data="viewingData" />
+      <DataImportModal
+        v-model:visible="importAssetsVisible"
+        :biz-type="ImportBizType.Assets"
+        :template-path="ImportTemplatePath.Assets"
+        :template-file-name="`台账资产_${$t('common.importTemplate')}_${new Date().getTime()}.xlsx`"
+        task-name="台账资产"
+        @submitted="getData"
+      />
     </NCard>
   </div>
 </template>

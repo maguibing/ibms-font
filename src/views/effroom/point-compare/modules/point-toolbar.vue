@@ -13,6 +13,7 @@ defineProps<{
   viewMode: 'chart' | 'table';
   loading: boolean;
   canQuery: boolean;
+  canExport: boolean;
   canDrillBack: boolean;
 }>();
 
@@ -22,6 +23,7 @@ const emit = defineEmits<{
   updateViewMode: [value: 'chart' | 'table'];
   query: [];
   refresh: [];
+  export: [];
   drillBack: [];
 }>();
 
@@ -78,6 +80,10 @@ const shortcuts = {
       <NButton v-if="canDrillBack" type="warning" @click="emit('drillBack')">
         <template #icon><SvgIcon icon="material-symbols:arrow-back-rounded" /></template>
         返回
+      </NButton>
+      <NButton v-if="viewMode === 'table'" :disabled="!canExport" @click="emit('export')">
+        <template #icon><SvgIcon icon="material-symbols:download-rounded" /></template>
+        导出
       </NButton>
     </NSpace>
 

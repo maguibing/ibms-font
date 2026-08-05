@@ -10,10 +10,12 @@ import {
   fetchGetProjectSysScreenTagList,
   fetchGetProjectSysScreenTagPointList
 } from '@/service/api/visual/screen';
+import { ImportBizType, ImportTemplatePath } from '@/enum/business';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
+import DataImportModal from '@/components/custom/data-import-modal.vue';
 import TagOperateDrawer from './modules/tag-operate-drawer.vue';
 import TagPointOperateDrawer from './modules/tag-point-operate-drawer.vue';
 import TagPointSearch from './modules/tag-point-search.vue';
@@ -34,6 +36,7 @@ const tagOperateVisible = ref(false);
 const tagOperateType = ref<NaiveUI.TableOperateType>('add');
 const tagOperateData = ref<Api.Visual.ProjectSysScreenTag | null>(null);
 const tagPointOperateVisible = ref(false);
+const importTagPointVisible = ref(false);
 const tagPointOperateType = ref<NaiveUI.TableOperateType>('add');
 const tagPointOperateData = ref<Api.Visual.ProjectSysScreenTagPoint | null>(null);
 const tagPointSearchRef = useTemplateRef<InstanceType<typeof TagPointSearch>>('tagPointSearchRef');
@@ -289,6 +292,20 @@ function handleAddTagPoint() {
   tagPointOperateVisible.value = true;
 }
 
+function handleImportTagPoint() {
+  if (!projectSysScreenId.value) {
+    window.$message?.warning('缺少大屏ID');
+    return;
+  }
+
+  importTagPointVisible.value = true;
+}
+
+function handleImportTagPointSubmitted() {
+  getTagData();
+  getData();
+}
+
 function handleEditTagPoint(row: Api.Visual.ProjectSysScreenTagPoint) {
   tagPointOperateType.value = 'edit';
   tagPointOperateData.value = row;
@@ -451,7 +468,16 @@ onMounted(() => {
             @add="handleAddTagPoint"
             @delete="handleBatchDeleteTagPoint"
             @refresh="getData"
-          />
+          >
+            <template #after>
+              <NButton size="small" ghost :disabled="!projectSysScreenId" @click="handleImportTagPoint">
+                <template #icon>
+                  <SvgIcon icon="material-symbols:upload-rounded" class="text-icon" />
+                </template>
+                导入
+              </NButton>
+            </template>
+          </TableHeaderOperation>
         </template>
         <NEmpty v-if="!projectSysScreenId" description="缺少大屏ID" class="py-48px" />
         <NEmpty v-else-if="!selectedTagId" description="请选择左侧标签" class="py-48px" />
@@ -484,6 +510,19 @@ onMounted(() => {
         :project-sys-screen-tag-id="selectedTagId"
         :row-data="tagPointOperateData"
         @submitted="getData"
+      />
+      <DataImportModal
+        v-model:visible="importTagPointVisible"
+        :biz-type="ImportBizType.ProjectSysScreenTagPoint"
+        :template-path="ImportTemplatePath.SysScreenTagPoint"
+        :template-file-name="`系统大屏标签点位_${$t('common.importTemplate')}_${new Date().getTime()}.xlsx`"
+        :meta="{
+          project_sys_screen_tag_point: {
+            project_sys_screen_id: Number(projectSysScreenId)
+          }
+        }"
+        task-name="系统大屏标签点位"
+        @submitted="handleImportTagPointSubmitted"
       />
     </div>
   </TableSiderLayout>

@@ -6,7 +6,12 @@ export type ExportTaskParams = {
   export_biz_type: ExportBizType;
   file_type: ExportFileType;
   list_option: CommonType.CommonListOptions;
-  physical_point: {
+  device_point_trend?: Api.Device.DevicePointHistoryParams;
+  device_point_energy?: {
+    time_range?: Api.Energy.DevicePointEnergyListParams['time_range'];
+  };
+  energy_calendar?: Api.Energy.EnergyCalendarParams;
+  physical_point?: {
     scan?: {
       device_points: Api.Device.ScanPhysicalDevicePointGroup[];
       gateway_id: number;

@@ -93,7 +93,11 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
             return '-';
           }
 
-          return <NImage src={coverUrl} width={100} height={56} objectFit="cover" />;
+          return (
+            <div class="flex-center">
+              <NImage src={coverUrl} width={56} height={56} objectFit="cover" />
+            </div>
+          )
         }
       },
       {

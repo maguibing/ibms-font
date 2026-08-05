@@ -3,10 +3,14 @@ import { computed, ref, shallowRef, watch } from 'vue';
 import { NPopover } from 'naive-ui';
 import { type FilterConfig, isValidFilterConfig } from '@sa/utils';
 import { ENERGY_TYPE_OPTIONS } from '@/constants/device-point';
+import { ExportBizType, ExportFileType } from '@/enum/business';
+import { useExportProgress } from '@/hooks/business/export-progress';
+import { fetchExportTask } from '@/service/api/common';
 import { fetchGetDevicePointEnergyList } from '@/service/api/energy';
 import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { displayValue } from '@/utils/common-methods';
+import { getWebSocketConnectionId } from '@/utils/websocket';
 import { $t } from '@/locales';
 import { createDefaultDateRange, normalizeDateRange } from './modules/energy-list-date';
 import EnergyListSearch from './modules/energy-list-search.vue';
@@ -22,6 +26,7 @@ type EnergyColumn = NaiveUI.TableColumn<EnergyRow>;
 type EnergyTableRecord = Api.Common.PaginatingQueryRecord<EnergyRow, EnergyExtra>;
 
 const appStore = useAppStore();
+const { startExport, stopExport } = useExportProgress();
 const energyTypeOptions = ENERGY_TYPE_OPTIONS.filter(option => {
   const value = Number(option.value);
 
@@ -284,6 +289,37 @@ function handleSearch() {
   getDataByPage(1);
 }
 
+async function handleExport() {
+  const connectionId = getWebSocketConnectionId();
+  if (!connectionId) {
+    window.$message?.warning('WebSocket 尚未连接，请稍后重试');
+    return;
+  }
+
+  const requestParams = transformSearchParamsToRequest(searchParams.value);
+  startExport('能耗列表');
+
+  const { error } = await fetchExportTask({
+    file_type: ExportFileType.Excel,
+    connection_id: connectionId,
+    export_biz_type: ExportBizType.DevicePointEnergy,
+    device_point_energy: {
+      time_range: requestParams.time_range
+    },
+    list_option: {
+      ...requestParams.list_option,
+      offset: 0
+    }
+  });
+
+  if (error) {
+    stopExport();
+    return;
+  }
+
+  window.$message?.success('导出任务已提交');
+}
+
 watch(
   () => searchParams.value.energy_types.join(','),
   () => {
@@ -303,6 +339,8 @@ watch(
           :loading="loading"
           :show-add="false"
           :show-delete="false"
+          :show-export="true"
+          @export="handleExport"
           @refresh="getData"
         />
       </template>

@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, shallowRef } from 'vue';
 import { NCalendar, NDatePicker } from 'naive-ui';
+import { ExportBizType, ExportFileType } from '@/enum/business';
+import { useExportProgress } from '@/hooks/business/export-progress';
+import { fetchExportTask } from '@/service/api/common';
 import { fetchGetEnergyCalendar } from '@/service/api/energy';
 import { displayValue } from '@/utils/common-methods';
+import { getWebSocketConnectionId } from '@/utils/websocket';
 
 defineOptions({
   name: 'EffroomEnergyCalendar'
@@ -14,6 +18,8 @@ type YearMonth = {
   year: number;
   month: number;
 };
+
+const ENERGY_CALENDAR_STAT_TYPE = 2;
 
 const calendarKey = shallowRef(0);
 const panelMonth = shallowRef<YearMonth>(createCurrentYearMonth());
@@ -29,6 +35,7 @@ const calendarMap = computed(() =>
   }, {})
 );
 const panelMonthValue = computed(() => createDateValue(panelMonth.value.year, panelMonth.value.month, 1));
+const { startExport, stopExport } = useExportProgress();
 
 function createCurrentYearMonth(): YearMonth {
   const now = new Date();
@@ -160,7 +167,7 @@ async function getData(value = panelMonth.value) {
     const currentRange = createMonthRange(value);
     timeRange.value = currentRange;
     const { data, error } = await fetchGetEnergyCalendar({
-      stat_type: 2,
+      stat_type: ENERGY_CALENDAR_STAT_TYPE,
       time_range: currentRange
     });
 
@@ -172,6 +179,34 @@ async function getData(value = panelMonth.value) {
       loading.value = false;
     }
   }
+}
+
+async function handleExport() {
+  const connectionId = getWebSocketConnectionId();
+  if (!connectionId) {
+    window.$message?.warning('WebSocket 尚未连接，请稍后重试');
+    return;
+  }
+
+  startExport('能效日历');
+
+  const { error } = await fetchExportTask({
+    energy_calendar: {
+      stat_type: ENERGY_CALENDAR_STAT_TYPE,
+      time_range: timeRange.value
+    },
+    connection_id: connectionId,
+    export_biz_type: ExportBizType.EnergyCalendar,
+    file_type: ExportFileType.Excel,
+    list_option: {}
+  });
+
+  if (error) {
+    stopExport();
+    return;
+  }
+
+  window.$message?.success('导出任务已提交');
 }
 
 onMounted(getData);
@@ -191,15 +226,21 @@ onMounted(getData);
         >
           <template #header>
             <div class="min-w-0 w-full flex flex-wrap items-center justify-between gap-x-12px gap-y-8px">
-              <NDatePicker
-                type="month"
-                size="small"
-                :value="panelMonthValue"
-                :clearable="false"
-                :is-date-disabled="isMonthDisabled"
-                class="w-140px"
-                @update:value="handleMonthUpdate"
-              />
+              <div class="flex items-center gap-8px">
+                <NDatePicker
+                  type="month"
+                  size="small"
+                  :value="panelMonthValue"
+                  :clearable="false"
+                  :is-date-disabled="isMonthDisabled"
+                  class="w-140px"
+                  @update:value="handleMonthUpdate"
+                />
+                <NButton size="small" @click="handleExport">
+                  <template #icon><SvgIcon icon="material-symbols:download-rounded" /></template>
+                  导出
+                </NButton>
+              </div>
               <div class="flex shrink-0 flex-wrap items-center justify-end gap-x-12px gap-y-6px text-12px">
                 <span class="inline-flex items-center gap-5px text-[var(--n-text-color-3)]">
                   <span class="h-7px w-7px rounded-full bg-[rgb(var(--primary-color))]"></span>

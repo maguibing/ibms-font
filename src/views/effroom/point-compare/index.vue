@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed, shallowRef, watch } from 'vue';
 import dayjs from 'dayjs';
-import { AggType, StatType } from '@/enum/business';
+import { AggType, ExportBizType, ExportFileType, StatType } from '@/enum/business';
+import { useExportProgress } from '@/hooks/business/export-progress';
+import { fetchExportTask } from '@/service/api/common';
 import { fetchGetDevicePointHistoryTrend } from '@/service/api/device';
+import { getWebSocketConnectionId } from '@/utils/websocket';
 import PointDataTable from './modules/point-data-table.vue';
 import PointToolbar from './modules/point-toolbar.vue';
 import PointTree from './modules/point-tree.vue';
@@ -40,8 +43,10 @@ const currentDrillParams = shallowRef<DrillParams | null>(null);
 const drillHistory = shallowRef<DrillParams[]>([]);
 let requestSequence = 0;
 
+const { startExport, stopExport } = useExportProgress();
 const trendList = computed(() => trendData.value?.trend_list ?? []);
 const hasTrendData = computed(() => trendList.value.some(item => item.point_trends?.length));
+const canExport = computed(() => viewMode.value === 'table' && selectedPoints.value.length > 0);
 
 function inferStatType([start, end]: [number, number]) {
   const duration = end - start;
@@ -105,6 +110,31 @@ function handleRefresh() {
   dateRange.value = [dayjs().subtract(7, 'day').valueOf(), dayjs().valueOf()];
   resetDrillState();
   getTrendData();
+}
+
+async function handleExport() {
+  const connectionId = getWebSocketConnectionId();
+  if (!connectionId) {
+    window.$message?.warning('WebSocket 尚未连接，请稍后重试');
+    return;
+  }
+
+  startExport('点位对比');
+
+  const { error } = await fetchExportTask({
+    connection_id: connectionId,
+    export_biz_type: ExportBizType.DevicePointTrend,
+    file_type: ExportFileType.Excel,
+    list_option: {},
+    device_point_trend: buildRequestParams()
+  });
+
+  if (error) {
+    stopExport();
+    return;
+  }
+
+  window.$message?.success('导出任务已提交');
 }
 
 function handleDrill(timestamp: number) {
@@ -177,12 +207,14 @@ watch(
         :view-mode="viewMode"
         :loading="loading"
         :can-query="selectedPoints.length > 0"
+        :can-export="canExport"
         :can-drill-back="drillHistory.length > 0"
         @update-date-range="handleDateRangeUpdate"
         @update-agg-type="aggType = $event"
         @update-view-mode="viewMode = $event"
         @query="getTrendData"
         @refresh="handleRefresh"
+        @export="handleExport"
         @drill-back="handleDrillBack"
       />
 

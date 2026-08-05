@@ -17,6 +17,7 @@ interface Props {
   bizType: ImportBizType;
   templatePath: string;
   templateFileName: string;
+  meta?: Record<string, unknown>;
   taskName?: string;
 }
 
@@ -25,6 +26,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  meta: () => ({}),
   taskName: '导入数据'
 });
 
@@ -65,6 +67,7 @@ function getFileSuffix(fileName: string) {
 function getUploadData({ file }: { file: UploadFileInfo }) {
   const meta = {
     biz_type: props.bizType,
+    ...props.meta,
     file_suffix: getFileSuffix(file.name),
     connection_id: connectionId.value
   };
