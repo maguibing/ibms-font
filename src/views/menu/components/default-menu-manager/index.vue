@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import type { DataTableColumns, TreeOption } from 'naive-ui';
 import { NButton, NDivider, NIcon, NTag } from 'naive-ui';
 import { useBoolean, useLoading } from '@sa/hooks';
-import { menuNodeType, menuNodeTypeRecord } from '@/constants/business';
+import { menuNodeType, menuNodeTypeRecord, menuPlatformType } from '@/constants/business';
 import { fetchDeleteMenuNode, fetchGetMenuNodeTrees } from '@/service/api/system/menu';
 import { useAppStore } from '@/store/modules/app';
 import { useAuth } from '@/hooks/business/auth';
@@ -33,6 +33,27 @@ type MenuNodeItem = Omit<Api.System.MenuNode, 'children' | 'id'> & {
 const defaultIcon = import.meta.env.VITE_MENU_ICON;
 const { hasAuth } = useAuth();
 const appStore = useAppStore();
+const menuPermissionMap = {
+  [menuPlatformType.operation]: {
+    add: 'menu:platform-menu:add',
+    edit: 'menu:platform-menu:edit',
+    delete: 'menu:platform-menu:delete'
+  },
+  [menuPlatformType.integrator]: {
+    add: 'menu:corp-menu:add',
+    edit: 'menu:corp-menu:edit',
+    delete: 'menu:corp-menu:delete'
+  },
+  [menuPlatformType.project]: {
+    add: 'menu:project-menu:add',
+    edit: 'menu:project-menu:edit',
+    delete: 'menu:project-menu:delete'
+  }
+} as const;
+const menuPermissions = computed(() => menuPermissionMap[Number(props.pType) as keyof typeof menuPermissionMap]);
+const canAdd = computed(() => hasAuth(menuPermissions.value.add));
+const canEdit = computed(() => hasAuth(menuPermissions.value.edit));
+const canDelete = computed(() => hasAuth(menuPermissions.value.delete));
 const editingId = ref<CommonType.IdType>();
 const operateType = ref<NaiveUI.TableOperateType>('add');
 const { loading, startLoading, endLoading } = useLoading();
@@ -247,7 +268,7 @@ function renderPrefix({ option }: { option: TreeOption }) {
 }
 
 function renderSuffix({ option }: { option: TreeOption }) {
-  if (Number(option.menu_type ?? 0) !== menuNodeType.catalog || !hasAuth('system:menu:add')) {
+  if (Number(option.menu_type ?? 0) !== menuNodeType.catalog || !canAdd.value) {
     return null;
   }
 
@@ -316,6 +337,10 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
     width: 64,
     align: 'center',
     title() {
+      if (!canAdd.value) {
+        return null;
+      }
+
       return (
         <NButton circle type="primary" size="small" onClick={() => addBtnMenu()}>
           {{
@@ -361,17 +386,7 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
     width: 80,
     align: 'center',
     render(row) {
-      const divider = () => {
-        if (!hasAuth('system:menu:edit') || !hasAuth('system:menu:remove')) {
-          return null;
-        }
-        return <NDivider vertical />;
-      };
-
       const editBtn = () => {
-        if (!hasAuth('system:menu:edit')) {
-          return null;
-        }
         return (
           <ButtonIcon
             text
@@ -384,9 +399,6 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
       };
 
       const deleteBtn = () => {
-        if (!hasAuth('system:menu:remove')) {
-          return null;
-        }
         return (
           <ButtonIcon
             text
@@ -399,11 +411,18 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
         );
       };
 
+      const buttons = [];
+      if (canEdit.value) buttons.push(editBtn());
+      if (canDelete.value) buttons.push(deleteBtn());
+
       return (
         <div class="flex-center gap-8px">
-          {editBtn()}
-          {divider()}
-          {deleteBtn()}
+          {buttons.map((btn, index) => (
+            <>
+              {index !== 0 && <NDivider vertical />}
+              {btn}
+            </>
+          ))}
         </div>
       );
     }
@@ -416,7 +435,7 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
     <template #header>{{ title }}</template>
     <template #header-extra>
       <ButtonIcon
-        v-if="hasAuth('system:menu:add')"
+        v-if="canAdd"
         size="small"
         icon="material-symbols:add-rounded"
         class="h-28px text-icon color-primary"
@@ -474,7 +493,7 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
           <template #header-extra>
             <NSpace>
               <NButton
-                v-if="isCatalog && hasAuth('system:menu:add')"
+                v-if="isCatalog && canAdd"
                 size="small"
                 ghost
                 type="primary"
@@ -485,7 +504,7 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
                 </template>
                 新增子菜单
               </NButton>
-              <NButton v-if="hasAuth('system:menu:edit')" size="small" ghost type="primary" @click="handleUpdateMenu">
+              <NButton v-if="canEdit" size="small" ghost type="primary" @click="handleUpdateMenu">
                 <template #icon>
                   <icon-material-symbols-drive-file-rename-outline-outline />
                 </template>
@@ -494,7 +513,7 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
               <NPopconfirm @positive-click="() => handleDeleteMenu()">
                 <template #trigger>
                   <NButton
-                    v-if="hasAuth('system:menu:remove')"
+                    v-if="canDelete"
                     size="small"
                     ghost
                     type="error"

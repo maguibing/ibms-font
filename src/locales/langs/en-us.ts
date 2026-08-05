@@ -418,7 +418,6 @@ const local: App.I18n.Schema = {
         rememberMe: 'Remember password',
         forgetPassword: 'Forget password?',
         register: 'Register',
-        otherAccountLogin: 'Other Account Login',
         otherLoginMode: 'Other Login Mode',
         superAdmin: 'Super Admin',
         admin: 'Admin',

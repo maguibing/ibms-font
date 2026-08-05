@@ -414,7 +414,6 @@ const local: App.I18n.Schema = {
         rememberMe: '记住密码',
         forgetPassword: '忘记密码？',
         register: '注册账号',
-        otherAccountLogin: '其他账号登录',
         otherLoginMode: '其他登录方式',
         superAdmin: '超级管理员',
         admin: '管理员',

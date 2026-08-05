@@ -5,6 +5,7 @@ import { useBoolean } from '@sa/hooks';
 import { formatDateTime } from '@sa/utils';
 import { fetchDeleteCustomScreen, fetchGetCustomScreenList } from '@/service/api/visual/custom-screen';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import { getOssUrl } from '@/utils/common-methods';
@@ -18,6 +19,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 const CUSTOM_SCREEN_DESIGN_URL = '/custom-screen/#/chart/home/';
 const CUSTOM_SCREEN_PREVIEW_URL = '/custom-screen/#/chart/preview/';
 
@@ -128,35 +130,47 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         width: 260,
         fixed: 'right',
         render: row => {
-          const buttons = [
+          const editBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
               onClick={() => handleEdit(row)}
-            />,
+            />
+          );
+
+          const designBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:design-services-outline"
               tooltipContent="设计"
               onClick={() => handleOpenDesign(row)}
-            />,
+            />
+          );
+
+          const viewBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:visibility-outline"
               tooltipContent="预览"
               onClick={() => handleOpenPreview(row)}
-            />,
+            />
+          );
+
+          const cloneBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:content-copy-outline"
               tooltipContent="克隆"
               onClick={() => handleClone(row)}
-            />,
+            />
+          );
+
+          const deleteBtn = () => (
             <ButtonIcon
               text
               type="error"
@@ -165,7 +179,14 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               popconfirmContent={$t('common.confirmDelete')}
               onPositiveClick={() => handleDelete(row.id)}
             />
-          ];
+          );
+
+          const buttons = [];
+          if (hasAuth('visual:custom-screen:edit')) buttons.push(editBtn());
+          if (hasAuth('visual:custom-screen:design')) buttons.push(designBtn());
+          if (hasAuth('visual:custom-screen:view')) buttons.push(viewBtn());
+          if (hasAuth('visual:custom-screen:add')) buttons.push(cloneBtn());
+          if (hasAuth('visual:custom-screen:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -288,8 +309,8 @@ function handleSubmit() {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-add="true"
-          :show-delete="true"
+          :show-add="hasAuth('visual:custom-screen:add')"
+          :show-delete="hasAuth('visual:custom-screen:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"

@@ -4,6 +4,7 @@ import { NDivider, NTag } from 'naive-ui';
 import { formatDateTime, type FilterConfig, isValidFilterConfig } from '@sa/utils';
 import { fetchDeleteProject, fetchGetProjectList } from '@/service/api/sys-screen';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import PhoneReveal from '@/components/business/phone-reveal.vue';
 import ButtonIcon from '@/components/custom/button-icon.vue';
@@ -18,6 +19,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 
 const searchParams = ref<Api.System.ProjectSearchParams>(createDefaultSearchParams());
 const memberDrawerRef = useTemplateRef<InstanceType<typeof ProjectMemberDrawer>>('memberDrawerRef');
@@ -184,7 +186,10 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
             />
           );
 
-          const buttons = [editBtn(), viewBtn(), memberBtn(), deleteBtn()];
+          const buttons = [editBtn()];
+          if (hasAuth('project:project-list:view')) buttons.push(viewBtn());
+          buttons.push(memberBtn());
+          if (hasAuth('project:project-list:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -300,7 +305,8 @@ async function handleBatchDelete() {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-delete="true"
+          :show-add="hasAuth('project:project-list:add')"
+          :show-delete="hasAuth('project:project-list:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"

@@ -100,7 +100,7 @@ const {
         const buttons = [];
         if (hasAuth('system:dept:add')) buttons.push(addBtn());
         if (hasAuth('system:dept:edit')) buttons.push(editBtn());
-        if (hasAuth('system:dept:remove')) buttons.push(deleteBtn());
+        if (hasAuth('system:dept:delete')) buttons.push(deleteBtn());
 
         return (
           <div class="flex-center gap-8px">

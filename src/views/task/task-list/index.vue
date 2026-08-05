@@ -4,6 +4,7 @@ import { NDivider, NTag } from 'naive-ui';
 import { StatusTag } from '@sa/materials';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { fetchDeleteTask, fetchExecuteTask, fetchGetTaskList } from '@/service/api/task';
 import { $t } from '@/locales';
 import { formatUnixDateTime } from '@/utils/common-methods';
@@ -29,6 +30,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
 const operateDrawerVisible = shallowRef(false);
 const operateType = shallowRef<NaiveUI.TableOperateType>('add');
@@ -112,33 +114,38 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         width: 220,
         fixed: 'right',
         render: row => {
-          const buttons = [
+          const viewBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:visibility-outline"
               tooltipContent="查看"
               onClick={() => handleView(row)}
-            />,
+            />
+          );
+
+          const editBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
               onClick={() => handleEdit(row)}
-            />,
-            ...(row.task_type === 2
-              ? [
-                  <ButtonIcon
-                    text
-                    type="success"
-                    icon="material-symbols:play-arrow-outline"
-                    tooltipContent="一键执行"
-                    popconfirmContent="确认执行该任务？"
-                    onPositiveClick={() => handleExecuteTask(row.id)}
-                  />
-                ]
-              : []),
+            />
+          );
+
+          const execBtn = () => (
+            <ButtonIcon
+              text
+              type="success"
+              icon="material-symbols:play-arrow-outline"
+              tooltipContent="一键执行"
+              popconfirmContent="确认执行该任务？"
+              onPositiveClick={() => handleExecuteTask(row.id)}
+            />
+          );
+
+          const deleteBtn = () => (
             <ButtonIcon
               text
               type="error"
@@ -147,7 +154,13 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               popconfirmContent={$t('common.confirmDelete')}
               onPositiveClick={() => handleDelete(row.id)}
             />
-          ];
+          );
+
+          const buttons = [];
+          if (hasAuth('task:task-list:view')) buttons.push(viewBtn());
+          if (hasAuth('task:task-list:edit')) buttons.push(editBtn());
+          if (row.task_type === 2 && hasAuth('task:task-list:exec')) buttons.push(execBtn());
+          if (hasAuth('task:task-list:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -261,8 +274,8 @@ async function handleBatchDelete() {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-add="true"
-          :show-delete="true"
+          :show-add="hasAuth('task:task-list:add')"
+          :show-delete="hasAuth('task:task-list:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"

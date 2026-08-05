@@ -11,6 +11,7 @@ import {
   fetchGetDeviceTypeTemplateCategoryList
 } from '@/service/api/device-type-template';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { useRouterPush } from '@/hooks/common/router';
 import { $t } from '@/locales';
@@ -22,6 +23,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 const { routerPushByKey } = useRouterPush();
 const selectedKeys = ref<CommonType.IdType[]>([]);
 const categoryPattern = ref<string>();
@@ -190,9 +192,9 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
           };
 
           const buttons = [];
-          buttons.push(editBtn());
-          buttons.push(pointManageBtn());
-          buttons.push(deleteBtn());
+          if (hasAuth('global:device-type-template:edit')) buttons.push(editBtn());
+          if (hasAuth('global:device-type-template:point:view')) buttons.push(pointManageBtn());
+          if (hasAuth('global:device-type-template:delete')) buttons.push(deleteBtn());
           return (
             <div class="flex-center gap-8px">
               {buttons.map((btn, index) => (
@@ -340,8 +342,10 @@ function renderLabel({ option }: { option: TreeOption }) {
 }
 
 function renderSuffix({ option }: { option: TreeOption }) {
-  return (
-    <div class="flex-center gap-12px">
+  const buttons = [];
+
+  if (hasAuth('global:device-type-template:category:edit')) {
+    buttons.push(
       <ButtonIcon
         text
         type="primary"
@@ -352,6 +356,11 @@ function renderSuffix({ option }: { option: TreeOption }) {
           handleEditCategory(option as Api.System.DeviceTypeTemplateCategory);
         }}
       />
+    );
+  }
+
+  if (hasAuth('global:device-type-template:category:delete')) {
+    buttons.push(
       <ButtonIcon
         text
         type="error"
@@ -361,8 +370,12 @@ function renderSuffix({ option }: { option: TreeOption }) {
         onClick={(event: Event) => event.stopPropagation()}
         onPositiveClick={() => handleDeleteCategory(option as Api.System.DeviceTypeTemplateCategory)}
       />
-    </div>
-  );
+    );
+  }
+
+  if (!buttons.length) return null;
+
+  return <div class="flex-center gap-12px">{buttons}</div>;
 }
 
 getCategoryData();
@@ -372,6 +385,7 @@ getCategoryData();
   <TableSiderLayout sider-title="设备类型模板分类">
     <template #header-extra>
       <ButtonIcon
+        v-if="hasAuth('global:device-type-template:category:add')"
         size="small"
         icon="material-symbols:add-rounded"
         class="h-18px text-icon"
@@ -453,8 +467,8 @@ getCategoryData();
             v-model:columns="columnChecks"
             :disabled-delete="checkedRowKeys.length === 0"
             :loading="loading"
-            :show-add="true"
-            :show-delete="true"
+            :show-add="hasAuth('global:device-type-template:add')"
+            :show-delete="hasAuth('global:device-type-template:delete')"
             :show-export="false"
             @add="handleAddDeviceType"
             @delete="handleBatchDeleteDeviceType"

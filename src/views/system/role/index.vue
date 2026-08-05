@@ -153,11 +153,9 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
           };
 
           const buttons = [];
-          if (hasAuth('system:role:edit')) {
-            buttons.push(editBtn());
-            buttons.push(dataScopeBtn());
-          }
-          if (hasAuth('system:role:remove')) buttons.push(deleteBtn());
+          if (hasAuth('system:role:edit')) buttons.push(editBtn());
+          if (hasAuth('system:role:assign')) buttons.push(dataScopeBtn());
+          if (hasAuth('system:role:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -213,7 +211,7 @@ function handleMenuAuthScope(row: Api.System.Role) {
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
           :show-add="hasAuth('system:role:add')"
-          :show-delete="hasAuth('system:role:remove')"
+          :show-delete="hasAuth('system:role:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"

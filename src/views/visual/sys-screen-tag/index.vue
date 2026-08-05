@@ -12,6 +12,7 @@ import {
 } from '@/service/api/visual/screen';
 import { ImportBizType, ImportTemplatePath } from '@/enum/business';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
@@ -26,6 +27,7 @@ defineOptions({
 
 const route = useRoute();
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
 const selectedKeys = ref<CommonType.IdType[]>([]);
 const tagPattern = ref<string>();
@@ -160,14 +162,17 @@ const {
       align: 'center',
       width: 130,
       render: row => {
-        const buttons = [
+        const editBtn = () => (
           <ButtonIcon
             text
             type="primary"
             icon="material-symbols:drive-file-rename-outline-outline"
             tooltipContent={$t('common.edit')}
             onClick={() => handleEditTagPoint(row)}
-          />,
+          />
+        );
+
+        const deleteBtn = () => (
           <ButtonIcon
             text
             type="error"
@@ -176,7 +181,11 @@ const {
             popconfirmContent={$t('common.confirmDelete')}
             onPositiveClick={() => handleDeleteTagPoint(row.id)}
           />
-        ];
+        );
+
+        const buttons = [];
+        if (hasAuth('visual:sys-screen-tag:point-mapping:edit')) buttons.push(editBtn());
+        if (hasAuth('visual:sys-screen-tag:point-mapping:delete')) buttons.push(deleteBtn());
 
         return (
           <div class="flex-center gap-8px">
@@ -354,27 +363,40 @@ function renderLabel({ option }: { option: TreeOption }) {
 function renderSuffix({ option }: { option: TreeOption }) {
   const row = option as Api.Visual.ProjectSysScreenTag;
 
+  const editBtn = () => (
+    <ButtonIcon
+      text
+      type="primary"
+      icon="material-symbols:drive-file-rename-outline-outline"
+      tooltip-content={$t('common.edit')}
+      onClick={(event: Event) => {
+        event.stopPropagation();
+        handleEditTag(row);
+      }}
+    />
+  );
+
+  const deleteBtn = () => (
+    <ButtonIcon
+      text
+      type="error"
+      icon="material-symbols:delete-outline"
+      tooltip-content={$t('common.delete')}
+      popconfirm-content={$t('common.confirmDelete')}
+      onClick={(event: Event) => event.stopPropagation()}
+      onPositiveClick={() => handleDeleteTag(row)}
+    />
+  );
+
+  const buttons = [];
+  if (hasAuth('visual:sys-screen-tag:edit')) buttons.push(editBtn());
+  if (hasAuth('visual:sys-screen-tag:delete')) buttons.push(deleteBtn());
+
+  if (buttons.length === 0) return null;
+
   return (
     <div class="flex-center gap-12px">
-      <ButtonIcon
-        text
-        type="primary"
-        icon="material-symbols:drive-file-rename-outline-outline"
-        tooltip-content={$t('common.edit')}
-        onClick={(event: Event) => {
-          event.stopPropagation();
-          handleEditTag(row);
-        }}
-      />
-      <ButtonIcon
-        text
-        type="error"
-        icon="material-symbols:delete-outline"
-        tooltip-content={$t('common.delete')}
-        popconfirm-content={$t('common.confirmDelete')}
-        onClick={(event: Event) => event.stopPropagation()}
-        onPositiveClick={() => handleDeleteTag(row)}
-      />
+      {buttons.map(button => button)}
     </div>
   );
 }
@@ -407,6 +429,7 @@ onMounted(() => {
   <TableSiderLayout sider-title="大屏标签">
     <template #header-extra>
       <ButtonIcon
+        v-if="hasAuth('visual:sys-screen-tag:add')"
         size="small"
         icon="material-symbols:add-rounded"
         class="h-18px text-icon"
@@ -462,15 +485,21 @@ onMounted(() => {
             :disable-add="!selectedTagId"
             :disabled-delete="checkedRowKeys.length === 0"
             :loading="loading"
-            :show-add="true"
-            :show-delete="true"
+            :show-add="hasAuth('visual:sys-screen-tag:point-mapping:add')"
+            :show-delete="hasAuth('visual:sys-screen-tag:point-mapping:delete')"
             :show-export="false"
             @add="handleAddTagPoint"
             @delete="handleBatchDeleteTagPoint"
             @refresh="getData"
           >
             <template #after>
-              <NButton size="small" ghost :disabled="!projectSysScreenId" @click="handleImportTagPoint">
+              <NButton
+                v-if="hasAuth('visual:sys-screen-tag:point-mapping:import')"
+                size="small"
+                ghost
+                :disabled="!projectSysScreenId"
+                @click="handleImportTagPoint"
+              >
                 <template #icon>
                   <SvgIcon icon="material-symbols:upload-rounded" class="text-icon" />
                 </template>

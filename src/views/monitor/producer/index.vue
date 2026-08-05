@@ -5,6 +5,7 @@ import { formatDateTime } from '@sa/utils';
 import { NDivider, NTag } from 'naive-ui';
 import { fetchDeleteProvider, fetchGetProviderList } from '@/service/api/monitor';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
@@ -17,6 +18,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 
 const searchParams = ref<Api.Monitor.ProviderSearchParams>(createDefaultSearchParams());
 
@@ -129,14 +131,17 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         align: 'center',
         width: 130,
         render: row => {
-          const buttons = [
+          const editBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
               onClick={() => edit(row.id)}
-            />,
+            />
+          );
+
+          const deleteBtn = () => (
             <ButtonIcon
               text
               type="error"
@@ -145,7 +150,11 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               popconfirmContent={$t('common.confirmDelete')}
               onPositiveClick={() => handleDelete(row.id)}
             />
-          ];
+          );
+
+          const buttons = [];
+          if (hasAuth('monitor:producer:edit')) buttons.push(editBtn());
+          if (hasAuth('monitor:producer:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -194,8 +203,8 @@ function edit(id: CommonType.IdType) {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-add="true"
-          :show-delete="true"
+          :show-add="hasAuth('monitor:producer:add')"
+          :show-delete="hasAuth('monitor:producer:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"

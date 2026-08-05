@@ -5,6 +5,7 @@ import type { ImageRenderToolbar } from 'naive-ui/es/image';
 import { fetchDeleteAssets, fetchGetAssetsList } from '@/service/api/ledger';
 import { fetchExportTask } from '@/service/api/common';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { useExportProgress } from '@/hooks/business/export-progress';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { downloadLedgerQrCode, downloadLedgerQrCodes, getLedgerQrCodeUrl } from '@/utils/ledger-qr-code';
@@ -23,6 +24,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 const { startExport, stopExport } = useExportProgress();
 
 const searchParams = ref<Api.Ledger.AssetsSearchParams>({
@@ -155,21 +157,27 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         align: 'center',
         width: 180,
         render: row => {
-          const buttons = [
+          const viewBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:visibility-outline"
               tooltipContent="查看"
               onClick={() => handleView(row)}
-            />,
+            />
+          );
+
+          const editBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
               onClick={() => handleEdit(row)}
-            />,
+            />
+          );
+
+          const deleteBtn = () => (
             <ButtonIcon
               text
               type="error"
@@ -178,7 +186,12 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               popconfirmContent={$t('common.confirmDelete')}
               onPositiveClick={() => handleDelete(row.id)}
             />
-          ];
+          );
+
+          const buttons = [];
+          if (hasAuth('ledger:assets:view')) buttons.push(viewBtn());
+          if (hasAuth('ledger:assets:edit')) buttons.push(editBtn());
+          if (hasAuth('ledger:assets:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -379,16 +392,16 @@ async function handleDelete(id: CommonType.IdType) {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-add="true"
-          :show-delete="true"
-          :show-export="true"
+          :show-add="hasAuth('ledger:assets:add')"
+          :show-delete="hasAuth('ledger:assets:delete')"
+          :show-export="hasAuth('ledger:assets:export')"
           @add="handleAdd"
           @delete="handleBatchDelete"
           @export="handleExport"
           @refresh="getData"
         >
           <template #after>
-            <NButton size="small" ghost @click="handleImportAssets">
+            <NButton v-if="hasAuth('ledger:assets:import')" size="small" ghost @click="handleImportAssets">
               <template #icon>
                 <SvgIcon icon="material-symbols:upload-rounded" class="text-icon" />
               </template>

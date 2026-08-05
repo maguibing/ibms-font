@@ -4,6 +4,7 @@ import { NDivider, NTag } from 'naive-ui';
 import type { TagProps } from 'naive-ui';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import {
   fetchDeleteAlarmRecord,
   fetchGenerateAlarmRecordWorkorder,
@@ -23,6 +24,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 
 const alarmRecordStatuses: Api.Alarm.AlarmRecordDealStatus[] = [1, 2, 3];
 
@@ -163,7 +165,7 @@ const { columns, data, extraData, getData, getDataByPage, loading, mobilePaginat
         render: row => {
           const buttons = [];
 
-          if (canShowConfirm(row)) {
+          if (canShowConfirm(row) && hasAuth('alarm:record:confirm')) {
             buttons.push(
               <ButtonIcon
                 text
@@ -176,7 +178,7 @@ const { columns, data, extraData, getData, getDataByPage, loading, mobilePaginat
             );
           }
 
-          if (canShowRecover(row)) {
+          if (canShowRecover(row) && hasAuth('alarm:record:recover')) {
             buttons.push(
               <ButtonIcon
                 text
@@ -189,7 +191,7 @@ const { columns, data, extraData, getData, getDataByPage, loading, mobilePaginat
             );
           }
 
-          if (canShowGenerateWorkorder(row)) {
+          if (canShowGenerateWorkorder(row) && hasAuth('alarm:record:generate')) {
             buttons.push(
               <ButtonIcon
                 text
@@ -202,7 +204,7 @@ const { columns, data, extraData, getData, getDataByPage, loading, mobilePaginat
             );
           }
 
-          if (canShowDelete(row)) {
+          if (canShowDelete(row) && hasAuth('alarm:record:delete')) {
             buttons.push(
               <ButtonIcon
                 text
@@ -415,7 +417,7 @@ onMounted(fetchAlarmRecordStat);
     <NCard title="报警记录" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <NSpace align="center">
-          <NPopconfirm @positive-click="() => handleBatchTransfer(2)">
+          <NPopconfirm v-if="hasAuth('alarm:record:confirm')" @positive-click="() => handleBatchTransfer(2)">
             <template #trigger>
               <NButton size="small" ghost type="primary" :disabled="checkedRowKeys.length === 0">
                 <template #icon>
@@ -426,7 +428,7 @@ onMounted(fetchAlarmRecordStat);
             </template>
             确认处理选中的报警记录吗？
           </NPopconfirm>
-          <NPopconfirm @positive-click="() => handleBatchTransfer(3)">
+          <NPopconfirm v-if="hasAuth('alarm:record:recover')" @positive-click="() => handleBatchTransfer(3)">
             <template #trigger>
               <NButton size="small" ghost type="success" :disabled="checkedRowKeys.length === 0">
                 <template #icon>
@@ -437,7 +439,7 @@ onMounted(fetchAlarmRecordStat);
             </template>
             确认解除选中的报警记录吗？
           </NPopconfirm>
-          <NPopconfirm @positive-click="handleBatchDelete">
+          <NPopconfirm v-if="hasAuth('alarm:record:delete')" @positive-click="handleBatchDelete">
             <template #trigger>
               <NButton size="small" ghost type="error" :disabled="checkedRowKeys.length === 0">
                 <template #icon>

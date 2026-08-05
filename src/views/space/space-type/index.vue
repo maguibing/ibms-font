@@ -4,6 +4,7 @@ import { NDivider } from 'naive-ui';
 import { formatDateTime } from '@sa/utils';
 import { fetchDeleteSpaceType, fetchGetSpaceTypeList } from '@/service/api/space';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
@@ -15,6 +16,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 
 const searchParams = ref<Api.Space.SpaceTypeSearchParams>({
   pageNum: 1,
@@ -118,7 +120,9 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
             );
           };
 
-          const buttons = [editBtn(), deleteBtn()];
+          const buttons = [];
+          if (hasAuth('space:space-type:edit')) buttons.push(editBtn());
+          if (hasAuth('space:space-type:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -166,8 +170,8 @@ function edit(id: CommonType.IdType) {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-add="true"
-          :show-delete="true"
+          :show-add="hasAuth('space:space-type:add')"
+          :show-delete="hasAuth('space:space-type:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"

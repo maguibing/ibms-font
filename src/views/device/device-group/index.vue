@@ -4,6 +4,7 @@ import { NButton, NDivider } from 'naive-ui';
 import { jsonClone } from '@sa/utils';
 import { fetchDeleteDeviceGroup, fetchGetDeviceGroupTrees } from '@/service/api/device';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { treeTransform, useNaiveTreeTable, useTableOperate } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
@@ -22,6 +23,7 @@ type DeviceGroupTreeFlatResponse = {
 type DeviceGroupTreeResponse = Api.Device.DeviceGroupTreeResponse | DeviceGroupTreeFlatResponse;
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 
 const searchParams = ref<Api.Device.DeviceGroupSearchParams>({
   group_name: null
@@ -135,7 +137,10 @@ const {
           );
         };
 
-        const buttons = [addBtn(), editBtn(), deleteBtn()];
+        const buttons = [];
+        if (hasAuth('device:device-group:add')) buttons.push(addBtn());
+        if (hasAuth('device:device-group:edit')) buttons.push(editBtn());
+        if (hasAuth('device:device-group:delete')) buttons.push(deleteBtn());
 
         return (
           <div class="flex-center gap-8px">
@@ -188,7 +193,7 @@ function addInRow(row: Api.Device.DeviceGroup) {
         <TableHeaderOperation
           v-model:columns="columnChecks"
           :loading="loading"
-          :show-add="true"
+          :show-add="hasAuth('device:device-group:add')"
           :show-delete="false"
           :show-export="false"
           @add="handleAddRoot"

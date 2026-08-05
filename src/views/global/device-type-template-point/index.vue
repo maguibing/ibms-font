@@ -128,9 +128,6 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         width: 120,
         render: row => {
           const editBtn = () => {
-            if (!hasAuth('demo:demo:edit')) {
-              return null;
-            }
             return (
               <ButtonIcon
                 text
@@ -143,9 +140,6 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
           };
 
           const deleteBtn = () => {
-            if (!hasAuth('demo:demo:remove')) {
-              return null;
-            }
             return (
               <ButtonIcon
                 text
@@ -159,8 +153,8 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
           };
 
           const buttons = [];
-          buttons.push(editBtn());
-          buttons.push(deleteBtn());
+          if (hasAuth('global:device-type-template:point:edit')) buttons.push(editBtn());
+          if (hasAuth('global:device-type-template:point:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -262,8 +256,8 @@ async function handleBatchDelete() {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-add="true"
-          :show-delete="true"
+          :show-add="hasAuth('global:device-type-template:point:add')"
+          :show-delete="hasAuth('global:device-type-template:point:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"

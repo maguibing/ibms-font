@@ -4,6 +4,7 @@ import { NDivider, NTag, NTime } from 'naive-ui';
 import { type FilterConfig, isValidFilterConfig } from '@sa/utils';
 import { fetchDeleteVersion, fetchGetCorpList, fetchGetVersionList } from '@/service/api/corp';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import VersionOperateDrawer from '@/components/custom/version-operate-drawer.vue';
@@ -15,6 +16,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 
 const searchParams = ref<Api.System.CorpProjectVersionSearchParams>(createDefaultSearchParams());
 const operateDrawerRef = useTemplateRef<InstanceType<typeof VersionOperateDrawer>>('operateDrawerRef');
@@ -152,8 +154,8 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
 
           const buttons = [];
           buttons.push(benefitBtn());
-          buttons.push(editBtn());
-          buttons.push(deleteBtn());
+          if (hasAuth('corp:version:edit')) buttons.push(editBtn());
+          if (hasAuth('corp:version:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -291,8 +293,8 @@ async function handleBatchDelete() {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-add="true"
-          :show-delete="true"
+          :show-add="hasAuth('corp:version:add')"
+          :show-delete="hasAuth('corp:version:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"

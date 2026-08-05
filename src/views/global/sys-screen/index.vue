@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/business/auth';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import SysScreenOperateDrawer from './modules/sys-screen-operate-drawer.vue';
 import SysScreenSearch from './modules/sys-screen-search.vue';
+import { getOssUrl } from '@/utils/common-methods';
 defineOptions({
   name: 'SysScreenList'
 });
@@ -76,13 +77,11 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
           if (!row.url) {
             return '-';
           }
-
-          return h(NImage, {
-            src: row.url,
-            width: 100,
-            height: 56,
-            objectFit: 'cover'
-          });
+          return (
+            <div class="flex-center">
+              <NImage src={getOssUrl(row.url)} width={100} height={56} objectFit="cover" />
+            </div>
+          );
         }
       },
       {
@@ -143,8 +142,8 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
           };
 
           const buttons = [];
-          buttons.push(editBtn());
-          buttons.push(deleteBtn());
+          if (hasAuth('global:sys-screen:edit')) buttons.push(editBtn());
+          if (hasAuth('global:sys-screen:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -194,9 +193,8 @@ async function handleDelete(id: CommonType.IdType) {
         <TableHeaderOperation
           v-model:columns="columnChecks"
           :loading="loading"
-          :show-add="hasAuth('sys:screen:add')"
+          :show-add="hasAuth('global:sys-screen:add')"
           :show-delete="false"
-          :show-export="false"
           @add="handleAdd"
           @refresh="getData"
         />

@@ -5,6 +5,7 @@ import { StatusTag } from '@sa/materials';
 import { formatDateTime } from '@sa/utils';
 import { fetchDeleteDevice, fetchGetDeviceList } from '@/service/api/device';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { useRouterPush } from '@/hooks/common/router';
 import { $t } from '@/locales';
@@ -36,6 +37,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 const { routerPushByKey } = useRouterPush();
 
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
@@ -169,21 +171,27 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         width: 180,
         fixed: 'right',
         render: row => {
-          const buttons = [
+          const viewBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:visibility-outline"
               tooltipContent="查看"
               onClick={() => handleView(row.id)}
-            />,
+            />
+          );
+
+          const editBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
               onClick={() => handleEdit(row)}
-            />,
+            />
+          );
+
+          const deleteBtn = () => (
             <ButtonIcon
               text
               type="error"
@@ -192,7 +200,12 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               popconfirmContent={$t('common.confirmDelete')}
               onPositiveClick={() => handleDelete(row.id)}
             />
-          ];
+          );
+
+          const buttons = [];
+          if (hasAuth('device:device-list:view')) buttons.push(viewBtn());
+          if (hasAuth('device:device-list:edit')) buttons.push(editBtn());
+          if (hasAuth('device:device-list:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -297,8 +310,8 @@ function handleSearch() {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-add="true"
-          :show-delete="true"
+          :show-add="hasAuth('device:device-list:add')"
+          :show-delete="hasAuth('device:device-list:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"

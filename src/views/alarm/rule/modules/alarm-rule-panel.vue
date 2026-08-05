@@ -4,6 +4,7 @@ import { NDivider, NTag } from 'naive-ui';
 import { StatusTag } from '@sa/materials';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { fetchDeleteAlarmRule, fetchGetAlarmRuleList } from '@/service/api/alarm';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
@@ -42,6 +43,7 @@ const deviceSourceTypeMap: Record<Api.Alarm.AlarmRuleDeviceSourceType, string> =
 };
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 
 const requestParams = ref<Api.Alarm.AlarmRuleSearchParams>(createDefaultSearchParams());
 
@@ -143,14 +145,17 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         width: 130,
         fixed: 'right',
         render: row => {
-          const buttons = [
+          const editBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
               onClick={() => edit(row.id)}
-            />,
+            />
+          );
+
+          const deleteBtn = () => (
             <ButtonIcon
               text
               type="error"
@@ -159,7 +164,11 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               popconfirmContent={$t('common.confirmDelete')}
               onPositiveClick={() => handleDelete(row.id)}
             />
-          ];
+          );
+
+          const buttons = [];
+          if (hasAuth('alarm:rule:edit')) buttons.push(editBtn());
+          if (hasAuth('alarm:rule:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -281,9 +290,9 @@ function edit(id: CommonType.IdType) {
         <TableHeaderOperation
           v-model:columns="columnChecks"
           :loading="loading"
-          :show-add="true"
+          :show-add="hasAuth('alarm:rule:add')"
           :disabled-delete="checkedRowKeys.length === 0"
-          :show-delete="true"
+          :show-delete="hasAuth('alarm:rule:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"

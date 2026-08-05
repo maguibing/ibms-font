@@ -11,6 +11,7 @@ import {
   fetchGetConfigurationCategoryTrees
 } from '@/service/api/visual/configuration';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import { getOssUrl } from '@/utils/common-methods';
@@ -34,6 +35,7 @@ const props = withDefaults(
 );
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 const LOCAL_CONFIGURATION_BASE_URL = 'http://localhost:7788/#/';
 const LOCAL_FUXA_BASE_URL = 'http://localhost:4200/#/';
 
@@ -177,35 +179,47 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         width: 260,
         fixed: 'right',
         render: row => {
-          const buttons = [
+          const editBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
               onClick={() => handleEditConfiguration(row)}
-            />,
+            />
+          );
+
+          const designBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:design-services-outline"
               tooltipContent="设计"
               onClick={() => handleOpenDesign(row)}
-            />,
+            />
+          );
+
+          const viewBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:visibility-outline"
               tooltipContent="预览"
               onClick={() => handleOpenPreview(row)}
-            />,
+            />
+          );
+
+          const cloneBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:content-copy-outline"
               tooltipContent="克隆"
               onClick={() => handleCloneConfiguration(row)}
-            />,
+            />
+          );
+
+          const deleteBtn = () => (
             <ButtonIcon
               text
               type="error"
@@ -214,7 +228,14 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               popconfirmContent={$t('common.confirmDelete')}
               onPositiveClick={() => handleDeleteConfiguration(row.id)}
             />
-          ];
+          );
+
+          const buttons = [];
+          if (props.configurationType !== 2 || hasAuth('visual:fuxa:edit')) buttons.push(editBtn());
+          if (props.configurationType !== 2 || hasAuth('visual:fuxa:design')) buttons.push(designBtn());
+          if (props.configurationType !== 2 || hasAuth('visual:fuxa:view')) buttons.push(viewBtn());
+          if (props.configurationType !== 2 || hasAuth('visual:fuxa:add')) buttons.push(cloneBtn());
+          if (props.configurationType !== 2 || hasAuth('visual:fuxa:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -483,27 +504,40 @@ function renderSuffix({ option }: { option: TreeOption }) {
 
   if (row.id === 0) return null;
 
+  const editBtn = () => (
+    <ButtonIcon
+      text
+      type="primary"
+      icon="material-symbols:drive-file-rename-outline-outline"
+      tooltip-content={$t('common.edit')}
+      onClick={(event: Event) => {
+        event.stopPropagation();
+        handleEditCategory(row);
+      }}
+    />
+  );
+
+  const deleteBtn = () => (
+    <ButtonIcon
+      text
+      type="error"
+      icon="material-symbols:delete-outline"
+      tooltip-content={$t('common.delete')}
+      popconfirm-content={$t('common.confirmDelete')}
+      onClick={(event: Event) => event.stopPropagation()}
+      onPositiveClick={() => handleDeleteCategory(row)}
+    />
+  );
+
+  const buttons = [];
+  if (props.configurationType !== 2 || hasAuth('visual:fuxa:category:edit')) buttons.push(editBtn());
+  if (props.configurationType !== 2 || hasAuth('visual:fuxa:category:delete')) buttons.push(deleteBtn());
+
+  if (buttons.length === 0) return null;
+
   return (
     <div class="flex-center gap-10px">
-      <ButtonIcon
-        text
-        type="primary"
-        icon="material-symbols:drive-file-rename-outline-outline"
-        tooltip-content={$t('common.edit')}
-        onClick={(event: Event) => {
-          event.stopPropagation();
-          handleEditCategory(row);
-        }}
-      />
-      <ButtonIcon
-        text
-        type="error"
-        icon="material-symbols:delete-outline"
-        tooltip-content={$t('common.delete')}
-        popconfirm-content={$t('common.confirmDelete')}
-        onClick={(event: Event) => event.stopPropagation()}
-        onPositiveClick={() => handleDeleteCategory(row)}
-      />
+      {buttons.map(button => button)}
     </div>
   );
 }
@@ -515,6 +549,7 @@ getCategoryData();
   <TableSiderLayout sider-title="组态分类" default-expanded>
     <template #header-extra>
       <ButtonIcon
+        v-if="props.configurationType !== 2 || hasAuth('visual:fuxa:category:add')"
         size="small"
         icon="material-symbols:add-rounded"
         class="h-18px text-icon"
@@ -569,8 +604,8 @@ getCategoryData();
             v-model:columns="columnChecks"
             :disabled-delete="checkedRowKeys.length === 0"
             :loading="loading"
-            :show-add="true"
-            :show-delete="true"
+            :show-add="props.configurationType !== 2 || hasAuth('visual:fuxa:add')"
+            :show-delete="props.configurationType !== 2 || hasAuth('visual:fuxa:delete')"
             :show-export="false"
             @add="handleAddConfiguration"
             @delete="handleBatchDeleteConfiguration"

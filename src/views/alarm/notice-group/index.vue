@@ -4,6 +4,7 @@ import { NDivider, NTag } from 'naive-ui';
 import { formatDateTime } from '@sa/utils';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { fetchDeleteNoticeGroup, fetchGetNoticeGroupList } from '@/service/api/alarm';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
@@ -25,6 +26,7 @@ const NOTICE_WAY_LABELS: Record<Api.Alarm.NoticeWay, string> = {
 };
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 
 const searchParams = ref<Api.Alarm.NoticeGroupSearchParams>({
   pageNum: 1,
@@ -130,14 +132,17 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         width: 130,
         fixed: 'right',
         render: row => {
-          const buttons = [
+          const editBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
               onClick={() => edit(row.id)}
-            />,
+            />
+          );
+
+          const deleteBtn = () => (
             <ButtonIcon
               text
               type="error"
@@ -146,7 +151,11 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               popconfirmContent={$t('common.confirmDelete')}
               onPositiveClick={() => handleDelete(row.id)}
             />
-          ];
+          );
+
+          const buttons = [];
+          if (hasAuth('alarm:notice-group:edit')) buttons.push(editBtn());
+          if (hasAuth('alarm:notice-group:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -230,8 +239,8 @@ function edit(id: CommonType.IdType) {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-add="true"
-          :show-delete="true"
+          :show-add="hasAuth('alarm:notice-group:add')"
+          :show-delete="hasAuth('alarm:notice-group:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"

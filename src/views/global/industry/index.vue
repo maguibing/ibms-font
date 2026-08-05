@@ -115,8 +115,8 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
             );
           };
           const buttons = [];
-          buttons.push(editBtn());
-          buttons.push(deleteBtn());
+          if (hasAuth('global:industry:edit')) buttons.push(editBtn());
+          if (hasAuth('global:industry:delete')) buttons.push(deleteBtn());
           return (
             <div class="flex-center gap-8px">
               {buttons.map((btn, index) => (
@@ -163,8 +163,8 @@ function edit(id: CommonType.IdType) {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-add="hasAuth('demo:demo:add')"
-          :show-delete="hasAuth('demo:demo:remove')"
+          :show-add="hasAuth('global:industry:add')"
+          :show-delete="hasAuth('global:industry:delete')"
           @add="handleAdd"
           @delete="handleBatchDelete"
           @refresh="getData"

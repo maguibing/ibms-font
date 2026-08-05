@@ -211,8 +211,8 @@ const {
 
         const buttons = [];
         if (hasAuth('system:user:edit')) buttons.push(editBtn());
-        if (hasAuth('system:user:resetPwd')) buttons.push(passwordBtn());
-        if (hasAuth('system:user:remove')) buttons.push(deleteBtn());
+        if (hasAuth('system:user:password:reset')) buttons.push(passwordBtn());
+        if (hasAuth('system:user:delete')) buttons.push(deleteBtn());
 
         return (
           <div class="flex-center gap-8px">
@@ -394,8 +394,7 @@ function handleResetSearch() {
             :disabled-delete="checkedRowKeys.length === 0"
             :loading="loading"
             :show-add="hasAuth('system:user:add')"
-            :show-delete="hasAuth('system:user:remove')"
-            :show-export="hasAuth('system:user:export')"
+            :show-delete="hasAuth('system:user:delete')"
             @add="handleAdd"
             @delete="handleBatchDelete"
             @export="handleExport"

@@ -2,6 +2,7 @@
 import { computed, onMounted, shallowRef } from 'vue';
 import { NCalendar, NDatePicker } from 'naive-ui';
 import { ExportBizType, ExportFileType } from '@/enum/business';
+import { useAuth } from '@/hooks/business/auth';
 import { useExportProgress } from '@/hooks/business/export-progress';
 import { fetchExportTask } from '@/service/api/common';
 import { fetchGetEnergyCalendar } from '@/service/api/energy';
@@ -27,6 +28,7 @@ const calendarValue = shallowRef(createCalendarValue(panelMonth.value));
 const loading = shallowRef(false);
 const timeRange = shallowRef<TimeRange>(createMonthRange(panelMonth.value));
 const calendarList = shallowRef<CalendarItem[]>([]);
+const { hasAuth } = useAuth();
 const calendarMap = computed(() =>
   calendarList.value.reduce<Record<string, CalendarItem>>((map, item) => {
     map[createDateKeyFromUnix(item.ts)] = item;
@@ -236,7 +238,7 @@ onMounted(getData);
                   class="w-140px"
                   @update:value="handleMonthUpdate"
                 />
-                <NButton size="small" @click="handleExport">
+                <NButton v-if="hasAuth('effroom:energy-calendar:export')" size="small" @click="handleExport">
                   <template #icon><SvgIcon icon="material-symbols:download-rounded" /></template>
                   导出
                 </NButton>

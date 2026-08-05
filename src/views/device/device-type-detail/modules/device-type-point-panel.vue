@@ -5,6 +5,7 @@ import { formatDateTime } from '@sa/utils';
 import { ImportBizType, ImportTemplatePath } from '@/enum/business';
 import { fetchDeleteDeviceTypePoint, fetchGetDeviceTypePointList } from '@/service/api/device';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
@@ -23,6 +24,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
 const operateDrawerVisible = shallowRef(false);
@@ -131,14 +133,17 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         width: 120,
         fixed: 'right',
         render: row => {
-          const buttons = [
+          const editBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
               onClick={() => handleEdit(row.id)}
-            />,
+            />
+          );
+
+          const deleteBtn = () => (
             <ButtonIcon
               text
               type="error"
@@ -147,7 +152,11 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               popconfirmContent={$t('common.confirmDelete')}
               onPositiveClick={() => handleDelete(row.id)}
             />
-          ];
+          );
+
+          const buttons = [];
+          if (hasAuth('device:device-type-point:edit')) buttons.push(editBtn());
+          if (hasAuth('device:device-type-point:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -257,15 +266,15 @@ async function handleBatchDelete() {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-add="true"
-          :show-delete="true"
+          :show-add="hasAuth('device:device-type-point:add')"
+          :show-delete="hasAuth('device:device-type-point:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"
           @refresh="getData"
         >
           <template #after>
-            <NButton size="small" ghost @click="handleImportPoint">
+            <NButton v-if="hasAuth('device:device-type-point:import')" size="small" ghost @click="handleImportPoint">
               <template #icon>
                 <SvgIcon icon="material-symbols:upload-rounded" class="text-icon" />
               </template>

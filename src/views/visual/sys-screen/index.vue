@@ -4,6 +4,7 @@ import { NCard, NDivider, NImage } from 'naive-ui';
 import { StatusTag } from '@sa/materials';
 import { formatDateTime } from '@sa/utils';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { useRouterPush } from '@/hooks/common/router';
 import { fetchGetProjectSysScreenList } from '@/service/api/visual/screen';
@@ -17,6 +18,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 const { routerPushByKey } = useRouterPush();
 const drawerVisible = ref(false);
 const editingData = ref<Api.Visual.ProjectSysScreen | null>(null);
@@ -140,7 +142,9 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
             />
           );
 
-          const buttons = [editBtn(), tagBtn()];
+          const buttons = [];
+          if (hasAuth('visual:sys-screen:edit')) buttons.push(editBtn());
+          if (hasAuth('visual:sys-screen:view')) buttons.push(tagBtn());
 
           return (
             <div class="flex-center gap-8px">

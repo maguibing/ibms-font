@@ -5,6 +5,7 @@ import { StatusTag } from '@sa/materials';
 import { formatDateTime } from '@sa/utils';
 import { fetchDeleteGateway, fetchGetGatewayList } from '@/service/api/gateway';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
@@ -23,6 +24,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
 const drawerVisible = ref(false);
@@ -137,21 +139,27 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         width: 180,
         fixed: 'right',
         render: row => {
-          const buttons = [
+          const viewBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:visibility-outline"
               tooltipContent="查看"
               onClick={() => handleView(row.id)}
-            />,
+            />
+          );
+
+          const editBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
               onClick={() => handleEdit(row.id)}
-            />,
+            />
+          );
+
+          const deleteBtn = () => (
             <ButtonIcon
               text
               type="error"
@@ -160,7 +168,11 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               popconfirmContent={$t('common.confirmDelete')}
               onPositiveClick={() => handleDelete(row.id)}
             />
-          ];
+          );
+
+          const buttons = [viewBtn()];
+          if (hasAuth('gateway:gateway-list:edit')) buttons.push(editBtn());
+          if (hasAuth('gateway:gateway-list:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -228,8 +240,8 @@ function handleSearch() {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-add="true"
-          :show-delete="true"
+          :show-add="hasAuth('gateway:gateway-list:add')"
+          :show-delete="hasAuth('gateway:gateway-list:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"

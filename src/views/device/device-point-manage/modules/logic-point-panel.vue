@@ -6,6 +6,7 @@ import { formatDateTime } from '@sa/utils';
 import { fetchBindDevicePoint, fetchGetLogicPointList } from '@/service/api/device';
 import { fetchExportTask } from '@/service/api/common';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { useExportProgress } from '@/hooks/business/export-progress';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { useRouterPush } from '@/hooks/common/router';
@@ -48,6 +49,7 @@ type SearchParams = CommonType.RecordNullable<
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 const { routerPushByKey } = useRouterPush();
 const { loading: operationLoading, startLoading, endLoading } = useLoading();
 const { startExport, stopExport } = useExportProgress();
@@ -309,39 +311,57 @@ function handleDevicePointCommand(row: Api.Device.LogicPoint) {
 
 function renderOperate(row: Api.Device.LogicPoint) {
   if (!row.physical_point_id) {
-    return h(ButtonIcon, {
-      text: true,
-      type: 'primary',
-      icon: 'material-symbols:add-link-rounded',
-      tooltipContent: '绑定物理点位',
-      onClick: () => handleBindPhysicalPoint(row)
-    });
+    const buttons = [];
+    if (hasAuth('device:device-point-manage:device-point:match')) {
+      buttons.push(
+        h(ButtonIcon, {
+          text: true,
+          type: 'primary',
+          icon: 'material-symbols:add-link-rounded',
+          tooltipContent: '绑定物理点位',
+          onClick: () => handleBindPhysicalPoint(row)
+        })
+      );
+    }
+
+    return h('div', { class: 'flex-center gap-8px' }, buttons);
   }
 
-  const buttons = [
-    h(ButtonIcon, {
-      text: true,
-      type: 'primary',
-      icon: 'material-symbols:visibility-outline',
-      tooltipContent: '查看物理点位',
-      onClick: () => handlePhysicalPointView(row.physical_point_id!)
-    }),
-    h(ButtonIcon, {
-      text: true,
-      type: 'primary',
-      icon: 'material-symbols:send-rounded',
-      tooltipContent: '下发',
-      onClick: () => handleDevicePointCommand(row)
-    }),
-    h(ButtonIcon, {
-      text: true,
-      type: 'error',
-      icon: 'material-symbols:link-off-rounded',
-      tooltipContent: '解绑物理点位',
-      popconfirmContent: '确认解绑物理点位？',
-      onPositiveClick: () => handleUnbindPhysicalPoint(row)
-    })
-  ];
+  const buttons = [];
+  if (hasAuth('device:device-point-manage:physical-point:view')) {
+    buttons.push(
+      h(ButtonIcon, {
+        text: true,
+        type: 'primary',
+        icon: 'material-symbols:visibility-outline',
+        tooltipContent: '查看物理点位',
+        onClick: () => handlePhysicalPointView(row.physical_point_id!)
+      })
+    );
+  }
+  if (hasAuth('device:device-point-manage:physical-point:ctrl')) {
+    buttons.push(
+      h(ButtonIcon, {
+        text: true,
+        type: 'primary',
+        icon: 'material-symbols:send-rounded',
+        tooltipContent: '下发',
+        onClick: () => handleDevicePointCommand(row)
+      })
+    );
+  }
+  if (hasAuth('device:device-point-manage:device-point:match')) {
+    buttons.push(
+      h(ButtonIcon, {
+        text: true,
+        type: 'error',
+        icon: 'material-symbols:link-off-rounded',
+        tooltipContent: '解绑物理点位',
+        popconfirmContent: '确认解绑物理点位？',
+        onPositiveClick: () => handleUnbindPhysicalPoint(row)
+      })
+    );
+  }
 
   return h(
     'div',
@@ -467,18 +487,30 @@ watch(
           :loading="loading || operationLoading"
           :show-add="false"
           :show-delete="false"
-          :show-export="true"
+          :show-export="hasAuth('device:device-point-manage:logic-point:export')"
           @export="handleExport"
           @refresh="handleRefresh"
         >
           <template #prefix>
-            <NButton size="small" type="success" ghost :loading="operationLoading" @click="handleSmartMatch">
+            <NButton
+              v-if="hasAuth('device:device-point-manage:device-point:match')"
+              size="small"
+              type="success"
+              ghost
+              :loading="operationLoading"
+              @click="handleSmartMatch"
+            >
               <template #icon><SvgIcon icon="material-symbols:wand-stars-rounded" /></template>
               智能匹配
             </NButton>
           </template>
           <template #after>
-            <NButton size="small" ghost @click="handleImportMapping">
+            <NButton
+              v-if="hasAuth('device:device-point-manage:device-point-mapping:import')"
+              size="small"
+              ghost
+              @click="handleImportMapping"
+            >
               <template #icon>
                 <SvgIcon icon="material-symbols:upload-rounded" class="text-icon" />
               </template>

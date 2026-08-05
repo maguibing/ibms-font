@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { StatusTag, type StatusTagMap } from '@sa/materials';
 import { fetchDeleteCorp, fetchGetCorpList, fetchUpdateCorpStatus } from '@/service/api/corp';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { useRouterPush } from '@/hooks/common/router';
 import { $t } from '@/locales';
@@ -17,6 +18,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 const { routerPushByKey } = useRouterPush();
 
 const AUDIT_PASS_STATUS = 2;
@@ -216,15 +218,15 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
           };
 
           const buttons = [];
-          buttons.push(viewBtn());
+          if (hasAuth('corp:corp-list:view')) buttons.push(viewBtn());
 
           if (row.audit_status === PENDING_AUDIT_STATUS) {
-            buttons.push(auditBtn());
+            if (hasAuth('corp:corp-list:status')) buttons.push(auditBtn());
           } else {
-            if (row.audit_status === AUDIT_PASS_STATUS) {
+            if (row.audit_status === AUDIT_PASS_STATUS && hasAuth('corp:corp-list:status')) {
               buttons.push(statusBtn());
             }
-            buttons.push(deleteBtn());
+            if (hasAuth('corp:corp-list:delete')) buttons.push(deleteBtn());
           }
 
           return <div class="flex-center gap-8px">{
@@ -300,6 +302,8 @@ async function handleDelete(id: CommonType.IdType) {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
+          :show-add="hasAuth('corp:corp-list:add')"
+          :show-delete="hasAuth('corp:corp-list:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"

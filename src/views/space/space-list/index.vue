@@ -4,6 +4,7 @@ import { NButton, NDivider } from 'naive-ui';
 import { jsonClone } from '@sa/utils';
 import { fetchDeleteSpace, fetchGetSpaceTrees } from '@/service/api/space';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { treeTransform, useNaiveTreeTable, useTableOperate } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
@@ -16,6 +17,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 
 const searchParams = ref<Api.Space.SpaceSearchParams>({
   space_name: null
@@ -136,7 +138,10 @@ const {
           );
         };
 
-        const buttons = [addBtn(), editBtn(), deleteBtn()];
+        const buttons = [];
+        if (hasAuth('space:space-list:add')) buttons.push(addBtn());
+        if (hasAuth('space:space-list:edit')) buttons.push(editBtn());
+        if (hasAuth('space:space-list:delete')) buttons.push(deleteBtn());
 
         return (
           <div class="flex-center gap-8px">
@@ -194,7 +199,7 @@ function addInRow(row: Api.Space.Space) {
         <TableHeaderOperation
           v-model:columns="columnChecks"
           :loading="loading"
-          :show-add="true"
+          :show-add="hasAuth('space:space-list:add')"
           :show-delete="false"
           :show-export="false"
           @add="handleAddRoot"

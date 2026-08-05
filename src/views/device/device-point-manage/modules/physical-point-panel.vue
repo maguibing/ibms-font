@@ -5,6 +5,7 @@ import { formatDateTime } from '@sa/utils';
 import { fetchDeletePhysicalPoint, fetchGetPhysicalPointList } from '@/service/api/device';
 import { fetchExportTask } from '@/service/api/common';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { useExportProgress } from '@/hooks/business/export-progress';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { useRouterPush } from '@/hooks/common/router';
@@ -39,6 +40,7 @@ const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 const { routerPushByKey } = useRouterPush();
 const { startExport, stopExport } = useExportProgress();
 const devicePointCommandModalRef =
@@ -374,38 +376,53 @@ function handlePhysicalPointSubmitted() {
 
 function renderOperate(row: Api.Device.PhysicalPoint) {
   const isReadOnly = row.protocol?.access_level === 1;
-  const buttons = [
-    h(ButtonIcon, {
-      text: true,
-      type: 'primary',
-      icon: 'material-symbols:visibility-outline',
-      tooltipContent: '查看',
-      onClick: () => handleView(row)
-    }),
-    h(ButtonIcon, {
-      text: true,
-      type: 'primary',
-      icon: 'material-symbols:edit-outline-rounded',
-      tooltipContent: '编辑',
-      onClick: () => handleEdit(row)
-    }),
-    h(ButtonIcon, {
-      text: true,
-      type: 'primary',
-      icon: 'material-symbols:send-rounded',
-      tooltipContent: '下发',
-      disabled: isReadOnly,
-      onClick: () => handleCommand(row)
-    }),
-    h(ButtonIcon, {
-      text: true,
-      type: 'error',
-      icon: 'material-symbols:delete-outline-rounded',
-      tooltipContent: '删除',
-      popconfirmContent: $t('common.confirmDelete'),
-      onPositiveClick: () => handleDelete(row.id)
-    })
-  ];
+  const buttons = [];
+  if (hasAuth('device:device-point-manage:physical-point:view')) {
+    buttons.push(
+      h(ButtonIcon, {
+        text: true,
+        type: 'primary',
+        icon: 'material-symbols:visibility-outline',
+        tooltipContent: '查看',
+        onClick: () => handleView(row)
+      })
+    );
+  }
+  if (hasAuth('device:device-point-manage:physical-point:edit')) {
+    buttons.push(
+      h(ButtonIcon, {
+        text: true,
+        type: 'primary',
+        icon: 'material-symbols:edit-outline-rounded',
+        tooltipContent: '编辑',
+        onClick: () => handleEdit(row)
+      })
+    );
+  }
+  if (hasAuth('device:device-point-manage:physical-point:ctrl')) {
+    buttons.push(
+      h(ButtonIcon, {
+        text: true,
+        type: 'primary',
+        icon: 'material-symbols:send-rounded',
+        tooltipContent: '下发',
+        disabled: isReadOnly,
+        onClick: () => handleCommand(row)
+      })
+    );
+  }
+  if (hasAuth('device:device-point-manage:physical-point:delete')) {
+    buttons.push(
+      h(ButtonIcon, {
+        text: true,
+        type: 'error',
+        icon: 'material-symbols:delete-outline-rounded',
+        tooltipContent: '删除',
+        popconfirmContent: $t('common.confirmDelete'),
+        onPositiveClick: () => handleDelete(row.id)
+      })
+    );
+  }
 
   return h(
     'div',
@@ -509,22 +526,33 @@ watch(
             v-model:columns="columnChecks"
             :disabled-delete="checkedRowKeys.length === 0"
             :loading="loading"
-            :show-add="true"
-            :show-delete="true"
-            :show-export="true"
+            :show-add="hasAuth('device:device-point-manage:physical-point:add')"
+            :show-delete="hasAuth('device:device-point-manage:physical-point:delete')"
+            :show-export="hasAuth('device:device-point-manage:physical-point:export')"
             @add="handleAdd"
             @delete="handleBatchDelete"
             @export="handleExport"
             @refresh="getData"
           >
             <template #after>
-              <NButton size="small" ghost @click="handleImportPhysicalPoint">
+              <NButton
+                v-if="hasAuth('device:device-point-manage:physical-point:import')"
+                size="small"
+                ghost
+                @click="handleImportPhysicalPoint"
+              >
                 <template #icon>
                   <SvgIcon icon="material-symbols:upload-rounded" class="text-icon" />
                 </template>
                 导入
               </NButton>
-              <NButton size="small" ghost type="primary" @click="handleScan">
+              <NButton
+                v-if="hasAuth('device:device-point-manage:physical-point:scan')"
+                size="small"
+                ghost
+                type="primary"
+                @click="handleScan"
+              >
                 <template #icon>
                   <SvgIcon icon="material-symbols:radar" class="text-icon" />
                 </template>

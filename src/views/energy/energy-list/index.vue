@@ -4,6 +4,7 @@ import { NPopover } from 'naive-ui';
 import { type FilterConfig, isValidFilterConfig } from '@sa/utils';
 import { ENERGY_TYPE_OPTIONS } from '@/constants/device-point';
 import { ExportBizType, ExportFileType } from '@/enum/business';
+import { useAuth } from '@/hooks/business/auth';
 import { useExportProgress } from '@/hooks/business/export-progress';
 import { fetchExportTask } from '@/service/api/common';
 import { fetchGetDevicePointEnergyList } from '@/service/api/energy';
@@ -26,6 +27,7 @@ type EnergyColumn = NaiveUI.TableColumn<EnergyRow>;
 type EnergyTableRecord = Api.Common.PaginatingQueryRecord<EnergyRow, EnergyExtra>;
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 const { startExport, stopExport } = useExportProgress();
 const energyTypeOptions = ENERGY_TYPE_OPTIONS.filter(option => {
   const value = Number(option.value);
@@ -339,7 +341,7 @@ watch(
           :loading="loading"
           :show-add="false"
           :show-delete="false"
-          :show-export="true"
+          :show-export="hasAuth('energy:energy-list:export')"
           @export="handleExport"
           @refresh="getData"
         />

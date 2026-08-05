@@ -5,6 +5,7 @@ import { useLoading } from '@sa/hooks';
 import { StatusTag } from '@sa/materials';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { fetchDeleteMonitorChannel, fetchGetMonitor, fetchGetMonitorChannelList } from '@/service/api/monitor';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
@@ -42,6 +43,7 @@ const SOURCE_TYPE_OPTIONS: CommonType.Option<number, string>[] = [
 ];
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 const { loading: detailLoading, startLoading, endLoading } = useLoading();
 
 const monitor = shallowRef<Api.Monitor.MonitorDetail | null>(null);
@@ -158,14 +160,17 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         width: 130,
         fixed: 'right',
         render: row => {
-          const buttons = [
+          const editBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
               onClick={() => edit(row.id)}
-            />,
+            />
+          );
+
+          const deleteBtn = () => (
             <ButtonIcon
               text
               type="error"
@@ -174,7 +179,11 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               popconfirmContent={$t('common.confirmDelete')}
               onPositiveClick={() => handleDelete(row.id)}
             />
-          ];
+          );
+
+          const buttons = [];
+          if (hasAuth('monitor:monitor-detail-channel:edit')) buttons.push(editBtn());
+          if (hasAuth('monitor:monitor-detail-channel:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -281,7 +290,7 @@ onMounted(() => {
         <TableHeaderOperation
           v-model:columns="columnChecks"
           :loading="loading"
-          :show-add="true"
+          :show-add="hasAuth('monitor:monitor-detail-channel:sync')"
           :show-delete="false"
           :show-export="false"
           @add="handleAdd"

@@ -4,6 +4,7 @@ import { NDivider } from 'naive-ui';
 import { StatusTag, type StatusTagMap } from '@sa/materials';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { fetchDeleteMessageRule, fetchGetMessageRuleList } from '@/service/api/rule';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
@@ -15,6 +16,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 
 const RULE_TYPE_STATUS_MAP: StatusTagMap = {
   '1': {
@@ -102,21 +104,27 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         width: 180,
         fixed: 'right',
         render: row => {
-          const buttons = [
+          const viewBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:visibility-outline"
               tooltipContent="查看"
               onClick={() => handleView(row)}
-            />,
+            />
+          );
+
+          const editBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
               onClick={() => handleEdit(row)}
-            />,
+            />
+          );
+
+          const deleteBtn = () => (
             <ButtonIcon
               text
               type="error"
@@ -125,7 +133,12 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               popconfirmContent={$t('common.confirmDelete')}
               onPositiveClick={() => handleDelete(row.id)}
             />
-          ];
+          );
+
+          const buttons = [];
+          if (hasAuth('rule:message-rule:view')) buttons.push(viewBtn());
+          if (hasAuth('rule:message-rule:edit')) buttons.push(editBtn());
+          if (hasAuth('rule:message-rule:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -200,8 +213,8 @@ async function handleBatchDelete() {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-add="true"
-          :show-delete="true"
+          :show-add="hasAuth('rule:message-rule:add')"
+          :show-delete="hasAuth('rule:message-rule:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"

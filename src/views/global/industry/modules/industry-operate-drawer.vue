@@ -104,7 +104,7 @@ watch(visible, () => {
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules">
         <NFormItem label="行业名称" path="name">
-          <NInput v-model:value="model.name" placeholder="请输入行业名称" :maxlength="20" show-count />
+          <NInput v-model:value="model.name" placeholder="请输入行业名称" :maxlength="30" show-count />
         </NFormItem>
         <NFormItem label="排序号" path="sort">
           <NInputNumber v-model:value="model.sort" placeholder="请输入排序号" />
@@ -115,7 +115,7 @@ watch(visible, () => {
             type="textarea"
             :rows="3"
             placeholder="请输入描述"
-            :maxlength="100"
+            :maxlength="200"
             show-count
           />
         </NFormItem>

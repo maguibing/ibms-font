@@ -25,6 +25,7 @@ const appStore = useAppStore();
 const { toggleLoginModule } = useRouterPush();
 const { formRef, validate } = useNaiveForm();
 const { loading: codeLoading, startLoading: startCodeLoading, endLoading: endCodeLoading } = useLoading();
+const isPtScene = import.meta.env.VITE_APP_SCENE === 'pt';
 
 const codeUrl = ref<string>();
 const registerEnabled = ref<boolean>(false);
@@ -284,17 +285,19 @@ async function loginWithProject(loginToken: string, item: Api.Auth.ProjectLoginI
         <NButton type="primary" size="large" block :loading="authStore.loginLoading" @click="handleSubmit">
           {{ $t('common.login') }}
         </NButton>
-        <NButton v-if="registerEnabled" size="large" block @click="toggleLoginModule('register')">
+        <NButton v-if="registerEnabled && !isPtScene" size="large" block @click="toggleLoginModule('register')">
           {{ $t('page.login.common.register') }}
         </NButton>
       </NSpace>
     </NForm>
 
-    <NDivider>
+    <!--
+ <NDivider>
       <div class="color-#858585">{{ $t('page.login.pwdLogin.otherAccountLogin') }}</div>
     </NDivider>
+-->
 
-    <div class="mt-24px w-full text-center text-18px text-#858585">
+    <div v-if="!isPtScene" class="mt-24px w-full text-center text-18px text-#858585">
       您还没有账户？
       <NA type="primary" class="text-18px" @click="toggleLoginModule('register')">
         {{ $t('page.login.common.register') }}

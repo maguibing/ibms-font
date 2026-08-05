@@ -6,6 +6,7 @@ import { StatusTag } from '@sa/materials';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { fetchDeleteMonitor, fetchGetMonitorList } from '@/service/api/monitor';
 import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import MonitorChannelView from './modules/monitor-channel-view.vue';
@@ -22,6 +23,7 @@ const MONITOR_ACCESS_TYPE_OPTIONS: CommonType.Option<Api.Monitor.MonitorAccessTy
 ];
 
 const appStore = useAppStore();
+const { hasAuth } = useAuth();
 
 const searchParams = ref<Api.Monitor.MonitorSearchParams>(createDefaultMonitorSearchParams());
 const showChannelView = shallowRef(false);
@@ -122,21 +124,27 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         width: 180,
         fixed: 'right',
         render: row => {
-          const buttons = [
+          const viewBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:videocam-outline-rounded"
               tooltipContent="通道"
               onClick={() => openChannelView()}
-            />,
+            />
+          );
+
+          const editBtn = () => (
             <ButtonIcon
               text
               type="primary"
               icon="material-symbols:drive-file-rename-outline-outline"
               tooltipContent={$t('common.edit')}
               onClick={() => edit(row.id)}
-            />,
+            />
+          );
+
+          const deleteBtn = () => (
             <ButtonIcon
               text
               type="error"
@@ -145,7 +153,12 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               popconfirmContent={$t('common.confirmDelete')}
               onPositiveClick={() => handleDelete(row.id)}
             />
-          ];
+          );
+
+          const buttons = [];
+          if (hasAuth('monitor:monitor-device:view')) buttons.push(viewBtn());
+          if (hasAuth('monitor:monitor-device:edit')) buttons.push(editBtn());
+          if (hasAuth('monitor:monitor-device:delete')) buttons.push(deleteBtn());
 
           return (
             <div class="flex-center gap-8px">
@@ -208,8 +221,8 @@ function handleBackMonitorList() {
           v-model:columns="columnChecks"
           :disabled-delete="checkedRowKeys.length === 0"
           :loading="loading"
-          :show-add="true"
-          :show-delete="true"
+          :show-add="hasAuth('monitor:monitor-device:add')"
+          :show-delete="hasAuth('monitor:monitor-device:delete')"
           :show-export="false"
           @add="handleAdd"
           @delete="handleBatchDelete"
