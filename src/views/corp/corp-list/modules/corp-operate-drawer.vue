@@ -5,7 +5,7 @@ import { NCascader } from 'naive-ui';
 import type { CascaderOption } from 'naive-ui';
 import regionTree from '@province-city-china/level';
 import { fetchAddCorp } from '@/service/api/corp';
-import { usePhoneExistCheck } from '@/hooks/business/use-phone-exist-check';
+import { usePhoneExistCheck } from '@/hooks/business/phone-exist-check';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
 

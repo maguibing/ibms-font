@@ -48,6 +48,7 @@ export type ScannedPhysicalPoint = {
 export type ScannedDevice = Api.Device.ScanPhysicalDeviceItem & {
   address: string;
   deviceInstance: string | number;
+  devicePointList: Api.Device.ScanPhysicalDevicePointGroup[];
   name: string;
   pointList: ScannedPhysicalPoint[];
   pointScanned: boolean;

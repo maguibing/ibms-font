@@ -35,6 +35,114 @@ export enum MessageType {
   DevicePointHistoryStat = 130502
 }
 
+/** 导入业务类型 */
+export enum ImportBizType {
+  /** 未知类型 */
+  Nil = 0,
+  /** 设备类型点位导入 */
+  DeviceTypePoint = 1,
+  /** 台账资产导入 */
+  Assets = 2,
+  /** 项目系统大屏点位 */
+  ProjectSysScreenTagPoint = 3,
+  /** 物理点位导入 */
+  PhysicalPoint = 4,
+  /** 设备点位映射导入 */
+  DevicePointMapping = 5
+}
+
+/** 导入模板路径 */
+export enum ImportTemplatePath {
+  /** 物理点位导入模板 */
+  PhysicalPoint = 'https://autodriver-ibms.oss-cn-beijing.aliyuncs.com/template/import/%E7%89%A9%E7%90%86%E7%82%B9%E4%BD%8D%E5%AF%BC%E5%85%A5%E6%A8%A1%E6%9D%BF.xlsx',
+  /** 点位映射导入模板 */
+  DevicePointMapping = 'https://autodriver-ibms.oss-cn-beijing.aliyuncs.com/template/import/%E7%82%B9%E4%BD%8D%E6%98%A0%E5%B0%84%E5%AF%BC%E5%85%A5%E6%A8%A1%E6%9D%BF.xlsx',
+  /** 设备类型点位导入模板 */
+  DeviceTypePoint = 'https://autodriver-ibms.oss-cn-beijing.aliyuncs.com/template/import/%E8%AE%BE%E5%A4%87%E7%B1%BB%E5%9E%8B%E7%82%B9%E4%BD%8D%E5%AF%BC%E5%85%A5%E6%A8%A1%E6%9D%BF.xlsx',
+  /** 台账导入模板 */
+  Assets = 'https://autodriver-ibms.oss-cn-beijing.aliyuncs.com/template/import/%E5%8F%B0%E8%B4%A6%E5%AF%BC%E5%85%A5%E6%A8%A1%E7%89%88.xlsx',
+  /** 系统大屏标签点位导入模板 */
+  SysScreenTagPoint = 'https://autodriver-ibms.oss-cn-beijing.aliyuncs.com/template/import/%E7%B3%BB%E7%BB%9F%E5%A4%A7%E5%B1%8F%E6%A0%87%E7%AD%BE%E7%82%B9%E4%BD%8D%E5%AF%BC%E5%85%A5%E6%A8%A1%E7%89%88.xlsx'
+}
+
+/** 导入状态 */
+export enum ImportStatus {
+  /** 未开始 */
+  NotStarted = 0,
+  /** 开始导入 */
+  Preparing = 1,
+  /** 导入中 */
+  Importing = 2,
+  /** 导入完成 */
+  Completed = 3,
+  /** 导入失败 */
+  Failed = 4,
+  /** 部分成功 */
+  PartiallySuccess = 5
+}
+
+/** 导出业务类型 */
+export enum ExportBizType {
+  /** 未知类型 */
+  Nil = 0,
+  /** 设备点位历史数据导出 */
+  DevicePointHistory = 1,
+  /** 台账资产导出 */
+  Assets = 2,
+  /** 香港大屏数据导出 */
+  HongKongScreen = 3,
+  /** 设备点位能源数据导出 */
+  DevicePointEnergy = 4,
+  /** 深汕站水泥浇筑中心数据导出 */
+  SSZCementCenter = 5,
+  /** 设备点位曲线对比 */
+  DevicePointTrend = 6,
+  /** 物理点位导出 */
+  PhysicalPoint = 7,
+  /** 逻辑点位导出 */
+  LogicPoint = 8,
+  /** 能效日历导出 */
+  EnergyCalendar = 9
+}
+
+/** 导出文件类型 */
+export enum ExportFileType {
+  /** 未知类型 */
+  Nil = 0,
+  /** Excel */
+  Excel = 1,
+  /** CSV */
+  CSV = 2,
+  /** JSON */
+  JSON = 3,
+  /** ZIP */
+  ZIP = 4
+}
+
+/** 导出状态 */
+export enum ExportStatus {
+  /** 未开始 */
+  NotStarted = 0,
+  /** 准备中 */
+  Preparing = 1,
+  /** 导出中 */
+  Exporting = 2,
+  /** 导出完成 */
+  Completed = 3,
+  /** 导出失败 */
+  Failed = 4
+}
+
+/** 物理点位导出类型 */
+export enum PhysicalPointType {
+  /** 未知类型 */
+  Nil = 0,
+  /** 扫描结果导出 */
+  ScanResult = 1,
+  /** 原始物理点位导出 */
+  OriginalPhysicalPoint = 2
+}
+
 /** 实时数据类型 */
 export enum RealTimeType {
   /** 未知类型 */

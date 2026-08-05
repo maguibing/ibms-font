@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { encryptByRsa, jsonClone } from '@sa/utils';
 import { useLoading } from '@sa/hooks';
 import { fetchCreateUser, fetchGetRoleSelect, fetchUpdateUser } from '@/service/api/system';
-import { usePhoneExistCheck } from '@/hooks/business/use-phone-exist-check';
+import { usePhoneExistCheck } from '@/hooks/business/phone-exist-check';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
 

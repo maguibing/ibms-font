@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { twMerge } from 'tailwind-merge';
-import { usePhoneReveal } from '@/hooks/business/use-phone-reveal';
+import { usePhoneReveal } from '@/hooks/business/phone-reveal';
 
 defineOptions({
   name: 'PhoneReveal'

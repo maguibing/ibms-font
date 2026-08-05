@@ -7,7 +7,7 @@ import CopyableValue from '@/components/custom/copyable-value.vue';
 import EnumTag from '@/components/custom/enum-tag.vue';
 import { MessageType } from '@/enum/business';
 import type { RealTimeType } from '@/enum/business';
-import { useRealtimeSubscription } from '@/hooks/business/use-realtime-subscription';
+import { useRealtimeSubscription } from '@/hooks/business/realtime-subscription';
 import { useRouterPush } from '@/hooks/common/router';
 import { useAppStore } from '@/store/modules/app';
 import { displayValue } from '@/utils/common-methods';

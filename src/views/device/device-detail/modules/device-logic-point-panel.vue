@@ -5,7 +5,7 @@ import { useAppStore } from '@/store/modules/app';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import EnumTag from '@/components/custom/enum-tag.vue';
-
+import CopyableValue from '@/components/custom/copyable-value.vue';
 defineOptions({
   name: 'DeviceLogicPointPanel'
 });
@@ -82,7 +82,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         ellipsis: {
           tooltip: true
         },
-        render: row => row.key || '-'
+        render: row => h(CopyableValue, { value: row.key })
       },
       {
         key: 'data_type',

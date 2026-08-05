@@ -1,6 +1,7 @@
 import { useWebSocket } from '@vueuse/core';
 import { MessageType } from '@/enum/business';
 import { useNoticeStore } from '@/store/modules/notice';
+import { decodeBase64ToText, encodeJsonToBase64 } from './base64';
 import { localStg } from './storage';
 
 export type WebSocketMessage = {
@@ -22,27 +23,6 @@ let activeSocketUrl = '';
 let connectionId = '';
 const pendingWebSocketMessages: PendingWebSocketMessage[] = [];
 const webSocketMessageListeners = new Map<MessageType, Set<WebSocketMessageListener>>();
-
-function encodeTextToBase64(text: string) {
-  const bytes = new TextEncoder().encode(text);
-  let binary = '';
-  bytes.forEach(byte => {
-    binary += String.fromCharCode(byte);
-  });
-
-  return btoa(binary);
-}
-
-function decodeBase64ToText(payload: string) {
-  const binary = atob(payload);
-  const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
-
-  return new TextDecoder().decode(bytes);
-}
-
-function encodeWebSocketPayload(payload: unknown) {
-  return encodeTextToBase64(JSON.stringify(payload ?? null));
-}
 
 function sendPreparedWebSocketMessage(message: PendingWebSocketMessage) {
   if (!socketClient || !connectionId) {
@@ -112,9 +92,14 @@ export function sendWebSocketMessage({ type, payload }: SendWebSocketMessagePara
   }
 
   return sendPreparedWebSocketMessage({
-    payload: encodeWebSocketPayload(payload),
+    payload: encodeJsonToBase64(payload),
     type
   });
+}
+
+/** 获取当前 WebSocket 连接标识。 */
+export function getWebSocketConnectionId() {
+  return connectionId;
 }
 
 export function addWebSocketMessageListener(type: MessageType, listener: WebSocketMessageListener) {
@@ -202,8 +187,8 @@ export const initWebSocket = (url: string) => {
         return;
       }
 
-      dispatchWebSocketMessage(message);
-      if (message.type === MessageType.DevicePointRealTimeData) {
+      const handled = dispatchWebSocketMessage(message);
+      if (handled || message.type === MessageType.DevicePointRealTimeData) {
         return;
       }
 

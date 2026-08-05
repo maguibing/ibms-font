@@ -3,15 +3,20 @@ import { computed, h, ref, shallowRef, useTemplateRef, watch } from 'vue';
 import { NButton, NDivider, NTooltip } from 'naive-ui';
 import { formatDateTime } from '@sa/utils';
 import { fetchDeletePhysicalPoint, fetchGetPhysicalPointList } from '@/service/api/device';
+import { fetchExportTask } from '@/service/api/common';
 import { useAppStore } from '@/store/modules/app';
+import { useExportProgress } from '@/hooks/business/export-progress';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { useRouterPush } from '@/hooks/common/router';
+import { ExportBizType, ExportFileType, ImportBizType, ImportTemplatePath, PhysicalPointType } from '@/enum/business';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import CopyableValue from '@/components/custom/copyable-value.vue';
+import DataImportModal from '@/components/custom/data-import-modal.vue';
 import EnumTag from '@/components/custom/enum-tag.vue';
 import { DATA_TYPE_OPTIONS } from '@/constants/device-point';
 import { displayValue } from '@/utils/common-methods';
+import { getWebSocketConnectionId } from '@/utils/websocket';
 import DevicePointCommandModal from './device-point-command-modal.vue';
 import PhysicalPointOperateDrawer from './physical-point-operate-drawer.vue';
 import PhysicalPointScanDrawer from './physical-point-scan-drawer.vue';
@@ -35,6 +40,7 @@ const emit = defineEmits<Emits>();
 
 const appStore = useAppStore();
 const { routerPushByKey } = useRouterPush();
+const { startExport, stopExport } = useExportProgress();
 const devicePointCommandModalRef =
   useTemplateRef<InstanceType<typeof DevicePointCommandModal>>('devicePointCommandModalRef');
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
@@ -42,6 +48,7 @@ const operateDrawerVisible = shallowRef(false);
 const operateType = shallowRef<NaiveUI.TableOperateType>('add');
 const editingPhysicalPointId = shallowRef<CommonType.IdType | null>(null);
 const scanDrawerVisible = shallowRef(false);
+const importPhysicalPointVisible = shallowRef(false);
 
 const searchParams = ref<Api.Device.PhysicalPointSearchParams>({
   pageNum: 1,
@@ -328,6 +335,38 @@ function handleScan() {
   scanDrawerVisible.value = true;
 }
 
+function handleImportPhysicalPoint() {
+  importPhysicalPointVisible.value = true;
+}
+
+async function handleExport() {
+  const connectionId = getWebSocketConnectionId();
+  if (!connectionId) {
+    window.$message?.warning('WebSocket 尚未连接，请稍后重试');
+    return;
+  }
+
+  const { list_option } = transformSearchParamsToRequest(searchParams.value);
+  startExport('物理点位');
+
+  const { error } = await fetchExportTask({
+    connection_id: connectionId,
+    export_biz_type: ExportBizType.PhysicalPoint,
+    file_type: ExportFileType.Excel,
+    list_option: list_option!,
+    physical_point: {
+      source: PhysicalPointType.OriginalPhysicalPoint
+    }
+  });
+
+  if (error) {
+    stopExport();
+    return;
+  }
+
+  window.$message?.success('导出任务已提交');
+}
+
 function handlePhysicalPointSubmitted() {
   checkedRowKeys.value = [];
   getDataByPage(1);
@@ -472,12 +511,19 @@ watch(
             :loading="loading"
             :show-add="true"
             :show-delete="true"
-            :show-export="false"
+            :show-export="true"
             @add="handleAdd"
             @delete="handleBatchDelete"
+            @export="handleExport"
             @refresh="getData"
           >
-            <template #prefix>
+            <template #after>
+              <NButton size="small" ghost @click="handleImportPhysicalPoint">
+                <template #icon>
+                  <SvgIcon icon="material-symbols:upload-rounded" class="text-icon" />
+                </template>
+                导入
+              </NButton>
               <NButton size="small" ghost type="primary" @click="handleScan">
                 <template #icon>
                   <SvgIcon icon="material-symbols:radar" class="text-icon" />
@@ -511,5 +557,15 @@ watch(
       @submitted="handlePhysicalPointSubmitted"
     />
     <PhysicalPointScanDrawer v-model:visible="scanDrawerVisible" :prefill-gateway="selectedGateway" />
+
+    <!-- 导入点位映射 -->
+    <DataImportModal
+      v-model:visible="importPhysicalPointVisible"
+      :biz-type="ImportBizType.PhysicalPoint"
+      :template-path="ImportTemplatePath.PhysicalPoint"
+      :template-file-name="`物理点位_${$t('common.importTemplate')}_${new Date().getTime()}.xlsx`"
+      task-name="物理点位"
+      @submitted="getData"
+    />
   </div>
 </template>

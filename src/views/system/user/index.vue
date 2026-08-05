@@ -1,7 +1,7 @@
 <script setup lang="tsx">
 import { computed, h, ref } from 'vue';
 import { NAvatar, NButton, NDivider, NEllipsis } from 'naive-ui';
-import { useBoolean, useLoading } from '@sa/hooks';
+import { useLoading } from '@sa/hooks';
 import { type FilterConfig, formatDateTime, isValidFilterConfig } from '@sa/utils';
 import { StatusTag } from '@sa/materials';
 import {
@@ -18,7 +18,6 @@ import ButtonIcon from '@/components/custom/button-icon.vue';
 import PhoneReveal from '@/components/business/phone-reveal.vue';
 import { $t } from '@/locales';
 import UserOperateDrawer from './modules/user-operate-drawer.vue';
-import UserImportModal from './modules/user-import-modal.vue';
 import UserSearch from './modules/user-search.vue';
 
 defineOptions({
@@ -29,7 +28,6 @@ const { hasAuth } = useAuth();
 const appStore = useAppStore();
 const { download } = useDownload();
 
-const { bool: importVisible, setTrue: openImportModal } = useBoolean();
 const DEFAULT_RESET_PASSWORD = '123456789##';
 
 const searchParams = ref<Api.System.UserSearchParams>({
@@ -336,10 +334,6 @@ function handleResetTreeData() {
   getTreeData();
 }
 
-function handleImport() {
-  openImportModal();
-}
-
 function handleExport() {
   download('/system/user/export', searchParams.value, `${$t('page.system.user.title')}_${new Date().getTime()}.xlsx`);
 }
@@ -406,16 +400,7 @@ function handleResetSearch() {
             @delete="handleBatchDelete"
             @export="handleExport"
             @refresh="getData"
-          >
-            <template #after>
-              <NButton v-if="hasAuth('system:user:import')" size="small" ghost @click="handleImport">
-                <template #icon>
-                  <icon-material-symbols-upload-rounded class="text-icon" />
-                </template>
-                {{ $t('common.import') }}
-              </NButton>
-            </template>
-          </TableHeaderOperation>
+          />
         </template>
         <NDataTable
           v-model:checked-row-keys="checkedRowKeys"
@@ -430,7 +415,6 @@ function handleResetSearch() {
           :pagination="mobilePagination"
           class="h-full"
         />
-        <UserImportModal v-model:visible="importVisible" @submitted="getData" />
         <UserOperateDrawer
           v-model:visible="drawerVisible"
           :operate-type="operateType"

@@ -6,6 +6,8 @@ import { useAppStore } from '@/store/modules/app';
 import { useThemeStore } from '@/store/modules/theme';
 import { initWebSocket } from '@/utils/websocket';
 import { initSSE } from '@/utils/sse';
+import ExportProgress from '@/components/custom/export-progress.vue';
+import ImportProgress from '@/components/custom/import-progress.vue';
 import GlobalHeader from '../modules/global-header/index.vue';
 import GlobalSider from '../modules/global-sider/index.vue';
 import GlobalTab from '../modules/global-tab/index.vue';
@@ -155,6 +157,10 @@ onMounted(() => {
     <GlobalMenu />
     <GlobalContent />
     <ThemeDrawer />
+    <!-- 导出进度 -->
+    <ExportProgress />
+    <!-- 导入进度 -->
+    <ImportProgress />
   </AdminLayout>
 </template>
 

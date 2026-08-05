@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, shallowRef, watch } from 'vue';
 import { useLoading } from '@sa/hooks';
+import { fetchExportTask } from '@/service/api/common';
 import { fetchScanPhysicalDevice, fetchScanPhysicalDevicePoint } from '@/service/api/device';
 import { fetchGetGateway, fetchGetGatewayList } from '@/service/api/gateway';
+import { useExportProgress } from '@/hooks/business/export-progress';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
+import { ExportBizType, ExportFileType, PhysicalPointType } from '@/enum/business';
 import { ACCESS_LEVEL_OPTIONS } from '@/constants/device-point';
 import { getGatewayProtocolLabel } from '@/views/gateway/gateway-list/shared';
+import { getWebSocketConnectionId } from '@/utils/websocket';
 import PhysicalPointScanDeviceDetail from './physical-point-scan-device-detail.vue';
 import PhysicalPointScanDeviceList from './physical-point-scan-device-list.vue';
 import type {
@@ -46,6 +50,7 @@ const {
   startLoading: startScanDeviceLoading,
   endLoading: endScanDeviceLoading
 } = useLoading();
+const { startExport, stopExport } = useExportProgress();
 
 const selectedGateway = shallowRef<GatewayWithProtocol | null>(null);
 const scannedDevice = shallowRef(false);
@@ -530,6 +535,7 @@ function normalizeScanResultList(response?: Api.Device.ScanPhysicalDeviceRespons
       ...item,
       address,
       deviceInstance: deviceInstance ?? '-',
+      devicePointList: [],
       name: displayName,
       pointList: [],
       pointScanned: false,
@@ -715,6 +721,7 @@ async function handleScanPoint(device: ScannedDevice) {
   if (!payload) return;
 
   device.pointList = [];
+  device.devicePointList = [];
   device.pointScanned = false;
   scanPointLoadingMap.value = {
     ...scanPointLoadingMap.value,
@@ -729,6 +736,7 @@ async function handleScanPoint(device: ScannedDevice) {
   });
 
   if (error) {
+    device.devicePointList = [];
     device.pointList = [];
     device.pointScanned = false;
     window.$message?.error('扫描点位失败');
@@ -744,6 +752,7 @@ async function handleScanPoint(device: ScannedDevice) {
   const points = Array.isArray(matchedGroup?.points) ? matchedGroup.points : [];
   const groupDevice = matchedGroup?.device ?? {};
 
+  device.devicePointList = groups;
   device.pointList = points.map((point, index) => normalizePoint(point, index));
   device.pointScanned = true;
   device.name = String(groupDevice.display_name || groupDevice.name || device.name);
@@ -803,8 +812,47 @@ async function handleScanDevice() {
   window.$message?.success('扫描设备成功');
 }
 
-function handleExportPoint() {
-  window.$message?.info('正在开发');
+async function handleExportPoint() {
+  const connectionId = getWebSocketConnectionId();
+  if (!connectionId) {
+    window.$message?.warning('WebSocket 尚未连接，请稍后重试');
+    return;
+  }
+
+  const gatewayId = Number(scanForm.gateway_id);
+  if (!Number.isFinite(gatewayId) || gatewayId <= 0) {
+    window.$message?.warning('请选择有效的边缘设备');
+    return;
+  }
+
+  const devicePoints = activeDevice.value?.devicePointList ?? [];
+  if (!activeDevice.value?.pointScanned || devicePoints.length === 0) {
+    window.$message?.warning('请先扫描点位');
+    return;
+  }
+
+  startExport('扫描点位');
+
+  const { error } = await fetchExportTask({
+    connection_id: connectionId,
+    export_biz_type: ExportBizType.PhysicalPoint,
+    file_type: ExportFileType.Excel,
+    list_option: {},
+    physical_point: {
+      scan: {
+        device_points: devicePoints,
+        gateway_id: gatewayId
+      },
+      source: PhysicalPointType.ScanResult
+    }
+  });
+
+  if (error) {
+    stopExport();
+    return;
+  }
+
+  window.$message?.success('导出任务已提交');
 }
 
 function handleRegisterTypeChange(value: number | null) {

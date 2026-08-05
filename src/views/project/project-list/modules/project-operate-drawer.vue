@@ -8,7 +8,7 @@ import { fetchGetVersionList } from '@/service/api/corp';
 import { fetchCreateProject, fetchUpdateProject } from '@/service/api/sys-screen';
 import { fetchGetPhone, fetchGetUserList } from '@/service/api/system';
 import { menuPlatformType } from '@/constants/business';
-import { usePhoneExistCheck } from '@/hooks/business/use-phone-exist-check';
+import { usePhoneExistCheck } from '@/hooks/business/phone-exist-check';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
 

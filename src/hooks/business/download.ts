@@ -142,6 +142,25 @@ export function useDownload() {
   const download = (url: string, params: Record<string, any>, filename: string) =>
     executeDownload({ method: 'POST', url, params, filename });
 
+  /** 下载链接文件 */
+  const downloadUrl = (url: string, defaultFilename = '下载文件') => {
+    if (!url.trim()) throw new Error('下载链接无效');
+
+    const escapedUrl = url.replaceAll('#', '%23');
+    const pathname = new URL(escapedUrl, window.location.origin).pathname;
+    const extractedFilename = decodeURIComponent(pathname.split('/').pop() || '');
+    const link = document.createElement('a');
+    link.href = escapedUrl;
+    link.download = extractedFilename || defaultFilename;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.style.display = 'none';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   /** OSS文件下载 */
   const oss = (ossId: CommonType.IdType) =>
     executeDownload({
@@ -161,6 +180,7 @@ export function useDownload() {
   return {
     oss,
     zip,
-    download
+    download,
+    downloadUrl
   };
 }
