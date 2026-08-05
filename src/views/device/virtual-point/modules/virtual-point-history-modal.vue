@@ -4,7 +4,7 @@ import type { DataTableColumns } from 'naive-ui';
 import { fetchGetDevicePointHistoryTrend } from '@/service/api/device';
 import { displayValue, formatUnixDateTime } from '@/utils/common-methods';
 import { virtualPointComputeModeMap } from '../virtual-point';
-
+import CopyableValue from '@/components/custom/copyable-value.vue';
 defineOptions({ name: 'VirtualPointHistoryModal' });
 
 type HistoryLogicPoint = Pick<Api.Device.LogicPoint, 'id' | 'name' | 'key'>;
@@ -152,7 +152,7 @@ watch(visible, show => {
           {{ displayValue(logicPoint?.name) }}
         </NDescriptionsItem>
         <NDescriptionsItem label="逻辑点标识">
-          {{ displayValue(logicPoint?.key) }}
+          <CopyableValue :value="logicPoint?.key" />
         </NDescriptionsItem>
         <NDescriptionsItem label="是否存储">
           <NTag :type="isStored ? 'success' : 'default'" :bordered="false">

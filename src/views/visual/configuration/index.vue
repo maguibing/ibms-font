@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { computed, ref } from 'vue';
+import { computed, h, ref } from 'vue';
 import type { TreeOption } from 'naive-ui';
 import { NDivider, NImage, NTag, NTooltip } from 'naive-ui';
 import { useBoolean, useLoading } from '@sa/hooks';
@@ -20,7 +20,7 @@ import CategoryOperateDrawer from './modules/category-operate-drawer.vue';
 import ConfigurationCloneModal from './modules/configuration-clone-modal.vue';
 import ConfigurationOperateDrawer from './modules/configuration-operate-drawer.vue';
 import ConfigurationSearch from './modules/configuration-search.vue';
-
+import CopyableValue from '@/components/custom/copyable-value.vue';
 defineOptions({
   name: 'VisualConfiguration'
 });
@@ -136,7 +136,8 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         minWidth: 160,
         ellipsis: {
           tooltip: true
-        }
+        },
+        render: row => h(CopyableValue, { value: row.key })
       },
       {
         key: 'last_save_user_id',

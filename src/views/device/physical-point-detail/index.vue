@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onMounted, shallowRef } from 'vue';
+import { computed, nextTick, onMounted, shallowRef } from 'vue';
 import { useRoute } from 'vue-router';
 import { useLoading } from '@sa/hooks';
 import { fetchGetPhysicalPoint } from '@/service/api/device';
@@ -28,6 +28,19 @@ const appStore = useAppStore();
 
 const physicalPoint = shallowRef<Api.Device.PhysicalPoint | null>(null);
 const activeTab = shallowRef('realtime-data');
+const accessLevel = computed(() => Number(physicalPoint.value?.protocol?.access_level));
+const isNumberDataType = computed(() => Number(physicalPoint.value?.data_type) === 1);
+const isReadableAccess = computed(() => accessLevel.value === 1 || accessLevel.value === 3);
+const showRealtimeDataTab = computed(() => isNumberDataType.value && isReadableAccess.value);
+const showReportHistoryTab = computed(() => accessLevel.value !== 2);
+const showCommandHistoryTab = computed(() => accessLevel.value !== 1);
+
+function getDefaultTab() {
+  if (showRealtimeDataTab.value) return 'realtime-data';
+  if (showReportHistoryTab.value) return 'report-history';
+
+  return 'command-history';
+}
 
 function buildRealtimePayload(realTimeType: RealTimeType) {
   if (!physicalPoint.value) return null;
@@ -58,8 +71,12 @@ async function getPhysicalPointDetail(id: number) {
   if (error || !isRealtimeActive()) return;
 
   physicalPoint.value = data.physical_point;
-  await nextTick();
-  subscribeRealtimeData();
+  activeTab.value = getDefaultTab();
+
+  if (showRealtimeDataTab.value) {
+    await nextTick();
+    subscribeRealtimeData();
+  }
 }
 
 onMounted(() => {
@@ -123,13 +140,13 @@ onMounted(() => {
       content-class="h-full min-h-0 flex-col-stretch"
     >
       <NTabs v-model:value="activeTab" type="line" animated class="h-full min-h-0">
-        <NTabPane name="realtime-data" tab="实时数据" display-directive="show">
+        <NTabPane v-if="showRealtimeDataTab" name="realtime-data" tab="实时数据" display-directive="show">
           <PhysicalPointRealtimeDataPanel :physical-point="physicalPoint" />
         </NTabPane>
-        <NTabPane name="report-history" tab="上报历史">
+        <NTabPane v-if="showReportHistoryTab" name="report-history" tab="上报历史">
           <PhysicalPointReportHistoryPanel :physical-point="physicalPoint" />
         </NTabPane>
-        <NTabPane name="command-history" tab="下发历史">
+        <NTabPane v-if="showCommandHistoryTab" name="command-history" tab="下发历史">
           <PhysicalPointCommandHistoryPanel :physical-point="physicalPoint" />
         </NTabPane>
       </NTabs>

@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { computed, ref } from 'vue';
+import { computed, h, ref } from 'vue';
 import { NDivider, NImage, NTag } from 'naive-ui';
 import { useBoolean } from '@sa/hooks';
 import { formatDateTime } from '@sa/utils';
@@ -13,7 +13,7 @@ import ButtonIcon from '@/components/custom/button-icon.vue';
 import CustomScreenCloneModal from './modules/custom-screen-clone-modal.vue';
 import CustomScreenOperateDrawer from './modules/custom-screen-operate-drawer.vue';
 import CustomScreenSearch from './modules/custom-screen-search.vue';
-
+import CopyableValue from '@/components/custom/copyable-value.vue';
 defineOptions({
   name: 'VisualCustomScreen'
 });
@@ -87,7 +87,8 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         minWidth: 160,
         ellipsis: {
           tooltip: true
-        }
+        },
+        render: row => h(CopyableValue, { value: row.key })
       },
       {
         key: 'last_save_user_id',

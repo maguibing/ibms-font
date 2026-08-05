@@ -12,6 +12,7 @@ import ButtonIcon from '@/components/custom/button-icon.vue';
 import DataImportModal from '@/components/custom/data-import-modal.vue';
 import EnumTag from '@/components/custom/enum-tag.vue';
 import DeviceTypePointOperateDrawer from './device-type-point-operate-drawer.vue';
+import CopyableValue from '@/components/custom/copyable-value.vue';
 
 defineOptions({
   name: 'DeviceTypePointPanel'
@@ -100,7 +101,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         ellipsis: {
           tooltip: true
         },
-        render: row => row.key || '-'
+        render: row => <CopyableValue value={row.key} />
       },
       {
         key: 'data_type',

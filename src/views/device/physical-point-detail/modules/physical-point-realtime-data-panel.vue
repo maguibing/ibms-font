@@ -26,7 +26,7 @@ type RealtimeDataRow = {
   timestamp: number;
   time: string;
   valueText: string;
-  numericValue: number | null;
+  numericValue: number;
   unit: string;
 };
 
@@ -40,10 +40,9 @@ const props = defineProps<Props>();
 const appStore = useAppStore();
 
 const latestRow = shallowRef<RealtimeDataRow | null>(null);
-const isNumberDataType = computed(() => Number(props.physicalPoint.data_type) === 1);
 const unit = computed(() => latestRow.value?.unit ?? '');
 const chartXAxisData: string[] = [];
-const chartSeriesData: Array<number | null> = [];
+const chartSeriesData: number[] = [];
 const {
   domRef: chartRef,
   chart,
@@ -53,29 +52,17 @@ const {
 });
 
 function getPointRawValue(value: RealtimePointValue) {
-  return (
-    value.num_val?.value ??
-    value.switch_val?.alias ??
-    value.switch_val?.value ??
-    value.str_val?.value ??
-    value.enum_val?.alias ??
-    value.enum_val?.value
-  );
+  return value.num_val?.value ?? 0;
 }
 
 function getPointUnit(value: RealtimePointValue) {
-  const pointUnit = value.num_val?.unit ?? value.switch_val?.unit ?? value.str_val?.unit ?? value.enum_val?.unit;
-
-  return typeof pointUnit === 'string' ? pointUnit : '';
+  return value.num_val?.unit ?? '';
 }
 
 function getPointNumericValue(value: RealtimePointValue) {
-  const rawValue = value.num_val?.value;
-  if (rawValue === undefined || rawValue === null) return null;
+  const numericValue = Number(getPointRawValue(value));
 
-  const numericValue = Number(rawValue);
-
-  return Number.isFinite(numericValue) ? numericValue : null;
+  return Number.isFinite(numericValue) ? numericValue : 0;
 }
 
 function formatRealtimeValue(value: RealtimePointValue) {
@@ -120,8 +107,6 @@ function createDataZoomOptions() {
 }
 
 function appendChartPoint(row: RealtimeDataRow) {
-  if (!isNumberDataType.value) return;
-
   chartXAxisData.push(row.time);
   chartSeriesData.push(row.numericValue);
 
@@ -251,7 +236,7 @@ onBeforeUnmount(removeRealtimeMessageListener);
       </NDescriptionsItem>
     </NDescriptions>
 
-    <div v-if="isNumberDataType" class="relative min-h-0 flex-1">
+    <div class="relative min-h-0 flex-1">
       <div ref="chartRef" class="h-full min-h-260px w-full"></div>
       <NEmpty v-if="!latestRow" description="暂无实时数据" class="absolute inset-0 flex items-center justify-center" />
     </div>

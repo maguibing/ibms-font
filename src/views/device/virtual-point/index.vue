@@ -17,7 +17,7 @@ import {
   buildVirtualPointListParams,
   virtualPointComputeModeMap
 } from './virtual-point';
-
+import CopyableValue from '@/components/custom/copyable-value.vue';
 defineOptions({ name: 'DeviceVirtualPoint' });
 
 const appStore = useAppStore();
@@ -63,7 +63,7 @@ const {
       title: '虚拟点标识',
       align: 'center',
       ellipsis: { tooltip: true },
-      render: row => getLogicPoint(row)?.key ?? '-'
+      render: row =>  h(CopyableValue, { value: getLogicPoint(row)?.key })
     },
     {
       key: 'compute_mode',

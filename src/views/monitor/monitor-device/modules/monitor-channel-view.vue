@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { computed, onMounted, ref, shallowRef } from 'vue';
+import { computed, h, onMounted, ref, shallowRef } from 'vue';
 import { NDivider, NTag } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
 import { StatusTag } from '@sa/materials';
@@ -11,7 +11,7 @@ import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import { displayValue, formatTime } from '@/utils/common-methods';
 import MonitorChannelOperateDrawer from './monitor-channel-operate-drawer.vue';
-
+import CopyableValue from '@/components/custom/copyable-value.vue';
 defineOptions({
   name: 'MonitorChannelView'
 });
@@ -126,7 +126,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         ellipsis: {
           tooltip: true
         },
-        render: row => row.setting?.local_pull?.source_url || '-'
+        render: row => h(CopyableValue, { value: row.setting?.local_pull?.source_url })
       },
       {
         key: 'online',

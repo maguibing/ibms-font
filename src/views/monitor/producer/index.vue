@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { ref } from 'vue';
+import { h, ref } from 'vue';
 import { StatusTag } from '@sa/materials';
 import { formatDateTime } from '@sa/utils';
 import { NDivider, NTag } from 'naive-ui';
@@ -12,7 +12,7 @@ import ButtonIcon from '@/components/custom/button-icon.vue';
 import ProviderOperateDrawer from './modules/provider-operate-drawer.vue';
 import ProviderSearch from './modules/provider-search.vue';
 import { getProviderTypeLabel } from './shared';
-
+import CopyableValue from '@/components/custom/copyable-value.vue';
 defineOptions({
   name: 'MonitorProducer'
 });
@@ -106,7 +106,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         ellipsis: {
           tooltip: true
         },
-        render: row => row.setting?.cloud?.api_host || '-'
+        render: row => h(CopyableValue, { value: row.setting?.cloud?.api_host })
       },
       {
         key: 'app_key',
@@ -116,7 +116,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         ellipsis: {
           tooltip: true
         },
-        render: row => row.setting?.cloud?.app_key || '-'
+        render: row => h(CopyableValue, { value: row.setting?.cloud?.app_key })
       },
       {
         key: 'created_at',
