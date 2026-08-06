@@ -35,16 +35,38 @@ declare namespace Api {
       source?: string;
     }
 
+    /** check project form */
+    interface CheckProjectForm {
+      /** 项目名称 */
+      project_name: string;
+    }
+
+    /** check project data */
+    interface CheckProjectData {
+      /** 项目 ID */
+      project_id?: CommonType.IdType;
+      /** 项目 ID */
+      id?: CommonType.IdType;
+      /** 项目名称 */
+      project_name?: string;
+      /** 项目名称 */
+      name?: string;
+    }
+
     /** register form */
-    interface RegisterForm extends LoginForm {
-      /** 用户名 */
-      username?: string;
-      /** 密码 */
-      password?: string;
+    interface RegisterForm {
       /** 确认密码 */
-      confirmPassword?: string;
-      /** 用户类型 */
-      userType?: string;
+      confirm_rsa_pwd: string;
+      /** 用户名称 */
+      name: string;
+      /** 手机号码 */
+      phone: string;
+      /** 项目 ID */
+      project_id: CommonType.IdType;
+      /** 密码 */
+      rsa_pwd: string;
+      /** 验证码 */
+      verify_code: string;
     }
 
     /** login token data */

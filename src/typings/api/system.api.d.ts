@@ -217,6 +217,17 @@ declare namespace Api {
       }
     >;
 
+    /** corp apply params */
+    type ApplyCorpParams = CommonType.RecordNullable<
+      Pick<Corp, 'name' | 'address' | 'ad_code' | 'ad_address'> & {
+        contact_name: string;
+        contact_phone: string;
+        contact_email: string;
+        password: string;
+        rsa_pwd: string;
+      }
+    >;
+
     /** corp audit status params */
     type CorpAuditStatusParams = Pick<Corp, 'id' | 'audit_status'>;
 

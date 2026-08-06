@@ -63,6 +63,18 @@ export function fetchSendVerifyCode(data: { phone: string }) {
   });
 }
 
+/** Check project */
+export function fetchCheckProject(data: Api.Auth.CheckProjectForm) {
+  return request<Api.Auth.CheckProjectData>({
+    url: '/CheckProject',
+    method: 'POST',
+    headers: {
+      isToken: false
+    },
+    data
+  });
+}
+
 /** Forget password */
 export function fetchForgetPassword(data: { phone: string; verify_code: string; rsa_pwd: string }) {
   return request({
@@ -84,11 +96,10 @@ export function fetchSocialLoginCallback(data: Api.Auth.SocialLoginForm) {
 /** Register */
 export function fetchRegister(data: Api.Auth.RegisterForm) {
   return request<Api.Auth.LoginToken>({
-    url: '/auth/register',
-    method: 'post',
+    url: '/Register',
+    method: 'POST',
     headers: {
       isToken: false,
-      isEncrypt: true,
       repeatSubmit: false
     },
     data

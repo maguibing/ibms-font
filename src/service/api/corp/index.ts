@@ -99,6 +99,18 @@ export function fetchAddCorp(data: Api.System.CorpOperateParams) {
   });
 }
 
+/** 集成商入驻申请 */
+export function fetchCreateApplyCorp(data: Api.System.ApplyCorpParams) {
+  return request({
+    url: '/CreateApplyCorp',
+    method: 'post',
+    headers: {
+      isToken: false
+    },
+    data
+  });
+}
+
 /** 修改集成商 */
 export function fetchUpdateCorp(data: Api.System.CorpOperateParams) {
   return request({

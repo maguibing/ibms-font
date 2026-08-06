@@ -26,6 +26,7 @@ const { toggleLoginModule } = useRouterPush();
 const { formRef, validate } = useNaiveForm();
 const { loading: codeLoading, startLoading: startCodeLoading, endLoading: endCodeLoading } = useLoading();
 const isPtScene = import.meta.env.VITE_APP_SCENE === 'pt';
+const isCpScene = import.meta.env.VITE_APP_SCENE === 'cp';
 
 const codeUrl = ref<string>();
 const registerEnabled = ref<boolean>(false);
@@ -286,7 +287,7 @@ async function loginWithProject(loginToken: string, item: Api.Auth.ProjectLoginI
           {{ $t('common.login') }}
         </NButton>
         <NButton v-if="registerEnabled && !isPtScene" size="large" block @click="toggleLoginModule('register')">
-          {{ $t('page.login.common.register') }}
+          {{ isCpScene ? '集成商入驻' : $t('page.login.common.register') }}
         </NButton>
       </NSpace>
     </NForm>
@@ -300,7 +301,7 @@ async function loginWithProject(loginToken: string, item: Api.Auth.ProjectLoginI
     <div v-if="!isPtScene" class="mt-24px w-full text-center text-18px text-#858585">
       您还没有账户？
       <NA type="primary" class="text-18px" @click="toggleLoginModule('register')">
-        {{ $t('page.login.common.register') }}
+        {{ isCpScene ? '集成商入驻' : $t('page.login.common.register') }}
       </NA>
     </div>
   </div>

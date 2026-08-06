@@ -6,6 +6,7 @@ import { useThemeStore } from '@/store/modules/theme';
 import GlobalLogo from '../global-logo/index.vue';
 import GlobalBreadcrumb from '../global-breadcrumb/index.vue';
 import GlobalSearch from '../global-search/index.vue';
+import CockpitButton from './components/cockpit-button.vue';
 import ThemeButton from './components/theme-button.vue';
 import UserAvatar from './components/user-avatar.vue';
 import MessageButton from './components/message-button.vue';
@@ -39,6 +40,7 @@ const { isFullscreen, toggle } = useFullscreen();
       <GlobalBreadcrumb v-if="!appStore.isMobile" class="ml-12px" />
     </div>
     <div class="h-full flex-y-center justify-end">
+      <CockpitButton />
       <GlobalSearch v-if="themeStore.header.globalSearch.visible && !appStore.isMobile" />
       <MessageButton />
       <FullScreen v-if="!appStore.isMobile" :full="isFullscreen" @click="toggle" />

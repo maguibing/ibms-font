@@ -9,6 +9,7 @@ import { $t } from '@/locales';
 import PwdLogin from './modules/pwd-login.vue';
 import CodeLogin from './modules/code-login.vue';
 import Register from './modules/register.vue';
+import ApplyCorp from './modules/apply-corp.vue';
 import ResetPwd from './modules/reset-pwd.vue';
 import BindWechat from './modules/bind-wechat.vue';
 
@@ -21,6 +22,7 @@ const props = defineProps<Props>();
 
 const appStore = useAppStore();
 const themeStore = useThemeStore();
+const isCpScene = import.meta.env.VITE_APP_SCENE === 'cp';
 
 interface LoginModule {
   label: App.I18n.I18nKey;
@@ -30,7 +32,7 @@ interface LoginModule {
 const moduleMap: Record<UnionKey.LoginModule, LoginModule> = {
   'pwd-login': { label: loginModuleRecord['pwd-login'], component: PwdLogin },
   'code-login': { label: loginModuleRecord['code-login'], component: CodeLogin },
-  register: { label: loginModuleRecord.register, component: Register },
+  register: { label: loginModuleRecord.register, component: isCpScene ? ApplyCorp : Register },
   'reset-pwd': { label: loginModuleRecord['reset-pwd'], component: ResetPwd },
   'bind-wechat': { label: loginModuleRecord['bind-wechat'], component: BindWechat }
 };
