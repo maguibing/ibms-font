@@ -17,7 +17,7 @@ import { SetupStoreId } from '@/enum';
 import { useRouteStore } from '../route';
 import { useTabStore } from '../tab';
 import { useNoticeStore } from '../notice';
-import { clearAuthStorage, getToken } from './shared';
+import { clearAuthStorage, getToken, normalizeAccessToken } from './shared';
 
 type LoginListResult = Exclude<Api.Auth.LoginResult, undefined>;
 
@@ -190,11 +190,17 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   }
 
   async function selectCorpLogin(selectCorpForm: Api.Auth.SelectCorpForm, redirect = true) {
-    return selectLoginToken(() => fetchSelectCorp(selectCorpForm), redirect);
+    // 先写入业务上下文，避免跳转后 Header 首次挂载读不到默认值
+    localStg.set('loginToken', selectCorpForm.login_token);
+    localStg.set('corpId', selectCorpForm.corp_id);
+    await selectLoginToken(() => fetchSelectCorp(selectCorpForm), redirect);
   }
 
   async function selectProjectLogin(selectProjectForm: Api.Auth.SelectProjectForm, redirect = true) {
-    return selectLoginToken(() => fetchSelectProject(selectProjectForm), redirect);
+    // 先写入业务上下文，避免跳转后 Header 首次挂载读不到默认值
+    localStg.set('loginToken', selectProjectForm.login_token);
+    localStg.set('projectId', selectProjectForm.project_id);
+    await selectLoginToken(() => fetchSelectProject(selectProjectForm), redirect);
   }
 
   async function selectLoginToken(fetchLoginToken: () => ReturnType<typeof fetchSelectCorp>, redirect = true) {
@@ -218,15 +224,17 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   }
 
   async function loginByToken(loginToken: Api.Auth.LoginToken) {
+    const accessToken = normalizeAccessToken(loginToken.access_token!);
+
     // 1. stored in the localStorage, the later requests need it in headers
-    localStg.set('token', loginToken.access_token!);
+    localStg.set('token', accessToken);
     localStg.set('refreshToken', loginToken.refresh_token!);
 
     // 2. get user info
     const pass = await getUserInfo();
 
     if (pass) {
-      token.value = loginToken.access_token!;
+      token.value = accessToken;
 
       return true;
     }

@@ -1,6 +1,7 @@
 import { h } from 'vue';
 import { fetchRefreshToken } from '@/service/api/auth';
 import { useAuthStore } from '@/store/modules/auth';
+import { normalizeAccessToken } from '@/store/modules/auth/shared';
 import { localStg } from '@/utils/storage';
 import type { RequestInstanceState } from './type';
 
@@ -18,9 +19,11 @@ async function handleRefreshToken() {
 
   const { error, data } = await fetchRefreshToken({ refresh_token: refreshToken });
   if (!error) {
-    localStg.set('token', data.access_token);
+    const accessToken = normalizeAccessToken(data.access_token);
+
+    localStg.set('token', accessToken);
     localStg.set('refreshToken', data.refresh_token);
-    authStore.token = data.access_token;
+    authStore.token = accessToken;
     return true;
   }
 

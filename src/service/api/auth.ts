@@ -51,6 +51,22 @@ export function fetchPjLogin(data: Api.Auth.PwdLoginForm) {
   });
 }
 
+/** Get project list for switching */
+export function fetchGetSwitchProjectList() {
+  return request<Api.Auth.SwitchProjectListData>({
+    url: '/GetProjectList',
+    method: 'POST'
+  });
+}
+
+/** Get corp list for switching */
+export function fetchGetSwitchCorpList() {
+  return request<Api.Auth.SwitchCorpListData>({
+    url: '/GetCorpList',
+    method: 'POST'
+  });
+}
+
 export function fetchSelectCorp(data: Api.Auth.SelectCorpForm) {
   return request<Api.Auth.LoginToken>({
     url: '/SelectCorp',

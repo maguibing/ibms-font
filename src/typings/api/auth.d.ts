@@ -95,6 +95,7 @@ declare namespace Api {
       corp_id: number;
       name: string;
       status?: number;
+      biz_id?: CommonType.IdType;
       audit_status?: number;
       contact_id?: number;
       ad_code?: string;
@@ -136,6 +137,14 @@ declare namespace Api {
     interface ProjectLoginData {
       project_list: ProjectLoginItem[];
       login_token: string;
+    }
+
+    interface SwitchProjectListData {
+      project_list: ProjectLoginItem[];
+    }
+
+    interface SwitchCorpListData {
+      corp_list: CorpLoginItem[];
     }
 
     interface SelectCorpForm {

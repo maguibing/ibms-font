@@ -27,6 +27,12 @@ declare namespace StorageType {
     mixSiderFixed: CommonType.YesOrNo;
     /** The refresh token */
     refreshToken: string;
+    /** The login token */
+    loginToken: string;
+    /** The current corp id */
+    corpId: CommonType.IdType;
+    /** The current project id */
+    projectId: CommonType.IdType;
     /** The theme color */
     themeColor: string;
     /** The dark mode */
