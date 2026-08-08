@@ -111,7 +111,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <Teleport v-if="!locked" to="body">
+  <Teleport v-if="locked" to="body">
     <div
       class="fixed inset-0 z-999 h-[100dvh] w-screen overflow-auto bg-layout px-16px py-24px text-base-text"
       @wheel.stop
@@ -161,7 +161,6 @@ onBeforeUnmount(() => {
               <NFormItem label="激活码" path="license_content">
                 <NInput
                   v-model:value="form.license_content"
-                  clearable
                   type="textarea"
                   placeholder="粘贴完整激活码"
                   :autosize="{ minRows: 4, maxRows: 6 }"

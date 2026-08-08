@@ -62,7 +62,7 @@ async function search() {
   <NCard :bordered="false" size="small" class="table-search card-wrapper">
     <NCollapse>
       <NCollapseItem :title="$t('common.search')" name="user-search">
-        <NForm ref="formRef" :model="model" label-placement="left" :label-width="80">
+        <NForm ref="formRef" :model="model" label-placement="left" label-width="auto">
           <NGrid responsive="screen" item-responsive>
             <NFormItemGi span="24 s:12 m:8" :label="$t('page.system.user.userName')" path="username" class="pr-24px">
               <NInput
@@ -78,12 +78,7 @@ async function search() {
                 @keyup.enter="search"
               />
             </NFormItemGi>
-            <NFormItemGi
-              span="24 s:12 m:8"
-              :label="$t('page.system.user.createTime')"
-              path="createTime"
-              class="pr-24px"
-            >
+            <NFormItemGi span="24 s:12 m:8" :label="$t('page.system.user.createTime')" path="createTime">
               <NDatePicker
                 v-model:formatted-value="dateRangeCreateTime"
                 type="datetimerange"
@@ -92,7 +87,7 @@ async function search() {
                 @update:formatted-value="onDateRangeCreateTimeUpdate"
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:24 m:24" class="pr-24px">
+            <NFormItemGi span="24 s:24 m:24" :show-feedback="false">
               <NSpace class="w-full" justify="end">
                 <NButton type="primary" ghost @click="search">
                   <template #icon>

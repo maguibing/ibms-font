@@ -79,6 +79,18 @@ declare namespace Api {
       user_id?: string;
     }
 
+    interface RefreshTokenForm {
+      /** 刷新令牌 */
+      refresh_token: string;
+    }
+
+    interface RefreshTokenData {
+      /** 授权令牌 */
+      access_token: string;
+      /** 刷新令牌 */
+      refresh_token: string;
+    }
+
     interface CorpLoginCorp {
       corp_id: number;
       name: string;

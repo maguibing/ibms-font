@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onMounted } from 'vue';
+import { computed, defineAsyncComponent, onBeforeUnmount, onMounted } from 'vue';
 import { AdminLayout, LAYOUT_SCROLL_EL_ID } from '@sa/materials';
 import type { LayoutMode } from '@sa/materials';
 import { useAppStore } from '@/store/modules/app';
 import { useThemeStore } from '@/store/modules/theme';
+import { useGlobalWebSocketNotice } from '@/hooks/business/global-websocket-notice';
 import { initWebSocket } from '@/utils/websocket';
 import { initSSE } from '@/utils/sse';
 import ExportProgress from '@/components/custom/export-progress.vue';
@@ -21,9 +22,11 @@ defineOptions({
 
 const appStore = useAppStore();
 const themeStore = useThemeStore();
+const { registerGlobalWebSocketNotice } = useGlobalWebSocketNotice();
 const { secondLevelMenus, childLevelMenus, isActiveFirstLevelMenuHasChildren } = provideMixMenuContext();
 
 const GlobalMenu = defineAsyncComponent(() => import('../modules/global-menu/index.vue'));
+let removeGlobalWebSocketNotice: (() => void) | null = null;
 
 const layoutMode = computed(() => {
   const vertical: LayoutMode = 'vertical';
@@ -119,8 +122,14 @@ function getSiderAndCollapsedWidth(isCollapsed: boolean) {
 }
 
 onMounted(() => {
+  removeGlobalWebSocketNotice = registerGlobalWebSocketNotice();
   initWebSocket(import.meta.env.VITE_APP_WEBSOCKET_URL || '');
   initSSE(`${import.meta.env.VITE_APP_BASE_API}/resource/sse`);
+});
+
+onBeforeUnmount(() => {
+  removeGlobalWebSocketNotice?.();
+  removeGlobalWebSocketNotice = null;
 });
 </script>
 

@@ -73,8 +73,8 @@ const userExtra = computed<Api.System.UserListExtra>(() => {
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const raw = extraData.value as Partial<Api.System.UserListExtra> | null;
   return {
-    dept_info_map: raw?.dept_info_map ?? {},
-    role_info_map: raw?.role_info_map ?? {},
+    dept_map: raw?.dept_map ?? {},
+    role_map: raw?.role_map ?? {},
     user_data_scope_map: raw?.user_data_scope_map ?? {}
   };
 });
@@ -126,7 +126,7 @@ const {
       align: 'center',
       width: 120,
       ellipsis: true,
-      render: row => userExtra.value.dept_info_map[String(row.dept_id)]?.name ?? '-'
+      render: row => userExtra.value.dept_map[String(row.dept_id)]?.name ?? '-'
     },
     {
       key: 'role_id',
@@ -134,14 +134,7 @@ const {
       align: 'center',
       width: 120,
       ellipsis: true,
-      render: row => userExtra.value.role_info_map[String(row.role_id)]?.name ?? '-'
-    },
-    {
-      key: 'email',
-      title: $t('page.system.user.email'),
-      align: 'center',
-      width: 120,
-      ellipsis: true
+      render: row => userExtra.value.role_map[String(row.role_id)]?.name ?? '-'
     },
     {
       key: 'phone',

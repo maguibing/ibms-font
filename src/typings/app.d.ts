@@ -308,8 +308,6 @@ declare namespace App {
    * Locales type
    */
   namespace I18n {
-    type RouteKey = import('@elegant-router/types').RouteKey;
-
     type LangType = 'en-US' | 'zh-CN';
 
     type LangOption = {
@@ -317,7 +315,7 @@ declare namespace App {
       key: LangType;
     };
 
-    type I18nRouteKey = Exclude<RouteKey, 'root' | 'not-found'>;
+    type I18nRouteKey = string;
 
     type FormMsg = {
       required: string;

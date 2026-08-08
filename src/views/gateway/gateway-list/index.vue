@@ -94,7 +94,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'key',
-        title: '设备Key',
+        title: '边缘设备标识',
         align: 'center',
         minWidth: 160,
         ellipsis: {

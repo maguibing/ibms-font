@@ -22,6 +22,19 @@ export function fetchLogin(data: Api.Auth.PwdLoginForm) {
   });
 }
 
+/** Refresh token */
+export function fetchRefreshToken(data: Api.Auth.RefreshTokenForm) {
+  return request<Api.Auth.RefreshTokenData>({
+    url: '/RefreshToken',
+    method: 'POST',
+    headers: {
+      isToken: false,
+      repeatSubmit: false
+    },
+    data
+  });
+}
+
 export function fetchCpLogin(data: Api.Auth.PwdLoginForm) {
   return request<Api.Auth.CorpLoginData>({
     url: '/Login',

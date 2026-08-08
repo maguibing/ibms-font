@@ -12,10 +12,17 @@ import type { RequestInstanceState } from './type';
 const encryptHeader = import.meta.env.VITE_HEADER_FLAG || 'encrypt-key';
 const isHttpProxy = import.meta.env.DEV && import.meta.env.VITE_HTTP_PROXY === 'Y';
 const { baseURL } = getServiceBaseURL(import.meta.env, isHttpProxy);
+const HTTP_STATUS_UNAUTHORIZED = 401;
+
+// 后端鉴权失败返回 HTTP 401 + 业务 code，需放行到 onBackendFail 才能触发 refresh token。
+function isHttpSuccessOrUnauthorized(status: number) {
+  return (status >= 200 && status < 300) || status === 304 || status === HTTP_STATUS_UNAUTHORIZED;
+}
 
 export const request = createFlatRequest(
   {
     baseURL,
+    validateStatus: isHttpSuccessOrUnauthorized,
     'axios-retry': {
       retries: 0
     }
@@ -83,6 +90,8 @@ export const request = createFlatRequest(
       }
 
       const authStore = useAuthStore();
+      // RefreshToken 自身失败时不能再次进入刷新流程，避免循环刷新。
+      const isRefreshTokenRequest = response.config.url === '/RefreshToken';
 
       function handleLogout() {
         authStore.resetStore();
@@ -142,11 +151,12 @@ export const request = createFlatRequest(
       // when the backend response code is in `expiredTokenCodes`, it means the token is expired, and refresh token
       // the api `refreshToken` can not return error code in `expiredTokenCodes`, otherwise it will be a dead loop, should return `logoutCodes` or `modalLogoutCodes`
       const expiredTokenCodes = import.meta.env.VITE_SERVICE_EXPIRED_TOKEN_CODES?.split(',') || [];
-      if (expiredTokenCodes.includes(responseCode)) {
+      if (expiredTokenCodes.includes(responseCode) && !isRefreshTokenRequest) {
         const success = await handleExpiredRequest(request.state);
         if (success) {
           const Authorization = getAuthorization();
-          Object.assign(response.config.headers, { Authorization });
+          // 刷新成功后会立即重放原请求，跳过重复提交拦截。
+          Object.assign(response.config.headers, { Authorization, repeatSubmit: false });
 
           return instance.request(response.config) as Promise<AxiosResponse>;
         }

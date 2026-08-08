@@ -619,8 +619,8 @@ declare namespace Api {
     };
 
     type UserListExtra = {
-      dept_info_map: Record<string, UserListDeptInfo>;
-      role_info_map: Record<string, UserListRoleInfo>;
+      dept_map: Record<string, UserListDeptInfo>;
+      role_map: Record<string, UserListRoleInfo>;
       user_data_scope_map: Record<string, boolean>;
     };
 
