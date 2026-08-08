@@ -2,7 +2,7 @@
 import { computed, defineComponent, watch } from 'vue';
 import type { UploadFileInfo } from 'naive-ui';
 import type { JSX } from 'vue/jsx-runtime';
-import { getToken } from '@/store/modules/auth/shared';
+import { getAuthorizationToken } from '@/store/modules/auth/shared';
 import { getServiceBaseURL } from '@/utils/service';
 import { AcceptType } from '@/enum/business';
 import { GenRandomKey, getOssUrl, normalizeOssPath } from '@/utils/common-methods';
@@ -124,7 +124,7 @@ const uploadPlatform = import.meta.env.MODE.startsWith('pt.')
     : 'project';
 
 const headers: Record<string, string> = {
-  Authorization: `Bearer ${getToken()}`,
+  Authorization: getAuthorizationToken(),
   clientid: import.meta.env.VITE_APP_CLIENT_ID!
 };
 

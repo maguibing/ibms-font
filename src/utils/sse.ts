@@ -1,8 +1,8 @@
 import { watch } from 'vue';
 import { useEventSource } from '@vueuse/core';
 import { useNoticeStore } from '@/store/modules/notice';
+import { getAuthorizationToken } from '@/store/modules/auth/shared';
 import { $t } from '@/locales';
-import { localStg } from './storage';
 
 /**
  * 初始化 SSE
@@ -10,11 +10,11 @@ import { localStg } from './storage';
  * @param url - SSE 地址
  */
 export const initSSE = (url: string) => {
-  const token = localStg.get('token');
-  if (import.meta.env.VITE_APP_SSE === 'N' || !token) {
+  const Authorization = getAuthorizationToken();
+  if (import.meta.env.VITE_APP_SSE === 'N' || !Authorization) {
     return;
   }
-  const sseUrl = `${url}?Authorization=Bearer ${token}&clientid=${import.meta.env.VITE_APP_CLIENT_ID}`;
+  const sseUrl = `${url}?Authorization=${encodeURIComponent(Authorization)}&clientid=${import.meta.env.VITE_APP_CLIENT_ID}`;
   const { data, error } = useEventSource(sseUrl, [], {
     autoReconnect: {
       retries: 5,

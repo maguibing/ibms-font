@@ -17,7 +17,7 @@ import { SetupStoreId } from '@/enum';
 import { useRouteStore } from '../route';
 import { useTabStore } from '../tab';
 import { useNoticeStore } from '../notice';
-import { clearAuthStorage, getToken, normalizeAccessToken } from './shared';
+import { clearAuthStorage, getToken } from './shared';
 
 type LoginListResult = Exclude<Api.Auth.LoginResult, undefined>;
 
@@ -224,9 +224,9 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   }
 
   async function loginByToken(loginToken: Api.Auth.LoginToken) {
-    const accessToken = normalizeAccessToken(loginToken.access_token!);
+    const accessToken = loginToken.access_token!;
 
-    // 1. stored in the localStorage, the later requests need it in headers
+    // 1. storage 保持后端返回的 access_token 原值
     localStg.set('token', accessToken);
     localStg.set('refreshToken', loginToken.refresh_token!);
 

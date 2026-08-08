@@ -2,7 +2,7 @@
 import { ref, shallowRef, watch } from 'vue';
 import type { UploadFileInfo, UploadInst } from 'naive-ui';
 import type { ImportBizType } from '@/enum/business';
-import { getToken } from '@/store/modules/auth/shared';
+import { getAuthorizationToken } from '@/store/modules/auth/shared';
 import { useDownload } from '@/hooks/business/download';
 import { useImportProgress } from '@/hooks/business/import-progress';
 import { getServiceBaseURL } from '@/utils/service';
@@ -38,7 +38,7 @@ const { setImportKey, startImport, stopImport } = useImportProgress();
 const { baseURL } = getServiceBaseURL(import.meta.env);
 
 const headers: Record<string, string> = {
-  Authorization: `Bearer ${getToken()}`,
+  Authorization: getAuthorizationToken(),
   clientid: import.meta.env.VITE_APP_CLIENT_ID!
 };
 

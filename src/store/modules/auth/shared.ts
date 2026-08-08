@@ -1,13 +1,17 @@
 import { localStg } from '@/utils/storage';
 
-/** 去掉 token 里可能携带的 Bearer 前缀 */
-export function normalizeAccessToken(token: string) {
-  return token.replace(/^Bearer\s+/i, '');
-}
-
 /** Get token */
 export function getToken() {
-  return normalizeAccessToken(localStg.get('token') || '');
+  return localStg.get('token') || '';
+}
+
+/** 获取请求头 token，storage 保持后端返回原值 */
+export function getAuthorizationToken() {
+  const token = getToken();
+
+  if (!token) return '';
+
+  return /^Bearer\s+/i.test(token) ? token : `Bearer ${token}`;
 }
 
 /** Clear auth storage */

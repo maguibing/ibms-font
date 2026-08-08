@@ -1,13 +1,12 @@
 import { h } from 'vue';
 import { fetchRefreshToken } from '@/service/api/auth';
 import { useAuthStore } from '@/store/modules/auth';
-import { normalizeAccessToken } from '@/store/modules/auth/shared';
+import { getAuthorizationToken } from '@/store/modules/auth/shared';
 import { localStg } from '@/utils/storage';
 import type { RequestInstanceState } from './type';
 
 export function getAuthorization() {
-  const token = localStg.get('token');
-  const Authorization = token ? `Bearer ${token}` : null;
+  const Authorization = getAuthorizationToken() || null;
 
   return Authorization;
 }
@@ -19,7 +18,7 @@ async function handleRefreshToken() {
 
   const { error, data } = await fetchRefreshToken({ refresh_token: refreshToken });
   if (!error) {
-    const accessToken = normalizeAccessToken(data.access_token);
+    const accessToken = data.access_token;
 
     localStg.set('token', accessToken);
     localStg.set('refreshToken', data.refresh_token);

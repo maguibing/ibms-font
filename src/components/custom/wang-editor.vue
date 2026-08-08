@@ -5,7 +5,7 @@ import { Editor, Toolbar } from '@wangeditor-next/editor-for-vue';
 import { i18nChangeLanguage } from '@wangeditor-next/editor';
 import type { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor-next/editor';
 import { useAppStore } from '@/store/modules/app';
-import { getToken } from '@/store/modules/auth/shared';
+import { getAuthorizationToken } from '@/store/modules/auth/shared';
 import { getServiceBaseURL } from '@/utils/service';
 
 defineOptions({
@@ -37,7 +37,7 @@ const editorConfig: Partial<IEditorConfig> = {
       fieldName: 'file',
       meta: {},
       headers: {
-        Authorization: `Bearer ${getToken()}`,
+        Authorization: getAuthorizationToken(),
         clientid: import.meta.env.VITE_APP_CLIENT_ID!
       },
       metaWithUrl: false,

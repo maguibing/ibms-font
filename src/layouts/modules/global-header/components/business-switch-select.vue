@@ -10,7 +10,6 @@ import {
 } from '@/service/api/auth';
 import { useAppStore } from '@/store/modules/app';
 import { useAuthStore } from '@/store/modules/auth';
-import { normalizeAccessToken } from '@/store/modules/auth/shared';
 import { useTabStore } from '@/store/modules/tab';
 import { useRouterPush } from '@/hooks/common/router';
 import { localStg } from '@/utils/storage';
@@ -85,7 +84,7 @@ async function closeAndRefresh(id: CommonType.IdType) {
 
 /** 写入切换后返回的新 token */
 function updateToken(data: Api.Auth.LoginToken) {
-  const accessToken = normalizeAccessToken(data.access_token!);
+  const accessToken = data.access_token!;
 
   localStg.set('token', accessToken);
   localStg.set('refreshToken', data.refresh_token!);

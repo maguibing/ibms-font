@@ -1,8 +1,8 @@
 import { useWebSocket } from '@vueuse/core';
 import { MessageType } from '@/enum/business';
 import { useNoticeStore } from '@/store/modules/notice';
+import { getAuthorizationToken } from '@/store/modules/auth/shared';
 import { decodeBase64ToText, encodeJsonToBase64 } from './base64';
-import { localStg } from './storage';
 
 export type WebSocketMessage = {
   type: MessageType;
@@ -129,7 +129,7 @@ export function decodeWebSocketPayload<T>(payload?: string) {
  * @param url - WebSocket 地址
  */
 export const initWebSocket = (url: string) => {
-  const token = localStg.get('token');
+  const token = getAuthorizationToken();
   if (import.meta.env.VITE_APP_WEBSOCKET === 'N' || !token) {
     socketClient?.close();
     socketClient = null;
@@ -139,7 +139,7 @@ export const initWebSocket = (url: string) => {
     return;
   }
   const separator = url.includes('?') ? '&' : '?';
-  const socketUrl = `${url}${separator}token=${encodeURIComponent(`${token}`)}`;
+  const socketUrl = `${url}${separator}token=${encodeURIComponent(token)}`;
   if (socketClient && activeSocketUrl === socketUrl && socketClient.status.value !== 'CLOSED') {
     return;
   }
