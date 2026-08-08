@@ -29,6 +29,11 @@ const appStore = useAppStore();
 const { download } = useDownload();
 
 const DEFAULT_RESET_PASSWORD = '123456789##';
+const ROOT_DEPT: Api.Common.DeptNode = {
+  dept_id: 0,
+  dept_name: '全部',
+  dept_parent_id: 0
+};
 
 const searchParams = ref<Api.System.UserSearchParams>({
   pageNum: 1,
@@ -163,7 +168,7 @@ const {
       key: 'operate',
       title: $t('common.operate'),
       align: 'center',
-      width: 150,
+      width: 130,
       render: row => {
         const editBtn = () => {
           return (
@@ -303,7 +308,18 @@ async function handleResetPwd(userId: CommonType.IdType) {
 const { loading: treeLoading, startLoading: startTreeLoading, endLoading: endTreeLoading } = useLoading();
 const deptPattern = ref<string>();
 const deptData = ref<Api.Common.DeptNode[]>([]);
-const selectedKeys = ref<string[]>([]);
+const selectedKeys = ref<CommonType.IdType[]>([0]);
+const expandedKeys = ref<CommonType.IdType[]>([0]);
+
+const deptTreeData = computed<Api.Common.DeptNode[]>(() => {
+  const root: Api.Common.DeptNode = { ...ROOT_DEPT };
+
+  if (deptData.value.length) {
+    root.children = deptData.value;
+  }
+
+  return [root];
+});
 
 async function getTreeData() {
   startTreeLoading();
@@ -316,8 +332,11 @@ async function getTreeData() {
 
 getTreeData();
 
-function handleClickTree(keys: string[]) {
-  searchParams.value.dept_id = keys.length ? Number(keys[0]) : null;
+function handleClickTree(keys: CommonType.IdType[]) {
+  const deptId = keys.length ? Number(keys[0]) : 0;
+
+  selectedKeys.value = deptId ? [deptId] : [0];
+  searchParams.value.dept_id = deptId === 0 ? null : deptId;
   checkedRowKeys.value = [];
   getDataByPage();
 }
@@ -331,14 +350,12 @@ function handleExport() {
   download('/system/user/export', searchParams.value, `${$t('page.system.user.title')}_${new Date().getTime()}.xlsx`);
 }
 
-const expandedKeys = ref<CommonType.IdType[]>([100]);
-
 const selectable = computed(() => {
   return !loading.value;
 });
 
 function handleResetSearch() {
-  selectedKeys.value = [];
+  selectedKeys.value = [0];
   getDataByPage();
 }
 </script>
@@ -360,8 +377,7 @@ function handleResetSearch() {
           v-model:selected-keys="selectedKeys"
           block-node
           show-line
-          :data="deptData as []"
-          :default-expanded-keys="deptData?.length ? [deptData[0].dept_id] : []"
+          :data="deptTreeData as []"
           :show-irrelevant-nodes="false"
           :pattern="deptPattern"
           class="infinite-scroll h-full min-h-200px py-3"
