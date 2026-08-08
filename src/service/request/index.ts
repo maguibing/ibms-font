@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/modules/auth';
 import { localStg, sessionStg } from '@/utils/storage';
 import { getServiceBaseURL } from '@/utils/service';
 import { decryptBase64, decryptWithAes, encryptBase64, encryptWithAes, generateAesKey } from '@/utils/crypto';
+import { isScreenLockCode, showScreenLock } from '@/utils/screen-lock';
 import { getAuthorization, handleExpiredRequest, showErrorMsg } from './shared';
 import type { RequestInstanceState } from './type';
 
@@ -74,8 +75,14 @@ export const request = createFlatRequest(
       return String(response.data.code) === import.meta.env.VITE_SERVICE_SUCCESS_CODE;
     },
     async onBackendFail(response, instance) {
-      const authStore = useAuthStore();
       const responseCode = String(response.data.code);
+
+      if (isScreenLockCode(responseCode)) {
+        showScreenLock();
+        return null;
+      }
+
+      const authStore = useAuthStore();
 
       function handleLogout() {
         authStore.resetStore();
@@ -164,6 +171,11 @@ export const request = createFlatRequest(
       // the error message is displayed in the modal
       const modalLogoutCodes = import.meta.env.VITE_SERVICE_MODAL_LOGOUT_CODES?.split(',') || [];
       if (modalLogoutCodes.includes(backendErrorCode)) {
+        return;
+      }
+
+      if (isScreenLockCode(backendErrorCode)) {
+        showScreenLock();
         return;
       }
 

@@ -544,6 +544,9 @@ declare namespace Api {
       license_content: string;
     };
 
+    /** active system cert params */
+    type ActiveSysCertParams = Pick<GenerateSysCertResponse, 'license_content'>;
+
     /** all role */
     type AllRole = Pick<Api.System.Role, 'id' | 'name'>;
 

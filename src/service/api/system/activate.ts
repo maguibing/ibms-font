@@ -8,3 +8,12 @@ export function fetchGenerateSysCert(data: Api.System.GenerateSysCertParams) {
     data
   });
 }
+
+/** 激活系统证书 */
+export function fetchActiveSysCert(data: Api.System.ActiveSysCertParams) {
+  return request({
+    url: '/ActiveSysCert',
+    method: 'post',
+    data
+  });
+}

@@ -51,6 +51,7 @@ const watermarkProps = computed<WatermarkProps>(() => {
   >
     <AppProvider>
       <RouterView class="bg-layout" />
+      <ScreenLock />
       <NWatermark v-if="themeStore.watermark.visible" v-bind="watermarkProps" />
     </AppProvider>
   </NConfigProvider>
