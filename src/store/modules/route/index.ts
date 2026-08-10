@@ -148,7 +148,7 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
             // @ts-expect-error no query field
             url: JSON.parse(route.query)?.url
           };
-        } catch { }
+        } catch {}
       }
       route.component = parent && !isExternalLink ? 'view.iframe-page' : 'layout.base$view.iframe-page';
     } else if (!isLayout && !isParentLayout && !isBlankLayout) {
@@ -281,10 +281,7 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
     if (authStore.isStaticSuper) {
       addAuthRoutes(staticAuthRoutes);
     } else {
-      // 原本是这样的
-      // const filteredAuthRoutes = filterAuthRoutesByRoles(staticAuthRoutes, authStore.userInfo.roles);
-      // 现在这样写死，后续再优化
-      const filteredAuthRoutes = filterAuthRoutesByRoles(staticAuthRoutes, ['superadmin']);
+      const filteredAuthRoutes = filterAuthRoutesByRoles(staticAuthRoutes, authStore.userRoles);
 
       addAuthRoutes(filteredAuthRoutes);
     }

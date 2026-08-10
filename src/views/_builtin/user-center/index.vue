@@ -86,7 +86,8 @@ async function updateProfile() {
     window.$message?.success('更新成功');
     // 更新本地用户信息
     if (userInfo.user) {
-      Object.assign(userInfo.user, profileModel);
+      authStore.updateUserProfile(profileModel);
+      await authStore.refreshUserInfo();
       profileRestoreValidation();
     }
   }
@@ -124,20 +125,17 @@ async function updatePassword() {
           <div class="relative">
             <UserAvatar />
           </div>
-          <div class="text-18px font-medium">{{ userInfo.user?.username }}</div>
+          <div class="text-18px font-medium">{{ authStore.userProfile.user?.username || '-' }}</div>
         </div>
         <NDescriptions :column="1" label-placement="left" label-width="120px">
           <NDescriptionsItem label="手机号码">
-            <div class="text-14px">{{ userInfo.user?.phone }}</div>
+            <div class="text-14px">{{ authStore.userProfile.user?.phone || '-' }}</div>
           </NDescriptionsItem>
           <NDescriptionsItem label="所属部门">
-            <div class="text-14px">{{ userInfo.dept?.dept_name }}</div>
+            <div class="text-14px">{{ authStore.userProfile.dept?.name || '-' }}</div>
           </NDescriptionsItem>
           <NDescriptionsItem label="所属角色">
-            <div class="text-14px">{{ userInfo.role?.role_name }}</div>
-          </NDescriptionsItem>
-          <NDescriptionsItem label="创建日期">
-            <div class="text-14px">{{ userInfo.user?.created_at }}</div>
+            <div class="text-14px">{{ authStore.userProfile.role?.role_name || '-' }}</div>
           </NDescriptionsItem>
         </NDescriptions>
       </div>

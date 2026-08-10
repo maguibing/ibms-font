@@ -212,10 +212,10 @@ declare namespace Api {
     interface BaseInfo {
       user?: UserInfoUser;
       role?: UserInfoRole;
-      /** 以 dept_id 作为键的部门映射，如 { 1: { dept_id: 1, dept_name: 'xx' } } */
+      /** 以 id 作为键的部门映射，如 { 1: { id: 1, name: 'xx' } } */
       dept?: {
-        dept_id: number;
-        dept_name: string;
+        id: number;
+        name: string;
       };
     }
 

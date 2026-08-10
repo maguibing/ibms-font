@@ -8,6 +8,7 @@ import GlobalBreadcrumb from '../global-breadcrumb/index.vue';
 import GlobalSearch from '../global-search/index.vue';
 import BusinessSwitchSelect from './components/business-switch-select.vue';
 import CockpitButton from './components/cockpit-button.vue';
+import ManualButton from './components/manual-button.vue';
 import ThemeButton from './components/theme-button.vue';
 import UserAvatar from './components/user-avatar.vue';
 import MessageButton from './components/message-button.vue';
@@ -45,6 +46,7 @@ const { isFullscreen, toggle } = useFullscreen();
       <BusinessSwitchSelect v-if="!appStore.isMobile" />
       <GlobalSearch v-if="themeStore.header.globalSearch.visible && !appStore.isMobile" />
       <MessageButton />
+      <ManualButton />
       <FullScreen v-if="!appStore.isMobile" :full="isFullscreen" @click="toggle" />
       <LangSwitch
         v-if="themeStore.header.multilingual.visible"

@@ -40,11 +40,19 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     dept: undefined
   });
 
+  const userRoles = computed(() => {
+    return userInfo.role?.role_name ? [userInfo.role.role_name] : [];
+  });
+
+  const userProfile = computed(() => {
+    return userInfo;
+  });
+
   /** is super role in static route */
   const isStaticSuper = computed(() => {
     const { VITE_AUTH_ROUTE_MODE, VITE_STATIC_SUPER_ROLE } = import.meta.env;
 
-    return VITE_AUTH_ROUTE_MODE === 'static' && userInfo?.role?.role_name?.includes(VITE_STATIC_SUPER_ROLE);
+    return VITE_AUTH_ROUTE_MODE === 'static' && userRoles.value.some(role => role.includes(VITE_STATIC_SUPER_ROLE));
   });
 
   /** Is login */
@@ -255,6 +263,16 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
     return false;
   }
 
+  function updateUserProfile(user: Api.Auth.UserInfoUser) {
+    if (!userInfo.user) return;
+
+    Object.assign(userInfo.user, user);
+  }
+
+  async function refreshUserInfo() {
+    return getUserInfo();
+  }
+
   async function initUserInfo() {
     const maybeToken = getToken();
 
@@ -271,9 +289,13 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   return {
     token,
     userInfo,
+    userRoles,
+    userProfile,
     isStaticSuper,
     isLogin,
     loginLoading,
+    updateUserProfile,
+    refreshUserInfo,
     resetStore,
     login,
     selectCorpLogin,
