@@ -167,7 +167,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         title: '数据类型',
         align: 'center',
         minWidth: 120,
-        render: row => h(EnumTag, { value: row.data_type })
+        render: row => h(EnumTag, { value: getDisplayDataType(row) })
       },
       {
         key: 'access_level',
@@ -254,6 +254,10 @@ function getCurrentValue(row: Api.Device.PhysicalPoint) {
   return physicalPointExtra.value.current_value_map?.[String(row.id)] ?? null;
 }
 
+function getDisplayDataType(row: Api.Device.PhysicalPoint) {
+  return getCurrentValue(row)?.data_type ?? row.data_type;
+}
+
 function formatReportAt(row: Api.Device.PhysicalPoint) {
   const timestamp = getCurrentValue(row)?.ts;
   if (!timestamp) return '-';
@@ -265,7 +269,7 @@ function formatCurrentValue(row: Api.Device.PhysicalPoint) {
   const currentValue = getCurrentValue(row);
   if (!currentValue?.ts) return '-';
 
-  const dataType = Number(currentValue.data_type ?? row.data_type);
+  const dataType = Number(getDisplayDataType(row));
 
   if (dataType === 1) {
     const value = currentValue.num_val?.value ?? 0;
