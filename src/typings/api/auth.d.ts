@@ -199,6 +199,15 @@ declare namespace Api {
       children?: UserInfoMenuTreeItem[];
     }
 
+    interface ProjectSysScreenRouteItem {
+      path: string;
+      meta: {
+        project_sys_screen_id?: CommonType.IdType;
+        [key: string]: unknown;
+      };
+      [key: string]: unknown;
+    }
+
     /** 角色信息 */
     interface UserInfoRole {
       role_id: number;
@@ -206,6 +215,7 @@ declare namespace Api {
       role_type: number;
       menu_tree: UserInfoMenuTreeItem[];
       button_perm_key_list: string[];
+      project_sys_screen_list?: ProjectSysScreenRouteItem[];
     }
 
     /** userinfo - 对应 /GetBaseInfo 接口 data 字段 */

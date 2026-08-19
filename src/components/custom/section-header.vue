@@ -21,9 +21,9 @@ const props = withDefaults(defineProps<Props>(), {
 const slots = useSlots();
 
 const indicatorClassMap: Record<HeaderType, string> = {
-  primary: 'bg-#2563eb shadow-[0_6px_14px_rgba(37,99,235,0.16)]',
-  info: 'bg-#0891b2 shadow-[0_6px_14px_rgba(8,145,178,0.16)]',
-  success: 'bg-#16a34a shadow-[0_6px_14px_rgba(22,163,74,0.16)]'
+  primary: 'bg-[rgb(var(--primary-color))] shadow-[0_6px_14px_rgba(var(--primary-color),0.16)]',
+  info: 'bg-[rgb(var(--info-color))] shadow-[0_6px_14px_rgba(var(--info-color),0.16)]',
+  success: 'bg-[rgb(var(--success-color))] shadow-[0_6px_14px_rgba(var(--success-color),0.16)]'
 };
 
 const indicatorClass = computed(() => indicatorClassMap[props.type]);

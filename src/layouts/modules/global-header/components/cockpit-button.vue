@@ -1,17 +1,95 @@
 <script setup lang="ts">
+import { computed, shallowRef } from 'vue';
+import { useRoute } from 'vue-router';
+import { useAuthStore } from '@/store/modules/auth';
+import { getExternalReturnUrl } from '@/utils/externalReturn';
+
 defineOptions({
   name: 'CockpitButton'
 });
+
+const authStore = useAuthStore();
+const route = useRoute();
+const isEnteringCockpit = shallowRef(false);
+
+const cockpitScreenList = computed(() => authStore.userInfo.role?.project_sys_screen_list ?? []);
+const cockpitReturnUrl = computed(() => {
+  // 让当前路由参与依赖收集，路由切换时重新读取统一记录的 return_url。
+  const currentPath = route.fullPath;
+  if (!currentPath) return '';
+
+  return getExternalReturnUrl();
+});
+
+const showCockpitButton = computed(() => Boolean(cockpitReturnUrl.value || cockpitScreenList.value.length));
+
+function resolveCockpitPath(screen?: Api.Auth.ProjectSysScreenRouteItem) {
+  if (!screen?.path) return '';
+
+  const projectSysScreenId = screen.meta?.project_sys_screen_id;
+  if (!projectSysScreenId) return screen.path;
+
+  const separator = screen.path.includes('?') ? '&' : '?';
+
+  return `${screen.path}${separator}project_sys_screen_id=${encodeURIComponent(String(projectSysScreenId))}`;
+}
+
+async function resolveLatestCockpitPath() {
+  try {
+    // 进入前先刷新用户信息，避免驾驶舱列表还是旧的角色数据。
+    await authStore.refreshUserInfo();
+  } catch (error) {
+    console.error('Refresh user info before entering cockpit failed:', error);
+  }
+
+  return resolveCockpitPath(authStore.userInfo.role?.project_sys_screen_list?.[0]);
+}
+
+function buildCockpitUrl(path: string) {
+  const targetPath = path || '/';
+
+  return `/screen/#${targetPath}`;
+}
+
+function redirectToCockpit(url: string) {
+  window.location.href = url;
+}
+
+async function enterCockpit() {
+  if (isEnteringCockpit.value) return;
+
+  isEnteringCockpit.value = true;
+  window.setTimeout(() => {
+    isEnteringCockpit.value = false;
+  }, 3000);
+
+  // 有回跳地址时，优先回到原来的大屏；否则进入当前角色可用的最新大屏。
+  if (cockpitReturnUrl.value) {
+    redirectToCockpit(cockpitReturnUrl.value);
+    return;
+  }
+
+  const cockpitPath = await resolveLatestCockpitPath();
+  if (!cockpitPath) {
+    window.$message?.warning('暂无可进入的大屏');
+    return;
+  }
+
+  redirectToCockpit(buildCockpitUrl(cockpitPath));
+}
 </script>
 
 <template>
   <NButton
+    v-if="showCockpitButton"
     type="primary"
     secondary
     size="small"
     class="cockpit-entry mr-8px h-36px"
     :focusable="false"
+    :aria-busy="isEnteringCockpit"
     aria-label="驾驶舱"
+    @click="enterCockpit"
   >
     <span class="cockpit-entry__content">
       <span class="cockpit-entry__emblem" aria-hidden="true">
