@@ -16,18 +16,27 @@ interface Emits {
 }
 
 interface FormModel {
+  id: CommonType.IdType | null;
+  corp_id: CommonType.IdType | null;
   name: string;
   desc: string;
-  start_at_ms: number | null;
-  original_price: number | null;
-  discount_price: number | null;
-  price_day: number | null;
-  price_unit: number;
-  device_num: number | null;
-  project_user_num: number | null;
-  day_msg_num: number | null;
-  data_store_day: number | null;
-  data_store_unit: number;
+  start_at: string | null;
+  menu_conf: {
+    menu_id_list: CommonType.IdType[];
+  };
+  price_conf: {
+    day: number | null;
+    discount_price: number | null;
+    original_price: number | null;
+    time_type: Api.System.VersionTimeType;
+  };
+  resource_conf: {
+    data_store_day: number | null;
+    day_msg_num: number | null;
+    device_num: number | null;
+    project_user_num: number | null;
+    time_type: Api.System.VersionTimeType;
+  };
 }
 
 type OperateType = 'add' | 'edit';
@@ -41,19 +50,16 @@ const { loading: submitLoading, startLoading: startSubmitLoading, endLoading: en
 
 const visible = shallowRef(false);
 const operateType = shallowRef<OperateType>('add');
-const editingId = shallowRef<CommonType.IdType | null>(null);
-const corpId = shallowRef<CommonType.IdType | null>(null);
 const selectedCorpOption = shallowRef<CorpOptionRecord | null>(null);
 const menuTreeRef = ref<InstanceType<typeof MenuTree> | null>(null);
-const checkedMenuIds = ref<CommonType.IdType[]>([]);
 const menuLoading = ref(false);
 const cascade = ref(true);
 const formModel = ref<FormModel>(createDefaultModel());
 
-const durationUnitOptions = [
-  { label: '日', value: 1 },
-  { label: '月', value: 30 },
-  { label: '年', value: 365 }
+const durationTimeTypeOptions: CommonType.Option<Api.System.VersionTimeType>[] = [
+  { label: '天', value: 4 },
+  { label: '月', value: 5 },
+  { label: '年', value: 6 }
 ];
 
 const menuTreeRequestParams = {
@@ -68,18 +74,16 @@ const corpSelectRequestParams: CommonType.CommonListQueryParams = {
   options: [{ key: 1 }, { key: 2 }, { key: 3 }]
 };
 
-type RuleKey = Extract<
-  keyof FormModel,
+type RuleKey =
   | 'name'
-  | 'start_at_ms'
-  | 'original_price'
-  | 'discount_price'
-  | 'price_day'
-  | 'device_num'
-  | 'project_user_num'
-  | 'day_msg_num'
-  | 'data_store_day'
->;
+  | 'start_at'
+  | 'price_conf.original_price'
+  | 'price_conf.discount_price'
+  | 'price_conf.day'
+  | 'resource_conf.device_num'
+  | 'resource_conf.project_user_num'
+  | 'resource_conf.day_msg_num'
+  | 'resource_conf.data_store_day';
 
 const rules: Record<RuleKey, App.Global.FormRule | App.Global.FormRule[]> = {
   name: [
@@ -90,14 +94,14 @@ const rules: Record<RuleKey, App.Global.FormRule | App.Global.FormRule[]> = {
       trigger: ['input', 'blur']
     }
   ],
-  start_at_ms: createRequiredRule('请选择预计开始时间'),
-  original_price: createRequiredRule('请输入原价'),
-  discount_price: createRequiredRule('请输入折扣价'),
-  price_day: createRequiredRule('请输入时长'),
-  device_num: createRequiredRule('请输入设备数'),
-  project_user_num: createRequiredRule('请输入用户数'),
-  day_msg_num: createRequiredRule('请输入日消息数'),
-  data_store_day: createRequiredRule('请输入数据存储时长')
+  start_at: createRequiredRule('请选择预计开始时间'),
+  'price_conf.original_price': createRequiredRule('请输入原价'),
+  'price_conf.discount_price': createRequiredRule('请输入折扣价'),
+  'price_conf.day': createRequiredRule('请输入时长'),
+  'resource_conf.device_num': createRequiredRule('请输入设备数'),
+  'resource_conf.project_user_num': createRequiredRule('请输入用户数'),
+  'resource_conf.day_msg_num': createRequiredRule('请输入日消息数'),
+  'resource_conf.data_store_day': createRequiredRule('请输入数据存储时长')
 };
 
 const isEdit = computed(() => operateType.value === 'edit');
@@ -105,58 +109,71 @@ const title = computed(() => (isEdit.value ? '编辑版本' : '新增版本'));
 
 function createDefaultModel(): FormModel {
   return {
+    id: null,
+    corp_id: null,
     name: '',
     desc: '',
-    start_at_ms: null,
-    original_price: 0,
-    discount_price: 0,
-    price_day: 1,
-    price_unit: 1,
-    device_num: 1,
-    project_user_num: 1,
-    day_msg_num: 1,
-    data_store_day: 1,
-    data_store_unit: 1
+    start_at: null,
+    menu_conf: {
+      menu_id_list: []
+    },
+    price_conf: {
+      day: 1,
+      discount_price: 0,
+      original_price: 0,
+      time_type: 4
+    },
+    resource_conf: {
+      data_store_day: 1,
+      day_msg_num: 1,
+      device_num: 1,
+      project_user_num: 1,
+      time_type: 4
+    }
   };
 }
 
 function resetModel() {
   formModel.value = createDefaultModel();
-  checkedMenuIds.value = [];
   cascade.value = true;
   menuLoading.value = false;
 }
 
 function openAdd(id?: CommonType.IdType, name?: string) {
   operateType.value = 'add';
-  editingId.value = null;
-  corpId.value = id ?? null;
-  selectedCorpOption.value = createCorpOption(id, name);
   resetModel();
+  formModel.value.corp_id = id ?? null;
+  selectedCorpOption.value = createCorpOption(id, name);
   restoreValidation();
   visible.value = true;
 }
 
 function openEdit(row: Api.System.CorpProjectVersion, name?: string) {
   operateType.value = 'edit';
-  editingId.value = row.id;
-  corpId.value = row.corp_id ?? null;
   selectedCorpOption.value = createCorpOption(row.corp_id, name);
   formModel.value = {
+    id: row.id,
+    corp_id: row.corp_id ?? null,
     name: row.name || '',
     desc: row.desc || '',
-    start_at_ms: row.start_at ? row.start_at * 1000 : null,
-    original_price: row.price_conf?.original_price ?? 0,
-    discount_price: row.price_conf?.discount_price ?? 0,
-    price_day: row.price_conf?.day ?? 1,
-    price_unit: 1,
-    device_num: row.resource_conf?.device_num ?? 1,
-    project_user_num: row.resource_conf?.project_user_num ?? 1,
-    day_msg_num: row.resource_conf?.day_msg_num ?? 1,
-    data_store_day: row.resource_conf?.data_store_day ?? 1,
-    data_store_unit: 1
+    start_at: row.start_at ? String(row.start_at) : null,
+    menu_conf: {
+      menu_id_list: [...(row.menu_conf?.menu_id_list ?? [])]
+    },
+    price_conf: {
+      day: row.price_conf?.day ?? 1,
+      discount_price: row.price_conf?.discount_price ?? 0,
+      original_price: row.price_conf?.original_price ?? 0,
+      time_type: row.price_conf?.time_type ?? 4
+    },
+    resource_conf: {
+      data_store_day: row.resource_conf?.data_store_day ?? 1,
+      day_msg_num: row.resource_conf?.day_msg_num ?? 1,
+      device_num: row.resource_conf?.device_num ?? 1,
+      project_user_num: row.resource_conf?.project_user_num ?? 1,
+      time_type: row.resource_conf?.time_type ?? 4
+    }
   };
-  checkedMenuIds.value = [...(row.menu_conf?.menu_id_list ?? [])];
   cascade.value = true;
   menuLoading.value = false;
   restoreValidation();
@@ -184,17 +201,13 @@ function close() {
 
 function getSubmitMenuIds() {
   const map = new Map<string, CommonType.IdType>();
-  const menuIds = menuTreeRef.value?.getCheckedMenuIds(true) ?? checkedMenuIds.value;
+  const menuIds = menuTreeRef.value?.getCheckedMenuIds(true) ?? formModel.value.menu_conf.menu_id_list;
 
   menuIds.forEach(id => {
     map.set(String(id), id);
   });
 
   return Array.from(map.values());
-}
-
-function getDurationDays(value: number | null, unit: number) {
-  return Number(value || 0) * unit;
 }
 
 function isStartDateDisabled(timestamp: number) {
@@ -205,25 +218,29 @@ function isStartDateDisabled(timestamp: number) {
 }
 
 function createSubmitPayload(menuIds: CommonType.IdType[]): Api.System.CreateVersionParams {
+  const { corp_id, price_conf, resource_conf, start_at } = formModel.value;
+
   return {
-    ...(corpId.value !== null ? { corp_id: corpId.value } : {}),
+    ...(corp_id !== null ? { corp_id } : {}),
     desc: formModel.value.desc,
     menu_conf: {
       menu_id_list: menuIds
     },
     name: formModel.value.name,
     price_conf: {
-      day: getDurationDays(formModel.value.price_day, formModel.value.price_unit),
-      discount_price: Number(formModel.value.discount_price || 0),
-      original_price: Number(formModel.value.original_price || 0)
+      day: Number(price_conf.day || 0),
+      discount_price: Number(price_conf.discount_price || 0),
+      original_price: Number(price_conf.original_price || 0),
+      time_type: price_conf.time_type
     },
     resource_conf: {
-      data_store_day: getDurationDays(formModel.value.data_store_day, formModel.value.data_store_unit),
-      day_msg_num: Number(formModel.value.day_msg_num || 0),
-      device_num: Number(formModel.value.device_num || 0),
-      project_user_num: Number(formModel.value.project_user_num || 0)
+      data_store_day: Number(resource_conf.data_store_day || 0),
+      day_msg_num: Number(resource_conf.day_msg_num || 0),
+      device_num: Number(resource_conf.device_num || 0),
+      project_user_num: Number(resource_conf.project_user_num || 0),
+      time_type: resource_conf.time_type
     },
-    start_at: Math.floor(Number(formModel.value.start_at_ms || 0) / 1000)
+    start_at: Number(start_at || 0)
   };
 }
 
@@ -240,9 +257,7 @@ async function handleSubmit() {
   startSubmitLoading();
 
   const request =
-    operateType.value === 'edit' && editingId.value
-      ? fetchUpdateVersion({ ...payload, id: editingId.value })
-      : fetchCreateVersion(payload);
+    operateType.value === 'edit' ? fetchUpdateVersion(createUpdatePayload(payload)) : fetchCreateVersion(payload);
 
   const { error } = await request.finally(endSubmitLoading);
 
@@ -253,6 +268,15 @@ async function handleSubmit() {
   emit('submitted');
 }
 
+function createUpdatePayload(payload: Api.System.CreateVersionParams): Api.System.UpdateVersionParams {
+  const { start_at: _startAt, ...updatePayload } = payload;
+
+  return {
+    ...updatePayload,
+    id: formModel.value.id!
+  };
+}
+
 defineExpose({
   openAdd,
   openEdit
@@ -260,10 +284,9 @@ defineExpose({
 </script>
 
 <template>
-  <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="980" class="max-w-90%">
+  <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="600" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="formModel" :rules="rules">
-        <NDivider>基本信息</NDivider>
         <NGrid responsive="screen" item-responsive :x-gap="16">
           <NFormItemGi span="24" label="版本名称" path="name">
             <NInput v-model:value="formModel.name" placeholder="请输入版本名称" :maxlength="10" show-count />
@@ -278,9 +301,9 @@ defineExpose({
               :autosize="{ minRows: 3, maxRows: 5 }"
             />
           </NFormItemGi>
-          <NFormItemGi span="24 m:12" label="集成商">
+          <NFormItemGi span="24" label="集成商">
             <RemoteSearchSelect
-              v-model:value="corpId"
+              v-model:value="formModel.corp_id"
               :request="fetchGetCorpList"
               :request-params="corpSelectRequestParams"
               :search-type="1"
@@ -292,10 +315,11 @@ defineExpose({
               @selected-change="handleCorpSelectedChange"
             />
           </NFormItemGi>
-          <NFormItemGi span="24 m:12" label="预计开始时间" path="start_at_ms">
+          <NFormItemGi span="24" label="预计开始时间" path="start_at">
             <NDatePicker
-              v-model:value="formModel.start_at_ms"
+              v-model:formatted-value="formModel.start_at"
               type="datetime"
+              value-format="t"
               clearable
               class="w-full"
               placeholder="请选择预计开始时间"
@@ -305,88 +329,100 @@ defineExpose({
           </NFormItemGi>
         </NGrid>
 
-        <NDivider>价格配置</NDivider>
-        <NGrid responsive="screen" item-responsive :x-gap="16">
-          <NFormItemGi span="24 m:8" label="原价" path="original_price">
-            <NInputNumber
-              v-model:value="formModel.original_price"
-              :min="0"
-              :precision="2"
-              button-placement="both"
-              class="w-full"
-            />
-          </NFormItemGi>
-          <NFormItemGi span="24 m:8" label="折扣价" path="discount_price">
-            <NInputNumber
-              v-model:value="formModel.discount_price"
-              :min="0"
-              :precision="2"
-              button-placement="both"
-              class="w-full"
-            />
-          </NFormItemGi>
-          <NFormItemGi span="24 m:8" label="时长" path="price_day">
-            <NInputGroup class="w-full">
-              <NInputNumber
-                v-model:value="formModel.price_day"
-                :min="1"
-                :precision="0"
-                button-placement="both"
-                class="flex-1"
-              />
-              <NSelect
-                v-model:value="formModel.price_unit"
-                :options="durationUnitOptions"
-                :consistent-menu-width="false"
-                class="w-92px"
-              />
-            </NInputGroup>
-          </NFormItemGi>
-        </NGrid>
+        <NTabs type="segment" animated class="mt-16px">
+          <NTabPane name="price" tab="价格配置" display-directive="show">
+            <NGrid responsive="screen" item-responsive :x-gap="16">
+              <NFormItemGi span="24" label="原价" path="price_conf.original_price">
+                <NInputNumber
+                  v-model:value="formModel.price_conf.original_price"
+                  :min="0"
+                  :precision="2"
+                  class="w-full"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="24" label="折扣价" path="price_conf.discount_price">
+                <NInputNumber
+                  v-model:value="formModel.price_conf.discount_price"
+                  :min="0"
+                  :precision="2"
+                  class="w-full"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="24" label="时长" path="price_conf.day">
+                <NInputGroup class="w-full">
+                  <NInputNumber v-model:value="formModel.price_conf.day" :min="1" :precision="0" class="flex-1" />
+                  <NSelect
+                    v-model:value="formModel.price_conf.time_type"
+                    :options="durationTimeTypeOptions"
+                    :consistent-menu-width="false"
+                    class="w-92px"
+                  />
+                </NInputGroup>
+              </NFormItemGi>
+            </NGrid>
+          </NTabPane>
 
-        <NDivider>资源配置</NDivider>
-        <NGrid responsive="screen" item-responsive :x-gap="16">
-          <NFormItemGi span="24 m:12" label="设备数" path="device_num">
-            <NInputNumber v-model:value="formModel.device_num" :min="0" :precision="0" class="w-full" />
-          </NFormItemGi>
-          <NFormItemGi span="24 m:12" label="用户数" path="project_user_num">
-            <NInputNumber v-model:value="formModel.project_user_num" :min="0" :precision="0" class="w-full" />
-          </NFormItemGi>
-          <NFormItemGi span="24 m:12" label="日消息数" path="day_msg_num">
-            <NInputNumber v-model:value="formModel.day_msg_num" :min="0" :precision="0" class="w-full" />
-          </NFormItemGi>
-          <NFormItemGi span="24 m:12" label="数据存储时长" path="data_store_day">
-            <NInputGroup class="w-full">
-              <NInputNumber
-                v-model:value="formModel.data_store_day"
-                :min="1"
-                :precision="0"
-                button-placement="both"
-                class="flex-1"
-              />
-              <NSelect
-                v-model:value="formModel.data_store_unit"
-                :options="durationUnitOptions"
-                :consistent-menu-width="false"
-                class="w-92px"
-              />
-            </NInputGroup>
-          </NFormItemGi>
-        </NGrid>
+          <NTabPane name="resource" tab="资源配置" display-directive="show">
+            <NGrid responsive="screen" item-responsive :x-gap="16">
+              <NFormItemGi span="24" label="设备数" path="resource_conf.device_num">
+                <NInputNumber
+                  v-model:value="formModel.resource_conf.device_num"
+                  :min="0"
+                  :precision="0"
+                  class="w-full"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="24" label="用户数" path="resource_conf.project_user_num">
+                <NInputNumber
+                  v-model:value="formModel.resource_conf.project_user_num"
+                  :min="0"
+                  :precision="0"
+                  class="w-full"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="24" label="日消息数" path="resource_conf.day_msg_num">
+                <NInputNumber
+                  v-model:value="formModel.resource_conf.day_msg_num"
+                  :min="0"
+                  :precision="0"
+                  class="w-full"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="24" label="数据存储时长" path="resource_conf.data_store_day">
+                <NInputGroup class="w-full">
+                  <NInputNumber
+                    v-model:value="formModel.resource_conf.data_store_day"
+                    :min="1"
+                    :precision="0"
+                    class="flex-1"
+                  />
+                  <NSelect
+                    v-model:value="formModel.resource_conf.time_type"
+                    :options="durationTimeTypeOptions"
+                    :consistent-menu-width="false"
+                    class="w-92px"
+                  />
+                </NInputGroup>
+              </NFormItemGi>
+            </NGrid>
+          </NTabPane>
 
-        <NDivider>菜单配置</NDivider>
-        <NFormItem label="菜单权限" class="pr-24px">
-          <MenuTree
-            v-if="visible"
-            ref="menuTreeRef"
-            v-model:checked-keys="checkedMenuIds"
-            v-model:cascade="cascade"
-            v-model:loading="menuLoading"
-            :request-params="menuTreeRequestParams"
-            :show-button-menus="false"
-            :immediate="true"
-          />
-        </NFormItem>
+          <NTabPane name="menu" tab="菜单配置" display-directive="if">
+            <NFormItem label="菜单权限" class="pr-24px">
+              <MenuTree
+                v-if="visible"
+                ref="menuTreeRef"
+                v-model:checked-keys="formModel.menu_conf.menu_id_list"
+                v-model:cascade="cascade"
+                v-model:loading="menuLoading"
+                :default-expand-all="false"
+                :request-params="menuTreeRequestParams"
+                :show-button-menus="false"
+                :immediate="true"
+              />
+            </NFormItem>
+          </NTabPane>
+        </NTabs>
       </NForm>
 
       <template #footer>

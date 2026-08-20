@@ -34,8 +34,8 @@ const remberMe = ref<boolean>(false);
 const selectedLoginData = ref<SelectedLoginData | null>(null);
 
 const model: Api.Auth.PwdLoginForm = reactive({
-  phone: '15102068523',
-  rsa_pwd: '123456789##',
+  phone: '',
+  rsa_pwd: '',
   captcha_id: '',
   captcha_answer: ''
 });

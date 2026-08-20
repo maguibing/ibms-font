@@ -124,6 +124,8 @@ declare namespace Api {
     type CorpList = Common.PaginatingQueryRecord<Corp, CorpListExtra>;
 
     /** corp project version */
+    type VersionTimeType = 4 | 5 | 6;
+
     type CorpProjectVersion = Common.CommonRecord<{
       id: CommonType.IdType;
       corp_id?: CommonType.IdType;
@@ -139,11 +141,13 @@ declare namespace Api {
         data_store_day?: number;
         day_msg_num?: number;
         project_user_num?: number;
+        time_type?: VersionTimeType;
       };
       price_conf?: {
         day?: number;
         discount_price?: number;
         original_price?: number;
+        time_type?: VersionTimeType;
       };
       start_at: number;
       end_at: number;
@@ -218,17 +222,19 @@ declare namespace Api {
         day: number;
         discount_price: number;
         original_price: number;
+        time_type: VersionTimeType;
       };
       resource_conf: {
         data_store_day: number;
         day_msg_num: number;
         device_num: number;
         project_user_num: number;
+        time_type: VersionTimeType;
       };
       start_at: number;
     };
 
-    type UpdateVersionParams = CreateVersionParams & {
+    type UpdateVersionParams = Omit<CreateVersionParams, 'start_at'> & {
       id: CommonType.IdType;
     };
 

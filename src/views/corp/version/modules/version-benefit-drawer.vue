@@ -14,38 +14,51 @@ type BenefitPayload = {
 
 const visible = shallowRef(false);
 const current = shallowRef<BenefitPayload | null>(null);
+const timeTypeLabelMap: Record<Api.System.VersionTimeType, string> = {
+  4: '天',
+  5: '月',
+  6: '年'
+};
 
 const row = computed(() => current.value?.row ?? null);
 const randomList = computed(() => current.value?.randomList ?? []);
 const allList = computed(() => current.value?.allList ?? []);
 const menuIds = computed(() => row.value?.menu_conf?.menu_id_list ?? []);
-const menuBenefitList = computed(() => {
-  const menuNames = allList.value.filter(item => !isResourceOrPriceBenefit(item));
-
-  if (menuNames.length) return menuNames;
-
-  return menuIds.value.map(id => `菜单ID：${id}`);
-});
 
 const resourceItems = computed(() => {
   const resourceConf = row.value?.resource_conf;
+  const timeTypeLabel = getTimeTypeLabel(resourceConf?.time_type);
 
   return [
-    { label: '设备数', value: formatCount(resourceConf?.device_num, '个设备') },
-    { label: '用户数', value: formatCount(resourceConf?.project_user_num, '个用户') },
-    { label: '日消息数', value: formatCount(resourceConf?.day_msg_num, '条') },
-    { label: '数据存储', value: formatCount(resourceConf?.data_store_day, '天') }
+    { label: '设备数', value: formatCount(resourceConf?.device_num ?? 0, '个设备') },
+    { label: '用户数', value: formatCount(resourceConf?.project_user_num ?? 0, '个用户') },
+    { label: '日消息数', value: formatCount(resourceConf?.day_msg_num ?? 0, '条') },
+    { label: '数据存储', value: formatCount(resourceConf?.data_store_day ?? 0, timeTypeLabel) }
   ];
 });
 
 const priceItems = computed(() => {
   const priceConf = row.value?.price_conf;
+  const timeTypeLabel = getTimeTypeLabel(priceConf?.time_type);
 
   return [
-    { label: '原价', value: formatPrice(priceConf?.original_price) },
-    { label: '折扣价', value: formatPrice(priceConf?.discount_price) },
-    { label: '时长', value: formatCount(priceConf?.day, '天') }
+    { label: '原价', value: formatPrice(priceConf?.original_price ?? 0) },
+    { label: '折扣价', value: formatPrice(priceConf?.discount_price ?? 0) },
+    { label: '时长', value: formatCount(priceConf?.day ?? 0, timeTypeLabel) }
   ];
+});
+
+const menuBenefitList = computed(() => {
+  const priceTimeType = getTimeTypeLabel(row.value?.price_conf?.time_type);
+  const resourceTimeType = getTimeTypeLabel(row.value?.resource_conf?.time_type);
+  const benefitPattern = new RegExp(
+    `^(\\d+个设备|\\d+${resourceTimeType}数据存储|\\d+条日消息数|\\d+个用户|\\d+${priceTimeType}\\s*￥)`
+  );
+  const menuNames = allList.value.filter(item => !benefitPattern.test(item));
+
+  if (menuNames.length) return menuNames;
+
+  return menuIds.value.map(id => `菜单ID：${id}`);
 });
 
 function formatCount(value: number | undefined, unit: string) {
@@ -60,8 +73,10 @@ function formatPrice(value: number | undefined) {
   return `￥${Number(value).toFixed(2)}`;
 }
 
-function isResourceOrPriceBenefit(value: string) {
-  return /^(\d+个设备|\d+天数据存储|\d+条日消息数|\d+个用户|\d+天 ￥)/.test(value);
+function getTimeTypeLabel(timeType?: Api.System.VersionTimeType) {
+  if (!timeType) return '天';
+
+  return timeTypeLabelMap[timeType] ?? '天';
 }
 
 function open(payload: BenefitPayload) {

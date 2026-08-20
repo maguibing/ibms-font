@@ -13,6 +13,7 @@ defineOptions({
 });
 
 interface Props {
+  defaultExpandAll?: boolean;
   immediate?: boolean;
   showButtonMenus?: boolean;
   showHeader?: boolean;
@@ -21,6 +22,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  defaultExpandAll: true,
   immediate: true,
   requestParams: undefined,
   showButtonMenus: true,
@@ -35,7 +37,7 @@ type MenuTreeOption = Omit<Api.System.MenuNode, 'children' | 'id'> & {
   children?: MenuTreeOption[];
 };
 
-const { bool: expandAll } = useBoolean(true);
+const { bool: expandAll } = useBoolean(props.defaultExpandAll);
 const { bool: checkAll } = useBoolean();
 const expandedKeys = ref<CommonType.IdType[]>([]);
 
@@ -100,15 +102,17 @@ function getVisibleMenuOptions(menu: MenuTreeOption[]): MenuTreeOption[] {
 
 async function getMenuList() {
   loading.value = true;
-  const { error, data } = await fetchGetMenuNodeTrees(props.requestParams ?? defaultRequestParams.value);
-  if (error) {
-    loading.value = false;
-    return;
-  }
+  try {
+    const { error, data } = await fetchGetMenuNodeTrees(props.requestParams ?? defaultRequestParams.value);
+    if (error) {
+      return;
+    }
 
-  allOptions.value = (data?.trees || []).map(normalizeMenu);
-  options.value = getVisibleMenuOptions(allOptions.value);
-  loading.value = false;
+    allOptions.value = (data?.trees || []).map(normalizeMenu);
+    options.value = getVisibleMenuOptions(allOptions.value);
+  } finally {
+    loading.value = false;
+  }
 }
 
 onMounted(() => {
@@ -122,7 +126,7 @@ watch([expandAll, options], ([newVal]) => {
     // 展开所有节点
     expandedKeys.value = getAllMenuIds(options.value);
   } else {
-    expandedKeys.value = [0];
+    expandedKeys.value = [];
   }
 });
 

@@ -542,22 +542,24 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
                 {{ menuNodeTypeRecord[currentMenu.menu_type] || '未知' }}
               </NTag>
             </NDescriptionsItem>
-            <NDescriptionsItem label="菜单状态">
-              <NTag class="m-1" size="small" type="success">正常</NTag>
-            </NDescriptionsItem>
             <NDescriptionsItem label="菜单名称">
               {{ renderMenuName(currentMenu.label) }}
-            </NDescriptionsItem>
-            <NDescriptionsItem v-if="isMenu" label="组件路径">
-              {{ currentMenu.component }}
             </NDescriptionsItem>
             <NDescriptionsItem label="路由地址">
               {{ currentMenu.path }}
             </NDescriptionsItem>
-            <NDescriptionsItem v-if="isMenu" label="路由参数"></NDescriptionsItem>
-            <NDescriptionsItem v-if="!isCatalog" label="权限标识">
+            <NDescriptionsItem v-if="isMenu" label="组件路径">
+              {{ currentMenu.component }}
+            </NDescriptionsItem>
+            <NDescriptionsItem label="菜单状态">
+              <NTag class="m-1" size="small" type="success">正常</NTag>
+            </NDescriptionsItem>
+            <!-- <NDescriptionsItem v-if="isMenu" label="路由参数"></NDescriptionsItem> -->
+            <!--
+ <NDescriptionsItem v-if="!isCatalog" label="权限标识">
               {{ currentMenu.perm_key }}
             </NDescriptionsItem>
+-->
             <NDescriptionsItem label="是否外链">
               <NTag class="m-1" size="small" type="warning">否</NTag>
             </NDescriptionsItem>

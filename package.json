@@ -82,6 +82,8 @@
     "@sa/materials": "workspace:*",
     "@sa/utils": "workspace:*",
     "@types/streamsaver": "^2.0.5",
+    "@univerjs/preset-sheets-core": "^0.25.1",
+    "@univerjs/presets": "^0.25.1",
     "@vueuse/core": "14.3.0",
     "@wangeditor-next/editor": "^5.7.4",
     "@wangeditor-next/editor-for-vue": "^5.1.14",

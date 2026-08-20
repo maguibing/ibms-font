@@ -11,7 +11,6 @@ import {
 import { fetchCreateMenuNode, fetchGetMenuNode, fetchUpdateMenuNode } from '@/service/api/system/menu';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { getLocalMenuIcons } from '@/utils/icon';
-import { isNotNull } from '@/utils/common';
 import { $t } from '@/locales';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
@@ -53,10 +52,8 @@ type Model = {
   path: string;
   component: string;
   name: string;
-  query_param: string;
   is_frame: Api.System.IsMenuFrame;
   status: PlatformBooleanStatus;
-  perm_key: string;
   title: string;
   icon: string;
   is_visible: boolean;
@@ -71,7 +68,7 @@ const layoutType = ref<Api.System.MenuLayout>('0');
 const iconType = ref<Api.System.IconType>('1');
 const { formRef, validate, restoreValidation } = useNaiveForm();
 const { createRequiredRule, createNumberRequiredRule } = useFormRules();
-const queryList = ref<{ key: string; value: string }[]>([]);
+const buttonPermKey = ref('');
 
 const drawerTitle = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
@@ -105,14 +102,13 @@ const cacheStatus = computed<PlatformBooleanStatus>({
   }
 });
 
-type RuleKey = Extract<keyof Model, 'title' | 'order_num' | 'path' | 'component' | 'perm_key'>;
+type RuleKey = Extract<keyof Model, 'title' | 'order_num' | 'path' | 'component'>;
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
   title: createRequiredRule('请输入菜单名称'),
   order_num: createNumberRequiredRule('请输入显示排序'),
   path: createRequiredRule('请输入路由地址'),
-  component: createRequiredRule('请输入组件路径'),
-  perm_key: createRequiredRule('请输入权限标识')
+  component: createRequiredRule('请输入组件路径')
 };
 
 const localIcons = getLocalMenuIcons();
@@ -135,10 +131,8 @@ function createDefaultModel(): Model {
     path: '',
     component: '',
     name: '',
-    query_param: '',
     is_frame: '1',
     status: '1',
-    perm_key: '',
     title: '',
     icon: defaultIcon,
     is_visible: true,
@@ -157,7 +151,6 @@ function applyMenuDetail(menu: Api.System.MenuNodeDetail) {
   let path = '';
   let component = '';
   let name = '';
-  let permKey = '';
   let keepAlive = false;
 
   if (menu.type === menuNodeType.catalog) {
@@ -173,7 +166,7 @@ function applyMenuDetail(menu: Api.System.MenuNodeDetail) {
   }
 
   if (menu.type === menuNodeType.button) {
-    permKey = menu.detail.button.perm_key;
+    buttonPermKey.value = menu.detail.button.perm_key;
   }
 
   if (component.startsWith('layout.blank$view.')) {
@@ -191,10 +184,8 @@ function applyMenuDetail(menu: Api.System.MenuNodeDetail) {
     path,
     component,
     name,
-    query_param: '',
     is_frame: isFrame,
     status: normalizeBooleanField(menu.is_visible) ? '1' : '2',
-    perm_key: permKey,
     title: menu.name,
     icon: menu.icon || defaultIcon,
     is_visible: normalizeBooleanField(menu.is_visible),
@@ -205,7 +196,7 @@ function applyMenuDetail(menu: Api.System.MenuNodeDetail) {
 }
 
 async function handleInitModel() {
-  queryList.value = [];
+  buttonPermKey.value = '';
   iconType.value = '1';
   layoutType.value = '0';
   model.value = createDefaultModel();
@@ -228,13 +219,6 @@ function getPageComponentPath(component: string | null | undefined): string {
   return component?.endsWith('/index') ? component : `${component || ''}/index`;
 }
 
-function getExternalUrl() {
-  if (isIframeType.value) {
-    return model.value.query_param;
-  }
-  return model.value.path;
-}
-
 function getPayloadType(): Api.System.MenuNodeType {
   if (isCatalog.value) {
     return menuNodeType.catalog;
@@ -252,7 +236,7 @@ function buildDetail(): Api.System.MenuNodeOperateDetail {
   if (isBtn.value) {
     return {
       button: {
-        perm_key: model.value.perm_key
+        perm_key: buttonPermKey.value
       }
     };
   }
@@ -270,7 +254,7 @@ function buildDetail(): Api.System.MenuNodeOperateDetail {
   if (isExternalType.value || isIframeType.value) {
     return {
       ext_link: {
-        url: getExternalUrl()
+        url: model.value.path
       }
     };
   }
@@ -324,7 +308,6 @@ watch(
   menuType => {
     if (menuType === menuNodeType.catalog) {
       model.value.is_frame = '1';
-      model.value.perm_key = '';
       model.value.keep_alive = false;
     }
   }
@@ -351,13 +334,6 @@ watch(visible, () => {
 function handleLayoutChange(value: string) {
   model.value.layout = value as Api.System.MenuLayout;
   model.value.is_visible = value === '0';
-}
-
-function onCreate() {
-  return {
-    key: '',
-    value: ''
-  };
 }
 </script>
 
@@ -471,57 +447,6 @@ function onCreate() {
               <NInput v-model:value="model.component" placeholder="请输入组件路径" />
               <NInputGroupLabel>/index.vue</NInputGroupLabel>
             </NInputGroup>
-          </NFormItemGi>
-          <NFormItemGi
-            v-if="isMenu && !isExternalType"
-            span="24"
-            :show-feedback="!queryList.length"
-            :label="isInternalType ? $t('page.system.menu.query') : $t('page.system.menu.iframeQuery')"
-          >
-            <NDynamicInput
-              v-if="isInternalType"
-              v-model:value="queryList"
-              item-style="margin-bottom: 0"
-              :on-create="onCreate"
-            >
-              <template #default="{ index }">
-                <div class="w-full flex">
-                  <NFormItem
-                    class="w-full"
-                    ignore-path-change
-                    :show-label="false"
-                    :path="`query[${index}].key`"
-                    :rule="{
-                      ...createRequiredRule($t('page.system.menu.placeholder.queryKey')),
-                      validator: value => isNotNull(value)
-                    }"
-                  >
-                    <NInput v-model:value="queryList[index].key" placeholder="Key" @keydown.enter.prevent />
-                  </NFormItem>
-                  <div class="mx-8px h-34px lh-34px">=</div>
-                  <NFormItem
-                    class="w-full"
-                    ignore-path-change
-                    :show-label="false"
-                    :path="`query[${index}].value`"
-                    :rule="{
-                      ...createRequiredRule($t('page.system.menu.placeholder.queryValue')),
-                      validator: value => isNotNull(value)
-                    }"
-                  >
-                    <NInput v-model:value="queryList[index].value" placeholder="Value" @keydown.enter.prevent />
-                  </NFormItem>
-                </div>
-              </template>
-            </NDynamicInput>
-            <NInput
-              v-else
-              v-model:value="model.query_param"
-              :placeholder="$t('page.system.menu.placeholder.queryIframe')"
-            />
-          </NFormItemGi>
-          <NFormItemGi v-if="!isCatalog" :span="24" label="权限标识" path="perm_key">
-            <NInput v-model:value="model.perm_key" placeholder="请输入权限标识" />
           </NFormItemGi>
           <NFormItemGi v-if="!isBtn" :span="12" path="is_visible">
             <template #label>

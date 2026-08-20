@@ -325,7 +325,7 @@ async function getTreeData() {
   startTreeLoading();
   const { data: tree, error } = await fetchGetDeptTree({ options: [{ key: 1 }] });
   if (!error) {
-    deptData.value = tree.trees;
+    deptData.value = tree.trees?? [];
   }
   endTreeLoading();
 }
