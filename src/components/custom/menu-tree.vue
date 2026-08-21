@@ -4,6 +4,7 @@ import type { TreeOption, TreeSelectInst } from 'naive-ui';
 import { useBoolean } from '@sa/hooks';
 import { menuNodeType } from '@/constants/business';
 import { fetchGetMenuNodeTrees } from '@/service/api/system';
+import { defaultMenuIcon } from '@/plugins/iconify-offline-icons';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 import { $t } from '@/locales';
 
@@ -61,7 +62,7 @@ const defaultRequestParams = computed<Parameters<typeof fetchGetMenuNodeTrees>[0
 function normalizeMenu(menu: Api.System.MenuNode): MenuTreeOption {
   const id = menu.meta.id;
   const title = menu.meta.title;
-  const icon = menu.meta.icon || 'material-symbols:buttons-alt-outline-rounded';
+  const icon = menu.meta.icon || defaultMenuIcon;
 
   return {
     ...menu,
@@ -158,10 +159,10 @@ function renderLabel({ option }: { option: TreeOption }) {
 
 function renderPrefix({ option }: { option: TreeOption }) {
   const renderLocalIcon = String(option.icon).startsWith('local-icon-');
-  let icon = renderLocalIcon ? undefined : String(option.icon ?? 'material-symbols:buttons-alt-outline-rounded');
+  let icon = renderLocalIcon ? undefined : String(option.icon ?? defaultMenuIcon);
   const localIcon = renderLocalIcon ? String(option.icon).replace('local-icon-', 'menu-') : undefined;
   if (icon === '#') {
-    icon = 'material-symbols:buttons-alt-outline-rounded';
+    icon = defaultMenuIcon;
   }
   return <SvgIcon icon={icon} localIcon={localIcon} />;
 }

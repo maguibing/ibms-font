@@ -2,6 +2,7 @@ import type { Router } from 'vue-router';
 import type { LastLevelRouteKey, RouteKey, RouteMap } from '@elegant-router/types';
 import { $t } from '@/locales';
 import { getRoutePath } from '@/router/elegant/transform';
+import { defaultMenuIcon } from '@/plugins/iconify-offline-icons';
 
 /**
  * Get all tabs
@@ -92,7 +93,7 @@ export function getTabByRoute(route: App.Global.TabRoute) {
  */
 export function getRouteIcons(route: App.Global.TabRoute) {
   // Set default value for icon at the beginning
-  let icon: string = route?.meta?.icon || import.meta.env.VITE_MENU_ICON;
+  let icon: string = route?.meta?.icon || defaultMenuIcon;
   let localIcon: string | undefined = route?.meta?.localIcon;
 
   // Route.matched only appears when there are multiple matches,so check if route.matched exists

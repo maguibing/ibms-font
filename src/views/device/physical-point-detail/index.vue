@@ -98,7 +98,7 @@ onMounted(() => {
               class="flex min-h-full items-center justify-center rounded-l-8px border border-r-0 border-[var(--n-border-color)] lt-sm:min-h-104px lt-sm:rounded-b-0 lt-sm:rounded-t-8px lt-sm:border-b-0 lt-sm:border-r"
             >
               <span class="size-72px inline-flex items-center justify-center rounded-6px">
-                <SvgIcon icon="material-symbols:sensors-outline-rounded" class="text-32px text-primary" />
+                <SvgIcon icon="material-symbols:sensors-rounded" class="text-32px text-primary" />
               </span>
             </div>
             <NDescriptions

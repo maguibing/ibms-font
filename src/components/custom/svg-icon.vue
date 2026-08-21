@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { computed, useAttrs } from 'vue';
-import { Icon } from '@iconify/vue';
+import { Icon } from '@iconify/vue/offline';
+
 defineOptions({ name: 'SvgIcon', inheritAttrs: false });
 
-import materialSymbols from '@iconify/json/json/material-symbols.json';
-import { addCollection } from '@iconify/vue';
-import type { IconifyJSON } from '@iconify/types';
-addCollection(materialSymbols as IconifyJSON);
 /**
  * Props
  *
- * - Support iconify and local svg icon
+ * - Support offline iconify and local svg icon
  * - If icon and localIcon are passed at the same time, localIcon will be rendered first
  */
 interface Props {

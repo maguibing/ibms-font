@@ -749,7 +749,6 @@ const local: App.I18n.Schema = {
       menu: {
         title: '菜单列表',
         parentId: '上级菜单',
-        iconType: '图标类型',
         menuName: '菜单名称',
         icon: '菜单图标',
         orderNum: '排序',
@@ -773,7 +772,6 @@ const local: App.I18n.Schema = {
         emptyMenu: '暂无菜单',
         menuDetail: '菜单详情',
         cascadeDeleteContent: '级联删除菜单将删除所选中的菜单，是否继续？',
-        iconifyTip: 'iconify 地址：https://icones.js.org',
         isFrameTip: '选择是外链则路由地址需要以`http(s)://`开头',
         isCacheTip: '选择是则会被`keep-alive`缓存，需要匹配组件的`name`和地址保持一致',
         visibleTip: '选择隐藏则路由将不会出现在侧边栏，但仍然可以访问',
@@ -845,8 +843,6 @@ const local: App.I18n.Schema = {
           }
         },
         placeholder: {
-          iconifyIconPlaceholder: '请输入图标',
-          localIconPlaceholder: '请选择本地图标',
           queryKey: '请输入 Key',
           queryValue: '请输入 Value',
           queryIframe: '请输入 iframe 地址'

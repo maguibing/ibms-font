@@ -64,6 +64,7 @@
     "dev:pt:test": "vite --mode pt.test",
     "fmt": "oxfmt",
     "gen-route": "sa gen-route",
+    "gen:icons": "tsx scripts/generate-iconify-offline.ts && oxfmt src/plugins/iconify-offline-icons.ts",
     "lint": "oxlint --fix && eslint --fix .",
     "prepare": "simple-git-hooks",
     "preview": "vite preview",

@@ -8,6 +8,7 @@ import { fetchDeleteMenuNode, fetchGetMenuNodeTrees } from '@/service/api/system
 import { useAppStore } from '@/store/modules/app';
 import { useAuth } from '@/hooks/business/auth';
 import { $t } from '@/locales';
+import { defaultMenuIcon } from '@/plugins/iconify-offline-icons';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import MenuOperateDrawer from './modules/menu-operate-drawer.vue';
@@ -30,7 +31,7 @@ type MenuNodeItem = Omit<Api.System.MenuNode, 'children' | 'id'> & {
   rawChildren?: MenuNodeItem[];
 };
 
-const defaultIcon = import.meta.env.VITE_MENU_ICON;
+const defaultIcon = defaultMenuIcon;
 const { hasAuth } = useAuth();
 const appStore = useAppStore();
 const menuPermissionMap = {
@@ -123,13 +124,13 @@ function createRootNode(children: MenuNodeItem[]): MenuNodeItem {
     meta: {
       id: 0,
       title: '根目录',
-      icon: 'material-symbols:home-outline-rounded',
+      icon: 'lucide:house',
       is_visible: true,
       keep_alive: false,
       menu_type: menuNodeType.catalog
     },
     label: '根目录',
-    icon: 'material-symbols:home-outline-rounded',
+    icon: 'lucide:house',
     menu_type: menuNodeType.catalog,
     is_visible: true,
     keep_alive: false,

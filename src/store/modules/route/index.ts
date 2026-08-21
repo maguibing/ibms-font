@@ -10,6 +10,7 @@ import { SetupStoreId } from '@/enum';
 import { createDynamicRoutes, createStaticRoutes, getAuthVueRoutes } from '@/router/routes';
 import { ROOT_ROUTE } from '@/router/routes/builtin';
 import { getRouteName, getRoutePath } from '@/router/elegant/transform';
+import { defaultMenuIcon } from '@/plugins/iconify-offline-icons';
 import { useAuthStore } from '../auth';
 import { useTabStore } from '../tab';
 import {
@@ -24,7 +25,7 @@ import {
   updateLocaleOfGlobalMenus
 } from './shared';
 
-const defaultIcon = import.meta.env.VITE_MENU_ICON;
+const defaultIcon = defaultMenuIcon;
 
 export const useRouteStore = defineStore(SetupStoreId.Route, () => {
   const authStore = useAuthStore();

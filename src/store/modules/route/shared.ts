@@ -2,6 +2,7 @@ import type { RouteLocationNormalizedLoaded, RouteRecordRaw, _RouteRecordBase } 
 import type { ElegantConstRoute, LastLevelRouteKey, RouteKey, RouteMap } from '@elegant-router/types';
 import { useSvgIcon } from '@/hooks/common/icon';
 import { $t } from '@/locales';
+import { defaultMenuIcon } from '@/plugins/iconify-offline-icons';
 
 /**
  * Filter auth routes by roles
@@ -128,7 +129,7 @@ function getGlobalMenuByBaseRoute(route: RouteLocationNormalizedLoaded | Elegant
   const { SvgIconVNode } = useSvgIcon();
 
   const { name, path } = route;
-  const { title, i18nKey, icon = import.meta.env.VITE_MENU_ICON, localIcon, iconFontSize } = route.meta ?? {};
+  const { title, i18nKey, icon = defaultMenuIcon, localIcon, iconFontSize } = route.meta ?? {};
 
   const label = i18nKey ? $t(i18nKey) : title!;
 

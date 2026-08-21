@@ -2,7 +2,6 @@
 import { computed, ref, watch } from 'vue';
 import type { SelectOption } from 'naive-ui';
 import {
-  menuIconTypeOptions,
   menuIsFrameOptions,
   menuLayoutOptions,
   menuNodeType,
@@ -10,7 +9,7 @@ import {
 } from '@/constants/business';
 import { fetchCreateMenuNode, fetchGetMenuNode, fetchUpdateMenuNode } from '@/service/api/system/menu';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
-import { getLocalMenuIcons } from '@/utils/icon';
+import { defaultMenuIcon, menuIconCollection, menuIconNames } from '@/plugins/iconify-offline-icons';
 import { $t } from '@/locales';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
@@ -63,9 +62,9 @@ type Model = {
 
 type PlatformBooleanStatus = '1' | '2';
 
-const defaultIcon = import.meta.env.VITE_MENU_ICON;
+const defaultIcon = defaultMenuIcon;
+const menuIconPrefix = `${menuIconCollection}:`;
 const layoutType = ref<Api.System.MenuLayout>('0');
-const iconType = ref<Api.System.IconType>('1');
 const { formRef, validate, restoreValidation } = useNaiveForm();
 const { createRequiredRule, createNumberRequiredRule } = useFormRules();
 const buttonPermKey = ref('');
@@ -87,7 +86,6 @@ const isExternalType = computed(() => model.value.is_frame === '0');
 const isInternalType = computed(() => model.value.is_frame === '1');
 const isBlankLayout = computed(() => layoutType.value === '1');
 const isIframeType = computed(() => model.value.is_frame === '2');
-const isLocalIcon = computed(() => iconType.value === '2');
 const layoutDisabled = computed(() => !(isMenu.value && Number(model.value.parent_id) === 0));
 const visibleStatus = computed<PlatformBooleanStatus>({
   get: () => (model.value.is_visible ? '1' : '2'),
@@ -111,16 +109,25 @@ const rules: Record<RuleKey, App.Global.FormRule> = {
   component: createRequiredRule('请输入组件路径')
 };
 
-const localIcons = getLocalMenuIcons();
-const localIconOptions = localIcons.map<SelectOption>(item => ({
+const menuIconNameSet = new Set(menuIconNames);
+const menuIconOptions = menuIconNames.map<SelectOption>(item => ({
   label: () => (
     <div class="flex-y-center gap-16px">
-      <SvgIcon localIcon={`menu-${item}`} class="text-icon" />
+      <SvgIcon icon={`${menuIconPrefix}${item}`} class="text-icon" />
       <span>{item}</span>
     </div>
   ),
-  value: `local-icon-${item}`
+  value: `${menuIconPrefix}${item}`
 }));
+
+function normalizeMenuIcon(icon?: string) {
+  if (!icon?.startsWith(menuIconPrefix)) {
+    return defaultIcon;
+  }
+
+  const name = icon.slice(menuIconPrefix.length);
+  return menuIconNameSet.has(name) ? icon : defaultIcon;
+}
 
 function createDefaultModel(): Model {
   return {
@@ -187,17 +194,15 @@ function applyMenuDetail(menu: Api.System.MenuNodeDetail) {
     is_frame: isFrame,
     status: normalizeBooleanField(menu.is_visible) ? '1' : '2',
     title: menu.name,
-    icon: menu.icon || defaultIcon,
+    icon: normalizeMenuIcon(menu.icon),
     is_visible: normalizeBooleanField(menu.is_visible),
     keep_alive: keepAlive,
     menu_type: menuType
   };
-  iconType.value = model.value.icon?.startsWith('local-icon-') ? '2' : '1';
 }
 
 async function handleInitModel() {
   buttonPermKey.value = '';
-  iconType.value = '1';
   layoutType.value = '0';
   model.value = createDefaultModel();
 
@@ -377,31 +382,7 @@ function handleLayoutChange(value: string) {
           <NFormItemGi span="24" label="菜单名称" path="title">
             <NInput v-model:value="model.title" placeholder="请输入菜单名称" :maxlength="10" show-count />
           </NFormItemGi>
-          <NFormItemGi v-if="!isBtn" span="12" label="图标类型">
-            <NRadioGroup v-model:value="iconType">
-              <NRadio v-for="item in menuIconTypeOptions" :key="item.value" :value="item.value" :label="item.label" />
-            </NRadioGroup>
-          </NFormItemGi>
-          <NFormItemGi v-if="!isBtn" span="12" path="icon">
-            <template #label>
-              <div class="flex-center">
-                <FormTip :content="$t('page.system.menu.iconifyTip')" />
-                <span class="pl-3px">菜单图标</span>
-              </div>
-            </template>
-            <NSelect
-              v-if="isLocalIcon"
-              v-model:value="model.icon"
-              filterable
-              :options="localIconOptions"
-              placeholder="请选择本地图标"
-            />
-            <NInput v-else v-model:value="model.icon" placeholder="请输入 Iconify 图标" class="flex-1">
-              <template #suffix>
-                <SvgIcon v-if="model.icon" :icon="model.icon" class="text-icon" />
-              </template>
-            </NInput>
-          </NFormItemGi>
+
           <NFormItemGi v-if="!isBtn" :span="12" path="is_frame">
             <template #label>
               <div class="flex-center">
@@ -447,6 +428,9 @@ function handleLayoutChange(value: string) {
               <NInput v-model:value="model.component" placeholder="请输入组件路径" />
               <NInputGroupLabel>/index.vue</NInputGroupLabel>
             </NInputGroup>
+          </NFormItemGi>
+          <NFormItemGi v-if="!isBtn" span="24" label="菜单图标" path="icon">
+            <NSelect v-model:value="model.icon" filterable :options="menuIconOptions" placeholder="请选择菜单图标" />
           </NFormItemGi>
           <NFormItemGi v-if="!isBtn" :span="12" path="is_visible">
             <template #label>

@@ -433,17 +433,17 @@ declare namespace App {
             apply: string;
             applySuccess: string;
             [key: string]:
-            | {
-              name: string;
-              desc: string;
-            }
-            | string;
+              | {
+                  name: string;
+                  desc: string;
+                }
+              | string;
           };
         };
         layout: {
           layoutMode: { title: string } & Record<UnionKey.ThemeLayoutMode, string> & {
-            [K in `${UnionKey.ThemeLayoutMode}_detail`]: string;
-          };
+              [K in `${UnionKey.ThemeLayoutMode}_detail`]: string;
+            };
           tab: {
             title: string;
             visible: string;
@@ -739,7 +739,6 @@ declare namespace App {
           menu: {
             title: string;
             parentId: string;
-            iconType: string;
             menuName: string;
             icon: string;
             orderNum: string;
@@ -763,7 +762,6 @@ declare namespace App {
             emptyMenu: string;
             menuDetail: string;
             cascadeDeleteContent: string;
-            iconifyTip: string;
             isFrameTip: string;
             isCacheTip: string;
             visibleTip: string;
@@ -790,8 +788,6 @@ declare namespace App {
               permission: FormMsg;
             };
             placeholder: {
-              iconifyIconPlaceholder: string;
-              localIconPlaceholder: string;
               queryKey: string;
               queryValue: string;
               queryIframe: string;
@@ -1051,8 +1047,8 @@ declare namespace App {
 
     type GetI18nKey<T extends Record<string, unknown>, K extends keyof T = keyof T> = K extends string
       ? T[K] extends Record<string, unknown>
-      ? `${K}.${GetI18nKey<T[K]>}`
-      : K
+        ? `${K}.${GetI18nKey<T[K]>}`
+        : K
       : never;
 
     type I18nKey = GetI18nKey<Schema>;
