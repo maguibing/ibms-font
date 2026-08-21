@@ -45,6 +45,7 @@ const title = computed(() => {
 
 type Model = {
   name: string;
+  key: string;
   ad_code: string;
   ad_address: string;
   address: string;
@@ -119,6 +120,7 @@ function fetchProjectUserList(params: Record<string, any>) {
 function createDefaultModel(): Model {
   return {
     name: '',
+    key: '',
     ad_code: '',
     ad_address: '',
     address: '',
@@ -146,7 +148,15 @@ function clearPassword() {
 
 type RuleKey = Extract<
   keyof Model,
-  'name' | 'ad_address' | 'address' | 'version_id' | 'leader_id' | 'leader_phone' | 'rsa_pwd' | 'confirm_password'
+  | 'name'
+  | 'key'
+  | 'ad_address'
+  | 'address'
+  | 'version_id'
+  | 'leader_id'
+  | 'leader_phone'
+  | 'rsa_pwd'
+  | 'confirm_password'
 >;
 
 const rules = computed<Partial<Record<RuleKey, App.Global.FormRule | App.Global.FormRule[]>>>(() => {
@@ -157,6 +167,14 @@ const rules = computed<Partial<Record<RuleKey, App.Global.FormRule | App.Global.
         max: 20,
         message: '项目名称不能超过20个字符',
         trigger: ['input', 'blur']
+      }
+    ],
+    key: [
+      createRequiredRule('项目标识不能为空'),
+      {
+        pattern: /^[A-Za-z][A-Za-z0-9_]*$/,
+        message: '项目标识必须以字母开头，且只能包含字母、数字和下划线',
+        trigger: 'blur'
       }
     ],
     ad_address: createRequiredRule('所属地区不能为空'),
@@ -219,6 +237,7 @@ const operateParams = computed<Api.System.ProjectOperateParams>(() => ({
   ad_code: model.value.ad_code,
   address: model.value.address,
   desc: model.value.desc,
+  key: model.value.key,
   leader_id: model.value.leader_id as CommonType.IdType,
   name: model.value.name,
   rsa_pwd: showCreatePasswordFields.value
@@ -330,7 +349,10 @@ async function handleLeaderChange() {
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top" :label-width="120">
         <NFormItem label="项目名称" path="name">
-          <NInput v-model:value="model.name" placeholder="请输入项目名称" :maxlength="20" show-count />
+          <NInput v-model:value="model.name" placeholder="请输入项目名称" :maxlength="30" show-count />
+        </NFormItem>
+        <NFormItem label="标识" path="key">
+          <NInput v-model:value="model.key" placeholder="请输入项目标识" :maxlength="48" show-count />
         </NFormItem>
         <NFormItem label="所属地区" path="ad_address">
           <NCascader

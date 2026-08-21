@@ -503,6 +503,7 @@ declare namespace Api {
       desc?: string;
       leader_phone?: string;
       leader_username?: string;
+      key: string;
       name: string;
       project_leader_id?: CommonType.IdType;
       status?: number;
@@ -555,6 +556,7 @@ declare namespace Api {
       ad_code: string;
       address: string;
       desc: string;
+      key: string;
       leader_id: CommonType.IdType;
       name: string;
       rsa_pwd: string;

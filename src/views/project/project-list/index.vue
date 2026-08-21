@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { computed, ref, useTemplateRef } from 'vue';
+import { computed, h, ref, useTemplateRef } from 'vue';
 import { NDivider, NTag } from 'naive-ui';
 import { formatDateTime, type FilterConfig, isValidFilterConfig } from '@sa/utils';
 import { fetchDeleteProject, fetchGetProjectList } from '@/service/api/sys-screen';
@@ -13,6 +13,7 @@ import ProjectMemberDrawer from './modules/project-member-drawer.vue';
 import ProjectOperateDrawer from './modules/project-operate-drawer.vue';
 import ProjectVersionViewDrawer from './modules/project-version-view-drawer.vue';
 import ProjectSearch from './modules/project-search.vue';
+import CopyableValue from '@/components/custom/copyable-value.vue';
 
 defineOptions({
   name: 'ProjectProjectList'
@@ -81,6 +82,16 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
         ellipsis: {
           tooltip: true
         }
+      },
+      {
+        key: 'key',
+        title: '标识',
+        align: 'center',
+        minWidth: 180,
+        ellipsis: {
+          tooltip: true
+        },
+        render: row => h(CopyableValue, { value: row.key })
       },
       {
         key: 'address',
