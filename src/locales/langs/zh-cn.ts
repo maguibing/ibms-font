@@ -579,6 +579,62 @@ const local: App.I18n.Schema = {
       },
       creativity: '创意'
     },
+    userCenter: {
+      personalInfo: '个人信息',
+      basicInfo: '基本资料',
+      updatePassword: '修改密码',
+      username: '用户名',
+      phoneNumber: '手机号码',
+      dept: '所属部门',
+      role: '所属角色',
+      email: '邮箱',
+      gender: '性别',
+      oldPassword: '旧密码',
+      newPassword: '新密码',
+      confirmPassword: '确认密码',
+      editAvatar: '修改头像',
+      selectImage: '选择图片',
+      confirmCrop: '确认裁剪',
+      form: {
+        username: {
+          required: '用户名不能为空',
+          invalid: '用户名不能为空'
+        },
+        role: {
+          required: '角色不能为空',
+          invalid: '角色不能为空'
+        },
+        oldPassword: {
+          required: '旧密码不能为空',
+          invalid: '旧密码不能为空'
+        },
+        newPassword: {
+          required: '新密码不能为空',
+          invalid: '新密码不能为空'
+        },
+        confirmPassword: {
+          required: '确认密码不能为空',
+          invalid: '确认密码不能为空'
+        }
+      },
+      placeholder: {
+        nickname: '请输入昵称',
+        phone: '请输入手机号',
+        dept: '请选择部门',
+        role: '请选择角色',
+        email: '请输入邮箱',
+        oldPassword: '请输入旧密码',
+        newPassword: '请输入新密码',
+        confirmPassword: '请再次输入新密码'
+      },
+      message: {
+        profileUpdateSuccess: '更新成功',
+        passwordMismatch: '两次输入的密码不一致',
+        passwordUpdateSuccess: '密码修改成功',
+        imageTypeRequired: '请上传图片类型文件（JPG、PNG等）',
+        avatarUpdateSuccess: '头像更新成功！'
+      }
+    },
     common: {
       id: 'ID',
       createBy: '创建者',

@@ -949,6 +949,47 @@ declare namespace App {
           };
           creativity: string;
         };
+        userCenter: {
+          personalInfo: string;
+          basicInfo: string;
+          updatePassword: string;
+          username: string;
+          phoneNumber: string;
+          dept: string;
+          role: string;
+          email: string;
+          gender: string;
+          oldPassword: string;
+          newPassword: string;
+          confirmPassword: string;
+          editAvatar: string;
+          selectImage: string;
+          confirmCrop: string;
+          form: {
+            username: FormMsg;
+            role: FormMsg;
+            oldPassword: FormMsg;
+            newPassword: FormMsg;
+            confirmPassword: FormMsg;
+          };
+          placeholder: {
+            nickname: string;
+            phone: string;
+            dept: string;
+            role: string;
+            email: string;
+            oldPassword: string;
+            newPassword: string;
+            confirmPassword: string;
+          };
+          message: {
+            profileUpdateSuccess: string;
+            passwordMismatch: string;
+            passwordUpdateSuccess: string;
+            imageTypeRequired: string;
+            avatarUpdateSuccess: string;
+          };
+        };
         system: {
           client: {
             title: string;

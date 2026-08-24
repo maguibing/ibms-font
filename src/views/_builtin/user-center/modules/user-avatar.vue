@@ -5,6 +5,7 @@ import { NButton, NModal, NUpload } from 'naive-ui';
 import { Cropper } from 'vue-advanced-cropper';
 import { useBoolean, useLoading } from '@sa/hooks';
 import { fetchUpdateUserAvatar } from '@/service/api/system';
+import { $t } from '@/locales';
 // import { useAuthStore } from '@/store/modules/auth';
 import defaultAvatar from '@/assets/imgs/soybean.jpg';
 import 'vue-advanced-cropper/dist/style.css';
@@ -54,7 +55,7 @@ async function handleFileSelect(data: { file: UploadFileInfo }) {
   if (!file) return false;
 
   if (!file.type.includes('image/')) {
-    window.$message?.error('请上传图片类型文件（JPG、PNG等）');
+    window.$message?.error($t('page.userCenter.message.imageTypeRequired'));
     return false;
   }
 
@@ -85,7 +86,7 @@ async function handleCrop() {
 
       const { error } = await fetchUpdateUserAvatar(formData);
       if (!error) {
-        window.$message?.success('头像更新成功！');
+        window.$message?.success($t('page.userCenter.message.avatarUpdateSuccess'));
         imageUrl.value = URL.createObjectURL(blob);
         hideDrawer();
       }
@@ -113,7 +114,7 @@ function handleClose() {
       </div>
     </div>
 
-    <NModal v-model:show="showModal" preset="card" title="修改头像" class="w-400px" @close="handleClose">
+    <NModal v-model:show="showModal" preset="card" :title="$t('page.userCenter.editAvatar')" class="w-400px" @close="handleClose">
       <div class="flex-col-center gap-20px py-20px">
         <div class="h-300px w-full">
           <Cropper
@@ -125,9 +126,11 @@ function handleClose() {
         </div>
         <div class="flex gap-12px">
           <NUpload accept=".jpg,.jpeg,.png,.gif" :max="1" :show-file-list="false" @before-upload="handleFileSelect">
-            <NButton class="min-w-100px">选择图片</NButton>
+            <NButton class="min-w-100px">{{ $t('page.userCenter.selectImage') }}</NButton>
           </NUpload>
-          <NButton type="primary" class="min-w-100px" :loading="loading" @click="handleCrop">确认裁剪</NButton>
+          <NButton type="primary" class="min-w-100px" :loading="loading" @click="handleCrop">
+            {{ $t('page.userCenter.confirmCrop') }}
+          </NButton>
         </div>
       </div>
     </NModal>

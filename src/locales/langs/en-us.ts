@@ -597,6 +597,62 @@ const local: App.I18n.Schema = {
       },
       creativity: 'Creativity'
     },
+    userCenter: {
+      personalInfo: 'Personal Info',
+      basicInfo: 'Basic Info',
+      updatePassword: 'Change Password',
+      username: 'Username',
+      phoneNumber: 'Phone Number',
+      dept: 'Department',
+      role: 'Role',
+      email: 'Email',
+      gender: 'Gender',
+      oldPassword: 'Old Password',
+      newPassword: 'New Password',
+      confirmPassword: 'Confirm Password',
+      editAvatar: 'Edit Avatar',
+      selectImage: 'Select Image',
+      confirmCrop: 'Confirm Crop',
+      form: {
+        username: {
+          required: 'Username cannot be empty',
+          invalid: 'Username cannot be empty'
+        },
+        role: {
+          required: 'Role cannot be empty',
+          invalid: 'Role cannot be empty'
+        },
+        oldPassword: {
+          required: 'Old Password cannot be empty',
+          invalid: 'Old Password cannot be empty'
+        },
+        newPassword: {
+          required: 'New Password cannot be empty',
+          invalid: 'New Password cannot be empty'
+        },
+        confirmPassword: {
+          required: 'Confirm Password cannot be empty',
+          invalid: 'Confirm Password cannot be empty'
+        }
+      },
+      placeholder: {
+        nickname: 'Please enter nickname',
+        phone: 'Please enter phone number',
+        dept: 'Please select department',
+        role: 'Please select role',
+        email: 'Please enter email',
+        oldPassword: 'Please enter old password',
+        newPassword: 'Please enter new password',
+        confirmPassword: 'Please enter new password again'
+      },
+      message: {
+        profileUpdateSuccess: 'Updated successfully',
+        passwordMismatch: 'The two passwords are inconsistent',
+        passwordUpdateSuccess: 'Password changed successfully',
+        imageTypeRequired: 'Please upload an image file (JPG, PNG, etc.)',
+        avatarUpdateSuccess: 'Avatar updated successfully!'
+      }
+    },
     common: {
       id: 'ID',
       createBy: 'Creator',

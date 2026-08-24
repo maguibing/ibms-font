@@ -6,6 +6,7 @@ import { encryptByRsa } from '@sa/utils';
 import { fetchGetDeptTree, fetchGetRoleList, fetchUpdatePassword, fetchUpdateUser } from '@/service/api/system';
 import { useAuthStore } from '@/store/modules/auth';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
+import { $t } from '@/locales';
 import UserAvatar from './modules/user-avatar.vue';
 defineOptions({
   name: 'UserCenter'
@@ -55,14 +56,14 @@ type ProfileRuleKey = Extract<keyof ProfileModel, 'username' | 'role_id'>;
 type PasswordRuleKey = Extract<keyof PasswordModel, 'old_rsa_pwd' | 'new_rsa_pwd' | 'confirm_rsa_pwd'>;
 
 const profileRules: Record<ProfileRuleKey, App.Global.FormRule> = {
-  username: createRequiredRule('用户名不能为空'),
-  role_id: createRequiredRule('角色不能为空')
+  username: createRequiredRule($t('page.userCenter.form.username.required')),
+  role_id: createRequiredRule($t('page.userCenter.form.role.required'))
 };
 
 const passwordRules: Record<PasswordRuleKey, App.Global.FormRule> = {
-  old_rsa_pwd: createRequiredRule('旧密码不能为空'),
-  confirm_rsa_pwd: createRequiredRule('确认密码不能为空'),
-  new_rsa_pwd: createRequiredRule('新密码不能为空')
+  old_rsa_pwd: createRequiredRule($t('page.userCenter.form.oldPassword.required')),
+  confirm_rsa_pwd: createRequiredRule($t('page.userCenter.form.confirmPassword.required')),
+  new_rsa_pwd: createRequiredRule($t('page.userCenter.form.newPassword.required'))
 };
 
 const deptData = ref<Api.Common.DeptNode[]>([]);
@@ -83,7 +84,7 @@ async function updateProfile() {
   startBtnLoading();
   const { error } = await fetchUpdateUser({ ...profileModel });
   if (!error) {
-    window.$message?.success('更新成功');
+    window.$message?.success($t('page.userCenter.message.profileUpdateSuccess'));
     // 更新本地用户信息
     if (userInfo.user) {
       authStore.updateUserProfile(profileModel);
@@ -97,7 +98,7 @@ async function updateProfile() {
 async function updatePassword() {
   await passwordValidate();
   if (passwordModel.new_rsa_pwd !== passwordModel.confirm_rsa_pwd) {
-    window.$message?.error('两次输入的密码不一致');
+    window.$message?.error($t('page.userCenter.message.passwordMismatch'));
     return;
   }
   startBtnLoading();
@@ -107,7 +108,7 @@ async function updatePassword() {
     new_rsa_pwd: encryptByRsa(new_rsa_pwd as string, import.meta.env.VITE_APP_RSA_PUBLIC_KEY || '') as string
   });
   if (!error) {
-    window.$message?.success('密码修改成功');
+    window.$message?.success($t('page.userCenter.message.passwordUpdateSuccess'));
     // 清空表单
     Object.assign(passwordModel, createDefaultPasswordModel());
     passwordRestoreValidation();
@@ -119,7 +120,7 @@ async function updatePassword() {
 <template>
   <div class="flex gap-16px">
     <!-- 个人信息卡片 -->
-    <NCard title="个人信息" class="w-360px shadow-sm">
+    <NCard :title="$t('page.userCenter.personalInfo')" class="w-360px shadow-sm">
       <div class="flex-x-center flex-wrap gap-24px">
         <div class="flex-center flex-col gap-16px">
           <div class="relative">
@@ -128,13 +129,13 @@ async function updatePassword() {
           <div class="text-18px font-medium">{{ authStore.userProfile.user?.username || '-' }}</div>
         </div>
         <NDescriptions :column="1" label-placement="left" label-width="120px">
-          <NDescriptionsItem label="手机号码">
+          <NDescriptionsItem :label="$t('page.userCenter.phoneNumber')">
             <div class="text-14px">{{ authStore.userProfile.user?.phone || '-' }}</div>
           </NDescriptionsItem>
-          <NDescriptionsItem label="所属部门">
+          <NDescriptionsItem :label="$t('page.userCenter.dept')">
             <div class="text-14px">{{ authStore.userProfile.dept?.name || '-' }}</div>
           </NDescriptionsItem>
-          <NDescriptionsItem label="所属角色">
+          <NDescriptionsItem :label="$t('page.userCenter.role')">
             <div class="text-14px">{{ authStore.userProfile.role?.role_name || '-' }}</div>
           </NDescriptionsItem>
         </NDescriptions>
@@ -142,9 +143,9 @@ async function updatePassword() {
     </NCard>
 
     <!-- 基本资料卡片 -->
-    <NCard title="基本资料" class="w-full overflow-x-auto shadow-sm">
+    <NCard :title="$t('page.userCenter.basicInfo')" class="w-full overflow-x-auto shadow-sm">
       <NTabs type="line" animated class="h-full" s>
-        <NTabPane name="userInfo" tab="基本资料">
+        <NTabPane name="userInfo" :tab="$t('page.userCenter.basicInfo')">
           <NForm
             ref="profileFormRef"
             :model="profileModel"
@@ -153,13 +154,17 @@ async function updatePassword() {
             label-width="100px"
             class="mt-16px max-w-520px"
           >
-            <NFormItem label="用户名" path="username">
-              <NInput v-model:value="profileModel.username" placeholder="请输入昵称" />
+            <NFormItem :label="$t('page.userCenter.username')" path="username">
+              <NInput v-model:value="profileModel.username" :placeholder="$t('page.userCenter.placeholder.nickname')" />
             </NFormItem>
-            <NFormItem label="手机号" path="phone">
-              <NInput v-model:value="profileModel.phone" placeholder="请输入手机号" readonly />
+            <NFormItem :label="$t('page.userCenter.phoneNumber')" path="phone">
+              <NInput
+                v-model:value="profileModel.phone"
+                :placeholder="$t('page.userCenter.placeholder.phone')"
+                readonly
+              />
             </NFormItem>
-            <NFormItem label="部门" path="dept_id">
+            <NFormItem :label="$t('page.userCenter.dept')" path="dept_id">
               <NTreeSelect
                 v-model:value="profileModel.dept_id"
                 :loading="deptLoading"
@@ -168,10 +173,10 @@ async function updatePassword() {
                 label-field="dept_name"
                 key-field="dept_id"
                 :default-expanded-keys="deptData?.length ? [deptData[0].dept_id] : []"
-                placeholder="请选择部门"
+                :placeholder="$t('page.userCenter.placeholder.dept')"
               />
             </NFormItem>
-            <NFormItem label="角色" path="role_id">
+            <NFormItem :label="$t('page.userCenter.role')" path="role_id">
               <ApiSelect
                 v-model:value="profileModel.role_id"
                 :request="fetchGetRoleList"
@@ -181,17 +186,17 @@ async function updatePassword() {
                 label-field="name"
                 value-field="id"
                 clearable
-                placeholder="请选择角色"
+                :placeholder="$t('page.userCenter.placeholder.role')"
               />
             </NFormItem>
-            <NFormItem label="邮箱" path="email">
-              <NInput v-model:value="profileModel.email" placeholder="请输入邮箱" />
+            <NFormItem :label="$t('page.userCenter.email')" path="email">
+              <NInput v-model:value="profileModel.email" :placeholder="$t('page.userCenter.placeholder.email')" />
             </NFormItem>
-            <NFormItem label="性别" path="gender">
+            <NFormItem :label="$t('page.userCenter.gender')" path="gender">
               <NRadioGroup v-model:value="profileModel.gender">
-                <NRadio :value="1">男</NRadio>
-                <NRadio :value="2">女</NRadio>
-                <NRadio :value="3">未知</NRadio>
+                <NRadio :value="1">{{ $t('dict.sys_user_sex.male') }}</NRadio>
+                <NRadio :value="2">{{ $t('dict.sys_user_sex.female') }}</NRadio>
+                <NRadio :value="3">{{ $t('dict.sys_user_sex.unknown') }}</NRadio>
               </NRadioGroup>
             </NFormItem>
             <NFormItem class="flex items-center justify-end">
@@ -199,12 +204,12 @@ async function updatePassword() {
                 <template #icon>
                   <SvgIcon icon="ic:outline-save" class="size-24px" />
                 </template>
-                保存
+                {{ $t('common.save') }}
               </NButton>
             </NFormItem>
           </NForm>
         </NTabPane>
-        <NTabPane name="updatePwd" tab="修改密码">
+        <NTabPane name="updatePwd" :tab="$t('page.userCenter.updatePassword')">
           <NForm
             ref="passwordFormRef"
             :model="passwordModel"
@@ -213,36 +218,36 @@ async function updatePassword() {
             label-width="100px"
             class="mt-16px max-w-520px"
           >
-            <NFormItem label="旧密码" path="old_rsa_pwd">
+            <NFormItem :label="$t('page.userCenter.oldPassword')" path="old_rsa_pwd">
               <NInput
                 v-model:value="passwordModel.old_rsa_pwd"
                 type="password"
-                placeholder="请输入旧密码"
+                :placeholder="$t('page.userCenter.placeholder.oldPassword')"
                 show-password-on="click"
               />
             </NFormItem>
-            <NFormItem label="新密码" path="new_rsa_pwd">
+            <NFormItem :label="$t('page.userCenter.newPassword')" path="new_rsa_pwd">
               <NInput
                 v-model:value="passwordModel.new_rsa_pwd"
                 type="password"
-                placeholder="请输入新密码"
+                :placeholder="$t('page.userCenter.placeholder.newPassword')"
                 show-password-on="click"
               />
             </NFormItem>
-            <NFormItem label="确认密码" path="confirm_rsa_pwd">
+            <NFormItem :label="$t('page.userCenter.confirmPassword')" path="confirm_rsa_pwd">
               <NInput
                 v-model:value="passwordModel.confirm_rsa_pwd"
                 type="password"
-                placeholder="请再次输入新密码"
+                :placeholder="$t('page.userCenter.placeholder.confirmPassword')"
                 show-password-on="click"
               />
             </NFormItem>
             <NFormItem class="flex items-center justify-end">
-              <NButton class="ml-20px w-120px" type="primary" :loading="btnLoading" @click="updatePassword">
+              <NButton class="ml-20px w-80px" type="primary" :loading="btnLoading" @click="updatePassword">
                 <template #icon>
                   <SvgIcon icon="ic:outline-key" class="size-24px" />
                 </template>
-                修改密码
+                {{ $t('common.save') }}
               </NButton>
             </NFormItem>
           </NForm>
