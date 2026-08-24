@@ -1,7 +1,7 @@
 <script setup lang="tsx">
 import { h, ref } from 'vue';
 import { NDivider } from 'naive-ui';
-import { StatusTag } from '@sa/materials';
+import StatusTag from '@/components/custom/status-tag.vue';
 import { formatDateTime } from '@sa/utils';
 import { fetchDeleteGateway, fetchGetGatewayList } from '@/service/api/gateway';
 import { useAppStore } from '@/store/modules/app';

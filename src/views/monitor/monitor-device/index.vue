@@ -2,7 +2,7 @@
 import { ref, shallowRef } from 'vue';
 import { NDivider, NTag } from 'naive-ui';
 import { formatDateTime } from '@sa/utils';
-import { StatusTag } from '@sa/materials';
+import StatusTag from '@/components/custom/status-tag.vue';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { fetchDeleteMonitor, fetchGetMonitorList } from '@/service/api/monitor';
 import { useAppStore } from '@/store/modules/app';

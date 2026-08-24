@@ -1,7 +1,7 @@
 <script setup lang="tsx">
 import { computed, ref } from 'vue';
 import { NCard, NDivider, NImage } from 'naive-ui';
-import { StatusTag } from '@sa/materials';
+import StatusTag from '@/components/custom/status-tag.vue';
 import { formatDateTime } from '@sa/utils';
 import { useAppStore } from '@/store/modules/app';
 import { useAuth } from '@/hooks/business/auth';

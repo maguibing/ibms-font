@@ -33,8 +33,8 @@ const { createRequiredRule } = useFormRules();
 
 const title = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增角色',
-    edit: '编辑角色'
+    add: $t('page.system.role.addRole'),
+    edit: $t('page.system.role.editRole')
   };
   return titles[props.operateType];
 });
@@ -52,9 +52,9 @@ function createDefaultModel(): Model {
 
 type RuleKey = Extract<keyof Model, 'name'>;
 
-const rules: Record<RuleKey, App.Global.FormRule> = {
-  name: createRequiredRule('角色名称不能为空')
-};
+const rules = computed<Record<RuleKey, App.Global.FormRule>>(() => ({
+  name: createRequiredRule($t('page.system.role.form.roleName.invalid'))
+}));
 
 async function handleUpdateModelWhenEdit() {
   model.value = createDefaultModel();
@@ -114,15 +114,20 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="520" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules">
-        <NFormItem label="名称" path="name">
-          <NInput v-model:value="model.name" placeholder="请输入名称" :maxlength="10" show-count />
+        <NFormItem :label="$t('page.system.role.roleName')" path="name">
+          <NInput
+            v-model:value="model.name"
+            :placeholder="$t('page.system.role.form.roleName.required')"
+            :maxlength="10"
+            show-count
+          />
         </NFormItem>
-        <NFormItem label="描述">
+        <NFormItem :label="$t('page.system.role.desc')">
           <NInput
             v-model:value="model.desc"
             :rows="3"
             type="textarea"
-            placeholder="请输入描述"
+            :placeholder="$t('page.system.role.form.desc.required')"
             :maxlength="100"
             show-count
           />

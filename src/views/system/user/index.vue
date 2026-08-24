@@ -3,7 +3,7 @@ import { computed, h, ref } from 'vue';
 import { NAvatar, NButton, NDivider, NEllipsis } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
 import { type FilterConfig, formatDateTime, isValidFilterConfig } from '@sa/utils';
-import { StatusTag } from '@sa/materials';
+import StatusTag from '@/components/custom/status-tag.vue';
 import {
   fetchBatchDeleteUser,
   fetchGetDeptTree,
@@ -188,7 +188,7 @@ const {
               text
               type="primary"
               icon="material-symbols:key-vertical-outline"
-              tooltipContent="重置密码"
+              tooltipContent={$t('page.system.user.resetPassword')}
               onClick={() => handleResetPwd(row.user_id)}
             />
           );
@@ -278,12 +278,12 @@ async function edit(userId: CommonType.IdType) {
 
 async function handleResetPwd(userId: CommonType.IdType) {
   window.$dialog?.warning({
-    title: '重置密码确认',
-    positiveText: '确认重置',
+    title: $t('page.system.user.resetPasswordConfirmTitle'),
+    positiveText: $t('page.system.user.resetPasswordConfirmButton'),
     negativeText: $t('common.cancel'),
     content: () =>
       h('div', [
-        h('span', '确认将该用户密码重置为 '),
+        h('span', $t('page.system.user.resetPasswordConfirmPrefix')),
         h(
           'span',
           {
@@ -294,12 +294,12 @@ async function handleResetPwd(userId: CommonType.IdType) {
           },
           DEFAULT_RESET_PASSWORD
         ),
-        h('span', ' 吗？')
+        h('span', $t('page.system.user.resetPasswordConfirmSuffix'))
       ]),
     onPositiveClick: async () => {
       const { error } = await fetchResetPassword({ user_id: userId });
       if (error) return;
-      window.$message?.success(`密码已重置为 ${DEFAULT_RESET_PASSWORD}`);
+      window.$message?.success($t('page.system.user.resetPasswordSuccess', { password: DEFAULT_RESET_PASSWORD }));
       await getData();
     }
   });

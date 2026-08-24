@@ -1,6 +1,6 @@
 <script setup lang="tsx">
 import { h, ref } from 'vue';
-import { StatusTag } from '@sa/materials';
+import StatusTag from '@/components/custom/status-tag.vue';
 import { formatDateTime } from '@sa/utils';
 import { NDivider, NTag } from 'naive-ui';
 import { fetchDeleteProvider, fetchGetProviderList } from '@/service/api/monitor';

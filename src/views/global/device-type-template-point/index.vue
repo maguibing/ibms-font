@@ -79,7 +79,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '点位名称',
+        title: $t('page.global.deviceTypeTemplatePoint.pointName'),
         align: 'center',
         minWidth: 140,
         ellipsis: {
@@ -89,7 +89,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'key',
-        title: '点位标识',
+        title: $t('page.global.deviceTypeTemplatePoint.pointKey'),
         align: 'center',
         minWidth: 140,
         ellipsis: {
@@ -99,14 +99,14 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'data_type',
-        title: '数据类型',
+        title: $t('page.global.deviceTypeTemplatePoint.dataType'),
         align: 'center',
         minWidth: 120,
         render: row => <EnumTag value={row.data_type} />
       },
       {
         key: 'desc',
-        title: '描述',
+        title: $t('page.global.deviceTypeTemplatePoint.desc'),
         align: 'center',
         minWidth: 140,
         ellipsis: {
@@ -116,7 +116,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'updated_at',
-        title: '更新时间',
+        title: $t('page.global.deviceTypeTemplatePoint.updateTime'),
         align: 'center',
         minWidth: 180,
         render: row => formatDateTime(row.updated_at)
@@ -178,7 +178,7 @@ function handleResetSearch() {
 
 function handleAdd() {
   if (!templateId.value) {
-    window.$message?.warning('缺少模板ID');
+    window.$message?.warning($t('page.global.deviceTypeTemplatePoint.message.missingTemplateId'));
     return;
   }
 
@@ -221,11 +221,16 @@ async function handleBatchDelete() {
         <NCollapseItem :title="$t('common.search')" name="point-keyword-search">
           <NForm :show-feedback="false" label-placement="left" :label-width="80">
             <NGrid responsive="screen" item-responsive>
-              <NFormItemGi span="24 s:12 m:8" label="点位关键字" label-width="auto" class="pr-24px">
+              <NFormItemGi
+                span="24 s:12 m:8"
+                :label="$t('page.global.deviceTypeTemplatePoint.keyword')"
+                label-width="auto"
+                class="pr-24px"
+              >
                 <NInput
                   v-model:value="searchParams.name"
                   clearable
-                  placeholder="请输入点位关键字"
+                  :placeholder="$t('page.global.deviceTypeTemplatePoint.form.keyword.required')"
                   @keyup.enter="getDataByPage()"
                 />
               </NFormItemGi>
@@ -250,7 +255,12 @@ async function handleBatchDelete() {
         </NCollapseItem>
       </NCollapse>
     </NCard>
-    <NCard title="模板点位" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard
+      :title="$t('page.global.deviceTypeTemplatePoint.title')"
+      :bordered="false"
+      size="small"
+      class="card-wrapper sm:flex-1-hidden"
+    >
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

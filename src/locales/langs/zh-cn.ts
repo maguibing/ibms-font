@@ -7,6 +7,7 @@ const local: App.I18n.Schema = {
     updateCancel: '稍后再说'
   },
   common: {
+    rootDirectory: '根目录',
     action: '操作',
     add: '新增',
     addSuccess: '添加成功',
@@ -51,6 +52,7 @@ const local: App.I18n.Schema = {
     modify: '修改',
     modifySuccess: '修改成功',
     noData: '无数据',
+    unknown: '未知',
     operate: '操作',
     pleaseCheckValue: '请检查输入的值是否合法',
     refresh: '刷新',
@@ -268,6 +270,23 @@ const local: App.I18n.Schema = {
     500: '服务器错误',
     'iframe-page': '外链页面',
     home: '首页',
+    // PT 运营平台菜单 meta.title 国际化
+    menu: '菜单配置',
+    menu_platform: '运营菜单管理',
+    menu_corp: '集成商菜单管理',
+    menu_project: '项目菜单管理',
+    global: '全局配置',
+    global_industry: '行业类型管理',
+    global_screen: '系统大屏管理',
+    global_activate: '激活码生成',
+    global_type_template: '设备类型模板管理',
+    global_type_template_detail: '设备类型模板点位管理',
+    'global_device-type-template-point': '设备类型模板点位管理',
+    corp: '集成商配置',
+    corp_management: '集成商管理',
+    corp_detail: '集成商详情管理',
+    corp_version: '版本管理',
+
     device_configuration: '设备配置',
     device_group_management: '设备分组管理',
     device_type_management: '设备类型管理',
@@ -325,15 +344,7 @@ const local: App.I18n.Schema = {
     system_menu: '菜单管理',
     system_dept: '部门管理',
     system_post: '岗位管理',
-    system_dict: '字典管理',
-    system_config: '参数设置',
-    system_notice: '通知公告',
-    system_oss: '文件管理',
-    'system_oss-config': 'OSS 配置',
     system_toolbox: '工具箱',
-    system_client: '客户端管理',
-    system_tenant: '租户管理',
-    'system_tenant-package': '租户套餐',
     monitor: '视频监控',
     monitor_cache: '缓存监控',
     monitor_logininfor: '登录日志',
@@ -341,16 +352,10 @@ const local: App.I18n.Schema = {
     monitor_online: '在线用户',
     'social-callback': '单点登录回调',
     'user-center': '个人中心',
-    demo: '测试',
-    demo_demo: '测试单表',
-    demo_tree: '测试树表',
     exception: '异常页',
     exception_403: '403',
     exception_404: '404',
-    exception_500: '500',
-    tool: '系统工具',
-    tool_gen: '代码生成',
-    about: '关于'
+    exception_500: '500'
   },
   menu: {
     system_tenant: '租户管理',
@@ -412,6 +417,17 @@ const local: App.I18n.Schema = {
       android: '安卓',
       ios: 'iOS',
       miniapp: '小程序'
+    },
+    data_type: {
+      number: '数值',
+      switch: '开关',
+      text: '文本',
+      enum: '枚举'
+    },
+    access_level: {
+      readOnly: '只读',
+      writeOnly: '只写',
+      readWrite: '读写'
     },
     wf_business_status: {
       revoked: '已撤销',
@@ -530,6 +546,488 @@ const local: App.I18n.Schema = {
         remark: {
           required: '请输入备注',
           invalid: '备注不能为空'
+        }
+      },
+      pointForm: {
+        name: '名称',
+        key: '标识符',
+        dataType: '数据类型',
+        unit: '单位',
+        defaultValue: '默认值',
+        scale: '精度',
+        energyType: '能源类型',
+        sourceDataType: '源数据类型',
+        enumSourceDataType: '枚举源数据类型',
+        enumMapping: '枚举映射',
+        pointDesc: '点位描述',
+        enumValue: '值',
+        mappingName: '映射名称',
+        mappingLabel: '{value} 映射',
+        form: {
+          name: {
+            required: '请输入点位名称',
+            invalid: '点位名称不能为空'
+          },
+          key: {
+            required: '请输入标识符',
+            invalid: '标识符不能为空'
+          },
+          dataType: {
+            required: '请选择数据类型',
+            invalid: '数据类型不能为空'
+          },
+          unit: {
+            required: '请选择或输入单位(如：kWh、J、dB)',
+            invalid: '单位不能为空'
+          },
+          defaultValue: {
+            required: '请输入默认值',
+            invalid: '默认值不能为空'
+          },
+          scale: {
+            required: '请选择精度',
+            invalid: '精度不能为空'
+          },
+          energyType: {
+            required: '请选择能源类型',
+            invalid: '能源类型不能为空'
+          },
+          sourceDataType: {
+            required: '请选择源数据类型',
+            invalid: '源数据类型不能为空'
+          },
+          mappingValue: {
+            required: '请输入映射值',
+            invalid: '映射值不能为空'
+          },
+          mappingName: {
+            required: '请输入映射名称',
+            invalid: '映射名称不能为空'
+          },
+          enumSourceDataType: {
+            required: '请选择枚举源数据类型',
+            invalid: '枚举源数据类型不能为空'
+          },
+          pointDesc: {
+            required: '请输入点位描述',
+            invalid: '点位描述不能为空'
+          }
+        },
+        options: {
+          enumSourceNumber: '数字',
+          enumSourceString: '字符',
+          precisionNone: '不保留小数',
+          precision1: '保留1位小数',
+          precision2: '保留2位小数',
+          precision3: '保留3位小数',
+          energyNone: '无',
+          energyElectricity: '电量',
+          energyWater: '水量',
+          energyGas: '燃气量',
+          energyCooling: '冷量',
+          energyHeating: '热量',
+          energyRuntime: '运行时长'
+        },
+        message: {
+          enumMappingRequired: '请至少配置一组枚举映射'
+        }
+      }
+    },
+    corp: {
+      common: {
+        name: '集成商名称',
+        address: '集成商地址',
+        region: '所属地区',
+        location: '所在地区',
+        detailAddress: '详细地址',
+        contact: '联系人',
+        contactPhone: '联系电话',
+        email: '邮箱',
+        password: '密码',
+        confirmPassword: '确认密码',
+        status: '状态',
+        useStatus: '使用状态',
+        auditStatus: '审核状态',
+        view: '查看',
+        audit: '审核',
+        pass: '通过',
+        reject: '拒绝',
+        back: '返回',
+        enable: '启用',
+        disable: '停用',
+        auditing: '审核中',
+        approved: '已通过',
+        rejected: '已拒绝',
+        addCorp: '新增集成商',
+        form: {
+          name: {
+            required: '请输入集成商名称',
+            invalid: '集成商名称不能为空'
+          },
+          region: {
+            required: '请选择所属地区',
+            invalid: '所属地区不能为空'
+          },
+          detailAddress: {
+            required: '请输入详细地址',
+            invalid: '详细地址不能为空'
+          },
+          contact: {
+            required: '请输入联系人',
+            invalid: '联系人不能为空'
+          },
+          contactPhone: {
+            required: '请输入联系电话',
+            invalid: '联系电话不能为空'
+          },
+          password: {
+            required: '请输入密码',
+            invalid: '密码不能为空'
+          }
+        },
+        placeholder: {
+          companyName: '请输入公司名称',
+          email: '请输入邮箱地址',
+          password: '登录密码不会显示在系统中，请牢记登录密码，如忘记可重置'
+        },
+        message: {
+          nameMax: '集成商名称不能超过20个字符',
+          addressMax: '详细地址不能超过30个字符',
+          confirmStatus: '确认{action}该集成商吗？',
+          statusUpdateSuccess: '状态修改成功',
+          auditPassSuccess: '审核已通过',
+          auditRejectSuccess: '审核已拒绝',
+          missingCorpId: '缺少集成商ID',
+          emptyCorpDetail: '暂无集成商详情'
+        }
+      },
+      list: {
+        title: '集成商列表'
+      },
+      detail: {
+        title: '集成商详情',
+        versionData: '版本数据'
+      },
+      version: {
+        title: '版本列表',
+        name: '名称',
+        versionName: '版本名称',
+        versionDesc: '版本简介',
+        corp: '集成商',
+        using: '使用中',
+        unassigned: '未分配',
+        startTime: '开始时间',
+        endTime: '结束时间',
+        expectedStartTime: '预计开始时间',
+        addVersion: '新增版本',
+        editVersion: '编辑版本',
+        addExistingVersion: '添加已有版本',
+        benefitView: '权益查看',
+        renewal: '续费',
+        renewalDuration: '请输入续费时长:',
+        priceConfig: '价格配置',
+        priceBenefit: '价格权益',
+        originalPrice: '原价',
+        discountPrice: '折扣价',
+        duration: '时长',
+        resourceConfig: '资源配置',
+        deviceCount: '设备数',
+        userCount: '用户数',
+        dailyMessageCount: '日消息数',
+        dataStore: '数据存储',
+        dataStoreDuration: '数据存储时长',
+        menuConfig: '菜单配置',
+        menuPermission: '菜单权限',
+        benefitSummary: '权益摘要',
+        menuBenefit: '菜单权益',
+        allBenefit: '全部权益',
+        day: '天',
+        month: '月',
+        year: '年',
+        calendarDay: '日',
+        dayDurationUnit: '天',
+        monthDurationUnit: '个月',
+        yearDurationUnit: '年',
+        deviceUnit: '个设备',
+        userUnit: '个用户',
+        messageUnit: '条',
+        countWithUnit: '{count}{unit}',
+        dailyMessageBenefit: '{count}条日消息数',
+        dataStoreBenefit: '{count}{unit}数据存储',
+        priceDurationBenefit: '{count}{unit} ￥{price}',
+        menuId: '菜单ID：{id}',
+        selectedAddVersions: '已选择 {count} 个待添加版本',
+        selectVersion: '请选择需要添加的版本',
+        emptyBenefitSummary: '暂无权益摘要',
+        emptyMenuBenefit: '暂无菜单权益',
+        emptyAllBenefit: '暂无全部权益',
+        emptyBenefitData: '暂无权益数据',
+        legacy: {
+          gatewayManagement: '边缘设备管理',
+          energyScreen: '能源大屏',
+          meterSetting: '表计设置',
+          energyPriceManagement: '用能价格管理',
+          energyCategory: '能源分类'
+        },
+        form: {
+          versionName: {
+            required: '请输入版本名称',
+            invalid: '版本名称不能为空'
+          },
+          versionDesc: {
+            required: '请输入版本简介',
+            invalid: '版本简介不能为空'
+          },
+          corp: {
+            required: '请选择集成商',
+            invalid: '集成商不能为空'
+          },
+          expectedStartTime: {
+            required: '请选择预计开始时间',
+            invalid: '预计开始时间不能为空'
+          },
+          originalPrice: {
+            required: '请输入原价',
+            invalid: '原价不能为空'
+          },
+          discountPrice: {
+            required: '请输入折扣价',
+            invalid: '折扣价不能为空'
+          },
+          duration: {
+            required: '请输入时长',
+            invalid: '时长不能为空'
+          },
+          deviceCount: {
+            required: '请输入设备数',
+            invalid: '设备数不能为空'
+          },
+          userCount: {
+            required: '请输入用户数',
+            invalid: '用户数不能为空'
+          },
+          dailyMessageCount: {
+            required: '请输入日消息数',
+            invalid: '日消息数不能为空'
+          },
+          dataStoreDuration: {
+            required: '请输入数据存储时长',
+            invalid: '数据存储时长不能为空'
+          },
+          renewalDuration: {
+            required: '请输入续费时长',
+            invalid: '续费时长不能为空'
+          }
+        },
+        message: {
+          versionNameMax: '版本名称不能超过10个字符',
+          selectMenuRequired: '请至少选择一个菜单',
+          renewalSuccess: '续费成功'
+        }
+      }
+    },
+    global: {
+      industry: {
+        title: '行业管理',
+        name: '行业名称',
+        sort: '排序号',
+        desc: '描述',
+        createTime: '创建时间',
+        addIndustry: '新增行业',
+        editIndustry: '编辑行业',
+        form: {
+          name: {
+            required: '请输入行业名称',
+            invalid: '行业名称不能为空'
+          },
+          sort: {
+            required: '请输入排序号',
+            invalid: '排序号不能为空'
+          },
+          desc: {
+            required: '请输入描述',
+            invalid: '描述不能为空'
+          }
+        }
+      },
+      sysScreen: {
+        title: '大屏管理',
+        name: '大屏名称',
+        cover: '大屏封面',
+        status: '状态',
+        createTime: '创建时间',
+        routePath: '路由路径',
+        routeName: '路由名称',
+        componentPath: '组件路径',
+        industryType: '行业类型',
+        projectConfig: '项目配置',
+        project: '项目',
+        mockData: 'Mock数据',
+        visual3d: '3D可视化',
+        personalInfo: '个人信息',
+        enterSystem: '进入系统',
+        logout: '退出登录',
+        thumbnail: '缩略图',
+        addSysScreen: '新增大屏',
+        editSysScreen: '修改大屏',
+        addProject: '添加项目',
+        form: {
+          name: {
+            required: '请输入大屏名称',
+            invalid: '大屏名称不能为空'
+          },
+          routePath: {
+            required: '请输入路由路径',
+            invalid: '路由路径不能为空'
+          },
+          componentPath: {
+            required: '请输入组件路径',
+            invalid: '组件路径不能为空'
+          },
+          thumbnail: {
+            required: '请上传缩略图',
+            invalid: '缩略图不能为空'
+          },
+          industryType: {
+            required: '请选择行业类型',
+            invalid: '行业类型不能为空'
+          },
+          status: {
+            required: '请选择状态',
+            invalid: '状态不能为空'
+          },
+          project: {
+            required: '请选择项目',
+            invalid: '项目不能为空'
+          }
+        },
+        message: {
+          projectConfigRequired: '请至少添加一个项目配置',
+          projectRequired: '请完善项目ID'
+        },
+        placeholder: {
+          routePathExample: '例如 /smart-waterControl',
+          routeNameExample: '例如 SmartWaterControl',
+          componentPathExample: '例如 SmartWaterControl/index'
+        }
+      },
+      activate: {
+        title: '激活码生成',
+        eyebrow: 'SYSTEM LICENSE',
+        description: '按顺序选择激活策略并提交，生成结果会在当前页面展示，便于立即复制使用。',
+        required: '必选',
+        licenseType: '激活类型',
+        expireTime: '到期时间',
+        strategySpecified: '指定时间',
+        strategySpecifiedDesc: '必须选择到期时间，提交真实 Unix 时间戳。',
+        strategyPermanent: '永久激活',
+        strategyPermanentDesc: '自动忽略时间选择，提交 license_expire_at = 0。',
+        stepSelectType: '1. 选择激活类型',
+        stepSetExpireTime: '2. 设置到期时间',
+        stepGenerate: '3. 生成激活码',
+        stepResult: '4. 生成结果',
+        resetForm: '重置表单',
+        generate: '生成激活码',
+        copyLicense: '复制激活码',
+        permanentDatePlaceholder: '永久激活无需选择时间',
+        datePlaceholder: '请选择到期时间（不可早于当前时间）',
+        previewPermanent: '将提交：license_type = 2，license_expire_at = 0（永久激活）',
+        previewPending: '将提交：请选择到期时间后生成',
+        previewSpecified: '将提交：license_type = 1，license_expire_at = {expireAt}',
+        form: {
+          licenseType: {
+            required: '请选择激活类型',
+            invalid: '激活类型不能为空'
+          },
+          expireTime: {
+            required: '请选择到期时间',
+            invalid: '到期时间不能为空'
+          }
+        },
+        message: {
+          clipboardUnsupported: '您的浏览器不支持 Clipboard API',
+          copyFailed: '复制失败，请手动复制',
+          copySuccess: '复制成功',
+          generateSuccess: '激活码生成成功'
+        }
+      },
+      deviceTypeTemplate: {
+        title: '设备类型模板',
+        categoryTitle: '设备类型模板分类',
+        emptyCategory: '暂无设备类型模板分类',
+        name: '设备类型名称',
+        key: '标识',
+        typeKey: '类型标识',
+        icon: '图标',
+        status: '状态',
+        desc: '描述',
+        sort: '排序号',
+        categoryName: '分类名称',
+        parentCategory: '所属分类',
+        updateTime: '更新时间',
+        pointManagement: '点位管理',
+        addDeviceType: '新增设备类型',
+        editDeviceType: '编辑设备类型',
+        addCategory: '新增设备类型模板分类',
+        editCategory: '编辑设备类型模板分类',
+        enable: '启用',
+        disable: '停用',
+        form: {
+          parentCategory: {
+            required: '请选择所属分类',
+            invalid: '所属分类不能为空'
+          },
+          name: {
+            required: '请输入设备类型名称',
+            invalid: '设备类型名称不能为空'
+          },
+          typeKey: {
+            required: '请输入类型标识',
+            invalid: '类型标识不能为空'
+          },
+          status: {
+            required: '请选择状态',
+            invalid: '状态不能为空'
+          },
+          categoryName: {
+            required: '请输入分类名称',
+            invalid: '分类名称不能为空'
+          },
+          sort: {
+            required: '请输入排序号',
+            invalid: '排序号不能为空'
+          },
+          desc: {
+            required: '请输入描述',
+            invalid: '描述不能为空'
+          }
+        },
+        placeholder: {
+          typeKey: '请输入类型标识，如：METER_001'
+        },
+        message: {
+          selectCategory: '请选择左侧分类'
+        }
+      },
+      deviceTypeTemplatePoint: {
+        title: '模板点位',
+        pointName: '点位名称',
+        pointKey: '点位标识',
+        dataType: '数据类型',
+        desc: '描述',
+        updateTime: '更新时间',
+        keyword: '点位关键字',
+        addPoint: '新增点位',
+        editPoint: '编辑点位',
+        form: {
+          keyword: {
+            required: '请输入点位关键字',
+            invalid: '点位关键字不能为空'
+          }
+        },
+        message: {
+          missingTemplateId: '缺少模板ID',
+          missingPointId: '缺少点位ID'
         }
       }
     },
@@ -750,13 +1248,20 @@ const local: App.I18n.Schema = {
         title: '菜单列表',
         parentId: '上级菜单',
         menuName: '菜单名称',
+        buttonName: '按钮名称',
         icon: '菜单图标',
         orderNum: '排序',
         perms: '权限字符',
+        permission: '权限标识',
         component: '组件路径',
         path: '路由地址',
+        routeName: '路由名称',
         layout: '布局方式',
+        defaultLayout: '默认布局',
+        blankLayout: '空白布局',
         externalPath: '外链地址',
+        extLink: '外链',
+        iframe: 'iframe',
         query: '路由参数',
         iframeQuery: 'iframe 地址',
         isFrame: '是否外链',
@@ -816,6 +1321,10 @@ const local: App.I18n.Schema = {
           path: {
             required: '请输入路由地址',
             invalid: '路由地址不能为空'
+          },
+          routeName: {
+            required: '请输入路由名称',
+            invalid: '路由名称不能为空'
           },
           component: {
             required: '请输入组件路径',
@@ -1004,11 +1513,25 @@ const local: App.I18n.Schema = {
         roleName: '角色名称',
         roleKey: '权限字符',
         roleSort: '角色排序',
+        roleType: '角色类型',
+        desc: '描述',
         status: '状态',
         remark: '备注',
         menuPermission: '菜单权限',
         dataScope: '数据权限',
+        dataScopeRange: '数据范围',
+        visualPermission: '可视化权限',
         createTime: '创建时间',
+        roleTypes: {
+          systemAdmin: '系统管理员',
+          normalMember: '普通成员'
+        },
+        dataScopes: {
+          all: '全部数据权限',
+          self: '仅本人数据权限',
+          dept: '本部门数据权限',
+          deptAndSub: '本部门及自部门数据权限'
+        },
         form: {
           roleName: {
             required: '请输入角色名称',
@@ -1030,6 +1553,10 @@ const local: App.I18n.Schema = {
             required: '请输入备注',
             invalid: '备注不能为空'
           },
+          desc: {
+            required: '请输入描述',
+            invalid: '描述不能为空'
+          },
           menuIds: {
             required: '请选择菜单权限',
             invalid: '菜单权限不能为空'
@@ -1045,7 +1572,23 @@ const local: App.I18n.Schema = {
         authorizedUsers: '分配用户',
         selectMenuPermission: '选择菜单权限',
         selectDataScope: '选择数据权限',
-        selectDeptPermission: '选择部门权限'
+        selectDeptPermission: '选择部门权限',
+        permissionConfig: '权限配置',
+        permissionConfigWithName: '{name} 权限配置',
+        visualTypes: {
+          systemScreen: '系统大屏',
+          configuration: '组态大屏',
+          customScreen: '自定义大屏'
+        },
+        searchScreenName: '搜索大屏名称',
+        searchConfigurationName: '搜索组态名称',
+        permissionAll: '权限全开',
+        controlAll: '控制全开',
+        visualPermissionStats: '已授权 {selected} / {total}，可控制 {control}',
+        noScreen: '暂无大屏',
+        noThumbnail: '暂无缩略图',
+        permission: '权限',
+        control: '控制'
       },
       tenant: {
         title: '租户列表',
@@ -1215,6 +1758,11 @@ const local: App.I18n.Schema = {
         addUser: '新增用户',
         editUser: '编辑用户',
         resetPassword: '重置密码',
+        resetPasswordConfirmTitle: '重置密码确认',
+        resetPasswordConfirmButton: '确认重置',
+        resetPasswordConfirmPrefix: '确认将该用户密码重置为 ',
+        resetPasswordConfirmSuffix: ' 吗？',
+        resetPasswordSuccess: '密码已重置为 {password}',
         importUsers: '导入用户',
         exportTemplate: '导出模板',
         importSuccess: '导入成功',
@@ -1282,7 +1830,8 @@ const local: App.I18n.Schema = {
     collapse: '折叠菜单',
     expand: '展开菜单',
     pin: '固定',
-    unpin: '取消固定'
+    unpin: '取消固定',
+    manual: '操作手册'
   },
   datatable: {
     itemCount: '共 {total} 条',

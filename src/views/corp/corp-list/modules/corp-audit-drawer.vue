@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { useLoading } from '@sa/hooks';
 import { fetchGetCorp, fetchUpdateCorpAuditStatus } from '@/service/api/corp';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'CorpAuditDrawer'
@@ -72,7 +73,11 @@ async function handleAuditStatus(auditStatus: number) {
 
   if (error) return;
 
-  window.$message?.success(auditStatus === AUDIT_PASS_STATUS ? '审核已通过' : '审核已拒绝');
+  window.$message?.success(
+    auditStatus === AUDIT_PASS_STATUS
+      ? $t('page.corp.common.message.auditPassSuccess')
+      : $t('page.corp.common.message.auditRejectSuccess')
+  );
   closeDrawer();
   emit('submitted');
 }
@@ -93,23 +98,29 @@ watch(
 </script>
 
 <template>
-  <NDrawer v-model:show="visible" title="审核" display-directive="show" :width="600" class="max-w-90%">
-    <NDrawerContent title="审核" :native-scrollbar="false" closable>
+  <NDrawer
+    v-model:show="visible"
+    :title="$t('page.corp.common.audit')"
+    display-directive="show"
+    :width="600"
+    class="max-w-90%"
+  >
+    <NDrawerContent :title="$t('page.corp.common.audit')" :native-scrollbar="false" closable>
       <NSpin :show="detailLoading">
         <NForm label-placement="top" :disabled="true" :label-width="112" :model="displayModel" class="py-16px">
-          <NFormItem label="集成商名称" path="name">
+          <NFormItem :label="$t('page.corp.common.name')" path="name">
             <NInput :value="displayModel.name" readonly />
           </NFormItem>
-          <NFormItem label="集成商地址" path="address">
+          <NFormItem :label="$t('page.corp.common.address')" path="address">
             <NInput :value="displayModel.address" readonly />
           </NFormItem>
-          <NFormItem label="联系人" path="contact_name">
+          <NFormItem :label="$t('page.corp.common.contact')" path="contact_name">
             <NInput :value="displayModel.contact_name" readonly />
           </NFormItem>
-          <NFormItem label="联系电话" path="contact_phone">
+          <NFormItem :label="$t('page.corp.common.contactPhone')" path="contact_phone">
             <NInput :value="displayModel.contact_phone" readonly />
           </NFormItem>
-          <NFormItem label="邮箱" path="contact_email">
+          <NFormItem :label="$t('page.corp.common.email')" path="contact_email">
             <NInput :value="displayModel.contact_email" readonly />
           </NFormItem>
         </NForm>
@@ -123,7 +134,7 @@ watch(
             ghost
             @click="handleAuditStatus(AUDIT_REJECT_STATUS)"
           >
-            拒绝
+            {{ $t('page.corp.common.reject') }}
           </NButton>
           <NButton
             :disabled="detailLoading || !corp"
@@ -131,7 +142,7 @@ watch(
             type="primary"
             @click="handleAuditStatus(AUDIT_PASS_STATUS)"
           >
-            通过
+            {{ $t('page.corp.common.pass') }}
           </NButton>
         </NSpace>
       </template>

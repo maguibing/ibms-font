@@ -52,8 +52,8 @@ const model = ref<Model>(createDefaultModel());
 
 const title = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增设备类型',
-    edit: '编辑设备类型'
+    add: $t('page.global.deviceTypeTemplate.addDeviceType'),
+    edit: $t('page.global.deviceTypeTemplate.editDeviceType')
   };
   return titles[props.operateType];
 });
@@ -66,10 +66,10 @@ const categoryOptions = computed<SelectOption[]>(() => {
 });
 
 const rules: Record<string, App.Global.FormRule> = {
-  category_id: createRequiredRule('请选择所属分类'),
-  name: createRequiredRule('请输入设备类型名称'),
-  key: createRequiredRule('请输入类型标识'),
-  status: createRequiredRule('请选择状态')
+  category_id: createRequiredRule($t('page.global.deviceTypeTemplate.form.parentCategory.required')),
+  name: createRequiredRule($t('page.global.deviceTypeTemplate.form.name.required')),
+  key: createRequiredRule($t('page.global.deviceTypeTemplate.form.typeKey.required')),
+  status: createRequiredRule($t('page.global.deviceTypeTemplate.form.status.required'))
 };
 
 function createDefaultModel(): Model {
@@ -138,16 +138,31 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" display-directive="show" :width="520" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
-        <NFormItem label="所属分类" path="category_id">
-          <NSelect v-model:value="model.category_id" disabled :options="categoryOptions" placeholder="请选择所属分类" />
+        <NFormItem :label="$t('page.global.deviceTypeTemplate.parentCategory')" path="category_id">
+          <NSelect
+            v-model:value="model.category_id"
+            disabled
+            :options="categoryOptions"
+            :placeholder="$t('page.global.deviceTypeTemplate.form.parentCategory.required')"
+          />
         </NFormItem>
-        <NFormItem label="设备类型名称" path="name">
-          <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入设备类型名称" />
+        <NFormItem :label="$t('page.global.deviceTypeTemplate.name')" path="name">
+          <NInput
+            v-model:value="model.name"
+            maxlength="30"
+            show-count
+            :placeholder="$t('page.global.deviceTypeTemplate.form.name.required')"
+          />
         </NFormItem>
-        <NFormItem label="类型标识" path="key">
-          <NInput v-model:value="model.key" maxlength="48" show-count placeholder="请输入类型标识，如：METER_001" />
+        <NFormItem :label="$t('page.global.deviceTypeTemplate.typeKey')" path="key">
+          <NInput
+            v-model:value="model.key"
+            maxlength="48"
+            show-count
+            :placeholder="$t('page.global.deviceTypeTemplate.placeholder.typeKey')"
+          />
         </NFormItem>
-        <NFormItem label="图标" path="icon">
+        <NFormItem :label="$t('page.global.deviceTypeTemplate.icon')" path="icon">
           <FileUpload
             v-model:value="model.icon"
             module-name="device-type-template"
@@ -157,22 +172,22 @@ watch(visible, () => {
             :show-tip="false"
           />
         </NFormItem>
-        <NFormItem label="状态" path="status">
+        <NFormItem :label="$t('page.global.deviceTypeTemplate.status')" path="status">
           <div class="flex items-center gap-12px">
             <NSwitch v-model:value="model.status" :checked-value="1" :unchecked-value="2">
-              <template #checked>启用</template>
-              <template #unchecked>停用</template>
+              <template #checked>{{ $t('page.global.deviceTypeTemplate.enable') }}</template>
+              <template #unchecked>{{ $t('page.global.deviceTypeTemplate.disable') }}</template>
             </NSwitch>
           </div>
         </NFormItem>
-        <NFormItem label="描述" path="desc">
+        <NFormItem :label="$t('page.global.deviceTypeTemplate.desc')" path="desc">
           <NInput
             v-model:value="model.desc"
             type="textarea"
             maxlength="200"
             show-count
             :rows="5"
-            placeholder="请输入描述"
+            :placeholder="$t('page.global.deviceTypeTemplate.form.desc.required')"
           />
         </NFormItem>
       </NForm>

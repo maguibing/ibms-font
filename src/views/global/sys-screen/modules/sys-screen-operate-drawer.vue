@@ -42,11 +42,11 @@ const { loading, startLoading, endLoading } = useLoading();
 const { loading: detailLoading, startLoading: startDetailLoading, endLoading: endDetailLoading } = useLoading();
 
 const title = computed(() => {
-  const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增大屏',
-    edit: '修改大屏'
+  const titles: Record<NaiveUI.TableOperateType, App.I18n.I18nKey> = {
+    add: 'page.global.sysScreen.addSysScreen',
+    edit: 'page.global.sysScreen.editSysScreen'
   };
-  return titles[props.operateType];
+  return $t(titles[props.operateType]);
 });
 
 const industryMap = ref<CommonType.IdNameMap>({});
@@ -69,12 +69,12 @@ const selectedProjectOptions = computed(() => {
 });
 
 const rules: Record<string, App.Global.FormRule> = {
-  name: createRequiredRule('请输入大屏名称'),
-  'detail.route_path': createRequiredRule('请输入路由路径'),
-  'detail.component_path': createRequiredRule('请输入组件路径'),
-  url: createRequiredRule('请上传缩略图'),
-  industry_id_list: createRequiredRule('请选择行业类型'),
-  status: createRequiredRule('请选择状态')
+  name: createRequiredRule($t('page.global.sysScreen.form.name.required')),
+  'detail.route_path': createRequiredRule($t('page.global.sysScreen.form.routePath.required')),
+  'detail.component_path': createRequiredRule($t('page.global.sysScreen.form.componentPath.required')),
+  url: createRequiredRule($t('page.global.sysScreen.form.thumbnail.required')),
+  industry_id_list: createRequiredRule($t('page.global.sysScreen.form.industryType.required')),
+  status: createRequiredRule($t('page.global.sysScreen.form.status.required'))
 };
 
 function createDefaultDetail(): Api.System.SysScreenDetail {
@@ -185,12 +185,12 @@ async function handleSubmit() {
   await validate();
 
   if (model.value.project_conf.length === 0) {
-    window.$message?.warning('请至少添加一个项目配置');
+    window.$message?.warning($t('page.global.sysScreen.message.projectConfigRequired'));
     return;
   }
 
   if (model.value.project_conf.some(item => item.project_id === null)) {
-    window.$message?.warning('请完善项目ID');
+    window.$message?.warning($t('page.global.sysScreen.message.projectRequired'));
     return;
   }
 
@@ -234,23 +234,37 @@ watch(visible, () => {
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top" :label-width="100">
         <NGrid responsive="screen" item-responsive :x-gap="18">
-          <NFormItemGi span="24" label="大屏名称" path="name">
-            <NInput v-model:value="model.name" maxlength="20" show-count placeholder="请输入大屏名称" />
+          <NFormItemGi span="24" :label="$t('page.global.sysScreen.name')" path="name">
+            <NInput
+              v-model:value="model.name"
+              maxlength="20"
+              show-count
+              :placeholder="$t('page.global.sysScreen.form.name.required')"
+            />
           </NFormItemGi>
-          <NFormItemGi span="24 m:12" label="路由路径" path="detail.route_path">
-            <NInput v-model:value="model.detail.route_path" placeholder="例如 /smart-waterControl" />
+          <NFormItemGi span="24 m:12" :label="$t('page.global.sysScreen.routePath')" path="detail.route_path">
+            <NInput
+              v-model:value="model.detail.route_path"
+              :placeholder="$t('page.global.sysScreen.placeholder.routePathExample')"
+            />
           </NFormItemGi>
-          <NFormItemGi span="24 m:12" label="路由名称" path="detail.route_name">
-            <NInput v-model:value="model.detail.route_name" placeholder="例如 SmartWaterControl" />
+          <NFormItemGi span="24 m:12" :label="$t('page.global.sysScreen.routeName')" path="detail.route_name">
+            <NInput
+              v-model:value="model.detail.route_name"
+              :placeholder="$t('page.global.sysScreen.placeholder.routeNameExample')"
+            />
           </NFormItemGi>
-          <NFormItemGi span="24" label="组件路径" path="detail.component_path">
+          <NFormItemGi span="24" :label="$t('page.global.sysScreen.componentPath')" path="detail.component_path">
             <NInputGroup>
               <NInputGroupLabel>src/views/</NInputGroupLabel>
-              <NInput v-model:value="model.detail.component_path" placeholder="例如 SmartWaterControl/index" />
+              <NInput
+                v-model:value="model.detail.component_path"
+                :placeholder="$t('page.global.sysScreen.placeholder.componentPathExample')"
+              />
               <NInputGroupLabel>.vue</NInputGroupLabel>
             </NInputGroup>
           </NFormItemGi>
-          <NFormItemGi span="24 m:12" label="行业类型" path="industry_id_list">
+          <NFormItemGi span="24 m:12" :label="$t('page.global.sysScreen.industryType')" path="industry_id_list">
             <RemoteSearchSelect
               v-model:value="model.industry_id_list"
               :request="fetchGetIndustryList"
@@ -260,10 +274,10 @@ watch(visible, () => {
               value-field="id"
               multiple
               clearable
-              placeholder="请选择行业类型"
+              :placeholder="$t('page.global.sysScreen.form.industryType.required')"
             />
           </NFormItemGi>
-          <NFormItemGi span="24" label="项目配置" path="project_conf">
+          <NFormItemGi span="24" :label="$t('page.global.sysScreen.projectConfig')" path="project_conf">
             <div class="w-full flex-col gap-10px">
               <div
                 v-for="(item, index) in model.project_conf"
@@ -286,7 +300,7 @@ watch(visible, () => {
                   <div
                     class="h-34px min-w-64px flex-center rounded-4px bg-#f5f7fb text-13px text-#646a73 font-500 dark:bg-#202126 dark:text-#c9cdd4"
                   >
-                    项目 {{ index + 1 }}
+                    {{ $t('page.global.sysScreen.project') }} {{ index + 1 }}
                   </div>
                   <RemoteSearchSelect
                     v-model:value="item.project_id"
@@ -297,7 +311,7 @@ watch(visible, () => {
                     label-field="name"
                     value-field="id"
                     clearable
-                    placeholder="请选择项目"
+                    :placeholder="$t('page.global.sysScreen.form.project.required')"
                   />
                 </div>
                 <NGrid responsive="screen" item-responsive :x-gap="10" :y-gap="10">
@@ -305,7 +319,7 @@ watch(visible, () => {
                     <div
                       class="h-38px flex items-center justify-between rounded-4px border border-#edf0f5 border-solid px-10px dark:border-#2b2f36"
                     >
-                      <span>Mock数据</span>
+                      <span>{{ $t('page.global.sysScreen.mockData') }}</span>
                       <NSwitch v-model:value="item.is_mock" />
                     </div>
                   </NGridItem>
@@ -313,7 +327,7 @@ watch(visible, () => {
                     <div
                       class="h-38px flex items-center justify-between rounded-4px border border-#edf0f5 border-solid px-10px dark:border-#2b2f36"
                     >
-                      <span>3D可视化</span>
+                      <span>{{ $t('page.global.sysScreen.visual3d') }}</span>
                       <NSwitch v-model:value="item.show_3d_visual" />
                     </div>
                   </NGridItem>
@@ -321,7 +335,7 @@ watch(visible, () => {
                     <div
                       class="h-38px flex items-center justify-between rounded-4px border border-#edf0f5 border-solid px-10px dark:border-#2b2f36"
                     >
-                      <span>个人信息</span>
+                      <span>{{ $t('page.global.sysScreen.personalInfo') }}</span>
                       <NSwitch v-model:value="item.show_personal_info" />
                     </div>
                   </NGridItem>
@@ -329,7 +343,7 @@ watch(visible, () => {
                     <div
                       class="h-38px flex items-center justify-between rounded-4px border border-#edf0f5 border-solid px-10px dark:border-#2b2f36"
                     >
-                      <span>进入系统</span>
+                      <span>{{ $t('page.global.sysScreen.enterSystem') }}</span>
                       <NSwitch v-model:value="item.show_enter_system" />
                     </div>
                   </NGridItem>
@@ -337,7 +351,7 @@ watch(visible, () => {
                     <div
                       class="h-38px flex items-center justify-between rounded-4px border border-#edf0f5 border-solid px-10px dark:border-#2b2f36"
                     >
-                      <span>退出登录</span>
+                      <span>{{ $t('page.global.sysScreen.logout') }}</span>
                       <NSwitch v-model:value="item.show_logout_button" />
                     </div>
                   </NGridItem>
@@ -347,19 +361,19 @@ watch(visible, () => {
                 <template #icon>
                   <icon-material-symbols-add class="text-icon" />
                 </template>
-                添加项目
+                {{ $t('page.global.sysScreen.addProject') }}
               </NButton>
             </div>
           </NFormItemGi>
-          <NFormItemGi span="24" label="状态" path="status">
+          <NFormItemGi span="24" :label="$t('page.global.sysScreen.status')" path="status">
             <NRadioGroup v-model:value="model.status">
               <NSpace>
-                <NRadio :value="1">启用</NRadio>
-                <NRadio :value="2">停用</NRadio>
+                <NRadio :value="1">{{ $t('dict.sys_normal_disable.normal') }}</NRadio>
+                <NRadio :value="2">{{ $t('dict.sys_normal_disable.disable') }}</NRadio>
               </NSpace>
             </NRadioGroup>
           </NFormItemGi>
-          <NFormItemGi span="24" label="缩略图" path="url">
+          <NFormItemGi span="24" :label="$t('page.global.sysScreen.thumbnail')" path="url">
             <div class="w-full flex-col gap-12px">
               <FileUpload
                 v-model:value="model.url"

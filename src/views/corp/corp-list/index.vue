@@ -1,6 +1,6 @@
 <script setup lang="tsx">
 import { computed, ref } from 'vue';
-import { StatusTag, type StatusTagMap } from '@sa/materials';
+import StatusTag, { type StatusTagMap } from '@/components/custom/status-tag.vue';
 import { fetchDeleteCorp, fetchGetCorpList, fetchUpdateCorpStatus } from '@/service/api/corp';
 import { useAppStore } from '@/store/modules/app';
 import { useAuth } from '@/hooks/business/auth';
@@ -26,20 +26,20 @@ const PENDING_AUDIT_STATUS = 1;
 const ENABLE_STATUS = 1;
 const DISABLE_STATUS = 2;
 
-const CORP_AUDIT_STATUS_MAP: StatusTagMap = {
+const corpAuditStatusMap = computed<StatusTagMap>(() => ({
   '1': {
-    label: '审核中',
+    label: $t('page.corp.common.auditing'),
     type: 'warning'
   },
   '3': {
-    label: '已拒绝',
+    label: $t('page.corp.common.rejected'),
     type: 'error'
   }
-};
+}));
 
 function renderCorpStatusTag(row: Api.System.Corp) {
   if (row.audit_status !== AUDIT_PASS_STATUS) {
-    return <StatusTag value={row.audit_status} statusMap={CORP_AUDIT_STATUS_MAP} />;
+    return <StatusTag value={row.audit_status} statusMap={corpAuditStatusMap.value} />;
   }
 
   return <StatusTag value={row.status} />;
@@ -109,7 +109,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '集成商名称',
+        title: $t('page.corp.common.name'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -118,21 +118,21 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'contact_name',
-        title: '联系人',
+        title: $t('page.corp.common.contact'),
         align: 'center',
         minWidth: 120,
         render: row => getContactUser(row)?.username || '-'
       },
       {
         key: 'contact_phone',
-        title: '联系电话',
+        title: $t('page.corp.common.contactPhone'),
         align: 'center',
         minWidth: 180,
         render: row => <PhoneReveal userId={row.contact_id} maskedPhone={getContactUser(row)?.phone} />
       },
       {
         key: 'address',
-        title: '详细地址',
+        title: $t('page.corp.common.detailAddress'),
         align: 'center',
         minWidth: 220,
         ellipsis: {
@@ -142,7 +142,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'email',
-        title: '邮箱',
+        title: $t('page.corp.common.email'),
         align: 'center',
         minWidth: 180,
         ellipsis: {
@@ -152,7 +152,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'audit_status',
-        title: '状态',
+        title: $t('page.corp.common.status'),
         align: 'center',
         minWidth: 100,
         render: row => renderCorpStatusTag(row)
@@ -169,7 +169,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 text
                 type="primary"
                 icon="material-symbols:visibility-outline"
-                tooltipContent="查看"
+                tooltipContent={$t('page.corp.common.view')}
                 onClick={() => handleView(row.id)}
               />
             );
@@ -178,7 +178,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
           const statusBtn = () => {
             const isEnabled = row.status === ENABLE_STATUS;
             const nextStatus = isEnabled ? DISABLE_STATUS : ENABLE_STATUS;
-            const text = isEnabled ? '停用' : '启用';
+            const text = isEnabled ? $t('page.corp.common.disable') : $t('page.corp.common.enable');
 
             return (
               <ButtonIcon
@@ -186,7 +186,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 type={isEnabled ? 'error' : 'primary'}
                 icon={isEnabled ? 'material-symbols:pause-circle-outline' : 'material-symbols:play-circle-outline'}
                 tooltipContent={text}
-                popconfirmContent={`确认${text}该集成商吗？`}
+                popconfirmContent={$t('page.corp.common.message.confirmStatus', { action: text })}
                 onPositiveClick={() => handleUpdateStatus(row.id, nextStatus)}
               />
             );
@@ -198,7 +198,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 text
                 type="primary"
                 icon="material-symbols:fact-check-outline"
-                tooltipContent="审核"
+                tooltipContent={$t('page.corp.common.audit')}
                 onClick={() => handleAudit(row.id)}
               />
             );
@@ -273,7 +273,7 @@ async function handleUpdateStatus(id: CommonType.IdType, status: number) {
   const { error } = await fetchUpdateCorpStatus({ id, status });
   if (error) return;
 
-  window.$message?.success('状态修改成功');
+  window.$message?.success($t('page.corp.common.message.statusUpdateSuccess'));
   getData();
 }
 
@@ -296,7 +296,7 @@ async function handleDelete(id: CommonType.IdType) {
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <CorpSearch v-model:model="searchParams" @search="getDataByPage" />
 
-    <NCard title="集成商列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('page.corp.list.title')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

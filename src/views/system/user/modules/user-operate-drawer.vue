@@ -206,9 +206,9 @@ watch(
           </NFormItem>
           <NFormItem :label="$t('page.system.user.sex')" path="gender">
             <NRadioGroup v-model:value="model.gender">
-              <NRadio :value="1">男</NRadio>
-              <NRadio :value="2">女</NRadio>
-              <NRadio :value="3">未知</NRadio>
+              <NRadio :value="1">{{ $t('dict.sys_user_sex.male') }}</NRadio>
+              <NRadio :value="2">{{ $t('dict.sys_user_sex.female') }}</NRadio>
+              <NRadio :value="3">{{ $t('dict.sys_user_sex.unknown') }}</NRadio>
             </NRadioGroup>
           </NFormItem>
           <NFormItem :label="$t('page.system.user.roleIds')" path="role_id">
@@ -264,8 +264,8 @@ watch(
           </NFormItem>
           <NFormItem :label="$t('page.system.user.status')" path="status">
             <NRadioGroup v-model:value="model.status">
-              <NRadio :value="1">正常</NRadio>
-              <NRadio :value="2">停用</NRadio>
+              <NRadio :value="1">{{ $t('dict.sys_normal_disable.normal') }}</NRadio>
+              <NRadio :value="2">{{ $t('dict.sys_normal_disable.disable') }}</NRadio>
             </NRadioGroup>
           </NFormItem>
         </NForm>

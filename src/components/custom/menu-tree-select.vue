@@ -4,9 +4,9 @@ import type { TreeOption } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
 import { menuNodeType } from '@/constants/business';
 import { fetchGetMenuNodeTrees } from '@/service/api/system';
+import { translateRouteTitle } from '@/utils/common';
 import { defaultMenuIcon } from '@/plugins/iconify-offline-icons';
 import SvgIcon from '@/components/custom/svg-icon.vue';
-import { $t } from '@/locales';
 
 defineOptions({
   name: 'MenuTreeSelect',
@@ -100,10 +100,7 @@ onMounted(() => {
 });
 
 function renderLabel({ option }: { option: TreeOption }) {
-  let label = option.label;
-  if (label?.startsWith('route.') || label?.startsWith('menu.')) {
-    label = $t(label as App.I18n.I18nKey);
-  }
+  const label = translateRouteTitle(String(option.label || ''));
   if (option.visible === '1') {
     return (
       <div class="flex items-center gap-4px text-gray-400">

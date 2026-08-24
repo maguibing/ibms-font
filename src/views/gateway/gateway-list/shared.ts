@@ -1,4 +1,4 @@
-import type { StatusTagMap } from '@sa/materials';
+import type { StatusTagMap } from '@/components/custom/status-tag.vue';
 
 export const GATEWAY_PROTOCOL_OPTIONS: CommonType.Option<Api.Gateway.ProtocolType, string>[] = [
   { label: 'MQTT', value: 1 },

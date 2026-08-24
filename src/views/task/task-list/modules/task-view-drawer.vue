@@ -2,7 +2,7 @@
 import { computed, h, shallowRef, watch } from 'vue';
 import { NTag } from 'naive-ui';
 import dayjs from 'dayjs';
-import { StatusTag } from '@sa/materials';
+import StatusTag from '@/components/custom/status-tag.vue';
 import { useLoading } from '@sa/hooks';
 import EnumTag from '@/components/custom/enum-tag.vue';
 import { fetchGetTask } from '@/service/api/task';

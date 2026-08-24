@@ -4,9 +4,9 @@ import type { TreeOption, TreeSelectInst } from 'naive-ui';
 import { useBoolean } from '@sa/hooks';
 import { menuNodeType } from '@/constants/business';
 import { fetchGetMenuNodeTrees } from '@/service/api/system';
+import { translateRouteTitle } from '@/utils/common';
 import { defaultMenuIcon } from '@/plugins/iconify-offline-icons';
 import SvgIcon from '@/components/custom/svg-icon.vue';
-import { $t } from '@/locales';
 
 defineOptions({
   name: 'MenuTree',
@@ -132,10 +132,7 @@ watch([expandAll, options], ([newVal]) => {
 });
 
 function renderLabel({ option }: { option: TreeOption }) {
-  let label = option.label;
-  if (label?.startsWith('route.') || label?.startsWith('menu.')) {
-    label = $t(label as App.I18n.I18nKey);
-  }
+  const label = translateRouteTitle(String(option.label || ''));
   // 禁用的菜单显示红色
   if (option.status === '1') {
     return (

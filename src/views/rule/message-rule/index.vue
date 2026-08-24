@@ -1,7 +1,7 @@
 <script setup lang="tsx">
 import { ref, shallowRef } from 'vue';
 import { NDivider } from 'naive-ui';
-import { StatusTag, type StatusTagMap } from '@sa/materials';
+import StatusTag, { type StatusTagMap } from '@/components/custom/status-tag.vue';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { useAppStore } from '@/store/modules/app';
 import { useAuth } from '@/hooks/business/auth';

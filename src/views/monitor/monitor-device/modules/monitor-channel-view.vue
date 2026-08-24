@@ -2,7 +2,7 @@
 import { computed, h, onMounted, ref, shallowRef } from 'vue';
 import { NDivider, NTag } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
-import { StatusTag } from '@sa/materials';
+import StatusTag from '@/components/custom/status-tag.vue';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
 import { useAppStore } from '@/store/modules/app';
 import { useAuth } from '@/hooks/business/auth';

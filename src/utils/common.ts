@@ -1,5 +1,5 @@
 import { AcceptType } from '@/enum/business';
-import { $t } from '@/locales';
+import { $t, hasLocaleKey } from '@/locales';
 /**
  * Transform record to option
  *
@@ -42,6 +42,26 @@ export function translateOptions(options: CommonType.Option<string, App.I18n.I18
     ...option,
     label: $t(option.label)
   }));
+}
+
+export function getRouteTitleI18nKey(title: string) {
+  if (title.startsWith('route.') || title.startsWith('menu.')) {
+    return title as App.I18n.I18nKey;
+  }
+
+  if (!/^[a-z][a-z0-9_-]*$/.test(title)) {
+    return null;
+  }
+
+  const routeKey = `route.${title}` as App.I18n.I18nKey;
+
+  return hasLocaleKey(routeKey) ? routeKey : null;
+}
+
+export function translateRouteTitle(title: string) {
+  const i18nKey = getRouteTitleI18nKey(title);
+
+  return i18nKey ? $t(i18nKey) : title;
 }
 
 /**

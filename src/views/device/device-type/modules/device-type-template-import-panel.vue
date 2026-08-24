@@ -2,7 +2,7 @@
 import { computed, h, onMounted, ref, shallowRef, watch } from 'vue';
 import type { DataTableColumns } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
-import { StatusTag } from '@sa/materials';
+import StatusTag from '@/components/custom/status-tag.vue';
 import { fetchCreateDeviceType } from '@/service/api/device';
 import {
   fetchGetDeviceTypeTemplateCategoryList,

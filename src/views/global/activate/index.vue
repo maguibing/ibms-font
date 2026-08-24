@@ -4,6 +4,7 @@ import { useLoading } from '@sa/hooks';
 import { copyText, isClipboardSupported } from '@sa/utils';
 import { fetchGenerateSysCert } from '@/service/api/system/activate';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'GlobalActivate'
@@ -28,36 +29,36 @@ const formModel = ref<FormModel>(createDefaultFormModel());
 const generatedLicense = ref('');
 const resultPanelRef = ref<HTMLElement | null>(null);
 
-const strategyCards: StrategyCard[] = [
+const strategyCards = computed<StrategyCard[]>(() => [
   {
     value: 1,
-    label: '指定时间',
-    desc: '必须选择到期时间，提交真实 Unix 时间戳。'
+    label: $t('page.global.activate.strategySpecified'),
+    desc: $t('page.global.activate.strategySpecifiedDesc')
   },
   {
     value: 2,
-    label: '永久激活',
-    desc: '自动忽略时间选择，提交 license_expire_at = 0。'
+    label: $t('page.global.activate.strategyPermanent'),
+    desc: $t('page.global.activate.strategyPermanentDesc')
   }
-];
+]);
 
 const isPermanent = computed(() => formModel.value.license_type === 2);
 const hasResult = computed(() => Boolean(generatedLicense.value));
 
 const submitPreview = computed(() => {
   if (isPermanent.value) {
-    return '将提交：license_type = 2，license_expire_at = 0（永久激活）';
+    return $t('page.global.activate.previewPermanent');
   }
 
   if (!formModel.value.license_expire_at) {
-    return '将提交：请选择到期时间后生成';
+    return $t('page.global.activate.previewPending');
   }
 
-  return `将提交：license_type = 1，license_expire_at = ${Number(formModel.value.license_expire_at)}`;
+  return $t('page.global.activate.previewSpecified', { expireAt: Number(formModel.value.license_expire_at) });
 });
 
 const rules = computed<Record<keyof FormModel, App.Global.FormRule[]>>(() => ({
-  license_type: [createRequiredRule('请选择激活类型')],
+  license_type: [createRequiredRule($t('page.global.activate.form.licenseType.required'))],
   license_expire_at: [
     {
       trigger: ['change', 'blur'],
@@ -67,7 +68,7 @@ const rules = computed<Record<keyof FormModel, App.Global.FormRule[]>>(() => ({
         }
 
         if (!value) {
-          return new Error('请选择到期时间');
+          return new Error($t('page.global.activate.form.expireTime.required'));
         }
 
         return true;
@@ -115,17 +116,17 @@ async function scrollToResultPanel() {
 
 async function handleCopyResult() {
   if (!isClipboardSupported()) {
-    window.$message?.error('您的浏览器不支持 Clipboard API');
+    window.$message?.error($t('page.global.activate.message.clipboardUnsupported'));
     return;
   }
 
   const copied = await copyText(generatedLicense.value);
   if (!copied) {
-    window.$message?.error('复制失败，请手动复制');
+    window.$message?.error($t('page.global.activate.message.copyFailed'));
     return;
   }
 
-  window.$message?.success('复制成功');
+  window.$message?.success($t('page.global.activate.message.copySuccess'));
 }
 
 async function handleSubmit() {
@@ -143,7 +144,7 @@ async function handleSubmit() {
     }
 
     generatedLicense.value = data?.license_content || '';
-    window.$message?.success('激活码生成成功');
+    window.$message?.success($t('page.global.activate.message.generateSuccess'));
 
     if (generatedLicense.value) {
       await scrollToResultPanel();
@@ -179,10 +180,14 @@ watch(
 
     <div class="relative z-1 mx-auto min-h-[calc(100vh-176px)] max-w-4xl flex flex-col justify-center space-y-4 py-4">
       <header class="rounded-3 border border-primary/16 bg-[rgb(var(--container-bg-color))] px-5 py-4 sm:px-6">
-        <p class="m-0 text-12px text-primary font-700 tracking-[0.08em]">SYSTEM LICENSE</p>
-        <h2 class="mt-1 text-24px text-base-text font-800 leading-tight sm:text-28px">激活码生成</h2>
+        <p class="m-0 text-12px text-primary font-700 tracking-[0.08em]">
+          {{ $t('page.global.activate.eyebrow') }}
+        </p>
+        <h2 class="mt-1 text-24px text-base-text font-800 leading-tight sm:text-28px">
+          {{ $t('page.global.activate.title') }}
+        </h2>
         <p class="mt-2 text-13px text-base-text/70">
-          按顺序选择激活策略并提交，生成结果会在当前页面展示，便于立即复制使用。
+          {{ $t('page.global.activate.description') }}
         </p>
       </header>
 
@@ -195,11 +200,13 @@ watch(
       >
         <section class="space-y-3">
           <div class="flex items-center justify-between gap-3">
-            <h3 class="m-0 text-16px text-base-text font-700">1. 选择激活类型</h3>
-            <span class="rounded-full bg-primary/10 px-2.5 py-1 text-11px text-primary font-700">必选</span>
+            <h3 class="m-0 text-16px text-base-text font-700">{{ $t('page.global.activate.stepSelectType') }}</h3>
+            <span class="rounded-full bg-primary/10 px-2.5 py-1 text-11px text-primary font-700">
+              {{ $t('page.global.activate.required') }}
+            </span>
           </div>
 
-          <NFormItem label="激活类型" path="license_type" class="m-0">
+          <NFormItem :label="$t('page.global.activate.licenseType')" path="license_type" class="m-0">
             <div class="grid w-full gap-3 md:grid-cols-2">
               <button
                 v-for="item in strategyCards"
@@ -208,8 +215,8 @@ watch(
                 class="strategy-card group relative w-full overflow-hidden rounded-3 border px-4 py-4 text-left transition-all duration-300"
                 :class="
                   formModel.license_type === item.value
-                    ? 'is-active border-primary/45 bg-primary/10'
-                    : 'border-[rgb(var(--border-color))] bg-[rgb(var(--table-color))] hover:border-primary/35'
+                    ? 'is-active border-primary/28 bg-primary/6 dark:border-primary/52 dark:bg-primary/14'
+                    : 'border-primary/10 bg-[rgb(var(--table-color))] hover:(border-primary/20 bg-primary/5) dark:border-primary/22 dark:bg-#20242b dark:hover:(border-primary/42 bg-primary/10)'
                 "
                 @click="selectLicenseType(item.value)"
               >
@@ -221,9 +228,9 @@ watch(
         </section>
 
         <section class="space-y-3">
-          <h3 class="m-0 text-16px text-base-text font-700">2. 设置到期时间</h3>
+          <h3 class="m-0 text-16px text-base-text font-700">{{ $t('page.global.activate.stepSetExpireTime') }}</h3>
 
-          <NFormItem label="到期时间" path="license_expire_at" class="m-0">
+          <NFormItem :label="$t('page.global.activate.expireTime')" path="license_expire_at" class="m-0">
             <NDatePicker
               v-model:formatted-value="formModel.license_expire_at"
               type="datetime"
@@ -232,7 +239,11 @@ watch(
               class="w-full"
               :disabled="isPermanent"
               :is-date-disabled="isDateDisabled"
-              :placeholder="isPermanent ? '永久激活无需选择时间' : '请选择到期时间（不可早于当前时间）'"
+              :placeholder="
+                isPermanent
+                  ? $t('page.global.activate.permanentDatePlaceholder')
+                  : $t('page.global.activate.datePlaceholder')
+              "
             />
           </NFormItem>
           <p class="m-0 text-12px text-base-text/65">
@@ -241,16 +252,18 @@ watch(
         </section>
 
         <section class="space-y-3">
-          <h3 class="m-0 text-16px text-base-text font-700">3. 生成激活码</h3>
+          <h3 class="m-0 text-16px text-base-text font-700">{{ $t('page.global.activate.stepGenerate') }}</h3>
           <div class="flex flex-col gap-2 sm:flex-row sm:justify-end">
-            <NButton quaternary class="sm:min-w-108px" @click="handleReset">重置表单</NButton>
+            <NButton quaternary class="sm:min-w-108px" @click="handleReset">
+              {{ $t('page.global.activate.resetForm') }}
+            </NButton>
             <NButton
               type="primary"
               :loading="loading"
               class="sm:min-w-130px transition-transform duration-300 hover:scale-[1.02]"
               @click="handleSubmit"
             >
-              生成激活码
+              {{ $t('page.global.activate.generate') }}
             </NButton>
           </div>
         </section>
@@ -263,12 +276,16 @@ watch(
           class="space-y-3 rounded-3 border border-success/35 bg-success/6 p-4 sm:p-5"
         >
           <div class="flex flex-wrap items-center justify-between gap-3">
-            <h3 class="m-0 text-16px text-base-text font-700">4. 生成结果</h3>
-            <NButton type="success" secondary @click="handleCopyResult">复制激活码</NButton>
+            <h3 class="m-0 text-16px text-base-text font-700">{{ $t('page.global.activate.stepResult') }}</h3>
+            <NButton type="success" secondary @click="handleCopyResult">
+              {{ $t('page.global.activate.copyLicense') }}
+            </NButton>
           </div>
-          <pre
+          <div
             class="m-0 max-h-280px overflow-auto rounded-2 border border-success/30 bg-[rgb(var(--container-bg-color))] p-3 text-12px text-base-text leading-5"
-          >{{ generatedLicense }}</pre>
+          >
+            <NCode :code="generatedLicense" language="text" :word-wrap="true" />
+          </div>
         </section>
       </Transition>
     </div>
@@ -277,13 +294,23 @@ watch(
 
 <style scoped>
 .strategy-card {
-  box-shadow: inset 0 0 0 1px transparent;
+  box-shadow: inset 0 0 0 1px rgba(var(--primary-color), 0.04);
 }
 
 .strategy-card.is-active {
   box-shadow:
-    inset 0 0 0 1px rgba(var(--primary-color), 0.3),
-    0 8px 18px -14px rgba(var(--primary-color), 0.45);
+    inset 0 0 0 1px rgba(var(--primary-color), 0.16),
+    0 8px 18px -16px rgba(var(--primary-color), 0.3);
+}
+
+:global(.dark) .strategy-card {
+  box-shadow: inset 0 0 0 1px rgba(var(--primary-color), 0.12);
+}
+
+:global(.dark) .strategy-card.is-active {
+  box-shadow:
+    inset 0 0 0 1px rgba(var(--primary-color), 0.34),
+    0 10px 24px -16px rgba(var(--primary-color), 0.55);
 }
 
 .fade-slide-enter-active,

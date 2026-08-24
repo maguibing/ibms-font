@@ -77,7 +77,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '版本名称',
+        title: $t('page.corp.version.versionName'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -86,7 +86,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'corp_id',
-        title: '集成商',
+        title: $t('page.corp.version.corp'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -96,21 +96,25 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'status',
-        title: '状态',
+        title: $t('page.corp.common.status'),
         align: 'center',
         minWidth: 100,
-        render: row => <NTag type={row.corp_id ? 'success' : 'warning'}>{row.corp_id ? '使用中' : '未分配'}</NTag>
+        render: row => (
+          <NTag type={row.corp_id ? 'success' : 'warning'}>
+            {row.corp_id ? $t('page.corp.version.using') : $t('page.corp.version.unassigned')}
+          </NTag>
+        )
       },
       {
         key: 'start_at',
-        title: '开始时间',
+        title: $t('page.corp.version.startTime'),
         align: 'center',
         minWidth: 180,
         render: row => <NTime time={row.start_at} unix />
       },
       {
         key: 'end_at',
-        title: '结束时间',
+        title: $t('page.corp.version.endTime'),
         align: 'center',
         minWidth: 180,
         render: row => <NTime time={row.end_at} unix />
@@ -126,7 +130,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               text
               type="primary"
               icon="material-symbols:fact-check-outline"
-              tooltipContent="权益查看"
+              tooltipContent={$t('page.corp.version.benefitView')}
               onClick={() => handleViewBenefit(row)}
             />
           );
@@ -250,10 +254,14 @@ async function handleBatchDelete() {
         <NCollapseItem :title="$t('common.search')" name="corp-version-search">
           <NForm :model="searchParams" label-placement="left" :label-width="100">
             <NGrid responsive="screen" item-responsive>
-              <NFormItemGi span="24 s:12 m:8" label="版本名称" path="name" class="pr-24px">
-                <NInput v-model:value="searchParams.name" placeholder="请输入版本名称" @keyup.enter="handleSearch" />
+              <NFormItemGi span="24 s:12 m:8" :label="$t('page.corp.version.versionName')" path="name" class="pr-24px">
+                <NInput
+                  v-model:value="searchParams.name"
+                  :placeholder="$t('page.corp.version.form.versionName.required')"
+                  @keyup.enter="handleSearch"
+                />
               </NFormItemGi>
-              <NFormItemGi span="24 s:12 m:8" label="集成商" path="corp_id" class="pr-24px">
+              <NFormItemGi span="24 s:12 m:8" :label="$t('page.corp.version.corp')" path="corp_id" class="pr-24px">
                 <RemoteSearchSelect
                   v-model:value="searchParams.corp_id"
                   :request="fetchGetCorpList"
@@ -261,7 +269,7 @@ async function handleBatchDelete() {
                   :search-type="1"
                   label-field="name"
                   value-field="id"
-                  placeholder="请选择集成商"
+                  :placeholder="$t('page.corp.version.form.corp.required')"
                   clearable
                 />
               </NFormItemGi>
@@ -287,7 +295,7 @@ async function handleBatchDelete() {
       </NCollapse>
     </NCard>
 
-    <NCard title="版本列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('page.corp.version.title')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

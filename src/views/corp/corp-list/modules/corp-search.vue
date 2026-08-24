@@ -42,14 +42,31 @@ async function search() {
       <NCollapseItem :title="$t('common.search')" name="corp-list-search">
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="100">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:6" label="集成商名称" path="name" class="pr-24px">
-              <NInput v-model:value="model.name" placeholder="请输入集成商名称" @keyup.enter="search" />
+            <NFormItemGi span="24 s:12 m:6" :label="$t('page.corp.common.name')" path="name" class="pr-24px">
+              <NInput
+                v-model:value="model.name"
+                :placeholder="$t('page.corp.common.form.name.required')"
+                @keyup.enter="search"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="联系人" path="contact_name" class="pr-24px">
-              <NInput v-model:value="model.contact_name" placeholder="请输入联系人" @keyup.enter="search" />
+            <NFormItemGi span="24 s:12 m:6" :label="$t('page.corp.common.contact')" path="contact_name" class="pr-24px">
+              <NInput
+                v-model:value="model.contact_name"
+                :placeholder="$t('page.corp.common.form.contact.required')"
+                @keyup.enter="search"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:6" label="联系电话" path="contact_phone" class="pr-24px">
-              <NInput v-model:value="model.contact_phone" placeholder="请输入联系电话" @keyup.enter="search" />
+            <NFormItemGi
+              span="24 s:12 m:6"
+              :label="$t('page.corp.common.contactPhone')"
+              path="contact_phone"
+              class="pr-24px"
+            >
+              <NInput
+                v-model:value="model.contact_phone"
+                :placeholder="$t('page.corp.common.form.contactPhone.required')"
+                @keyup.enter="search"
+              />
             </NFormItemGi>
             <NFormItemGi :show-feedback="false" span="24 s:12 m:6" class="pr-24px">
               <NSpace class="w-full" justify="end">

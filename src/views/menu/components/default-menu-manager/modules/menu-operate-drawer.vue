@@ -1,25 +1,22 @@
 <script setup lang="tsx">
 import { computed, ref, watch } from 'vue';
 import type { SelectOption } from 'naive-ui';
-import {
-  menuIsFrameOptions,
-  menuLayoutOptions,
-  menuNodeType,
-  menuNodeTypeOptions
-} from '@/constants/business';
+import { menuNodeType } from '@/constants/business';
 import { fetchCreateMenuNode, fetchGetMenuNode, fetchUpdateMenuNode } from '@/service/api/system/menu';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { defaultMenuIcon, menuIconCollection, menuIconNames } from '@/plugins/iconify-offline-icons';
 import { $t } from '@/locales';
 import SvgIcon from '@/components/custom/svg-icon.vue';
+import {
+  getMenuIsFrameOptions,
+  getMenuLayoutOptions,
+  getMenuNodeTypeOptions,
+  translateMenuTree
+} from '../shared';
 
 defineOptions({
   name: 'MenuOperateDrawer'
 });
-
-const addableMenuNodeTypeOptions = menuNodeTypeOptions.filter(
-  item => item.value !== menuNodeType.button && item.value !== menuNodeType.extLink
-);
 
 interface Props {
   pType: CommonType.IdType;
@@ -68,13 +65,18 @@ const layoutType = ref<Api.System.MenuLayout>('0');
 const { formRef, validate, restoreValidation } = useNaiveForm();
 const { createRequiredRule, createNumberRequiredRule } = useFormRules();
 const buttonPermKey = ref('');
+const addableMenuNodeTypeOptions = computed(() =>
+  getMenuNodeTypeOptions([menuNodeType.catalog, menuNodeType.menu])
+);
+const menuIsFrameOptions = computed(getMenuIsFrameOptions);
+const menuLayoutOptions = computed(getMenuLayoutOptions);
 
 const drawerTitle = computed(() => {
-  const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增菜单',
-    edit: '编辑菜单'
+  const titles: Record<NaiveUI.TableOperateType, App.I18n.I18nKey> = {
+    add: 'page.system.menu.addMenu',
+    edit: 'page.system.menu.editMenu'
   };
-  return titles[props.operateType];
+  return $t(titles[props.operateType]);
 });
 
 const model = ref<Model>(createDefaultModel());
@@ -103,10 +105,10 @@ const cacheStatus = computed<PlatformBooleanStatus>({
 type RuleKey = Extract<keyof Model, 'title' | 'order_num' | 'path' | 'component'>;
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  title: createRequiredRule('请输入菜单名称'),
-  order_num: createNumberRequiredRule('请输入显示排序'),
-  path: createRequiredRule('请输入路由地址'),
-  component: createRequiredRule('请输入组件路径')
+  title: createRequiredRule($t('page.system.menu.form.menuName.required')),
+  order_num: createNumberRequiredRule($t('page.system.menu.form.orderNum.required')),
+  path: createRequiredRule($t('page.system.menu.form.path.required')),
+  component: createRequiredRule($t('page.system.menu.form.component.required'))
 };
 
 const menuIconNameSet = new Set(menuIconNames);
@@ -119,6 +121,8 @@ const menuIconOptions = menuIconNames.map<SelectOption>(item => ({
   ),
   value: `${menuIconPrefix}${item}`
 }));
+
+const translatedTreeData = computed(() => translateMenuTree(props.treeData ?? []));
 
 function normalizeMenuIcon(icon?: string) {
   if (!icon?.startsWith(menuIconPrefix)) {
@@ -347,18 +351,18 @@ function handleLayoutChange(value: string) {
     <NDrawerContent :title="drawerTitle" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules">
         <NGrid responsive="screen" item-responsive>
-          <NFormItemGi :span="24" label="上级菜单">
+          <NFormItemGi :span="24" :label="$t('page.system.menu.parentId')">
             <NTreeSelect
               v-model:value="model.parent_id"
               filterable
               key-field="id"
               label-field="label"
-              :options="treeData as []"
+              :options="translatedTreeData as []"
               :default-expanded-keys="[0]"
-              placeholder="请选择上级菜单"
+              :placeholder="$t('page.system.menu.form.parentId.required')"
             />
           </NFormItemGi>
-          <NFormItemGi v-if="!isBtn" :span="12" label="菜单类型" path="menu_type">
+          <NFormItemGi v-if="!isBtn" :span="12" :label="$t('page.system.menu.menuType')" path="menu_type">
             <NRadioGroup v-model:value="model.menu_type">
               <NRadioButton
                 v-for="item in addableMenuNodeTypeOptions"
@@ -379,8 +383,13 @@ function handleLayoutChange(value: string) {
               <NRadio v-for="item in menuLayoutOptions" :key="item.value" :value="item.value" :label="item.label" />
             </NRadioGroup>
           </NFormItemGi>
-          <NFormItemGi span="24" label="菜单名称" path="title">
-            <NInput v-model:value="model.title" placeholder="请输入菜单名称" :maxlength="10" show-count />
+          <NFormItemGi span="24" :label="$t('page.system.menu.menuName')" path="title">
+            <NInput
+              v-model:value="model.title"
+              :placeholder="$t('page.system.menu.form.menuName.required')"
+              :maxlength="48"
+              show-count
+            />
           </NFormItemGi>
 
           <NFormItemGi v-if="!isBtn" :span="12" path="is_frame">
@@ -416,21 +425,31 @@ function handleLayoutChange(value: string) {
               </NSpace>
             </NRadioGroup>
           </NFormItemGi>
-          <NFormItemGi v-if="!isBtn" :span="24" label="路由地址" path="path">
-            <NInput v-model:value="model.path" placeholder="请输入路由地址" />
+          <NFormItemGi v-if="!isBtn" :span="24" :label="$t('page.system.menu.path')" path="path">
+            <NInput v-model:value="model.path" :placeholder="$t('page.system.menu.form.path.required')" />
           </NFormItemGi>
-          <NFormItemGi v-if="isMenu" :span="24" label="路由名称" path="name">
-            <NInput v-model:value="model.name" placeholder="请输入路由名称" />
+          <NFormItemGi v-if="isMenu" :span="24" :label="$t('page.system.menu.routeName')" path="name">
+            <NInput v-model:value="model.name" :placeholder="$t('page.system.menu.form.routeName.required')" />
           </NFormItemGi>
-          <NFormItemGi v-if="isMenu && isInternalType" :span="24" label="组件路径" path="component">
+          <NFormItemGi
+            v-if="isMenu && isInternalType"
+            :span="24"
+            :label="$t('page.system.menu.component')"
+            path="component"
+          >
             <NInputGroup>
               <NInputGroupLabel>views/</NInputGroupLabel>
-              <NInput v-model:value="model.component" placeholder="请输入组件路径" />
+              <NInput v-model:value="model.component" :placeholder="$t('page.system.menu.form.component.required')" />
               <NInputGroupLabel>/index.vue</NInputGroupLabel>
             </NInputGroup>
           </NFormItemGi>
-          <NFormItemGi v-if="!isBtn" span="24" label="菜单图标" path="icon">
-            <NSelect v-model:value="model.icon" filterable :options="menuIconOptions" placeholder="请选择菜单图标" />
+          <NFormItemGi v-if="!isBtn" span="24" :label="$t('page.system.menu.icon')" path="icon">
+            <NSelect
+              v-model:value="model.icon"
+              filterable
+              :options="menuIconOptions"
+              :placeholder="$t('page.system.menu.form.icon.required')"
+            />
           </NFormItemGi>
           <NFormItemGi v-if="!isBtn" :span="12" path="is_visible">
             <template #label>
@@ -441,8 +460,8 @@ function handleLayoutChange(value: string) {
             </template>
             <NRadioGroup v-model:value="visibleStatus" :disabled="isBlankLayout">
               <NSpace>
-                <NRadio value="1" label="显示" />
-                <NRadio value="2" label="隐藏" />
+                <NRadio value="1" :label="$t('dict.sys_show_hide.show')" />
+                <NRadio value="2" :label="$t('dict.sys_show_hide.hide')" />
               </NSpace>
             </NRadioGroup>
           </NFormItemGi>
@@ -456,14 +475,17 @@ function handleLayoutChange(value: string) {
             </template>
             <NRadioGroup v-model:value="visibleStatus">
               <NSpace>
-                <NRadio value="1" label="正常" />
-                <NRadio value="2" label="停用" />
+                <NRadio value="1" :label="$t('dict.sys_normal_disable.normal')" />
+                <NRadio value="2" :label="$t('dict.sys_normal_disable.disable')" />
               </NSpace>
             </NRadioGroup>
           </NFormItemGi>
 -->
-          <NFormItemGi :span="12" label="显示排序" path="order_num">
-            <NInputNumber v-model:value="model.order_num" placeholder="请输入显示排序" />
+          <NFormItemGi :span="12" :label="$t('page.system.menu.orderNum')" path="order_num">
+            <NInputNumber
+              v-model:value="model.order_num"
+              :placeholder="$t('page.system.menu.form.orderNum.required')"
+            />
           </NFormItemGi>
         </NGrid>
       </NForm>

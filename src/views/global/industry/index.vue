@@ -24,7 +24,6 @@ const searchParams = ref<Api.System.IndustrySearchParams>({
   name: null
 });
 
-/** 将 IndustrySearchParams 转换为 CommonListQueryParams */
 function transformSearchParamsToRequest(params: Api.System.IndustrySearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
   const pageSize = params.pageSize || 10;
@@ -67,19 +66,19 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '行业名称',
+        title: $t('page.global.industry.name'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'sort',
-        title: '排序号',
+        title: $t('page.global.industry.sort'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'created_at',
-        title: '创建时间',
+        title: $t('page.global.industry.createTime'),
         align: 'center',
         minWidth: 120,
         render: row => formatDateTime(row.created_at)
@@ -157,7 +156,12 @@ function edit(id: CommonType.IdType) {
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <DemoSearch v-model:model="searchParams" @search="getDataByPage" />
-    <NCard title="行业管理" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard
+      :title="$t('page.global.industry.title')"
+      :bordered="false"
+      size="small"
+      class="card-wrapper sm:flex-1-hidden"
+    >
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

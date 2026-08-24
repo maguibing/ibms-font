@@ -55,7 +55,7 @@ const categoryTitle = computed(() => {
       <span>{category.name}</span>
     </NEllipsis>
   ) : (
-    <div>设备类型模板</div>
+    <div>{$t('page.global.deviceTypeTemplate.title')}</div>
   );
 });
 
@@ -112,7 +112,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '设备类型名称',
+        title: $t('page.global.deviceTypeTemplate.name'),
         align: 'center',
         minWidth: 140,
         ellipsis: {
@@ -121,7 +121,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'key',
-        title: '标识',
+        title: $t('page.global.deviceTypeTemplate.key'),
         align: 'center',
         minWidth: 120,
         ellipsis: {
@@ -130,20 +130,20 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'status',
-        title: '状态',
+        title: $t('page.global.deviceTypeTemplate.status'),
         align: 'center',
         minWidth: 100,
         render: row => {
           if (Number(row.status) === 1) {
-            return <NTag type="success">启用</NTag>;
+            return <NTag type="success">{$t('page.global.deviceTypeTemplate.enable')}</NTag>;
           }
 
-          return <NTag type="default">停用</NTag>;
+          return <NTag type="default">{$t('page.global.deviceTypeTemplate.disable')}</NTag>;
         }
       },
       {
         key: 'updated_at',
-        title: '更新时间',
+        title: $t('page.global.deviceTypeTemplate.updateTime'),
         align: 'center',
         minWidth: 180,
         render: row => formatDateTime(row.updated_at)
@@ -172,7 +172,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 text
                 type="primary"
                 icon="material-symbols:swap-horizontal-circle"
-                tooltipContent="点位管理"
+                tooltipContent={$t('page.global.deviceTypeTemplate.pointManagement')}
                 onClick={() => handlePointManage(row)}
               />
             );
@@ -279,7 +279,7 @@ function handleResetSearch() {
 
 function handleAddDeviceType() {
   if (selectedCategoryId.value === null || selectedCategoryId.value === undefined) {
-    window.$message?.warning('请选择左侧分类');
+    window.$message?.warning($t('page.global.deviceTypeTemplate.message.selectCategory'));
     return;
   }
 
@@ -382,7 +382,7 @@ getCategoryData();
 </script>
 
 <template>
-  <TableSiderLayout sider-title="设备类型模板分类">
+  <TableSiderLayout :sider-title="$t('page.global.deviceTypeTemplate.categoryTitle')">
     <template #header-extra>
       <ButtonIcon
         v-if="hasAuth('global:device-type-template:category:add')"
@@ -421,7 +421,10 @@ getCategoryData();
           @update:selected-keys="handleClickTree"
         >
           <template #empty>
-            <NEmpty description="暂无设备类型模板分类" class="h-full min-h-200px justify-center" />
+            <NEmpty
+              :description="$t('page.global.deviceTypeTemplate.emptyCategory')"
+              class="h-full min-h-200px justify-center"
+            />
           </template>
         </NTree>
       </NSpin>
@@ -432,11 +435,16 @@ getCategoryData();
           <NCollapseItem :title="$t('common.search')" name="device-type-template-search">
             <NForm :show-feedback="false" label-placement="left" :label-width="80">
               <NGrid responsive="screen" item-responsive>
-                <NFormItemGi span="24 s:12 m:8" label="设备类型名称" label-width="auto" class="pr-24px">
+                <NFormItemGi
+                  span="24 s:12 m:8"
+                  :label="$t('page.global.deviceTypeTemplate.name')"
+                  label-width="auto"
+                  class="pr-24px"
+                >
                   <NInput
                     v-model:value="searchParams.name"
                     clearable
-                    placeholder="请输入设备类型名称"
+                    :placeholder="$t('page.global.deviceTypeTemplate.form.name.required')"
                     @keyup.enter="getDataByPage()"
                   />
                 </NFormItemGi>

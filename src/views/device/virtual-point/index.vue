@@ -1,7 +1,7 @@
 <script setup lang="tsx">
 import { computed, h, ref, shallowRef } from 'vue';
 import { NDivider, NTag } from 'naive-ui';
-import { StatusTag } from '@sa/materials';
+import StatusTag from '@/components/custom/status-tag.vue';
 import {
   fetchDeleteVirtualPoint,
   fetchGetVirtualPointList

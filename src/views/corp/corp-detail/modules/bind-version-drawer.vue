@@ -83,7 +83,7 @@ const { columns, data, getData, getDataByPage, loading, mobilePagination, scroll
     },
     {
       key: 'name',
-      title: '名称',
+      title: $t('page.corp.version.name'),
       align: 'center',
       minWidth: 160,
       ellipsis: {
@@ -92,14 +92,14 @@ const { columns, data, getData, getDataByPage, loading, mobilePagination, scroll
     },
     {
       key: 'start_at',
-      title: '开始时间',
+      title: $t('page.corp.version.startTime'),
       align: 'center',
       minWidth: 180,
       render: row => h(NTime, { time: row.start_at, unix: true })
     },
     {
       key: 'end_at',
-      title: '结束时间',
+      title: $t('page.corp.version.endTime'),
       align: 'center',
       minWidth: 180,
       render: row => h(NTime, { time: row.end_at, unix: true })
@@ -140,7 +140,7 @@ async function handleSubmit() {
   if (!corpId.value) return;
 
   if (!newVersionIds.value.length) {
-    window.$message?.warning('请选择需要添加的版本');
+    window.$message?.warning($t('page.corp.version.selectVersion'));
     return;
   }
 
@@ -152,7 +152,7 @@ async function handleSubmit() {
 
   if (error) return;
 
-  window.$message?.success('添加成功');
+  window.$message?.success($t('common.addSuccess'));
   closeDrawer();
   emit('submitted');
 }
@@ -165,7 +165,7 @@ defineExpose({
 <template>
   <NDrawer
     v-model:show="visible"
-    title="添加已有版本"
+    :title="$t('page.corp.version.addExistingVersion')"
     display-directive="show"
     :width="980"
     class="max-w-90%"
@@ -173,7 +173,7 @@ defineExpose({
     wrapper-class="h-full"
   >
     <NDrawerContent
-      title="添加已有版本"
+      :title="$t('page.corp.version.addExistingVersion')"
       :native-scrollbar="false"
       closable
       body-class="h-full"
@@ -182,11 +182,11 @@ defineExpose({
       <div class="h-full flex-col-stretch gap-12px overflow-hidden lt-sm:overflow-auto">
         <NForm :model="searchParams" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="版本名称" path="keyword" class="pr-24px">
+            <NFormItemGi span="24 s:12 m:8" :label="$t('page.corp.version.versionName')" path="keyword" class="pr-24px">
               <NInput
                 v-model:value="searchParams.keyword"
                 clearable
-                placeholder="请输入版本名称"
+                :placeholder="$t('page.corp.version.form.versionName.required')"
                 @keyup.enter="() => getDataByPage()"
               />
             </NFormItemGi>
@@ -211,10 +211,10 @@ defineExpose({
 
         <NAlert type="info">
           <span v-if="newVersionIds.length">
-            已选择 {{ newVersionIds.length }} 个待添加版本
-            <NButton class="pl-6px" text type="primary" @click="clearSelected">清空</NButton>
+            {{ $t('page.corp.version.selectedAddVersions', { count: newVersionIds.length }) }}
+            <NButton class="pl-6px" text type="primary" @click="clearSelected">{{ $t('common.clear') }}</NButton>
           </span>
-          <span v-else>请选择需要添加的版本</span>
+          <span v-else>{{ $t('page.corp.version.selectVersion') }}</span>
         </NAlert>
 
         <NCard :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">

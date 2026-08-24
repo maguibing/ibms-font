@@ -21,6 +21,10 @@ export function setupI18n(app: App) {
 
 export const $t = i18n.global.t as App.I18n.$T;
 
+export function hasLocaleKey(key: App.I18n.I18nKey) {
+  return i18n.global.te(key);
+}
+
 export function setLocale(locale: App.I18n.LangType) {
   i18n.global.locale.value = locale;
 

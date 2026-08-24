@@ -43,17 +43,33 @@ async function search() {
       <NCollapseItem :title="$t('common.search')" name="sys-screen-search">
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="大屏名称" label-width="auto" path="name" class="pr-24px">
-              <NInput v-model:value="model.name" placeholder="请输入大屏名称" @keyup.enter="search" />
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('page.global.sysScreen.name')"
+              label-width="auto"
+              path="name"
+              class="pr-24px"
+            >
+              <NInput
+                v-model:value="model.name"
+                :placeholder="$t('page.global.sysScreen.form.name.required')"
+                @keyup.enter="search"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="行业类型" label-width="auto" path="industry_type" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('page.global.sysScreen.industryType')"
+              label-width="auto"
+              path="industry_type"
+              class="pr-24px"
+            >
               <RemoteSearchSelect
                 v-model:value="model.industry_type"
                 :request="fetchGetIndustryList"
                 :search-type="1"
                 label-field="name"
                 value-field="id"
-                placeholder="请选择行业类型"
+                :placeholder="$t('page.global.sysScreen.form.industryType.required')"
                 clearable
               />
             </NFormItemGi>

@@ -3,15 +3,17 @@ import { computed, ref } from 'vue';
 import type { DataTableColumns, TreeOption } from 'naive-ui';
 import { NButton, NDivider, NIcon, NTag } from 'naive-ui';
 import { useBoolean, useLoading } from '@sa/hooks';
-import { menuNodeType, menuNodeTypeRecord, menuPlatformType } from '@/constants/business';
+import { menuNodeType, menuPlatformType } from '@/constants/business';
 import { fetchDeleteMenuNode, fetchGetMenuNodeTrees } from '@/service/api/system/menu';
 import { useAppStore } from '@/store/modules/app';
 import { useAuth } from '@/hooks/business/auth';
+import { translateRouteTitle } from '@/utils/common';
 import { $t } from '@/locales';
 import { defaultMenuIcon } from '@/plugins/iconify-offline-icons';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import MenuOperateDrawer from './modules/menu-operate-drawer.vue';
+import { getMenuNodeTypeLabel } from './shared';
 
 interface Props {
   title: string;
@@ -123,13 +125,13 @@ function createRootNode(children: MenuNodeItem[]): MenuNodeItem {
     perm_key: '',
     meta: {
       id: 0,
-      title: '根目录',
+      title: $t('common.rootDirectory'),
       icon: 'lucide:house',
       is_visible: true,
       keep_alive: false,
       menu_type: menuNodeType.catalog
     },
-    label: '根目录',
+    label: $t('common.rootDirectory'),
     icon: 'lucide:house',
     menu_type: menuNodeType.catalog,
     is_visible: true,
@@ -234,10 +236,7 @@ async function handleDeleteMenu(id?: CommonType.IdType) {
 function getMenuLabel(option: TreeOption) {
   const meta = option.meta as Api.System.MenuNodeMeta | undefined;
   const raw = String(option.label || meta?.title || option.name || '');
-  if (raw.startsWith('route.') || raw.startsWith('menu.')) {
-    return $t(raw as App.I18n.I18nKey);
-  }
-  return raw;
+  return translateRouteTitle(raw);
 }
 
 function customFilterTree(pattern: string, node: TreeOption) {
@@ -251,13 +250,17 @@ function renderLabel({ option }: { option: TreeOption }) {
   const label = getMenuLabel(option);
   if (option.id !== 0 && !(option.is_visible ?? false)) {
     return (
-      <div class="flex items-center gap-4px text-gray-400">
-        {label}
-        <SvgIcon icon="codex:hidden" class="text-21px" />
+      <div class="min-w-0 w-full max-w-full flex items-center gap-4px overflow-hidden text-gray-400" title={label}>
+        <span class="min-w-0 flex-1 truncate">{label}</span>
+        <SvgIcon icon="codex:hidden" class="shrink-0 text-21px" />
       </div>
     );
   }
-  return <div>{label}</div>;
+  return (
+    <div class="min-w-0 w-full max-w-full flex items-center gap-4px overflow-hidden" title={label}>
+      <span class="min-w-0 flex-1 truncate">{label}</span>
+    </div>
+  );
 }
 
 function renderPrefix({ option }: { option: TreeOption }) {
@@ -278,8 +281,8 @@ function renderSuffix({ option }: { option: TreeOption }) {
       <ButtonIcon
         text
         class="h-18px"
-        icon="ic-round-plus"
-        tooltip-content="新增子菜单"
+        icon="material-symbols:add-rounded"
+        tooltipContent={$t('page.system.menu.addChildMenu')}
         onClick={(event: Event) => {
           event.stopPropagation();
           handleAddMenu(option.id as CommonType.IdType);
@@ -329,10 +332,10 @@ function handleUpdateBtnMenu(row: MenuNodeItem) {
 }
 
 function renderMenuName(menuName: string) {
-  return menuName?.startsWith('route.') || menuName?.startsWith('menu.') ? $t(menuName as App.I18n.I18nKey) : menuName;
+  return translateRouteTitle(menuName);
 }
 
-const btnColumns: DataTableColumns<MenuNodeItem> = [
+const btnColumns = computed<DataTableColumns<MenuNodeItem>>(() => [
   {
     key: 'index',
     width: 64,
@@ -347,7 +350,7 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
           {{
             icon: () => (
               <NIcon>
-                <SvgIcon icon="ic-round-plus" />
+                <SvgIcon icon="material-symbols:add-rounded" />
               </NIcon>
             )
           }}
@@ -359,7 +362,7 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
     }
   },
   {
-    title: '按钮名称',
+    title: $t('page.system.menu.buttonName'),
     key: 'label',
     minWidth: 120,
     render(row) {
@@ -367,18 +370,22 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
     }
   },
   {
-    title: '权限标识',
+    title: $t('page.system.menu.permission'),
     key: 'perm_key',
     align: 'center',
     minWidth: 120
   },
   {
-    title: '显示',
+    title: $t('dict.sys_show_hide.show'),
     key: 'is_visible',
     align: 'center',
     minWidth: 150,
     render(row) {
-      return <NTag type={row.is_visible ? 'success' : 'warning'}>{row.is_visible ? '显示' : '隐藏'}</NTag>;
+      return (
+        <NTag type={row.is_visible ? 'success' : 'warning'}>
+          {row.is_visible ? $t('dict.sys_show_hide.show') : $t('dict.sys_show_hide.hide')}
+        </NTag>
+      );
     }
   },
   {
@@ -428,7 +435,7 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
       );
     }
   }
-];
+]);
 </script>
 
 <template>
@@ -440,7 +447,7 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
         size="small"
         icon="material-symbols:add-rounded"
         class="h-28px text-icon color-primary"
-        tooltip-content="新增菜单"
+        :tooltip-content="$t('page.system.menu.addMenu')"
         @click.stop="handleAddMenu(0)"
       />
       <ButtonIcon
@@ -453,7 +460,7 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
     </template>
     <template #sider>
       <div class="flex gap-6px">
-        <NInput v-model:value="name" size="small" placeholder="请输入菜单名称" />
+        <NInput v-model:value="name" size="small" :placeholder="$t('page.system.menu.form.menuName.required')" />
       </div>
       <NSpin :show="loading" class="infinite-scroll">
         <NTree
@@ -467,7 +474,8 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
           :default-expanded-keys="[0]"
           :show-irrelevant-nodes="false"
           :pattern="name"
-          class="menu-tree h-full min-h-200px py-3"
+          class="menu-tree h-full min-h-200px py-3 [&_.n-tree-node-content]:min-w-0 [&_.n-tree-node-content\_\_suffix]:shrink-0 [&_.n-tree-node-content\_\_text]:(min-w-0 flex-1 overflow-hidden)"
+          ellipsis
           key-field="id"
           label-field="label"
           virtual-scroll
@@ -477,7 +485,7 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
           @update:selected-keys="(_: Array<string | number>, option: Array<TreeOption | null>) => handleClickTree(option)"
         >
           <template #empty>
-            <NEmpty description="暂无菜单" class="h-full min-h-200px justify-center" />
+            <NEmpty :description="$t('page.system.menu.emptyMenu')" class="h-full min-h-200px justify-center" />
           </template>
         </NTree>
       </NSpin>
@@ -485,7 +493,7 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
     <div class="h-full flex-col-stretch gap-16px">
       <template v-if="currentMenu">
         <NCard
-          title="菜单详情"
+          :title="$t('page.system.menu.menuDetail')"
           :bordered="false"
           size="small"
           class="max-h-50% card-wrapper"
@@ -503,7 +511,7 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
                 <template #icon>
                   <icon-material-symbols-add-rounded />
                 </template>
-                新增子菜单
+                {{ $t('page.system.menu.addChildMenu') }}
               </NButton>
               <NButton v-if="canEdit" size="small" ghost type="primary" @click="handleUpdateMenu">
                 <template #icon>
@@ -538,40 +546,34 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
             label-class="w-20% min-w-88px"
             content-class="w-100px"
           >
-            <NDescriptionsItem label="菜单类型">
+            <NDescriptionsItem :label="$t('page.system.menu.menuType')">
               <NTag class="m-1" size="small" type="primary">
-                {{ menuNodeTypeRecord[currentMenu.menu_type] || '未知' }}
+                {{ getMenuNodeTypeLabel(currentMenu.menu_type) }}
               </NTag>
             </NDescriptionsItem>
-            <NDescriptionsItem label="菜单名称">
+            <NDescriptionsItem :label="$t('page.system.menu.menuName')">
               {{ renderMenuName(currentMenu.label) }}
             </NDescriptionsItem>
-            <NDescriptionsItem label="路由地址">
+            <NDescriptionsItem :label="$t('page.system.menu.path')">
               {{ currentMenu.path }}
             </NDescriptionsItem>
-            <NDescriptionsItem v-if="isMenu" label="组件路径">
+            <NDescriptionsItem v-if="isMenu" :label="$t('page.system.menu.component')">
               {{ currentMenu.component }}
             </NDescriptionsItem>
-            <NDescriptionsItem label="菜单状态">
-              <NTag class="m-1" size="small" type="success">正常</NTag>
+            <NDescriptionsItem :label="$t('page.system.menu.status')">
+              <NTag class="m-1" size="small" type="success">{{ $t('dict.sys_normal_disable.normal') }}</NTag>
             </NDescriptionsItem>
-            <!-- <NDescriptionsItem v-if="isMenu" label="路由参数"></NDescriptionsItem> -->
-            <!--
- <NDescriptionsItem v-if="!isCatalog" label="权限标识">
-              {{ currentMenu.perm_key }}
+            <NDescriptionsItem :label="$t('page.system.menu.isFrame')">
+              <NTag class="m-1" size="small" type="warning">{{ $t('common.yesOrNo.no') }}</NTag>
             </NDescriptionsItem>
--->
-            <NDescriptionsItem label="是否外链">
-              <NTag class="m-1" size="small" type="warning">否</NTag>
-            </NDescriptionsItem>
-            <NDescriptionsItem label="显示状态">
+            <NDescriptionsItem :label="$t('page.system.menu.visible')">
               <NTag class="m-1" size="small" :type="currentMenu.is_visible ? 'success' : 'warning'">
-                {{ currentMenu.is_visible ? '显示' : '隐藏' }}
+                {{ currentMenu.is_visible ? $t('dict.sys_show_hide.show') : $t('dict.sys_show_hide.hide') }}
               </NTag>
             </NDescriptionsItem>
-            <NDescriptionsItem v-if="isMenu" label="是否缓存">
+            <NDescriptionsItem v-if="isMenu" :label="$t('page.system.menu.isCache')">
               <NTag class="m-1" size="small" :type="currentMenu.keep_alive ? 'success' : 'warning'">
-                {{ currentMenu.keep_alive ? '缓存' : '不缓存' }}
+                {{ currentMenu.keep_alive ? $t('page.system.menu.cache') : $t('page.system.menu.noCache') }}
               </NTag>
             </NDescriptionsItem>
           </NDescriptions>
@@ -579,7 +581,7 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
 
         <NCard
           v-if="isMenu"
-          title="按钮权限列表"
+          :title="$t('page.system.menu.buttonPermissionList')"
           :bordered="false"
           size="small"
           class="h-full overflow-auto card-wrapper"
@@ -588,7 +590,7 @@ const btnColumns: DataTableColumns<MenuNodeItem> = [
           <template #header-extra>
             <ButtonIcon
               size="small"
-              icon="ic-round-refresh"
+              icon="material-symbols:refresh-rounded"
               class="h-28px text-icon"
               :tooltip-content="$t('common.refresh')"
               @click.stop="getBtnMenuList"

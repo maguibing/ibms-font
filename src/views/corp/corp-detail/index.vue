@@ -5,6 +5,7 @@ import { NTime } from 'naive-ui';
 import { useLoading } from '@sa/hooks';
 import { fetchGetCorp, fetchGetVersionList } from '@/service/api/corp';
 import { useRouterPush } from '@/hooks/common/router';
+import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import PhoneReveal from '@/components/business/phone-reveal.vue';
 import AddVersionDrawer from './modules/add-version-drawer.vue';
@@ -21,17 +22,6 @@ interface StatusInfo {
   label: string;
   type: TagType;
 }
-
-const AUDIT_STATUS_MAP: Record<number, StatusInfo> = {
-  1: { label: '审核中', type: 'warning' },
-  2: { label: '已通过', type: 'success' },
-  3: { label: '已拒绝', type: 'error' }
-};
-
-const CORP_STATUS_MAP: Record<number, StatusInfo> = {
-  1: { label: '启用', type: 'success' },
-  2: { label: '停用', type: 'default' }
-};
 
 const route = useRoute();
 const { routerBack } = useRouterPush();
@@ -57,13 +47,24 @@ const contactUser = computed(() => {
   return detail.value.base_user_map[String(corp.value.contact_id)] ?? null;
 });
 
-const auditStatus = computed(() => getStatusInfo(AUDIT_STATUS_MAP, corp.value?.audit_status));
-const corpStatus = computed(() => getStatusInfo(CORP_STATUS_MAP, corp.value?.status));
+const auditStatusMap = computed<Record<number, StatusInfo>>(() => ({
+  1: { label: $t('page.corp.common.auditing'), type: 'warning' },
+  2: { label: $t('page.corp.common.approved'), type: 'success' },
+  3: { label: $t('page.corp.common.rejected'), type: 'error' }
+}));
+
+const corpStatusMap = computed<Record<number, StatusInfo>>(() => ({
+  1: { label: $t('page.corp.common.enable'), type: 'success' },
+  2: { label: $t('page.corp.common.disable'), type: 'default' }
+}));
+
+const auditStatus = computed(() => getStatusInfo(auditStatusMap.value, corp.value?.audit_status));
+const corpStatus = computed(() => getStatusInfo(corpStatusMap.value, corp.value?.status));
 
 function getStatusInfo(map: Record<number, StatusInfo>, value?: number | null): StatusInfo {
   return (
     map[Number(value)] ?? {
-      label: '未知',
+      label: $t('common.unknown'),
       type: 'default'
     }
   );
@@ -99,17 +100,17 @@ function handleVersionChanged() {
   getVersionList(Number(corpId.value));
 }
 
-const versionColumns: NaiveUI.TableColumn<Api.System.CorpProjectVersion>[] = [
+const versionColumns = computed<NaiveUI.TableColumn<Api.System.CorpProjectVersion>[]>(() => [
   {
     key: 'index',
-    title: '序号',
+    title: $t('common.index'),
     align: 'center',
     width: 64,
     render: (_, index) => index + 1
   },
   {
     key: 'name',
-    title: '名称',
+    title: $t('page.corp.version.name'),
     align: 'center',
     minWidth: 160,
     ellipsis: {
@@ -118,21 +119,21 @@ const versionColumns: NaiveUI.TableColumn<Api.System.CorpProjectVersion>[] = [
   },
   {
     key: 'start_at',
-    title: '开始时间',
+    title: $t('page.corp.version.startTime'),
     align: 'center',
     minWidth: 180,
     render: row => h(NTime, { time: row.start_at, unix: true })
   },
   {
     key: 'end_at',
-    title: '结束时间',
+    title: $t('page.corp.version.endTime'),
     align: 'center',
     minWidth: 180,
     render: row => h(NTime, { time: row.end_at, unix: true })
   },
   {
     key: 'operate',
-    title: '操作',
+    title: $t('common.operate'),
     align: 'center',
     width: 100,
     render: row =>
@@ -140,11 +141,11 @@ const versionColumns: NaiveUI.TableColumn<Api.System.CorpProjectVersion>[] = [
         text: true,
         type: 'primary',
         icon: 'material-symbols:autorenew-rounded',
-        tooltipContent: '续费',
+        tooltipContent: $t('page.corp.version.renewal'),
         onClick: () => handleRenewVersion(row.id)
       })
   }
-];
+]);
 
 async function getCorpDetail(id: CommonType.IdType) {
   startLoading();
@@ -168,7 +169,7 @@ async function getVersionList(id: CommonType.IdType) {
 
   if (error) return;
 
-  versionList.value = data.list;
+  versionList.value = data.list ?? [];
 }
 
 watch(
@@ -190,26 +191,36 @@ watch(
 
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
-    <NCard title="集成商详情" :bordered="false" size="small" class="card-wrapper">
+    <NCard :title="$t('page.corp.detail.title')" :bordered="false" size="small" class="card-wrapper">
       <template #header-extra>
-        <ButtonIcon text tooltip-content="返回" @click="routerBack">
+        <ButtonIcon text :tooltip-content="$t('page.corp.common.back')" @click="routerBack">
           <SvgIcon icon="material-symbols:arrow-back-rounded" />
-          <span>返回</span>
+          <span>{{ $t('page.corp.common.back') }}</span>
         </ButtonIcon>
       </template>
 
       <NSpin :show="loading">
-        <NEmpty v-if="!corpId" description="缺少集成商ID" class="py-48px" />
-        <NEmpty v-else-if="!corp && !loading" description="暂无集成商详情" class="py-48px" />
+        <NEmpty v-if="!corpId" :description="$t('page.corp.common.message.missingCorpId')" class="py-48px" />
+        <NEmpty
+          v-else-if="!corp && !loading"
+          :description="$t('page.corp.common.message.emptyCorpDetail')"
+          class="py-48px"
+        />
         <NDescriptions v-else label-placement="left" :column="2" bordered size="small" label-class="min-w-110px">
-          <NDescriptionsItem label="集成商名称">{{ displayValue(corp?.name) }}</NDescriptionsItem>
-          <NDescriptionsItem label="使用状态">
+          <NDescriptionsItem :label="$t('page.corp.common.name')">{{ displayValue(corp?.name) }}</NDescriptionsItem>
+          <NDescriptionsItem :label="$t('page.corp.common.useStatus')">
             <NTag :type="corpStatus.type">{{ corpStatus.label }}</NTag>
           </NDescriptionsItem>
-          <NDescriptionsItem label="所在地区">{{ displayValue(corp?.address) }}</NDescriptionsItem>
-          <NDescriptionsItem label="详细地址">{{ displayValue(corp?.ad_address) }}</NDescriptionsItem>
-          <NDescriptionsItem label="联系人">{{ displayValue(contactUser?.username) }}</NDescriptionsItem>
-          <NDescriptionsItem label="联系电话">
+          <NDescriptionsItem :label="$t('page.corp.common.location')">
+            {{ displayValue(corp?.address) }}
+          </NDescriptionsItem>
+          <NDescriptionsItem :label="$t('page.corp.common.detailAddress')">
+            {{ displayValue(corp?.ad_address) }}
+          </NDescriptionsItem>
+          <NDescriptionsItem :label="$t('page.corp.common.contact')">
+            {{ displayValue(contactUser?.username) }}
+          </NDescriptionsItem>
+          <NDescriptionsItem :label="$t('page.corp.common.contactPhone')">
             <PhoneReveal
               v-if="corp && contactUser"
               :user-id="corp.contact_id"
@@ -219,28 +230,30 @@ watch(
             />
             <template v-else>-</template>
           </NDescriptionsItem>
-          <NDescriptionsItem label="邮箱">{{ displayValue(contactUser?.email) }}</NDescriptionsItem>
-          <NDescriptionsItem label="审核状态">
+          <NDescriptionsItem :label="$t('page.corp.common.email')">
+            {{ displayValue(contactUser?.email) }}
+          </NDescriptionsItem>
+          <NDescriptionsItem :label="$t('page.corp.common.auditStatus')">
             <NTag :type="auditStatus.type">{{ auditStatus.label }}</NTag>
           </NDescriptionsItem>
         </NDescriptions>
       </NSpin>
     </NCard>
 
-    <NCard title="版本数据" :bordered="false" size="small" class="card-wrapper">
+    <NCard :title="$t('page.corp.detail.versionData')" :bordered="false" size="small" class="card-wrapper">
       <template #header-extra>
         <NSpace :size="8">
           <NButton size="small" ghost type="primary" @click="handleAddVersion">
             <template #icon>
               <SvgIcon icon="material-symbols:add-rounded" class="text-icon" />
             </template>
-            新增版本
+            {{ $t('page.corp.version.addVersion') }}
           </NButton>
           <NButton size="small" ghost type="primary" @click="handleAddExistingVersion">
             <template #icon>
               <SvgIcon icon="material-symbols:playlist-add-rounded" class="text-icon" />
             </template>
-            添加已有版本
+            {{ $t('page.corp.version.addExistingVersion') }}
           </NButton>
         </NSpace>
       </template>

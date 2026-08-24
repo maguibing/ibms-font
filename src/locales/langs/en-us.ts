@@ -7,6 +7,7 @@ const local: App.I18n.Schema = {
     updateCancel: 'Later'
   },
   common: {
+    rootDirectory: 'Root Directory',
     action: 'Action',
     add: 'Add',
     addSuccess: 'Add Success',
@@ -51,6 +52,7 @@ const local: App.I18n.Schema = {
     modify: 'Modify',
     modifySuccess: 'Modify Success',
     noData: 'No Data',
+    unknown: 'Unknown',
     operate: 'Operate',
     pleaseCheckValue: 'Please check whether the value is valid',
     refresh: 'Refresh',
@@ -272,6 +274,23 @@ const local: App.I18n.Schema = {
     500: 'Server Error',
     'iframe-page': 'Iframe',
     home: 'Home',
+    // PT 运营平台菜单 meta.title 国际化
+    menu: 'Menu Management',
+    menu_platform: 'Operation Menu Management',
+    menu_corp: 'Integrator Menu Management',
+    menu_project: 'Project Menu Management',
+    global: 'Global Configuration',
+    global_industry: 'Industry Type Management',
+    global_screen: 'System Screen Management',
+    global_activate: 'Activation Code',
+    global_type_template: 'Device Type Template Management',
+    global_type_template_detail: 'Device Type Template Points Management',
+    'global_device-type-template-point': 'Device Type Template Points Management',
+    corp: 'Integrator Management',
+    corp_management: 'Integrator Management',
+    corp_detail: 'Integrator Detail Management',
+    corp_version: 'Version Management',
+
     device_configuration: 'Device Configuration',
     device_group_management: 'Device Group Management',
     device_type_management: 'Device Type Management',
@@ -417,6 +436,17 @@ const local: App.I18n.Schema = {
       ios: 'iOS',
       miniapp: 'Mini App'
     },
+    data_type: {
+      number: 'Number',
+      switch: 'Switch',
+      text: 'Text',
+      enum: 'Enum'
+    },
+    access_level: {
+      readOnly: 'Read Only',
+      writeOnly: 'Write Only',
+      readWrite: 'Read/Write'
+    },
     wf_business_status: {
       revoked: 'Revoked',
       draft: 'Draft',
@@ -535,6 +565,489 @@ const local: App.I18n.Schema = {
           required: 'Please enter remark',
           invalid: 'Remark cannot be empty'
         }
+      },
+      pointForm: {
+        name: 'Name',
+        key: 'Identifier',
+        dataType: 'Data Type',
+        unit: 'Unit',
+        defaultValue: 'Default Value',
+        scale: 'Precision',
+        energyType: 'Energy Type',
+        sourceDataType: 'Source Data Type',
+        enumSourceDataType: 'Enum Source Data Type',
+        enumMapping: 'Enum Mapping',
+        pointDesc: 'Point Description',
+        enumValue: 'Value',
+        mappingName: 'Mapping Name',
+        mappingLabel: '{value} Mapping',
+        form: {
+          name: {
+            required: 'Please enter Point Name',
+            invalid: 'Point Name cannot be empty'
+          },
+          key: {
+            required: 'Please enter Identifier',
+            invalid: 'Identifier cannot be empty'
+          },
+          dataType: {
+            required: 'Please select Data Type',
+            invalid: 'Data Type cannot be empty'
+          },
+          unit: {
+            required: 'Please select or enter Unit (e.g. kWh, J, dB)',
+            invalid: 'Unit cannot be empty'
+          },
+          defaultValue: {
+            required: 'Please enter Default Value',
+            invalid: 'Default Value cannot be empty'
+          },
+          scale: {
+            required: 'Please select Precision',
+            invalid: 'Precision cannot be empty'
+          },
+          energyType: {
+            required: 'Please select Energy Type',
+            invalid: 'Energy Type cannot be empty'
+          },
+          sourceDataType: {
+            required: 'Please select Source Data Type',
+            invalid: 'Source Data Type cannot be empty'
+          },
+          mappingValue: {
+            required: 'Please enter Mapping Value',
+            invalid: 'Mapping Value cannot be empty'
+          },
+          mappingName: {
+            required: 'Please enter Mapping Name',
+            invalid: 'Mapping Name cannot be empty'
+          },
+          enumSourceDataType: {
+            required: 'Please select Enum Source Data Type',
+            invalid: 'Enum Source Data Type cannot be empty'
+          },
+          pointDesc: {
+            required: 'Please enter Point Description',
+            invalid: 'Point Description cannot be empty'
+          }
+        },
+        options: {
+          enumSourceNumber: 'Number',
+          enumSourceString: 'String',
+          precisionNone: 'No Decimal Places',
+          precision1: 'Keep 1 Decimal Place',
+          precision2: 'Keep 2 Decimal Places',
+          precision3: 'Keep 3 Decimal Places',
+          energyNone: 'None',
+          energyElectricity: 'Electricity',
+          energyWater: 'Water',
+          energyGas: 'Gas',
+          energyCooling: 'Cooling',
+          energyHeating: 'Heating',
+          energyRuntime: 'Runtime'
+        },
+        message: {
+          enumMappingRequired: 'Please configure at least one enum mapping'
+        }
+      }
+    },
+    corp: {
+      common: {
+        name: 'Integrator Name',
+        address: 'Integrator Address',
+        region: 'Region',
+        location: 'Location',
+        detailAddress: 'Detailed Address',
+        contact: 'Contact',
+        contactPhone: 'Phone',
+        email: 'Email',
+        password: 'Password',
+        confirmPassword: 'Confirm Password',
+        status: 'Status',
+        useStatus: 'Use Status',
+        auditStatus: 'Audit Status',
+        view: 'View',
+        audit: 'Audit',
+        pass: 'Pass',
+        reject: 'Reject',
+        back: 'Back',
+        enable: 'Enable',
+        disable: 'Disable',
+        auditing: 'Auditing',
+        approved: 'Approved',
+        rejected: 'Rejected',
+        addCorp: 'Add Integrator',
+        form: {
+          name: {
+            required: 'Please enter Integrator Name',
+            invalid: 'Integrator Name cannot be empty'
+          },
+          region: {
+            required: 'Please select Region',
+            invalid: 'Region cannot be empty'
+          },
+          detailAddress: {
+            required: 'Please enter Detailed Address',
+            invalid: 'Detailed Address cannot be empty'
+          },
+          contact: {
+            required: 'Please enter Contact',
+            invalid: 'Contact cannot be empty'
+          },
+          contactPhone: {
+            required: 'Please enter Phone',
+            invalid: 'Phone cannot be empty'
+          },
+          password: {
+            required: 'Please enter Password',
+            invalid: 'Password cannot be empty'
+          }
+        },
+        placeholder: {
+          companyName: 'Please enter Company Name',
+          email: 'Please enter Email',
+          password: 'The login password will not be displayed. Please keep it safe or reset it if forgotten.'
+        },
+        message: {
+          nameMax: 'Integrator Name cannot exceed 20 characters',
+          addressMax: 'Detailed Address cannot exceed 30 characters',
+          confirmStatus: 'Confirm to {action} this integrator?',
+          statusUpdateSuccess: 'Status updated successfully',
+          auditPassSuccess: 'Audit approved',
+          auditRejectSuccess: 'Audit rejected',
+          missingCorpId: 'Missing Integrator ID',
+          emptyCorpDetail: 'No integrator details'
+        }
+      },
+      list: {
+        title: 'Integrator List'
+      },
+      detail: {
+        title: 'Integrator Detail',
+        versionData: 'Version Data'
+      },
+      version: {
+        title: 'Version List',
+        name: 'Name',
+        versionName: 'Version Name',
+        versionDesc: 'Version Description',
+        corp: 'Integrator',
+        using: 'In Use',
+        unassigned: 'Unassigned',
+        startTime: 'Start Time',
+        endTime: 'End Time',
+        expectedStartTime: 'Expected Start Time',
+        addVersion: 'Add Version',
+        editVersion: 'Edit Version',
+        addExistingVersion: 'Add Existing Version',
+        benefitView: 'Benefit View',
+        renewal: 'Renew',
+        renewalDuration: 'Please enter renewal duration:',
+        priceConfig: 'Price Config',
+        priceBenefit: 'Price Benefits',
+        originalPrice: 'Original Price',
+        discountPrice: 'Discount Price',
+        duration: 'Duration',
+        resourceConfig: 'Resource Config',
+        deviceCount: 'Device Count',
+        userCount: 'User Count',
+        dailyMessageCount: 'Daily Message Count',
+        dataStore: 'Data Retention',
+        dataStoreDuration: 'Data Retention Duration',
+        menuConfig: 'Menu Config',
+        menuPermission: 'Menu Permission',
+        benefitSummary: 'Benefit Summary',
+        menuBenefit: 'Menu Benefits',
+        allBenefit: 'All Benefits',
+        day: 'Day',
+        month: 'Month',
+        year: 'Year',
+        calendarDay: 'Day',
+        dayDurationUnit: 'days',
+        monthDurationUnit: 'months',
+        yearDurationUnit: 'years',
+        deviceUnit: 'devices',
+        userUnit: 'users',
+        messageUnit: 'messages',
+        countWithUnit: '{count} {unit}',
+        dailyMessageBenefit: '{count} daily messages',
+        dataStoreBenefit: '{count} {unit} data retention',
+        priceDurationBenefit: '{count} {unit} ￥{price}',
+        menuId: 'Menu ID: {id}',
+        selectedAddVersions: '{count} versions selected to add',
+        selectVersion: 'Please select versions to add',
+        emptyBenefitSummary: 'No benefit summary',
+        emptyMenuBenefit: 'No menu benefits',
+        emptyAllBenefit: 'No benefits',
+        emptyBenefitData: 'No benefit data',
+        legacy: {
+          gatewayManagement: 'Edge Device Management',
+          energyScreen: 'Energy Screen',
+          meterSetting: 'Meter Settings',
+          energyPriceManagement: 'Energy Price Management',
+          energyCategory: 'Energy Category'
+        },
+        form: {
+          versionName: {
+            required: 'Please enter Version Name',
+            invalid: 'Version Name cannot be empty'
+          },
+          versionDesc: {
+            required: 'Please enter Version Description',
+            invalid: 'Version Description cannot be empty'
+          },
+          corp: {
+            required: 'Please select Integrator',
+            invalid: 'Integrator cannot be empty'
+          },
+          expectedStartTime: {
+            required: 'Please select Expected Start Time',
+            invalid: 'Expected Start Time cannot be empty'
+          },
+          originalPrice: {
+            required: 'Please enter Original Price',
+            invalid: 'Original Price cannot be empty'
+          },
+          discountPrice: {
+            required: 'Please enter Discount Price',
+            invalid: 'Discount Price cannot be empty'
+          },
+          duration: {
+            required: 'Please enter Duration',
+            invalid: 'Duration cannot be empty'
+          },
+          deviceCount: {
+            required: 'Please enter Device Count',
+            invalid: 'Device Count cannot be empty'
+          },
+          userCount: {
+            required: 'Please enter User Count',
+            invalid: 'User Count cannot be empty'
+          },
+          dailyMessageCount: {
+            required: 'Please enter Daily Message Count',
+            invalid: 'Daily Message Count cannot be empty'
+          },
+          dataStoreDuration: {
+            required: 'Please enter Data Retention Duration',
+            invalid: 'Data Retention Duration cannot be empty'
+          },
+          renewalDuration: {
+            required: 'Please enter Renewal Duration',
+            invalid: 'Renewal Duration cannot be empty'
+          }
+        },
+        message: {
+          versionNameMax: 'Version Name cannot exceed 10 characters',
+          selectMenuRequired: 'Please select at least one menu',
+          renewalSuccess: 'Renewal successful'
+        }
+      }
+    },
+    global: {
+      industry: {
+        title: 'Industry Management',
+        name: 'Industry Name',
+        sort: 'Sort No.',
+        desc: 'Description',
+        createTime: 'Create Time',
+        addIndustry: 'Add Industry',
+        editIndustry: 'Edit Industry',
+        form: {
+          name: {
+            required: 'Please enter Industry Name',
+            invalid: 'Industry Name cannot be empty'
+          },
+          sort: {
+            required: 'Please enter Sort No.',
+            invalid: 'Sort No. cannot be empty'
+          },
+          desc: {
+            required: 'Please enter Description',
+            invalid: 'Description cannot be empty'
+          }
+        }
+      },
+      sysScreen: {
+        title: 'Screen Management',
+        name: 'Screen Name',
+        cover: 'Screen Cover',
+        status: 'Status',
+        createTime: 'Create Time',
+        routePath: 'Route Path',
+        routeName: 'Route Name',
+        componentPath: 'Component Path',
+        industryType: 'Industry Type',
+        projectConfig: 'Project Config',
+        project: 'Project',
+        mockData: 'Mock Data',
+        visual3d: '3D Visualization',
+        personalInfo: 'Personal Info',
+        enterSystem: 'Enter System',
+        logout: 'Logout',
+        thumbnail: 'Thumbnail',
+        addSysScreen: 'Add Screen',
+        editSysScreen: 'Edit Screen',
+        addProject: 'Add Project',
+        form: {
+          name: {
+            required: 'Please enter Screen Name',
+            invalid: 'Screen Name cannot be empty'
+          },
+          routePath: {
+            required: 'Please enter Route Path',
+            invalid: 'Route Path cannot be empty'
+          },
+          componentPath: {
+            required: 'Please enter Component Path',
+            invalid: 'Component Path cannot be empty'
+          },
+          thumbnail: {
+            required: 'Please upload Thumbnail',
+            invalid: 'Thumbnail cannot be empty'
+          },
+          industryType: {
+            required: 'Please select Industry Type',
+            invalid: 'Industry Type cannot be empty'
+          },
+          status: {
+            required: 'Please select Status',
+            invalid: 'Status cannot be empty'
+          },
+          project: {
+            required: 'Please select Project',
+            invalid: 'Project cannot be empty'
+          }
+        },
+        message: {
+          projectConfigRequired: 'Please add at least one project config',
+          projectRequired: 'Please complete Project ID'
+        },
+        placeholder: {
+          routePathExample: 'For example /smart-waterControl',
+          routeNameExample: 'For example SmartWaterControl',
+          componentPathExample: 'For example SmartWaterControl/index'
+        }
+      },
+      activate: {
+        title: 'Activation Code',
+        eyebrow: 'SYSTEM LICENSE',
+        description:
+          'Select an activation strategy in order and submit. The generated result will be displayed on this page for immediate copying.',
+        required: 'Required',
+        licenseType: 'Activation Type',
+        expireTime: 'Expiration Time',
+        strategySpecified: 'Specified Time',
+        strategySpecifiedDesc: 'An expiration time is required. A real Unix timestamp will be submitted.',
+        strategyPermanent: 'Permanent Activation',
+        strategyPermanentDesc: 'The time selection is ignored and license_expire_at = 0 is submitted.',
+        stepSelectType: '1. Select Activation Type',
+        stepSetExpireTime: '2. Set Expiration Time',
+        stepGenerate: '3. Generate Activation Code',
+        stepResult: '4. Generated Result',
+        resetForm: 'Reset Form',
+        generate: 'Generate Activation Code',
+        copyLicense: 'Copy Activation Code',
+        permanentDatePlaceholder: 'Permanent activation does not require a time',
+        datePlaceholder: 'Please select expiration time (cannot be earlier than now)',
+        previewPermanent: 'Submit: license_type = 2, license_expire_at = 0 (permanent activation)',
+        previewPending: 'Submit: select an expiration time first',
+        previewSpecified: 'Submit: license_type = 1, license_expire_at = {expireAt}',
+        form: {
+          licenseType: {
+            required: 'Please select Activation Type',
+            invalid: 'Activation Type cannot be empty'
+          },
+          expireTime: {
+            required: 'Please select Expiration Time',
+            invalid: 'Expiration Time cannot be empty'
+          }
+        },
+        message: {
+          clipboardUnsupported: 'Your browser does not support the Clipboard API',
+          copyFailed: 'Copy failed. Please copy manually',
+          copySuccess: 'Copy Success',
+          generateSuccess: 'Activation code generated successfully'
+        }
+      },
+      deviceTypeTemplate: {
+        title: 'Device Type Template',
+        categoryTitle: 'Device Type Template Category',
+        emptyCategory: 'No device type template categories',
+        name: 'Device Type Name',
+        key: 'Identifier',
+        typeKey: 'Type Identifier',
+        icon: 'Icon',
+        status: 'Status',
+        desc: 'Description',
+        sort: 'Sort',
+        categoryName: 'Category Name',
+        parentCategory: 'Category',
+        updateTime: 'Update Time',
+        pointManagement: 'Point Management',
+        addDeviceType: 'Add Device Type',
+        editDeviceType: 'Edit Device Type',
+        addCategory: 'Add Device Type Template Category',
+        editCategory: 'Edit Device Type Template Category',
+        enable: 'Enable',
+        disable: 'Disable',
+        form: {
+          parentCategory: {
+            required: 'Please select Category',
+            invalid: 'Category cannot be empty'
+          },
+          name: {
+            required: 'Please enter Device Type Name',
+            invalid: 'Device Type Name cannot be empty'
+          },
+          typeKey: {
+            required: 'Please enter Type Identifier',
+            invalid: 'Type Identifier cannot be empty'
+          },
+          status: {
+            required: 'Please select Status',
+            invalid: 'Status cannot be empty'
+          },
+          categoryName: {
+            required: 'Please enter Category Name',
+            invalid: 'Category Name cannot be empty'
+          },
+          sort: {
+            required: 'Please enter Sort',
+            invalid: 'Sort cannot be empty'
+          },
+          desc: {
+            required: 'Please enter Description',
+            invalid: 'Description cannot be empty'
+          }
+        },
+        placeholder: {
+          typeKey: 'Please enter Type Identifier, e.g. METER_001'
+        },
+        message: {
+          selectCategory: 'Please select a category on the left'
+        }
+      },
+      deviceTypeTemplatePoint: {
+        title: 'Template Points',
+        pointName: 'Point Name',
+        pointKey: 'Point Identifier',
+        dataType: 'Data Type',
+        desc: 'Description',
+        updateTime: 'Update Time',
+        keyword: 'Point Keyword',
+        addPoint: 'Add Point',
+        editPoint: 'Edit Point',
+        form: {
+          keyword: {
+            required: 'Please enter Point Keyword',
+            invalid: 'Point Keyword cannot be empty'
+          }
+        },
+        message: {
+          missingTemplateId: 'Missing Template ID',
+          missingPointId: 'Missing Point ID'
+        }
       }
     },
     system: {
@@ -631,12 +1144,7 @@ const local: App.I18n.Schema = {
         title: 'Department List',
         parentId: 'Parent Department',
         name: 'Department Name',
-        orderNum: 'Order Num',
-        deptCategory: 'Department Category',
         leader: 'Leader',
-        phone: 'Phone',
-        email: 'Email',
-        status: 'Status',
         sort: 'Sort',
         createTime: 'Create Time',
         expandAll: 'Expand All',
@@ -650,37 +1158,13 @@ const local: App.I18n.Schema = {
             required: 'Please enter Department Name',
             invalid: 'Department Name cannot be empty'
           },
-          orderNum: {
-            required: 'Please enter Order Num',
-            invalid: 'Order num cannot be empty'
-          },
-          deptCategory: {
-            required: 'Please enter Department Category',
-            invalid: 'Department category cannot be empty'
-          },
           leader: {
             required: 'Please enter Leader',
             invalid: 'Leader cannot be empty'
           },
-          phone: {
-            required: 'Please enter Phone',
-            invalid: 'Phone cannot be empty'
-          },
-          email: {
-            required: 'Please enter Email',
-            invalid: 'Email cannot be empty'
-          },
-          status: {
-            required: 'Please select Status',
-            invalid: 'Status cannot be empty'
-          },
           sort: {
             required: 'Please enter Sort',
             invalid: 'Sort cannot be empty'
-          },
-          deptId: {
-            required: 'Please enter deptId',
-            invalid: 'Dept Id cannot be empty'
           }
         },
         error: {
@@ -782,13 +1266,20 @@ const local: App.I18n.Schema = {
         title: 'Menu List',
         parentId: 'Parent Menu',
         menuName: 'Menu Name',
+        buttonName: 'Button Name',
         icon: 'Menu Icon',
         orderNum: 'Sort',
         perms: 'Permission Code',
+        permission: 'Permission Key',
         component: 'Component Path',
         path: 'Route Path',
+        routeName: 'Route Name',
         layout: 'Layout',
+        defaultLayout: 'Default Layout',
+        blankLayout: 'Blank Layout',
         externalPath: 'External Path',
+        extLink: 'External Link',
+        iframe: 'Iframe',
         query: 'Route Parameters',
         iframeQuery: 'Iframe Address',
         isFrame: 'External Link',
@@ -852,6 +1343,10 @@ const local: App.I18n.Schema = {
           path: {
             required: 'Please enter Route Path',
             invalid: 'Route Path cannot be empty'
+          },
+          routeName: {
+            required: 'Please enter Route Name',
+            invalid: 'Route Name cannot be empty'
           },
           component: {
             required: 'Please enter Component Path',
@@ -1040,11 +1535,25 @@ const local: App.I18n.Schema = {
         roleName: 'Role Name',
         roleKey: 'Role Key',
         roleSort: 'Role Sort',
+        roleType: 'Role Type',
+        desc: 'Description',
         status: 'Status',
         remark: 'Remark',
         menuPermission: 'Menu Permission',
         dataScope: 'Data Scope',
+        dataScopeRange: 'Data Scope',
+        visualPermission: 'Visual Permission',
         createTime: 'Create Time',
+        roleTypes: {
+          systemAdmin: 'System Admin',
+          normalMember: 'Normal Member'
+        },
+        dataScopes: {
+          all: 'All Data Permission',
+          self: 'Self Only Data Permission',
+          dept: 'Department Data Permission',
+          deptAndSub: 'Department and Sub-department Data Permission'
+        },
         form: {
           roleName: {
             required: 'Please enter Role Name',
@@ -1066,6 +1575,10 @@ const local: App.I18n.Schema = {
             required: 'Please enter Remark',
             invalid: 'Remark cannot be empty'
           },
+          desc: {
+            required: 'Please enter Description',
+            invalid: 'Description cannot be empty'
+          },
           menuIds: {
             required: 'Please select Menu Permission',
             invalid: 'Menu Permission cannot be empty'
@@ -1081,7 +1594,23 @@ const local: App.I18n.Schema = {
         authorizedUsers: 'Assign Users',
         selectMenuPermission: 'Select Menu Permission',
         selectDataScope: 'Select Data Scope',
-        selectDeptPermission: 'Select Dept Permission'
+        selectDeptPermission: 'Select Dept Permission',
+        permissionConfig: 'Permission Configuration',
+        permissionConfigWithName: '{name} Permission Configuration',
+        visualTypes: {
+          systemScreen: 'System Screen',
+          configuration: 'Configuration Screen',
+          customScreen: 'Custom Screen'
+        },
+        searchScreenName: 'Search screen name',
+        searchConfigurationName: 'Search configuration name',
+        permissionAll: 'Enable All Permissions',
+        controlAll: 'Enable All Controls',
+        visualPermissionStats: 'Authorized {selected} / {total}, controllable {control}',
+        noScreen: 'No screen',
+        noThumbnail: 'No thumbnail',
+        permission: 'Permission',
+        control: 'Control'
       },
       tenant: {
         title: 'Tenant List',
@@ -1251,6 +1780,11 @@ const local: App.I18n.Schema = {
         addUser: 'Add User',
         editUser: 'Edit User',
         resetPassword: 'Reset Password',
+        resetPasswordConfirmTitle: 'Reset Password Confirmation',
+        resetPasswordConfirmButton: 'Confirm Reset',
+        resetPasswordConfirmPrefix: "Confirm reset this user's password to ",
+        resetPasswordConfirmSuffix: '?',
+        resetPasswordSuccess: 'Password has been reset to {password}',
         importUsers: 'Import Users',
         exportTemplate: 'Export Template',
         importSuccess: 'Import successful',
@@ -1318,7 +1852,8 @@ const local: App.I18n.Schema = {
     collapse: 'Collapse Menu',
     expand: 'Expand Menu',
     pin: 'Pin',
-    unpin: 'Unpin'
+    unpin: 'Unpin',
+    manual: 'Manual'
   },
   datatable: {
     itemCount: 'Total {total} items',

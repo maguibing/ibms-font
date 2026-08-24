@@ -2,6 +2,7 @@
 import { computed, shallowRef } from 'vue';
 import { useLoading } from '@sa/hooks';
 import { fetchRenewalVersion } from '@/service/api/corp';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'RenewalVersionModal'
@@ -20,11 +21,11 @@ const versionId = shallowRef<CommonType.IdType | null>(null);
 const duration = shallowRef<number | null>(1);
 const unitDays = shallowRef(1);
 
-const unitOptions = [
-  { label: '日', value: 1 },
-  { label: '月', value: 30 },
-  { label: '年', value: 365 }
-];
+const unitOptions = computed(() => [
+  { label: $t('page.corp.version.calendarDay'), value: 1 },
+  { label: $t('page.corp.version.month'), value: 30 },
+  { label: $t('page.corp.version.year'), value: 365 }
+]);
 
 const renewalDays = computed(() => Number(duration.value || 0) * unitDays.value);
 
@@ -43,7 +44,7 @@ async function handleSubmit() {
   if (!versionId.value) return;
 
   if (renewalDays.value <= 0) {
-    window.$message?.warning('请输入续费时长');
+    window.$message?.warning($t('page.corp.version.form.renewalDuration.required'));
     return;
   }
 
@@ -55,7 +56,7 @@ async function handleSubmit() {
 
   if (error) return;
 
-  window.$message?.success('续费成功');
+  window.$message?.success($t('page.corp.version.message.renewalSuccess'));
   close();
   emit('submitted');
 }
@@ -68,7 +69,7 @@ defineExpose({
 <template>
   <NModal
     v-model:show="visible"
-    title="续费"
+    :title="$t('page.corp.version.renewal')"
     preset="card"
     :bordered="false"
     display-directive="show"
@@ -76,30 +77,25 @@ defineExpose({
     @close="close"
   >
     <NForm label-placement="top">
-      <NFormItem label="请输入续费时长:">
+      <NFormItem :label="$t('page.corp.version.renewalDuration')">
         <NInputGroup>
           <NInputNumber
             v-model:value="duration"
             :min="1"
             :precision="0"
             :show-button="false"
-            placeholder="请输入续费时长"
+            :placeholder="$t('page.corp.version.form.renewalDuration.required')"
             class="flex-1"
           />
-          <NSelect
-            v-model:value="unitDays"
-            :options="unitOptions"
-            :consistent-menu-width="false"
-            class="w-110px"
-          />
+          <NSelect v-model:value="unitDays" :options="unitOptions" :consistent-menu-width="false" class="w-110px" />
         </NInputGroup>
       </NFormItem>
     </NForm>
 
     <template #footer>
       <NSpace justify="end">
-        <NButton @click="close">取消</NButton>
-        <NButton type="primary" :loading="loading" @click="handleSubmit">确认</NButton>
+        <NButton @click="close">{{ $t('common.cancel') }}</NButton>
+        <NButton type="primary" :loading="loading" @click="handleSubmit">{{ $t('common.confirm') }}</NButton>
       </NSpace>
     </template>
   </NModal>

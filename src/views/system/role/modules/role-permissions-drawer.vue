@@ -46,8 +46,8 @@ type VisualPermissionItem = {
 /** 可视化权限面板状态，selectedIds 表示授权，controlIds 表示可控制。 */
 type VisualPermissionPanel = {
   type: VisualPermissionType;
-  label: string;
-  searchPlaceholder: string;
+  labelKey: App.I18n.I18nKey;
+  searchPlaceholderKey: App.I18n.I18nKey;
   searchKeyword: string | null;
   loading: boolean;
   items: VisualPermissionItem[];
@@ -72,8 +72,8 @@ const menuTreeRequestParams = {
 const visualPanels = reactive<VisualPermissionPanel[]>([
   {
     type: 'projectSysScreen',
-    label: '系统大屏',
-    searchPlaceholder: '搜索大屏名称',
+    labelKey: 'page.system.role.visualTypes.systemScreen',
+    searchPlaceholderKey: 'page.system.role.searchScreenName',
     searchKeyword: null,
     loading: false,
     items: [],
@@ -82,8 +82,8 @@ const visualPanels = reactive<VisualPermissionPanel[]>([
   },
   {
     type: 'configuration',
-    label: '组态大屏',
-    searchPlaceholder: '搜索组态名称',
+    labelKey: 'page.system.role.visualTypes.configuration',
+    searchPlaceholderKey: 'page.system.role.searchConfigurationName',
     searchKeyword: null,
     loading: false,
     items: [],
@@ -92,8 +92,8 @@ const visualPanels = reactive<VisualPermissionPanel[]>([
   },
   {
     type: 'customScreen',
-    label: '自定义大屏',
-    searchPlaceholder: '搜索大屏名称',
+    labelKey: 'page.system.role.visualTypes.customScreen',
+    searchPlaceholderKey: 'page.system.role.searchScreenName',
     searchKeyword: null,
     loading: false,
     items: [],
@@ -106,10 +106,10 @@ const title = computed(() => {
   const roleName = props.rowData?.name?.trim();
 
   if (roleName) {
-    return `${roleName} 权限配置`;
+    return $t('page.system.role.permissionConfigWithName', { name: roleName });
   }
 
-  return '权限配置';
+  return $t('page.system.role.permissionConfig');
 });
 
 const canOperateVisualPermissions = computed(() => props.rowData?.p_type === menuPlatformType.project);
@@ -721,7 +721,7 @@ watch(visible, newValue => {
   <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="920" class="max-w-95%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NTabs v-model:value="activePermissionTab" type="segment" animated>
-        <NTabPane name="menu" tab="菜单权限" display-directive="show">
+        <NTabPane name="menu" :tab="$t('page.system.role.menuPermission')" display-directive="show">
           <NForm>
             <NFormItem class="pr-24px">
               <MenuTree
@@ -737,13 +737,18 @@ watch(visible, newValue => {
             </NFormItem>
           </NForm>
         </NTabPane>
-        <NTabPane v-if="canOperateVisualPermissions" name="visual" tab="可视化权限" display-directive="show">
+        <NTabPane
+          v-if="canOperateVisualPermissions"
+          name="visual"
+          :tab="$t('page.system.role.visualPermission')"
+          display-directive="show"
+        >
           <NTabs v-model:value="activeVisualTab" type="card" animated>
             <NTabPane
               v-for="panel in visualPanels"
               :key="panel.type"
               :name="panel.type"
-              :tab="panel.label"
+              :tab="$t(panel.labelKey)"
               display-directive="show"
             >
               <div class="min-h-520px">
@@ -755,7 +760,7 @@ watch(visible, newValue => {
                       :disabled="panel.items.length === 0"
                       @update:checked="checked => handlePanelCheckAll(panel, Boolean(checked))"
                     >
-                      权限全开
+                      {{ $t('page.system.role.permissionAll') }}
                     </NCheckbox>
                     <NCheckbox
                       :checked="isPanelControlAll(panel)"
@@ -763,18 +768,23 @@ watch(visible, newValue => {
                       :disabled="getPanelSelectedCount(panel) === 0"
                       @update:checked="checked => handlePanelControlAll(panel, Boolean(checked))"
                     >
-                      控制全开
+                      {{ $t('page.system.role.controlAll') }}
                     </NCheckbox>
                     <span class="text-13px text-[var(--n-text-color-3)] leading-none">
-                      已授权 {{ getPanelSelectedCount(panel) }} / {{ panel.items.length }}，可控制
-                      {{ getPanelControlCount(panel) }}
+                      {{
+                        $t('page.system.role.visualPermissionStats', {
+                          selected: getPanelSelectedCount(panel),
+                          total: panel.items.length,
+                          control: getPanelControlCount(panel)
+                        })
+                      }}
                     </span>
                   </div>
                   <NInputGroup class="w-280px lt-sm:w-full">
                     <NInput
                       v-model:value="panel.searchKeyword"
                       clearable
-                      :placeholder="panel.searchPlaceholder"
+                      :placeholder="$t(panel.searchPlaceholderKey)"
                       @keyup.enter="loadVisualPanel(panel)"
                     />
                     <NButton :loading="panel.loading" @click="loadVisualPanel(panel)">
@@ -786,7 +796,11 @@ watch(visible, newValue => {
                 </div>
 
                 <NSpin :show="panel.loading">
-                  <NEmpty v-if="panel.items.length === 0" description="暂无大屏" class="h-360px justify-center" />
+                  <NEmpty
+                    v-if="panel.items.length === 0"
+                    :description="$t('page.system.role.noScreen')"
+                    class="h-360px justify-center"
+                  />
                   <NGrid v-else cols="2 s:3 m:4 l:5" responsive="screen" :x-gap="12" :y-gap="12">
                     <NGi v-for="item in panel.items" :key="String(item.id)">
                       <NCard
@@ -813,7 +827,7 @@ watch(visible, newValue => {
                               v-else
                               class="h-full flex flex-col items-center justify-center gap-4px text-12px text-[var(--n-text-color-3)]"
                             >
-                              <span>暂无缩略图</span>
+                              <span>{{ $t('page.system.role.noThumbnail') }}</span>
                             </div>
                           </div>
 
@@ -824,14 +838,14 @@ watch(visible, newValue => {
                               :checked="isVisualSelected(panel, item.id)"
                               @update:checked="checked => handleVisualItemChecked(panel, item.id, Boolean(checked))"
                             >
-                              权限
+                              {{ $t('page.system.role.permission') }}
                             </NCheckbox>
                             <NCheckbox
                               :checked="isVisualControlEnabled(panel, item.id)"
                               :disabled="!isVisualSelected(panel, item.id)"
                               @update:checked="checked => handleVisualControlChecked(panel, item.id, Boolean(checked))"
                             >
-                              控制
+                              {{ $t('page.system.role.control') }}
                             </NCheckbox>
                           </div>
                         </div>

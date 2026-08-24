@@ -1,6 +1,7 @@
 import { computed, ref } from 'vue';
 import type { SelectOption } from 'naive-ui';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
+import { $t } from '@/locales';
 
 export type PointOperateSwitchPresetValue = 1 | 2 | 3;
 export type PointOperateEnumSourceDataType = 1 | 2;
@@ -213,10 +214,10 @@ export function usePointOperateForm() {
     { label: 'ON / OFF', value: 3 }
   ];
 
-  const enumSourceDataTypeOptions: SelectOption[] = [
-    { label: '数字', value: 1 },
-    { label: '字符', value: 2 }
-  ];
+  const enumSourceDataTypeOptions = computed<SelectOption[]>(() => [
+    { label: $t('page.common.pointForm.options.enumSourceNumber'), value: 1 },
+    { label: $t('page.common.pointForm.options.enumSourceString'), value: 2 }
+  ]);
 
   const model = ref<PointOperateModel>(createDefaultModel());
 
@@ -226,15 +227,19 @@ export function usePointOperateForm() {
   const isEnumType = computed(() => model.value.data_type === 4);
 
   const activeSwitchPreset = computed(() => switchPresetMap[model.value.switch_preset]);
-  const trueMappingLabel = computed(() => `${activeSwitchPreset.value.trueValue} 映射`);
-  const falseMappingLabel = computed(() => `${activeSwitchPreset.value.falseValue} 映射`);
+  const trueMappingLabel = computed(() =>
+    $t('page.common.pointForm.mappingLabel', { value: activeSwitchPreset.value.trueValue })
+  );
+  const falseMappingLabel = computed(() =>
+    $t('page.common.pointForm.mappingLabel', { value: activeSwitchPreset.value.falseValue })
+  );
 
   const rules: Record<RuleKey, App.Global.FormRule> = {
-    name: createRequiredRule('请输入点位名称'),
-    key: createRequiredRule('请输入标识符'),
-    data_type: createRequiredRule('请选择数据类型'),
-    true_alias: createRequiredRule('请输入映射值'),
-    false_alias: createRequiredRule('请输入映射值')
+    name: createRequiredRule($t('page.common.pointForm.form.name.required')),
+    key: createRequiredRule($t('page.common.pointForm.form.key.required')),
+    data_type: createRequiredRule($t('page.common.pointForm.form.dataType.required')),
+    true_alias: createRequiredRule($t('page.common.pointForm.form.mappingValue.required')),
+    false_alias: createRequiredRule($t('page.common.pointForm.form.mappingValue.required'))
   };
 
   function resetModel(detail?: PointOperateDetail) {
@@ -250,7 +255,7 @@ export function usePointOperateForm() {
 
     if (getValidEnumList().length > 0) return true;
 
-    window.$message?.warning('请至少配置一组枚举映射');
+    window.$message?.warning($t('page.common.pointForm.message.enumMappingRequired'));
     return false;
   }
 

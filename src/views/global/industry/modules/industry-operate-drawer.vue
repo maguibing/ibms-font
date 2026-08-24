@@ -32,11 +32,11 @@ const { formRef, validate, restoreValidation } = useNaiveForm();
 const { createRequiredRule } = useFormRules();
 
 const title = computed(() => {
-  const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增行业',
-    edit: '编辑行业'
+  const titles: Record<NaiveUI.TableOperateType, App.I18n.I18nKey> = {
+    add: 'page.global.industry.addIndustry',
+    edit: 'page.global.industry.editIndustry'
   };
-  return titles[props.operateType];
+  return $t(titles[props.operateType]);
 });
 
 type Model = Pick<Api.System.Industry, 'id' | 'name' | 'sort' | 'desc'>;
@@ -55,7 +55,7 @@ function createDefaultModel(): Model {
 type RuleKey = Extract<keyof Model, 'name'>;
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  name: createRequiredRule('行业名称不能为空')
+  name: createRequiredRule($t('page.global.industry.form.name.invalid'))
 };
 
 function handleUpdateModelWhenEdit() {
@@ -103,18 +103,23 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="800" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules">
-        <NFormItem label="行业名称" path="name">
-          <NInput v-model:value="model.name" placeholder="请输入行业名称" :maxlength="30" show-count />
+        <NFormItem :label="$t('page.global.industry.name')" path="name">
+          <NInput
+            v-model:value="model.name"
+            :placeholder="$t('page.global.industry.form.name.required')"
+            :maxlength="30"
+            show-count
+          />
         </NFormItem>
-        <NFormItem label="排序号" path="sort">
-          <NInputNumber v-model:value="model.sort" placeholder="请输入排序号" />
+        <NFormItem :label="$t('page.global.industry.sort')" path="sort">
+          <NInputNumber v-model:value="model.sort" :placeholder="$t('page.global.industry.form.sort.required')" />
         </NFormItem>
-        <NFormItem label="描述" path="desc">
+        <NFormItem :label="$t('page.global.industry.desc')" path="desc">
           <NInput
             v-model:value="model.desc"
             type="textarea"
             :rows="3"
-            placeholder="请输入描述"
+            :placeholder="$t('page.global.industry.form.desc.required')"
             :maxlength="200"
             show-count
           />

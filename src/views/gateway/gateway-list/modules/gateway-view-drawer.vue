@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, shallowRef, watch } from 'vue';
-import { StatusTag } from '@sa/materials';
+import StatusTag from '@/components/custom/status-tag.vue';
 import { useLoading } from '@sa/hooks';
 import { copyText, isClipboardSupported } from '@sa/utils';
 import { fetchGetGateway } from '@/service/api/gateway';

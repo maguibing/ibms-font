@@ -11,7 +11,12 @@ function openManual() {
 </script>
 
 <template>
-  <ButtonIcon icon="material-symbols:menu-book-outline" tooltip-content="文档" aria-label="文档" @click="openManual" />
+  <ButtonIcon
+    icon="material-symbols:menu-book-outline"
+    :tooltip-content="$t('icon.manual')"
+    :aria-label="$t('icon.manual')"
+    @click="openManual"
+  />
 </template>
 
 <style scoped></style>

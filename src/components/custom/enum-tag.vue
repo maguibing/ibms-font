@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'EnumTag',
@@ -24,17 +25,32 @@ type TagConfig = {
 
 const props = defineProps<Props>();
 
-const tagConfigMap: Record<NonNullable<Props['variant']>, Record<number, TagConfig>> = {
+const tagConfigMap = computed<Record<NonNullable<Props['variant']>, Record<number, TagConfig>>>(() => ({
   dataType: {
-    1: { label: '数值', color: { color: '#e6f7ff', borderColor: '#91d5ff', textColor: '#0958d9' } },
-    2: { label: '开关', color: { color: '#f0fdf4', borderColor: '#86efac', textColor: '#15803d' } },
-    3: { label: '字符串', color: { color: '#f5f3ff', borderColor: '#c4b5fd', textColor: '#6d28d9' } },
-    4: { label: '枚举', color: { color: '#fffbeb', borderColor: '#fcd34d', textColor: '#b45309' } }
+    1: {
+      label: $t('dict.data_type.number'),
+      color: { color: '#e6f7ff', borderColor: '#91d5ff', textColor: '#0958d9' }
+    },
+    2: {
+      label: $t('dict.data_type.switch'),
+      color: { color: '#f0fdf4', borderColor: '#86efac', textColor: '#15803d' }
+    },
+    3: { label: $t('dict.data_type.text'), color: { color: '#f5f3ff', borderColor: '#c4b5fd', textColor: '#6d28d9' } },
+    4: { label: $t('dict.data_type.enum'), color: { color: '#fffbeb', borderColor: '#fcd34d', textColor: '#b45309' } }
   },
   accessLevel: {
-    1: { label: '只读', color: { color: '#e6f7ff', borderColor: '#91d5ff', textColor: '#0958d9' } },
-    2: { label: '只写', color: { color: '#fffbeb', borderColor: '#fcd34d', textColor: '#b45309' } },
-    3: { label: '读写', color: { color: '#f0fdf4', borderColor: '#86efac', textColor: '#15803d' } }
+    1: {
+      label: $t('dict.access_level.readOnly'),
+      color: { color: '#e6f7ff', borderColor: '#91d5ff', textColor: '#0958d9' }
+    },
+    2: {
+      label: $t('dict.access_level.writeOnly'),
+      color: { color: '#fffbeb', borderColor: '#fcd34d', textColor: '#b45309' }
+    },
+    3: {
+      label: $t('dict.access_level.readWrite'),
+      color: { color: '#f0fdf4', borderColor: '#86efac', textColor: '#15803d' }
+    }
   },
   protocol: {
     1: { label: 'MQTT', color: { color: '#e6f7ff', borderColor: '#91d5ff', textColor: '#0958d9' } },
@@ -44,17 +60,16 @@ const tagConfigMap: Record<NonNullable<Props['variant']>, Record<number, TagConf
     5: { label: 'BACnet', color: { color: '#ecfeff', borderColor: '#67e8f9', textColor: '#0e7490' } },
     6: { label: 'OPC UA', color: { color: '#fff1f2', borderColor: '#fda4af', textColor: '#be123c' } }
   }
-};
+}));
 
-const defaultTagInfo: TagConfig = {
-  label: '未知',
+const defaultTagInfo = computed<TagConfig>(() => ({
+  label: $t('common.unknown'),
   color: { color: '#f8fafc', borderColor: '#cbd5e1', textColor: '#475569' }
-};
+}));
 
 const tagInfo = computed<{ label: string; color: TagColor }>(() => {
   const variant = props.variant ?? 'dataType';
-
-  return tagConfigMap[variant][Number(props.value)] ?? defaultTagInfo;
+  return tagConfigMap.value[variant][Number(props.value)] ?? defaultTagInfo.value;
 });
 </script>
 

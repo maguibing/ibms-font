@@ -2,7 +2,7 @@
 import { onMounted, shallowRef } from 'vue';
 import { useRoute } from 'vue-router';
 import { useLoading } from '@sa/hooks';
-import { StatusTag } from '@sa/materials';
+import StatusTag from '@/components/custom/status-tag.vue';
 import { fetchGetDeviceType } from '@/service/api/device';
 import CopyableValue from '@/components/custom/copyable-value.vue';
 import { useRouterPush } from '@/hooks/common/router';

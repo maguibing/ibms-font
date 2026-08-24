@@ -34,8 +34,8 @@ const { createRequiredRule } = useFormRules();
 
 const title = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增设备类型模板分类',
-    edit: '编辑设备类型模板分类'
+    add: $t('page.global.deviceTypeTemplate.addCategory'),
+    edit: $t('page.global.deviceTypeTemplate.editCategory')
   };
   return titles[props.operateType];
 });
@@ -56,7 +56,7 @@ function createDefaultModel(): Model {
 type RuleKey = Extract<keyof Model, 'name'>;
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  name: createRequiredRule('分类名称不能为空')
+  name: createRequiredRule($t('page.global.deviceTypeTemplate.form.categoryName.required'))
 };
 
 function handleUpdateModelWhenEdit() {
@@ -103,14 +103,26 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="500" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules">
-        <NFormItem label="分类名称" path="name">
-          <NInput v-model:value="model.name" placeholder="请输入分类名称" />
+        <NFormItem :label="$t('page.global.deviceTypeTemplate.categoryName')" path="name">
+          <NInput
+            v-model:value="model.name"
+            :placeholder="$t('page.global.deviceTypeTemplate.form.categoryName.required')"
+          />
         </NFormItem>
-        <NFormItem label="排序号" path="sort">
-          <NInputNumber v-model:value="model.sort" placeholder="请输入排序号" class="w-full" />
+        <NFormItem :label="$t('page.global.deviceTypeTemplate.sort')" path="sort">
+          <NInputNumber
+            v-model:value="model.sort"
+            :placeholder="$t('page.global.deviceTypeTemplate.form.sort.required')"
+            class="w-full"
+          />
         </NFormItem>
-        <NFormItem label="描述" path="desc">
-          <NInput v-model:value="model.desc" type="textarea" :rows="3" placeholder="请输入描述" />
+        <NFormItem :label="$t('page.global.deviceTypeTemplate.desc')" path="desc">
+          <NInput
+            v-model:value="model.desc"
+            type="textarea"
+            :rows="3"
+            :placeholder="$t('page.global.deviceTypeTemplate.form.desc.required')"
+          />
         </NFormItem>
       </NForm>
       <template #footer>

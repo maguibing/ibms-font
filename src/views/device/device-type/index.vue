@@ -1,7 +1,7 @@
 <script setup lang="tsx">
 import { h, ref, shallowRef } from 'vue';
 import { NDivider, NImage } from 'naive-ui';
-import { StatusTag } from '@sa/materials';
+import StatusTag from '@/components/custom/status-tag.vue';
 import { formatDateTime } from '@sa/utils';
 import { fetchDeleteDeviceType, fetchGetDeviceTypeList } from '@/service/api/device';
 import { useAppStore } from '@/store/modules/app';

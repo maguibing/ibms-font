@@ -56,11 +56,11 @@ const menuLoading = ref(false);
 const cascade = ref(true);
 const formModel = ref<FormModel>(createDefaultModel());
 
-const durationTimeTypeOptions: CommonType.Option<Api.System.VersionTimeType>[] = [
-  { label: '天', value: 4 },
-  { label: '月', value: 5 },
-  { label: '年', value: 6 }
-];
+const durationTimeTypeOptions = computed<CommonType.Option<Api.System.VersionTimeType>[]>(() => [
+  { label: $t('page.corp.version.day'), value: 4 },
+  { label: $t('page.corp.version.month'), value: 5 },
+  { label: $t('page.corp.version.year'), value: 6 }
+]);
 
 const menuTreeRequestParams = {
   p_type: menuPlatformType.project,
@@ -85,27 +85,27 @@ type RuleKey =
   | 'resource_conf.day_msg_num'
   | 'resource_conf.data_store_day';
 
-const rules: Record<RuleKey, App.Global.FormRule | App.Global.FormRule[]> = {
+const rules = computed<Record<RuleKey, App.Global.FormRule | App.Global.FormRule[]>>(() => ({
   name: [
-    createRequiredRule('版本名称不能为空'),
+    createRequiredRule($t('page.corp.version.form.versionName.invalid')),
     {
       max: 10,
-      message: '版本名称不能超过10个字符',
+      message: $t('page.corp.version.message.versionNameMax'),
       trigger: ['input', 'blur']
     }
   ],
-  start_at: createRequiredRule('请选择预计开始时间'),
-  'price_conf.original_price': createRequiredRule('请输入原价'),
-  'price_conf.discount_price': createRequiredRule('请输入折扣价'),
-  'price_conf.day': createRequiredRule('请输入时长'),
-  'resource_conf.device_num': createRequiredRule('请输入设备数'),
-  'resource_conf.project_user_num': createRequiredRule('请输入用户数'),
-  'resource_conf.day_msg_num': createRequiredRule('请输入日消息数'),
-  'resource_conf.data_store_day': createRequiredRule('请输入数据存储时长')
-};
+  start_at: createRequiredRule($t('page.corp.version.form.expectedStartTime.required')),
+  'price_conf.original_price': createRequiredRule($t('page.corp.version.form.originalPrice.required')),
+  'price_conf.discount_price': createRequiredRule($t('page.corp.version.form.discountPrice.required')),
+  'price_conf.day': createRequiredRule($t('page.corp.version.form.duration.required')),
+  'resource_conf.device_num': createRequiredRule($t('page.corp.version.form.deviceCount.required')),
+  'resource_conf.project_user_num': createRequiredRule($t('page.corp.version.form.userCount.required')),
+  'resource_conf.day_msg_num': createRequiredRule($t('page.corp.version.form.dailyMessageCount.required')),
+  'resource_conf.data_store_day': createRequiredRule($t('page.corp.version.form.dataStoreDuration.required'))
+}));
 
 const isEdit = computed(() => operateType.value === 'edit');
-const title = computed(() => (isEdit.value ? '编辑版本' : '新增版本'));
+const title = computed(() => (isEdit.value ? $t('page.corp.version.editVersion') : $t('page.corp.version.addVersion')));
 
 function createDefaultModel(): FormModel {
   return {
@@ -249,7 +249,7 @@ async function handleSubmit() {
 
   const menuIds = getSubmitMenuIds();
   if (!menuIds.length) {
-    window.$message?.warning('请至少选择一个菜单');
+    window.$message?.warning($t('page.corp.version.message.selectMenuRequired'));
     return;
   }
 
@@ -288,20 +288,25 @@ defineExpose({
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="formModel" :rules="rules">
         <NGrid responsive="screen" item-responsive :x-gap="16">
-          <NFormItemGi span="24" label="版本名称" path="name">
-            <NInput v-model:value="formModel.name" placeholder="请输入版本名称" :maxlength="10" show-count />
+          <NFormItemGi span="24" :label="$t('page.corp.version.versionName')" path="name">
+            <NInput
+              v-model:value="formModel.name"
+              :placeholder="$t('page.corp.version.form.versionName.required')"
+              :maxlength="10"
+              show-count
+            />
           </NFormItemGi>
-          <NFormItemGi span="24" label="版本简介">
+          <NFormItemGi span="24" :label="$t('page.corp.version.versionDesc')">
             <NInput
               v-model:value="formModel.desc"
               type="textarea"
-              placeholder="请输入版本简介"
+              :placeholder="$t('page.corp.version.form.versionDesc.required')"
               :maxlength="100"
               show-count
               :autosize="{ minRows: 3, maxRows: 5 }"
             />
           </NFormItemGi>
-          <NFormItemGi span="24" label="集成商">
+          <NFormItemGi span="24" :label="$t('page.corp.version.corp')">
             <RemoteSearchSelect
               v-model:value="formModel.corp_id"
               :request="fetchGetCorpList"
@@ -310,19 +315,19 @@ defineExpose({
               :selected-options="selectedCorpOption"
               label-field="name"
               value-field="id"
-              placeholder="请选择集成商"
+              :placeholder="$t('page.corp.version.form.corp.required')"
               clearable
               @selected-change="handleCorpSelectedChange"
             />
           </NFormItemGi>
-          <NFormItemGi span="24" label="预计开始时间" path="start_at">
+          <NFormItemGi span="24" :label="$t('page.corp.version.expectedStartTime')" path="start_at">
             <NDatePicker
               v-model:formatted-value="formModel.start_at"
               type="datetime"
               value-format="t"
               clearable
               class="w-full"
-              placeholder="请选择预计开始时间"
+              :placeholder="$t('page.corp.version.form.expectedStartTime.required')"
               :disabled="isEdit"
               :is-date-disabled="isEdit ? undefined : isStartDateDisabled"
             />
@@ -330,9 +335,9 @@ defineExpose({
         </NGrid>
 
         <NTabs type="segment" animated class="mt-16px">
-          <NTabPane name="price" tab="价格配置" display-directive="show">
+          <NTabPane name="price" :tab="$t('page.corp.version.priceConfig')" display-directive="show">
             <NGrid responsive="screen" item-responsive :x-gap="16">
-              <NFormItemGi span="24" label="原价" path="price_conf.original_price">
+              <NFormItemGi span="24" :label="$t('page.corp.version.originalPrice')" path="price_conf.original_price">
                 <NInputNumber
                   v-model:value="formModel.price_conf.original_price"
                   :min="0"
@@ -340,7 +345,7 @@ defineExpose({
                   class="w-full"
                 />
               </NFormItemGi>
-              <NFormItemGi span="24" label="折扣价" path="price_conf.discount_price">
+              <NFormItemGi span="24" :label="$t('page.corp.version.discountPrice')" path="price_conf.discount_price">
                 <NInputNumber
                   v-model:value="formModel.price_conf.discount_price"
                   :min="0"
@@ -348,7 +353,7 @@ defineExpose({
                   class="w-full"
                 />
               </NFormItemGi>
-              <NFormItemGi span="24" label="时长" path="price_conf.day">
+              <NFormItemGi span="24" :label="$t('page.corp.version.duration')" path="price_conf.day">
                 <NInputGroup class="w-full">
                   <NInputNumber v-model:value="formModel.price_conf.day" :min="1" :precision="0" class="flex-1" />
                   <NSelect
@@ -362,9 +367,9 @@ defineExpose({
             </NGrid>
           </NTabPane>
 
-          <NTabPane name="resource" tab="资源配置" display-directive="show">
+          <NTabPane name="resource" :tab="$t('page.corp.version.resourceConfig')" display-directive="show">
             <NGrid responsive="screen" item-responsive :x-gap="16">
-              <NFormItemGi span="24" label="设备数" path="resource_conf.device_num">
+              <NFormItemGi span="24" :label="$t('page.corp.version.deviceCount')" path="resource_conf.device_num">
                 <NInputNumber
                   v-model:value="formModel.resource_conf.device_num"
                   :min="0"
@@ -372,7 +377,7 @@ defineExpose({
                   class="w-full"
                 />
               </NFormItemGi>
-              <NFormItemGi span="24" label="用户数" path="resource_conf.project_user_num">
+              <NFormItemGi span="24" :label="$t('page.corp.version.userCount')" path="resource_conf.project_user_num">
                 <NInputNumber
                   v-model:value="formModel.resource_conf.project_user_num"
                   :min="0"
@@ -380,7 +385,11 @@ defineExpose({
                   class="w-full"
                 />
               </NFormItemGi>
-              <NFormItemGi span="24" label="日消息数" path="resource_conf.day_msg_num">
+              <NFormItemGi
+                span="24"
+                :label="$t('page.corp.version.dailyMessageCount')"
+                path="resource_conf.day_msg_num"
+              >
                 <NInputNumber
                   v-model:value="formModel.resource_conf.day_msg_num"
                   :min="0"
@@ -388,7 +397,11 @@ defineExpose({
                   class="w-full"
                 />
               </NFormItemGi>
-              <NFormItemGi span="24" label="数据存储时长" path="resource_conf.data_store_day">
+              <NFormItemGi
+                span="24"
+                :label="$t('page.corp.version.dataStoreDuration')"
+                path="resource_conf.data_store_day"
+              >
                 <NInputGroup class="w-full">
                   <NInputNumber
                     v-model:value="formModel.resource_conf.data_store_day"
@@ -407,8 +420,8 @@ defineExpose({
             </NGrid>
           </NTabPane>
 
-          <NTabPane name="menu" tab="菜单配置" display-directive="if">
-            <NFormItem label="菜单权限" class="pr-24px">
+          <NTabPane name="menu" :tab="$t('page.corp.version.menuConfig')" display-directive="if">
+            <NFormItem :label="$t('page.corp.version.menuPermission')" class="pr-24px">
               <MenuTree
                 v-if="visible"
                 ref="menuTreeRef"
@@ -427,8 +440,8 @@ defineExpose({
 
       <template #footer>
         <NSpace :size="16">
-          <NButton @click="close">取消</NButton>
-          <NButton type="primary" :loading="submitLoading" @click="handleSubmit">确定</NButton>
+          <NButton @click="close">{{ $t('common.cancel') }}</NButton>
+          <NButton type="primary" :loading="submitLoading" @click="handleSubmit">{{ $t('common.confirm') }}</NButton>
         </NSpace>
       </template>
     </NDrawerContent>

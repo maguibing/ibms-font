@@ -5,7 +5,7 @@ import { useBoolean } from '@sa/hooks';
 import type { CustomRoute, ElegantConstRoute, LastLevelRouteKey, RouteKey, RouteMap } from '@elegant-router/types';
 import { router } from '@/router';
 // import { fetchGetRoutes } from '@/service/api';
-import { isNotNull } from '@/utils/common';
+import { getRouteTitleI18nKey, isNotNull } from '@/utils/common';
 import { SetupStoreId } from '@/enum';
 import { createDynamicRoutes, createStaticRoutes, getAuthVueRoutes } from '@/router/routes';
 import { ROOT_ROUTE } from '@/router/routes/builtin';
@@ -98,8 +98,9 @@ export const useRouteStore = defineStore(SetupStoreId.Route, () => {
   function parseRouter(route: ElegantConstRoute, parent?: ElegantConstRoute) {
     route.meta = route.meta ? route.meta : { title: route.name };
     route.meta.title = route.meta.title || route.name;
-    if (route.meta.title.startsWith('route.') || route.meta.title.startsWith('menu.')) {
-      route.meta.i18nKey = route.meta.title as App.I18n.I18nKey;
+    const titleI18nKey = getRouteTitleI18nKey(route.meta.title);
+    if (titleI18nKey) {
+      route.meta.i18nKey = titleI18nKey;
     }
     const isLayout = route.component === 'Layout';
     const isFramePage = route.component === 'FrameView';

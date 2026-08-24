@@ -332,6 +332,7 @@ declare namespace App {
         updateCancel: string;
       };
       common: {
+        rootDirectory: string;
         action: string;
         add: string;
         addSuccess: string;
@@ -376,6 +377,7 @@ declare namespace App {
         modify: string;
         modifySuccess: string;
         noData: string;
+        unknown: string;
         operate: string;
         pleaseCheckValue: string;
         refresh: string;
@@ -538,6 +540,338 @@ declare namespace App {
           remark: string;
           form: {
             remark: FormMsg;
+          };
+          pointForm: {
+            name: string;
+            key: string;
+            dataType: string;
+            unit: string;
+            defaultValue: string;
+            scale: string;
+            energyType: string;
+            sourceDataType: string;
+            enumSourceDataType: string;
+            enumMapping: string;
+            pointDesc: string;
+            enumValue: string;
+            mappingName: string;
+            mappingLabel: string;
+            form: {
+              name: FormMsg;
+              key: FormMsg;
+              dataType: FormMsg;
+              unit: FormMsg;
+              defaultValue: FormMsg;
+              scale: FormMsg;
+              energyType: FormMsg;
+              sourceDataType: FormMsg;
+              mappingValue: FormMsg;
+              mappingName: FormMsg;
+              enumSourceDataType: FormMsg;
+              pointDesc: FormMsg;
+            };
+            options: {
+              enumSourceNumber: string;
+              enumSourceString: string;
+              precisionNone: string;
+              precision1: string;
+              precision2: string;
+              precision3: string;
+              energyNone: string;
+              energyElectricity: string;
+              energyWater: string;
+              energyGas: string;
+              energyCooling: string;
+              energyHeating: string;
+              energyRuntime: string;
+            };
+            message: {
+              enumMappingRequired: string;
+            };
+          };
+        };
+        corp: {
+          common: {
+            name: string;
+            address: string;
+            region: string;
+            location: string;
+            detailAddress: string;
+            contact: string;
+            contactPhone: string;
+            email: string;
+            password: string;
+            confirmPassword: string;
+            status: string;
+            useStatus: string;
+            auditStatus: string;
+            view: string;
+            audit: string;
+            pass: string;
+            reject: string;
+            back: string;
+            enable: string;
+            disable: string;
+            auditing: string;
+            approved: string;
+            rejected: string;
+            addCorp: string;
+            form: {
+              name: FormMsg;
+              region: FormMsg;
+              detailAddress: FormMsg;
+              contact: FormMsg;
+              contactPhone: FormMsg;
+              password: FormMsg;
+            };
+            placeholder: {
+              companyName: string;
+              email: string;
+              password: string;
+            };
+            message: {
+              nameMax: string;
+              addressMax: string;
+              confirmStatus: string;
+              statusUpdateSuccess: string;
+              auditPassSuccess: string;
+              auditRejectSuccess: string;
+              missingCorpId: string;
+              emptyCorpDetail: string;
+            };
+          };
+          list: {
+            title: string;
+          };
+          detail: {
+            title: string;
+            versionData: string;
+          };
+          version: {
+            title: string;
+            name: string;
+            versionName: string;
+            versionDesc: string;
+            corp: string;
+            using: string;
+            unassigned: string;
+            startTime: string;
+            endTime: string;
+            expectedStartTime: string;
+            addVersion: string;
+            editVersion: string;
+            addExistingVersion: string;
+            benefitView: string;
+            renewal: string;
+            renewalDuration: string;
+            priceConfig: string;
+            priceBenefit: string;
+            originalPrice: string;
+            discountPrice: string;
+            duration: string;
+            resourceConfig: string;
+            deviceCount: string;
+            userCount: string;
+            dailyMessageCount: string;
+            dataStore: string;
+            dataStoreDuration: string;
+            menuConfig: string;
+            menuPermission: string;
+            benefitSummary: string;
+            menuBenefit: string;
+            allBenefit: string;
+            day: string;
+            month: string;
+            year: string;
+            calendarDay: string;
+            dayDurationUnit: string;
+            monthDurationUnit: string;
+            yearDurationUnit: string;
+            deviceUnit: string;
+            userUnit: string;
+            messageUnit: string;
+            countWithUnit: string;
+            dailyMessageBenefit: string;
+            dataStoreBenefit: string;
+            priceDurationBenefit: string;
+            menuId: string;
+            selectedAddVersions: string;
+            selectVersion: string;
+            emptyBenefitSummary: string;
+            emptyMenuBenefit: string;
+            emptyAllBenefit: string;
+            emptyBenefitData: string;
+            legacy: {
+              gatewayManagement: string;
+              energyScreen: string;
+              meterSetting: string;
+              energyPriceManagement: string;
+              energyCategory: string;
+            };
+            form: {
+              versionName: FormMsg;
+              versionDesc: FormMsg;
+              corp: FormMsg;
+              expectedStartTime: FormMsg;
+              originalPrice: FormMsg;
+              discountPrice: FormMsg;
+              duration: FormMsg;
+              deviceCount: FormMsg;
+              userCount: FormMsg;
+              dailyMessageCount: FormMsg;
+              dataStoreDuration: FormMsg;
+              renewalDuration: FormMsg;
+            };
+            message: {
+              versionNameMax: string;
+              selectMenuRequired: string;
+              renewalSuccess: string;
+            };
+          };
+        };
+        global: {
+          industry: {
+            title: string;
+            name: string;
+            sort: string;
+            desc: string;
+            createTime: string;
+            addIndustry: string;
+            editIndustry: string;
+            form: {
+              name: FormMsg;
+              sort: FormMsg;
+              desc: FormMsg;
+            };
+          };
+          sysScreen: {
+            title: string;
+            name: string;
+            cover: string;
+            status: string;
+            createTime: string;
+            routePath: string;
+            routeName: string;
+            componentPath: string;
+            industryType: string;
+            projectConfig: string;
+            project: string;
+            mockData: string;
+            visual3d: string;
+            personalInfo: string;
+            enterSystem: string;
+            logout: string;
+            thumbnail: string;
+            addSysScreen: string;
+            editSysScreen: string;
+            addProject: string;
+            form: {
+              name: FormMsg;
+              routePath: FormMsg;
+              componentPath: FormMsg;
+              thumbnail: FormMsg;
+              industryType: FormMsg;
+              status: FormMsg;
+              project: FormMsg;
+            };
+            message: {
+              projectConfigRequired: string;
+              projectRequired: string;
+            };
+            placeholder: {
+              routePathExample: string;
+              routeNameExample: string;
+              componentPathExample: string;
+            };
+          };
+          activate: {
+            title: string;
+            eyebrow: string;
+            description: string;
+            required: string;
+            licenseType: string;
+            expireTime: string;
+            strategySpecified: string;
+            strategySpecifiedDesc: string;
+            strategyPermanent: string;
+            strategyPermanentDesc: string;
+            stepSelectType: string;
+            stepSetExpireTime: string;
+            stepGenerate: string;
+            stepResult: string;
+            resetForm: string;
+            generate: string;
+            copyLicense: string;
+            permanentDatePlaceholder: string;
+            datePlaceholder: string;
+            previewPermanent: string;
+            previewPending: string;
+            previewSpecified: string;
+            form: {
+              licenseType: FormMsg;
+              expireTime: FormMsg;
+            };
+            message: {
+              clipboardUnsupported: string;
+              copyFailed: string;
+              copySuccess: string;
+              generateSuccess: string;
+            };
+          };
+          deviceTypeTemplate: {
+            title: string;
+            categoryTitle: string;
+            emptyCategory: string;
+            name: string;
+            key: string;
+            typeKey: string;
+            icon: string;
+            status: string;
+            desc: string;
+            sort: string;
+            categoryName: string;
+            parentCategory: string;
+            updateTime: string;
+            pointManagement: string;
+            addDeviceType: string;
+            editDeviceType: string;
+            addCategory: string;
+            editCategory: string;
+            enable: string;
+            disable: string;
+            form: {
+              parentCategory: FormMsg;
+              name: FormMsg;
+              typeKey: FormMsg;
+              status: FormMsg;
+              categoryName: FormMsg;
+              sort: FormMsg;
+              desc: FormMsg;
+            };
+            placeholder: {
+              typeKey: string;
+            };
+            message: {
+              selectCategory: string;
+            };
+          };
+          deviceTypeTemplatePoint: {
+            title: string;
+            pointName: string;
+            pointKey: string;
+            dataType: string;
+            desc: string;
+            updateTime: string;
+            keyword: string;
+            addPoint: string;
+            editPoint: string;
+            form: {
+              keyword: FormMsg;
+            };
+            message: {
+              missingTemplateId: string;
+              missingPointId: string;
+            };
           };
         };
         login: {
@@ -740,13 +1074,20 @@ declare namespace App {
             title: string;
             parentId: string;
             menuName: string;
+            buttonName: string;
             icon: string;
             orderNum: string;
             perms: string;
+            permission: string;
             component: string;
             path: string;
+            routeName: string;
             layout: string;
+            defaultLayout: string;
+            blankLayout: string;
             externalPath: string;
+            extLink: string;
+            iframe: string;
             query: string;
             iframeQuery: string;
             isFrame: string;
@@ -780,6 +1121,7 @@ declare namespace App {
               perms: FormMsg;
               isFrame: FormMsg;
               path: FormMsg;
+              routeName: FormMsg;
               component: FormMsg;
               query: FormMsg;
               isCache: FormMsg;
@@ -886,17 +1228,32 @@ declare namespace App {
             roleName: string;
             roleKey: string;
             roleSort: string;
+            roleType: string;
+            desc: string;
             status: string;
             remark: string;
             menuPermission: string;
             dataScope: string;
+            dataScopeRange: string;
+            visualPermission: string;
             createTime: string;
+            roleTypes: {
+              systemAdmin: string;
+              normalMember: string;
+            };
+            dataScopes: {
+              all: string;
+              self: string;
+              dept: string;
+              deptAndSub: string;
+            };
             form: {
               roleName: FormMsg;
               roleKey: FormMsg;
               roleSort: FormMsg;
               status: FormMsg;
               remark: FormMsg;
+              desc: FormMsg;
               menuIds: FormMsg;
               deptIds: FormMsg;
             };
@@ -907,6 +1264,22 @@ declare namespace App {
             selectMenuPermission: string;
             selectDataScope: string;
             selectDeptPermission: string;
+            permissionConfig: string;
+            permissionConfigWithName: string;
+            visualTypes: {
+              systemScreen: string;
+              configuration: string;
+              customScreen: string;
+            };
+            searchScreenName: string;
+            searchConfigurationName: string;
+            permissionAll: string;
+            controlAll: string;
+            visualPermissionStats: string;
+            noScreen: string;
+            noThumbnail: string;
+            permission: string;
+            control: string;
           };
           tenant: {
             title: string;
@@ -992,6 +1365,11 @@ declare namespace App {
             addUser: string;
             editUser: string;
             resetPassword: string;
+            resetPasswordConfirmTitle: string;
+            resetPasswordConfirmButton: string;
+            resetPasswordConfirmPrefix: string;
+            resetPasswordConfirmSuffix: string;
+            resetPasswordSuccess: string;
             importUsers: string;
             exportTemplate: string;
             importSuccess: string;
@@ -1034,6 +1412,7 @@ declare namespace App {
         expand: string;
         pin: string;
         unpin: string;
+        manual: string;
       };
       datatable: {
         itemCount: string;

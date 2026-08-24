@@ -64,13 +64,13 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '大屏名称',
+        title: $t('page.global.sysScreen.name'),
         align: 'center',
         minWidth: 140
       },
       {
         key: 'url',
-        title: '大屏封面',
+        title: $t('page.global.sysScreen.cover'),
         align: 'center',
         minWidth: 240,
         render: row => {
@@ -86,18 +86,18 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'status',
-        title: '状态',
+        title: $t('page.global.sysScreen.status'),
         align: 'center',
         minWidth: 140,
         render: row => {
           const status = Number(row.status);
 
           if (status === 1) {
-            return h(NTag, { type: 'success' }, { default: () => '启用' });
+            return h(NTag, { type: 'success' }, { default: () => $t('dict.sys_normal_disable.normal') });
           }
 
           if (status === 2) {
-            return h(NTag, { type: 'error' }, { default: () => '停用' });
+            return h(NTag, { type: 'error' }, { default: () => $t('dict.sys_normal_disable.disable') });
           }
 
           return '-';
@@ -105,7 +105,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'created_at',
-        title: '创建时间',
+        title: $t('page.global.sysScreen.createTime'),
         align: 'center',
         minWidth: 180,
         render: row => formatDateTime(row.created_at)
@@ -188,7 +188,12 @@ async function handleDelete(id: CommonType.IdType) {
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <SysScreenSearch v-model:model="searchParams" @search="getDataByPage" />
-    <NCard title="大屏管理" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard
+      :title="$t('page.global.sysScreen.title')"
+      :bordered="false"
+      size="small"
+      class="card-wrapper sm:flex-1-hidden"
+    >
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

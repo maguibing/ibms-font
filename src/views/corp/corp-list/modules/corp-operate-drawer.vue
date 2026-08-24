@@ -84,24 +84,27 @@ type RuleKey = Extract<
 const rules = computed<Partial<Record<RuleKey, App.Global.FormRule | App.Global.FormRule[]>>>(() => {
   const baseRules: Partial<Record<RuleKey, App.Global.FormRule | App.Global.FormRule[]>> = {
     name: [
-      createRequiredRule('集成商名称不能为空'),
+      createRequiredRule($t('page.corp.common.form.name.invalid')),
       {
         max: 20,
-        message: '集成商名称不能超过20个字符',
+        message: $t('page.corp.common.message.nameMax'),
         trigger: ['input', 'blur']
       }
     ],
-    ad_address: createRequiredRule('所属地区不能为空'),
+    ad_address: createRequiredRule($t('page.corp.common.form.region.invalid')),
     address: [
-      createRequiredRule('详细地址不能为空'),
+      createRequiredRule($t('page.corp.common.form.detailAddress.invalid')),
       {
         max: 30,
-        message: '详细地址不能超过30个字符',
+        message: $t('page.corp.common.message.addressMax'),
         trigger: ['input', 'blur']
       }
     ],
-    contact_name: createRequiredRule('联系人不能为空'),
-    contact_phone: [createRequiredRule('联系电话不能为空'), { ...patternRules.phone, trigger: ['change', 'blur'] }]
+    contact_name: createRequiredRule($t('page.corp.common.form.contact.invalid')),
+    contact_phone: [
+      createRequiredRule($t('page.corp.common.form.contactPhone.invalid')),
+      { ...patternRules.phone, trigger: ['change', 'blur'] }
+    ]
   };
 
   if (!showPasswordFields.value) {
@@ -110,7 +113,7 @@ const rules = computed<Partial<Record<RuleKey, App.Global.FormRule | App.Global.
 
   return {
     ...baseRules,
-    rsa_pwd: [createRequiredRule('密码不能为空'), patternRules.pwd],
+    rsa_pwd: [createRequiredRule($t('page.corp.common.form.password.invalid')), patternRules.pwd],
     confirm_password: createConfirmPwdRule(model.value.rsa_pwd)
   };
 });
@@ -196,66 +199,82 @@ watch(
 </script>
 
 <template>
-  <NDrawer v-model:show="visible" title="新增集成商" display-directive="show" :width="600" class="max-w-90%">
-    <NDrawerContent title="新增集成商" :native-scrollbar="false" closable>
+  <NDrawer
+    v-model:show="visible"
+    :title="$t('page.corp.common.addCorp')"
+    display-directive="show"
+    :width="600"
+    class="max-w-90%"
+  >
+    <NDrawerContent :title="$t('page.corp.common.addCorp')" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules">
-        <NFormItem label="集成商名称" path="name">
-          <NInput v-model:value="model.name" placeholder="请输入公司名称" :maxlength="20" show-count />
+        <NFormItem :label="$t('page.corp.common.name')" path="name">
+          <NInput
+            v-model:value="model.name"
+            :placeholder="$t('page.corp.common.placeholder.companyName')"
+            :maxlength="20"
+            show-count
+          />
         </NFormItem>
-        <NFormItem label="所属地区" path="ad_address">
+        <NFormItem :label="$t('page.corp.common.region')" path="ad_address">
           <NCascader
             :value="model.ad_code || null"
             filterable
             clearable
             :options="regionOptions"
-            placeholder="请选择所属地区"
+            :placeholder="$t('page.corp.common.form.region.required')"
             @update:value="handleRegionUpdate"
           />
         </NFormItem>
-        <NFormItem label="详细地址" path="address">
-          <NInput v-model:value="model.address" placeholder="请输入详细地址" :maxlength="30" show-count />
+        <NFormItem :label="$t('page.corp.common.detailAddress')" path="address">
+          <NInput
+            v-model:value="model.address"
+            :placeholder="$t('page.corp.common.form.detailAddress.required')"
+            :maxlength="30"
+            show-count
+          />
         </NFormItem>
-        <NFormItem label="联系人" path="contact_name">
-          <NInput v-model:value="model.contact_name" placeholder="请输入联系人" />
+        <NFormItem :label="$t('page.corp.common.contact')" path="contact_name">
+          <NInput v-model:value="model.contact_name" :placeholder="$t('page.corp.common.form.contact.required')" />
         </NFormItem>
         <NFormItem
           ref="phoneFormItemRef"
-          label="联系电话"
+          :label="$t('page.corp.common.contactPhone')"
           path="contact_phone"
           :validation-status="phoneValidationStatus"
           :feedback="phoneFeedback"
         >
           <NInput
             v-model:value="model.contact_phone"
-            placeholder="请输入联系电话"
+            :placeholder="$t('page.corp.common.form.contactPhone.required')"
             :maxlength="11"
             @blur="checkPhone()"
           />
         </NFormItem>
 
         <template v-if="showPasswordFields">
-          <NFormItem label="密码" path="rsa_pwd">
+          <NFormItem :label="$t('page.corp.common.password')" path="rsa_pwd">
             <NInput
               v-model:value="model.rsa_pwd"
               type="password"
               show-password-on="click"
               :input-props="{ autocomplete: 'new-password' }"
-              placeholder="登录密码不会显示在系统中，请牢记登录密码，如忘记可重置"
+              :placeholder="$t('page.corp.common.placeholder.password')"
             />
           </NFormItem>
-          <NFormItem label="确认密码" path="confirm_password">
+          <NFormItem :label="$t('page.corp.common.confirmPassword')" path="confirm_password">
             <NInput
               v-model:value="model.confirm_password"
               type="password"
               show-password-on="click"
               :input-props="{ autocomplete: 'new-password' }"
-              placeholder="登录密码不会显示在系统中，请牢记登录密码，如忘记可重置"
+              :placeholder="$t('page.corp.common.placeholder.password')"
             />
           </NFormItem>
         </template>
 
-        <NFormItem label="邮箱">
-          <NInput v-model:value="model.contact_email" placeholder="请输入邮箱地址" />
+        <NFormItem :label="$t('page.corp.common.email')">
+          <NInput v-model:value="model.contact_email" :placeholder="$t('page.corp.common.placeholder.email')" />
         </NFormItem>
       </NForm>
       <template #footer>

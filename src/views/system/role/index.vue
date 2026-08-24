@@ -3,7 +3,6 @@ import { ref } from 'vue';
 import { NDivider, NTag } from 'naive-ui';
 import { type FilterConfig, formatDateTime, isValidFilterConfig, jsonClone } from '@sa/utils';
 import { useBoolean } from '@sa/hooks';
-import { dataScopeRecord } from '@/constants/business';
 import { fetchBatchDeleteRole, fetchGetRoleList } from '@/service/api/system/role';
 import { useAppStore } from '@/store/modules/app';
 import { useAuth } from '@/hooks/business/auth';
@@ -22,6 +21,13 @@ const appStore = useAppStore();
 const { hasAuth } = useAuth();
 
 const { bool: permissionsDrawerVisible, setTrue: openPermissionsDrawer } = useBoolean(false);
+
+const dataScopeLabelKeys: Record<Api.System.DataScope, App.I18n.I18nKey> = {
+  '1': 'page.system.role.dataScopes.all',
+  '2': 'page.system.role.dataScopes.self',
+  '3': 'page.system.role.dataScopes.dept',
+  '4': 'page.system.role.dataScopes.deptAndSub'
+};
 
 const searchParams = ref<Api.System.RoleSearchParams>({
   pageNum: 1,
@@ -71,38 +77,44 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '角色名称',
+        title: $t('page.system.role.roleName'),
         align: 'center',
         minWidth: 120
       },
       {
         key: 'role_type',
-        title: '角色类型',
+        title: $t('page.system.role.roleType'),
         align: 'center',
         minWidth: 100,
         render: row => {
           const isSuperAdmin = row.role_type === 1;
-          return <NTag type={isSuperAdmin ? 'success' : 'default'}>{isSuperAdmin ? '系统管理员' : '普通成员'}</NTag>;
+          return (
+            <NTag type={isSuperAdmin ? 'success' : 'default'}>
+              {isSuperAdmin ? $t('page.system.role.roleTypes.systemAdmin') : $t('page.system.role.roleTypes.normalMember')}
+            </NTag>
+          );
         }
       },
       {
         key: 'data_scope',
-        title: '数据范围',
+        title: $t('page.system.role.dataScopeRange'),
         align: 'center',
         minWidth: 180,
         render: row => {
-          return <NTag type="info">{dataScopeRecord[String(row.data_scope) as Api.System.DataScope] || '-'}</NTag>;
+          const labelKey = dataScopeLabelKeys[String(row.data_scope) as Api.System.DataScope];
+
+          return <NTag type="info">{labelKey ? $t(labelKey) : '-'}</NTag>;
         }
       },
       {
         key: 'desc',
-        title: '备注',
+        title: $t('page.system.role.remark'),
         align: 'center',
         minWidth: 160
       },
       {
         key: 'created_at',
-        title: '创建时间',
+        title: $t('page.system.role.createTime'),
         align: 'center',
         minWidth: 160,
         render: row => formatDateTime(row.created_at)
@@ -133,7 +145,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 text
                 type="primary"
                 icon="material-symbols:database"
-                tooltipContent="分配权限"
+                tooltipContent={$t('page.system.role.configPermission')}
                 onClick={() => handleMenuAuthScope(row)}
               />
             );
@@ -193,7 +205,6 @@ async function edit(roleId: CommonType.IdType) {
   handleEdit(roleId);
 }
 
-
 function handleMenuAuthScope(row: Api.System.Role) {
   const findItem = data.value.find(item => item.id === row.id) || null;
   editingData.value = jsonClone(findItem);
@@ -204,7 +215,7 @@ function handleMenuAuthScope(row: Api.System.Role) {
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <RoleSearch v-model:model="searchParams" @search="getDataByPage" />
-    <NCard title="角色列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('page.system.role.title')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"
