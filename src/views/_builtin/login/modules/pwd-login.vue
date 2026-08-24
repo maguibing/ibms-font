@@ -78,12 +78,11 @@ const rules = computed<Record<RuleKey, App.Global.FormRule[]>>(() => {
 
 async function handleSubmit() {
   await validate();
-  // 勾选了需要记住密码设置在 localStorage 中设置记住用户名和密码
+  // Persist remembered phone and password.
   if (remberMe.value) {
     const { phone, rsa_pwd } = model;
     localStg.set('loginRember', encryptWithAes(JSON.stringify({ phone, rsa_pwd }), aesKey));
   } else {
-    // 否则移除
     localStg.remove('loginRember');
   }
   try {
@@ -176,10 +175,10 @@ async function loginSelectedItem(selectData: SelectedLoginData, item: LoginSelec
 function createCorpSelectData(corpLoginData: Api.Auth.CorpLoginData): SelectedLoginData {
   return {
     type: 'corp',
-    title: '选择集成商',
-    subtitle: '请选择本次登录的集成商',
-    searchPlaceholder: '搜索集成商或用户名',
-    emptyDescription: '暂无匹配集成商',
+    title: $t('page.login.pwdLogin.selectCorpTitle'),
+    subtitle: $t('page.login.pwdLogin.selectCorpSubtitle'),
+    searchPlaceholder: $t('page.login.pwdLogin.searchCorpPlaceholder'),
+    emptyDescription: $t('page.login.pwdLogin.emptyCorp'),
     loginToken: corpLoginData.login_token,
     items: corpLoginData.corp_list.map(item => ({
       type: 'corp',
@@ -194,16 +193,16 @@ function createCorpSelectData(corpLoginData: Api.Auth.CorpLoginData): SelectedLo
 function createProjectSelectData(projectLoginData: Api.Auth.ProjectLoginData): SelectedLoginData {
   return {
     type: 'project',
-    title: '选择项目',
-    subtitle: '请选择本次登录的项目',
-    searchPlaceholder: '搜索项目',
-    emptyDescription: '暂无匹配项目',
+    title: $t('page.login.pwdLogin.selectProjectTitle'),
+    subtitle: $t('page.login.pwdLogin.selectProjectSubtitle'),
+    searchPlaceholder: $t('page.login.pwdLogin.searchProjectPlaceholder'),
+    emptyDescription: $t('page.login.pwdLogin.emptyProject'),
     loginToken: projectLoginData.login_token,
     items: projectLoginData.project_list.map(item => ({
       type: 'project',
       key: String(item.id),
       title: item.name,
-      subtitle: `项目ID：${item.id}`,
+      subtitle: $t('page.login.pwdLogin.projectId', { id: item.id }),
       disabled: !item.can_use,
       raw: item
     }))
@@ -244,8 +243,10 @@ async function loginWithProject(loginToken: string, item: Api.Auth.ProjectLoginI
     @select="handleSelectLogin"
   />
   <div v-else>
-    <div class="mb-5px text-32px text-black font-600 dark:text-white">登录到您的账户</div>
-    <div class="pb-18px text-16px text-#858585">欢迎回来！请输入您的账户信息</div>
+    <div class="mb-5px text-32px text-black font-600 dark:text-white">
+      {{ $t('page.login.pwdLogin.accountTitle') }}
+    </div>
+    <div class="pb-18px text-16px text-#858585">{{ $t('page.login.pwdLogin.accountSubtitle') }}</div>
     <NForm
       ref="formRef"
       :model="model"
@@ -271,7 +272,7 @@ async function loginWithProject(loginToken: string, item: Api.Auth.ProjectLoginI
           <NSpin :show="codeLoading" :size="28" class="h-42px">
             <NButton :focusable="false" class="login-code h-42px w-114px" @click="handleFetchCaptchaCode">
               <img v-if="codeUrl" :src="codeUrl" />
-              <NEmpty v-else :show-icon="false" description="暂无验证码" />
+              <NEmpty v-else :show-icon="false" :description="$t('page.login.common.noCaptcha')" />
             </NButton>
           </NSpin>
         </div>
@@ -287,7 +288,7 @@ async function loginWithProject(loginToken: string, item: Api.Auth.ProjectLoginI
           {{ $t('common.login') }}
         </NButton>
         <NButton v-if="registerEnabled && !isPtScene" size="large" block @click="toggleLoginModule('register')">
-          {{ isCpScene ? '集成商入驻' : $t('page.login.common.register') }}
+          {{ isCpScene ? $t('page.login.common.applyCorpEntry') : $t('page.login.common.register') }}
         </NButton>
       </NSpace>
     </NForm>
@@ -299,9 +300,9 @@ async function loginWithProject(loginToken: string, item: Api.Auth.ProjectLoginI
 -->
 
     <div v-if="!isPtScene" class="mt-24px w-full text-center text-18px text-#858585">
-      您还没有账户？
+      {{ $t('page.login.common.noAccount') }}
       <NA type="primary" class="text-18px" @click="toggleLoginModule('register')">
-        {{ isCpScene ? '集成商入驻' : $t('page.login.common.register') }}
+        {{ isCpScene ? $t('page.login.common.applyCorpEntry') : $t('page.login.common.register') }}
       </NA>
     </div>
   </div>

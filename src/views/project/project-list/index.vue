@@ -76,7 +76,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '项目名称',
+        title: $t('page.project.list.projectName'),
         align: 'center',
         minWidth: 180,
         ellipsis: {
@@ -85,7 +85,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'key',
-        title: '标识',
+        title: $t('page.project.list.key'),
         align: 'center',
         minWidth: 180,
         ellipsis: {
@@ -95,7 +95,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'address',
-        title: '项目地址',
+        title: $t('page.project.list.address'),
         align: 'center',
         minWidth: 220,
         ellipsis: {
@@ -105,7 +105,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'leader_name',
-        title: '负责人',
+        title: $t('page.project.list.leader'),
         align: 'center',
         minWidth: 120,
         ellipsis: {
@@ -115,7 +115,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'leader_phone',
-        title: '联系电话',
+        title: $t('page.project.list.contactPhone'),
         align: 'center',
         minWidth: 140,
         render: row => {
@@ -128,7 +128,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'version_name',
-        title: '版本',
+        title: $t('page.project.list.version'),
         align: 'center',
         minWidth: 140,
         ellipsis: {
@@ -138,14 +138,14 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'status',
-        title: '项目状态',
+        title: $t('page.project.list.projectStatus'),
         align: 'center',
         minWidth: 100,
         render: row => renderProjectStatus(row.status)
       },
       {
         key: 'created_at',
-        title: '创建时间',
+        title: $t('page.common.createTime'),
         align: 'center',
         minWidth: 180,
         render: row => (row.created_at ? formatDateTime(row.created_at) : '-')
@@ -171,7 +171,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               text
               type="primary"
               icon="material-symbols:visibility-outline"
-              tooltipContent="查看"
+              tooltipContent={$t('page.project.list.view')}
               onClick={() => handleView(row)}
             />
           );
@@ -181,7 +181,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               text
               type="primary"
               icon="material-symbols:groups-outline"
-              tooltipContent="成员"
+              tooltipContent={$t('page.project.list.member')}
               onClick={() => handleMembers(row)}
             />
           );
@@ -257,11 +257,11 @@ function renderProjectStatus(status?: number | string) {
   const statusValue = Number(status);
 
   if (statusValue === 1) {
-    return <NTag type="success">启用</NTag>;
+    return <NTag type="success">{$t('page.project.list.enabled')}</NTag>;
   }
 
   if (statusValue === 2) {
-    return <NTag type="default">停用</NTag>;
+    return <NTag type="default">{$t('page.project.list.disabled')}</NTag>;
   }
 
   return status ?? '-';
@@ -310,7 +310,7 @@ async function handleBatchDelete() {
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <ProjectSearch v-model:model="searchParams" @search="getDataByPage" />
 
-    <NCard title="项目列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('page.project.list.title')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

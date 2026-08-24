@@ -1,6 +1,12 @@
+const systemTitleMap: Record<NonNullable<Env.ImportMeta['VITE_APP_SCENE']>, string> = {
+  pt: '运营平台',
+  cp: '集成商平台',
+  pj: '项目平台'
+};
+
 const local: App.I18n.Schema = {
   system: {
-    title: '智慧数字云平台',
+    title: systemTitleMap[import.meta.env.VITE_APP_SCENE ?? 'pt'],
     updateTitle: '系统版本更新通知',
     updateContent: '检测到系统有新版本发布，是否立即刷新页面？',
     updateConfirm: '立即刷新',
@@ -264,13 +270,14 @@ const local: App.I18n.Schema = {
     }
   },
   route: {
+    // 公共基础路由
     login: '登录',
     403: '无权限',
     404: '页面不存在',
     500: '服务器错误',
     'iframe-page': '外链页面',
     home: '首页',
-    // PT 运营平台菜单 meta.title 国际化
+    // 运营平台菜单
     menu: '菜单配置',
     menu_platform: '运营菜单管理',
     'menu_platform-menu': '运营菜单管理',
@@ -326,6 +333,17 @@ const local: App.I18n.Schema = {
     corp_version_edit: '版本编辑',
     corp_version_delete: '版本删除',
 
+    // 集成商平台菜单
+    version: '版本配置',
+    version_management: '版本管理',
+    project: '项目配置',
+    project_management: '项目管理',
+    project_project_list_add: '项目新增',
+    project_project_list_view: '项目查看',
+    project_project_list_delete: '项目删除',
+    project_detail: '项目详情',
+
+    // 其它业务菜单
     device_configuration: '设备配置',
     device_group_management: '设备分组管理',
     device_type_management: '设备类型管理',
@@ -369,6 +387,8 @@ const local: App.I18n.Schema = {
     fuxa_management: 'FUXA 管理',
     ioc_management: 'IOC 管理',
     toolbox_management: '工具箱',
+
+    // 多平台公共菜单
     system_configuration: '系统配置',
     user_management: '用户管理',
     dept_management: '部门管理',
@@ -395,11 +415,15 @@ const local: App.I18n.Schema = {
     system_dept_delete: '部门删除',
     system_post: '岗位管理',
     system_toolbox: '工具箱',
+
+    // 其它存量菜单
     monitor: '视频监控',
     monitor_cache: '缓存监控',
     monitor_logininfor: '登录日志',
     monitor_operlog: '操作日志',
     monitor_online: '在线用户',
+
+    // 公共内置路由
     'social-callback': '单点登录回调',
     'user-center': '个人中心',
     exception: '异常页',
@@ -504,8 +528,8 @@ const local: App.I18n.Schema = {
   page: {
     login: {
       common: {
-        title: '现代化的企业级多租户管理系统',
-        subTitle: '为开发者提供了完整的企业管理解决方案',
+        title: '崇实科技，您身边的AI节能数字化伙伴',
+        subTitle: '为客户提供了完整的企业管理解决方案',
         loginOrRegister: '登录 / 注册',
         register: '注册',
         userNamePlaceholder: '请输入用户名',
@@ -513,19 +537,36 @@ const local: App.I18n.Schema = {
         codePlaceholder: '请输入验证码',
         passwordPlaceholder: '请输入密码',
         confirmPasswordPlaceholder: '请再次输入密码',
+        sendCodeDesc: '请输入您的手机号，我们将发送验证码到您的手机',
         codeLogin: '验证码登录',
         confirm: '确定',
         back: '返回',
+        submit: '提交',
         validateSuccess: '验证成功',
         loginSuccess: '登录成功',
-        welcomeBack: '欢迎回来，{userName} ！'
+        welcomeBack: '欢迎回来，{userName} ！',
+        retryAfter: '{time}s后重试',
+        noCaptcha: '暂无验证码',
+        noAccount: '您还没有账户？',
+        applyCorpEntry: '集成商入驻'
       },
       pwdLogin: {
         title: '密码登录',
+        accountTitle: '登录到您的账户',
+        accountSubtitle: '欢迎回来！请输入您的账户信息',
         rememberMe: '记住密码',
         forgetPassword: '忘记密码？',
         register: '注册账号',
         otherLoginMode: '其他登录方式',
+        selectCorpTitle: '选择集成商',
+        selectCorpSubtitle: '请选择本次登录的集成商',
+        searchCorpPlaceholder: '搜索集成商或用户名',
+        emptyCorp: '暂无匹配集成商',
+        selectProjectTitle: '选择项目',
+        selectProjectSubtitle: '请选择本次登录的项目',
+        searchProjectPlaceholder: '搜索项目',
+        emptyProject: '暂无匹配项目',
+        projectId: '项目ID：{id}',
         superAdmin: '超级管理员',
         admin: '管理员',
         user: '普通用户'
@@ -538,13 +579,81 @@ const local: App.I18n.Schema = {
         imageCodePlaceholder: '请输入图片验证码'
       },
       register: {
-        title: '注册账号',
+        title: '项目成员注册',
+        subTitle: '请输入项目和账户信息完成注册',
+        query: '查询',
         agreement: '我已经仔细阅读并接受',
         protocol: '《用户协议》',
-        policy: '《隐私权政策》'
+        policy: '《隐私权政策》',
+        projectChecked: '项目校验通过',
+        projectNotFound: '项目不存在',
+        projectNamePlaceholder: '请输入项目名称',
+        userNamePlaceholder: '请输入用户名称',
+        phoneExists: '手机号已存在，将使用已存在账号',
+        registerSuccess: '注册成功',
+        form: {
+          projectName: {
+            required: '项目名称不能为空',
+            invalid: '项目名称不能为空'
+          },
+          userName: {
+            required: '用户名称不能为空',
+            invalid: '用户名称不能为空'
+          }
+        }
       },
       resetPwd: {
-        title: '重置密码'
+        title: '重置密码',
+        resetSuccess: '密码重置成功，请重新登录',
+        codePattern: '请输入4位数字验证码'
+      },
+      applyCorp: {
+        title: '集成商入驻',
+        subTitle: '请输入入驻信息，我们将尽快完成审核',
+        submitSuccess: '提交成功',
+        nameMax: '集成商名称不能超过20个字符',
+        addressMax: '详细地址不能超过30个字符',
+        phoneExists: '联系电话已存在，将使用已存在账号',
+        form: {
+          name: {
+            required: '集成商名称不能为空',
+            invalid: '集成商名称不能为空'
+          },
+          region: {
+            required: '所在地区不能为空',
+            invalid: '所在地区不能为空'
+          },
+          address: {
+            required: '详细地址不能为空',
+            invalid: '详细地址不能为空'
+          },
+          contactName: {
+            required: '联系人名称不能为空',
+            invalid: '联系人名称不能为空'
+          },
+          contactPhone: {
+            required: '联系电话不能为空',
+            invalid: '联系电话不能为空'
+          },
+          password: {
+            required: '登录密码不能为空',
+            invalid: '登录密码不能为空'
+          }
+        },
+        placeholder: {
+          name: '请输入集成商名称',
+          region: '请选择所在地区（必填）',
+          address: '请输入详细地址',
+          contactName: '请输入联系人名称',
+          contactPhone: '请输入联系电话',
+          password: '登录密码不会显示在系统中，请牢记登录密码',
+          confirmPassword: '登录密码不会显示在系统中，请牢记登录密码',
+          email: '请输入邮箱(选填)'
+        }
+      },
+      selectList: {
+        ariaEnter: '进入{name}',
+        backLogin: '返回登录'
       },
       bindWeChat: {
         title: '绑定微信'
@@ -923,6 +1032,93 @@ const local: App.I18n.Schema = {
           versionNameMax: '版本名称不能超过10个字符',
           selectMenuRequired: '请至少选择一个菜单',
           renewalSuccess: '续费成功'
+        }
+      }
+    },
+    project: {
+      list: {
+        title: '项目列表',
+        projectName: '项目名称',
+        key: '标识',
+        address: '项目地址',
+        leader: '负责人',
+        contactPhone: '联系电话',
+        version: '版本',
+        projectVersion: '项目版本',
+        projectStatus: '项目状态',
+        view: '查看',
+        member: '成员',
+        memberName: '成员名称',
+        phoneNumber: '手机号',
+        addProject: '新增项目',
+        editProject: '编辑项目',
+        versionViewTitle: '查看项目版本',
+        memberTitle: '项目成员',
+        memberTitleWithName: '项目成员：{name}',
+        currentVersion: '当前版本',
+        priceTime: '价格 / 时间',
+        versionMenu: '版本菜单',
+        platformPassword: '项目平台密码',
+        projectDesc: '项目描述',
+        leaderPhone: '负责人电话',
+        enabled: '启用',
+        disabled: '停用',
+        form: {
+          projectName: {
+            required: '项目名称不能为空',
+            invalid: '项目名称不能为空'
+          },
+          key: {
+            required: '项目标识不能为空',
+            invalid: '项目标识不能为空'
+          },
+          region: {
+            required: '所属地区不能为空',
+            invalid: '所属地区不能为空'
+          },
+          address: {
+            required: '详细地址不能为空',
+            invalid: '详细地址不能为空'
+          },
+          version: {
+            required: '项目版本不能为空',
+            invalid: '项目版本不能为空'
+          },
+          leader: {
+            required: '负责人不能为空',
+            invalid: '负责人不能为空'
+          },
+          contactPhone: {
+            required: '联系电话不能为空',
+            invalid: '联系电话不能为空'
+          },
+          platformPassword: {
+            required: '项目平台密码不能为空',
+            invalid: '项目平台密码不能为空'
+          }
+        },
+        placeholder: {
+          projectName: '请输入项目名称',
+          key: '请输入项目标识',
+          region: '请选择所属地区',
+          address: '请输入详细地址',
+          version: '请选择项目版本',
+          leader: '请选择负责人',
+          leaderPhone: '负责人电话',
+          password: '密码不会显示在系统中，请牢记登录密码，如忘记可重置密码',
+          confirmPassword: '登录密码不会显示在系统中，请牢记登录密码，如忘记可重置密码',
+          projectDesc: '请输入项目描述',
+          memberName: '请输入成员名称'
+        },
+        message: {
+          projectNameMax: '项目名称不能超过20个字符',
+          projectKeyPattern: '项目标识必须以字母开头，且只能包含字母、数字和下划线',
+          addressMax: '详细地址不能超过30个字符',
+          existingLeaderPhone: '负责人电话已存在，将使用已存在账号',
+          statusUpdateSuccess: '状态修改成功',
+          unboundVersion: '当前项目未绑定版本',
+          emptyVersionMenu: '暂无版本菜单',
+          emptyVersionData: '暂无版本数据'
         }
       }
     },

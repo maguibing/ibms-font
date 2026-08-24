@@ -9,6 +9,7 @@ import { fetchCreateApplyCorp } from '@/service/api/corp';
 import { usePhoneExistCheck } from '@/hooks/business/phone-exist-check';
 import { useRouterPush } from '@/hooks/common/router';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'ApplyCorp'
@@ -60,6 +61,7 @@ const {
     model.contact_phone = phone;
   },
   pType: 2,
+  existsFeedback: $t('page.login.applyCorp.phoneExists'),
   onExists: clearPassword,
   onReset: clearPassword
 });
@@ -67,24 +69,27 @@ const {
 const rules = computed<RuleRecord>(() => {
   const baseRules: RuleRecord = {
     name: [
-      createRequiredRule('集成商名称不能为空'),
+      createRequiredRule($t('page.login.applyCorp.form.name.required')),
       {
         max: 20,
-        message: '集成商名称不能超过20个字符',
+        message: $t('page.login.applyCorp.nameMax'),
         trigger: ['input', 'blur']
       }
     ],
-    ad_address: createRequiredRule('所在地区不能为空'),
+    ad_address: createRequiredRule($t('page.login.applyCorp.form.region.required')),
     address: [
-      createRequiredRule('详细地址不能为空'),
+      createRequiredRule($t('page.login.applyCorp.form.address.required')),
       {
         max: 30,
-        message: '详细地址不能超过30个字符',
+        message: $t('page.login.applyCorp.addressMax'),
         trigger: ['input', 'blur']
       }
     ],
-    contact_name: createRequiredRule('联系人名称不能为空'),
-    contact_phone: [createRequiredRule('联系电话不能为空'), { ...patternRules.phone, trigger: ['change', 'blur'] }]
+    contact_name: createRequiredRule($t('page.login.applyCorp.form.contactName.required')),
+    contact_phone: [
+      createRequiredRule($t('page.login.applyCorp.form.contactPhone.required')),
+      { ...patternRules.phone, trigger: ['change', 'blur'] }
+    ]
   };
 
   if (!showPasswordFields.value) {
@@ -93,7 +98,7 @@ const rules = computed<RuleRecord>(() => {
 
   return {
     ...baseRules,
-    password: [createRequiredRule('登录密码不能为空'), patternRules.pwd],
+    password: [createRequiredRule($t('page.login.applyCorp.form.password.required')), patternRules.pwd],
     confirm_password: createConfirmPwdRule(password)
   };
 });
@@ -151,7 +156,7 @@ async function handleSubmit() {
 
     if (error) return;
 
-    window.$message?.success('提交成功');
+    window.$message?.success($t('page.login.applyCorp.submitSuccess'));
     toggleLoginModule('pwd-login');
   } finally {
     endSubmitLoading();
@@ -168,8 +173,10 @@ watch(
 
 <template>
   <div>
-    <div class="mb-5px text-32px text-black font-600 sm:text-30px dark:text-white">集成商入驻</div>
-    <div class="pb-18px text-16px text-#858585">请输入入驻信息，我们将尽快完成审核</div>
+    <div class="mb-5px text-32px text-black font-600 sm:text-30px dark:text-white">
+      {{ $t('page.login.applyCorp.title') }}
+    </div>
+    <div class="pb-18px text-16px text-#858585">{{ $t('page.login.applyCorp.subTitle') }}</div>
     <NForm
       ref="formRef"
       :model="model"
@@ -179,7 +186,7 @@ watch(
       @keyup.enter="() => !submitLoading && handleSubmit()"
     >
       <NFormItem path="name">
-        <NInput v-model:value="model.name" placeholder="请输入集成商名称" :maxlength="20" />
+        <NInput v-model:value="model.name" :placeholder="$t('page.login.applyCorp.placeholder.name')" :maxlength="20" />
       </NFormItem>
       <NFormItem path="ad_address">
         <NCascader
@@ -187,15 +194,15 @@ watch(
           filterable
           clearable
           :options="regionOptions"
-          placeholder="请选择所在地区（必填）"
+          :placeholder="$t('page.login.applyCorp.placeholder.region')"
           @update:value="handleRegionUpdate"
         />
       </NFormItem>
       <NFormItem path="address">
-        <NInput v-model:value="model.address" placeholder="请输入详细地址" :maxlength="30" />
+        <NInput v-model:value="model.address" :placeholder="$t('page.login.applyCorp.placeholder.address')" :maxlength="30" />
       </NFormItem>
       <NFormItem path="contact_name">
-        <NInput v-model:value="model.contact_name" placeholder="请输入联系人名称" />
+        <NInput v-model:value="model.contact_name" :placeholder="$t('page.login.applyCorp.placeholder.contactName')" />
       </NFormItem>
       <NFormItem
         ref="phoneFormItemRef"
@@ -205,7 +212,7 @@ watch(
       >
         <NInput
           v-model:value="model.contact_phone"
-          placeholder="请输入联系电话"
+          :placeholder="$t('page.login.applyCorp.placeholder.contactPhone')"
           :maxlength="11"
           show-count
           @blur="checkPhone()"
@@ -218,7 +225,7 @@ watch(
             type="password"
             show-password-on="click"
             :input-props="{ autocomplete: 'new-password' }"
-            placeholder="登录密码不会显示在系统中，请牢记登录密码"
+            :placeholder="$t('page.login.applyCorp.placeholder.password')"
           />
         </NFormItem>
         <NFormItem path="confirm_password">
@@ -227,16 +234,18 @@ watch(
             type="password"
             show-password-on="click"
             :input-props="{ autocomplete: 'new-password' }"
-            placeholder="登录密码不会显示在系统中，请牢记登录密码"
+            :placeholder="$t('page.login.applyCorp.placeholder.confirmPassword')"
           />
         </NFormItem>
       </template>
       <NFormItem path="contact_email">
-        <NInput v-model:value="model.contact_email" placeholder="请输入邮箱(选填)" />
+        <NInput v-model:value="model.contact_email" :placeholder="$t('page.login.applyCorp.placeholder.email')" />
       </NFormItem>
       <NSpace vertical :size="20" class="w-full">
-        <NButton type="primary" size="large" block :loading="submitLoading" @click="handleSubmit">提交</NButton>
-        <NButton size="large" block @click="toggleLoginModule('pwd-login')">取消</NButton>
+        <NButton type="primary" size="large" block :loading="submitLoading" @click="handleSubmit">
+          {{ $t('page.login.common.submit') }}
+        </NButton>
+        <NButton size="large" block @click="toggleLoginModule('pwd-login')">{{ $t('common.cancel') }}</NButton>
       </NSpace>
     </NForm>
   </div>

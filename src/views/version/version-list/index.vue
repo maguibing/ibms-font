@@ -63,7 +63,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '版本名称',
+        title: $t('page.corp.version.versionName'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -72,21 +72,25 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'status',
-        title: '状态',
+        title: $t('page.corp.common.status'),
         align: 'center',
         minWidth: 100,
-        render: row => <NTag type={row.corp_id ? 'success' : 'warning'}>{row.corp_id ? '使用中' : '未分配'}</NTag>
+        render: row => (
+          <NTag type={row.corp_id ? 'success' : 'warning'}>
+            {row.corp_id ? $t('page.corp.version.using') : $t('page.corp.version.unassigned')}
+          </NTag>
+        )
       },
       {
         key: 'start_at',
-        title: '开始时间',
+        title: $t('page.corp.version.startTime'),
         align: 'center',
         minWidth: 180,
         render: row => <NTime time={row.start_at} unix />
       },
       {
         key: 'end_at',
-        title: '结束时间',
+        title: $t('page.corp.version.endTime'),
         align: 'center',
         minWidth: 180,
         render: row => <NTime time={row.end_at} unix />
@@ -102,7 +106,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               text
               type="primary"
               icon="material-symbols:fact-check-outline"
-              tooltipContent="权益查看"
+              tooltipContent={$t('page.corp.version.benefitView')}
               onClick={() => handleViewBenefit(row)}
             />
           </div>
@@ -141,7 +145,7 @@ function handleViewBenefit(row: Api.System.CorpProjectVersion) {
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <VersionSearch v-model:model="searchParams" @search="getDataByPage" />
 
-    <NCard title="版本列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('page.corp.version.title')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

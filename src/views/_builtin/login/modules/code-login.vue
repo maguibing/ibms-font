@@ -43,7 +43,7 @@ async function handleSubmit() {
   <div class="mb-5px text-32px text-black font-600 sm:text-30px dark:text-white">
     {{ $t('page.login.codeLogin.title') }}
   </div>
-  <div class="pb-18px text-16px text-#858585">请输入您的手机号，我们将发送验证码到您的手机</div>
+  <div class="pb-18px text-16px text-#858585">{{ $t('page.login.common.sendCodeDesc') }}</div>
   <NForm ref="formRef" :model="model" :rules="rules" size="large" :show-label="false" @keyup.enter="handleSubmit">
     <NFormItem path="phone">
       <NInput v-model:value="model.phone" :placeholder="$t('page.login.common.phonePlaceholder')" />

@@ -728,6 +728,69 @@ declare namespace App {
             };
           };
         };
+        project: {
+          list: {
+            title: string;
+            projectName: string;
+            key: string;
+            address: string;
+            leader: string;
+            contactPhone: string;
+            version: string;
+            projectVersion: string;
+            projectStatus: string;
+            view: string;
+            member: string;
+            memberName: string;
+            phoneNumber: string;
+            addProject: string;
+            editProject: string;
+            versionViewTitle: string;
+            memberTitle: string;
+            memberTitleWithName: string;
+            currentVersion: string;
+            priceTime: string;
+            versionMenu: string;
+            platformPassword: string;
+            projectDesc: string;
+            leaderPhone: string;
+            enabled: string;
+            disabled: string;
+            form: {
+              projectName: FormMsg;
+              key: FormMsg;
+              region: FormMsg;
+              address: FormMsg;
+              version: FormMsg;
+              leader: FormMsg;
+              contactPhone: FormMsg;
+              platformPassword: FormMsg;
+            };
+            placeholder: {
+              projectName: string;
+              key: string;
+              region: string;
+              address: string;
+              version: string;
+              leader: string;
+              leaderPhone: string;
+              password: string;
+              confirmPassword: string;
+              projectDesc: string;
+              memberName: string;
+            };
+            message: {
+              projectNameMax: string;
+              projectKeyPattern: string;
+              addressMax: string;
+              existingLeaderPhone: string;
+              statusUpdateSuccess: string;
+              unboundVersion: string;
+              emptyVersionMenu: string;
+              emptyVersionData: string;
+            };
+          };
+        };
         global: {
           industry: {
             title: string;
@@ -884,19 +947,36 @@ declare namespace App {
             codePlaceholder: string;
             passwordPlaceholder: string;
             confirmPasswordPlaceholder: string;
+            sendCodeDesc: string;
             codeLogin: string;
             confirm: string;
             back: string;
+            submit: string;
             validateSuccess: string;
             loginSuccess: string;
             welcomeBack: string;
+            retryAfter: string;
+            noCaptcha: string;
+            noAccount: string;
+            applyCorpEntry: string;
           };
           pwdLogin: {
             title: string;
+            accountTitle: string;
+            accountSubtitle: string;
             rememberMe: string;
             forgetPassword: string;
             register: string;
             otherLoginMode: string;
+            selectCorpTitle: string;
+            selectCorpSubtitle: string;
+            searchCorpPlaceholder: string;
+            emptyCorp: string;
+            selectProjectTitle: string;
+            selectProjectSubtitle: string;
+            searchProjectPlaceholder: string;
+            emptyProject: string;
+            projectId: string;
             superAdmin: string;
             admin: string;
             user: string;
@@ -910,12 +990,56 @@ declare namespace App {
           };
           register: {
             title: string;
+            subTitle: string;
+            query: string;
             agreement: string;
             protocol: string;
             policy: string;
+            projectChecked: string;
+            projectNotFound: string;
+            projectNamePlaceholder: string;
+            userNamePlaceholder: string;
+            phoneExists: string;
+            registerSuccess: string;
+            form: {
+              projectName: FormMsg;
+              userName: FormMsg;
+            };
           };
           resetPwd: {
             title: string;
+            resetSuccess: string;
+            codePattern: string;
+          };
+          applyCorp: {
+            title: string;
+            subTitle: string;
+            submitSuccess: string;
+            nameMax: string;
+            addressMax: string;
+            phoneExists: string;
+            form: {
+              name: FormMsg;
+              region: FormMsg;
+              address: FormMsg;
+              contactName: FormMsg;
+              contactPhone: FormMsg;
+              password: FormMsg;
+            };
+            placeholder: {
+              name: string;
+              region: string;
+              address: string;
+              contactName: string;
+              contactPhone: string;
+              password: string;
+              confirmPassword: string;
+              email: string;
+            };
+          };
+          selectList: {
+            ariaEnter: string;
+            backLogin: string;
           };
           bindWeChat: {
             title: string;

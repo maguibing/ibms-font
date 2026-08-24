@@ -27,7 +27,9 @@ const DEFAULT_NUMBER_VALUE = 0;
 const DEFAULT_STRING_VALUE = '';
 
 const drawerTitle = computed(() => {
-  return project.value ? `项目成员：${project.value.name}` : '项目成员';
+  return project.value
+    ? $t('page.project.list.memberTitleWithName', { name: project.value.name })
+    : $t('page.project.list.memberTitle');
 });
 
 const pagination = reactive({
@@ -51,7 +53,7 @@ const pagination = reactive({
 const columns: NaiveUI.TableColumn<Api.System.ProjectUser>[] = [
   {
     key: 'username',
-    title: '成员名称',
+    title: $t('page.project.list.memberName'),
     align: 'center',
     minWidth: 60,
     ellipsis: {
@@ -60,28 +62,28 @@ const columns: NaiveUI.TableColumn<Api.System.ProjectUser>[] = [
   },
   {
     key: 'phone',
-    title: '手机号',
+    title: $t('page.project.list.phoneNumber'),
     align: 'center',
     minWidth: 80,
     render: row => <PhoneReveal userId={row.user_id} maskedPhone={row.phone} />
   },
   {
     key: 'status',
-    title: '状态',
+    title: $t('page.corp.common.status'),
     align: 'center',
     minWidth: 60,
     render: row => renderStatus(row.status)
   },
   {
     key: 'created_at',
-    title: '创建时间',
+    title: $t('page.common.createTime'),
     align: 'center',
     minWidth: 100,
     render: row => (row.created_at ? formatDateTime(row.created_at) : '-')
   },
   {
     key: 'operate',
-    title: '操作',
+    title: $t('common.operate'),
     align: 'center',
     minWidth: 80,
     render: row => {
@@ -99,8 +101,8 @@ const columns: NaiveUI.TableColumn<Api.System.ProjectUser>[] = [
           onUpdateValue={status => handleUpdateStatus(row, normalizeStatus(status))}
         >
           {{
-            checked: () => '启用',
-            unchecked: () => '停用'
+            checked: () => $t('page.project.list.enabled'),
+            unchecked: () => $t('page.project.list.disabled')
           }}
         </NSwitch>
       );
@@ -112,11 +114,11 @@ function renderStatus(status?: number | string) {
   const statusValue = getStatusValue(status);
 
   if (statusValue === ENABLE_STATUS) {
-    return <NTag type="success">启用</NTag>;
+    return <NTag type="success">{$t('page.project.list.enabled')}</NTag>;
   }
 
   if (statusValue === DISABLE_STATUS) {
-    return <NTag type="default">停用</NTag>;
+    return <NTag type="default">{$t('page.project.list.disabled')}</NTag>;
   }
 
   return status ?? '-';
@@ -222,7 +224,7 @@ async function handleUpdateStatus(row: Api.System.ProjectUser, status: Api.Syste
     if (error) return;
 
     row.status = status;
-    window.$message?.success('状态修改成功');
+    window.$message?.success($t('page.project.list.message.statusUpdateSuccess'));
     await getData();
   } finally {
     setStatusLoading(row, false);
@@ -257,18 +259,23 @@ defineExpose({
     <NDrawerContent :title="drawerTitle" :native-scrollbar="false" closable>
       <NForm :model="searchModel" label-placement="left" :show-feedback="false" class="mb-16px">
         <NGrid responsive="screen" item-responsive>
-          <NFormItemGi span="24 s:12 m:8" label="成员名称" label-width="auto" class="pr-24px">
+          <NFormItemGi
+            span="24 s:12 m:8"
+            :label="$t('page.project.list.memberName')"
+            label-width="auto"
+            class="pr-24px"
+          >
             <NInput
               v-model:value="searchModel.username"
               clearable
-              placeholder="请输入成员名称"
+              :placeholder="$t('page.project.list.placeholder.memberName')"
               @keyup.enter="handleSearch"
             />
           </NFormItemGi>
           <NFormItemGi :show-feedback="false" span="24 s:12 m:16" class="pr-24px">
             <NSpace>
-              <NButton type="primary" @click="handleSearch">查询</NButton>
-              <NButton @click="handleResetSearch">重置</NButton>
+              <NButton type="primary" @click="handleSearch">{{ $t('common.search') }}</NButton>
+              <NButton @click="handleResetSearch">{{ $t('common.reset') }}</NButton>
             </NSpace>
           </NFormItemGi>
         </NGrid>

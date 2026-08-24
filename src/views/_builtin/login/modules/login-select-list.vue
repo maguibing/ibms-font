@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, shallowRef, watch } from 'vue';
+import { $t } from '@/locales';
 import type { LoginSelectItem } from './login-select-list.types';
 
 defineOptions({
@@ -85,7 +86,7 @@ watch(
           'opacity-45': item.disabled
         }"
         :disabled="loading || item.disabled"
-        :aria-label="`进入${item.title}`"
+        :aria-label="$t('page.login.selectList.ariaEnter', { name: item.title })"
         @click="handleSelect(item)"
       >
         <div class="min-w-0 flex-1">
@@ -104,7 +105,9 @@ watch(
     </div>
     <NEmpty v-else :description="emptyDescription" class="py-28px" />
 
-    <NButton size="medium" block class="mt-12px" @click="emit('back')">返回登录</NButton>
+    <NButton size="medium" block class="mt-12px" @click="emit('back')">
+      {{ $t('page.login.selectList.backLogin') }}
+    </NButton>
   </div>
 </template>
 

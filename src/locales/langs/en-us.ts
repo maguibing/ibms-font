@@ -1,6 +1,12 @@
+const systemTitleMap: Record<NonNullable<Env.ImportMeta['VITE_APP_SCENE']>, string> = {
+  pt: 'Operations Platform',
+  cp: 'Integrator Platform',
+  pj: 'Project Platform'
+};
+
 const local: App.I18n.Schema = {
   system: {
-    title: 'Smart Digital Cloud Platform',
+    title: systemTitleMap[import.meta.env.VITE_APP_SCENE ?? 'pt'],
     updateTitle: 'System Version Update Notification',
     updateContent: 'A new version of the system has been detected. Do you want to refresh the page immediately?',
     updateConfirm: 'Refresh immediately',
@@ -268,13 +274,14 @@ const local: App.I18n.Schema = {
     }
   },
   route: {
+    // 公共基础路由
     login: 'Login',
     403: 'No Permission',
     404: 'Page Not Found',
     500: 'Server Error',
     'iframe-page': 'Iframe',
     home: 'Home',
-    // PT 运营平台菜单 meta.title 国际化
+    // 运营平台菜单
     menu: 'Menu Management',
     menu_platform: 'Operation Menu Management',
     'menu_platform-menu': 'Operation Menu Management',
@@ -330,6 +337,17 @@ const local: App.I18n.Schema = {
     corp_version_edit: 'Edit Version',
     corp_version_delete: 'Delete Version',
 
+    // 集成商平台菜单
+    version: 'Version Configuration',
+    version_management: 'Version Management',
+    project: 'Project Configuration',
+    project_management: 'Project Management',
+    project_project_list_add: 'Add Project',
+    project_project_list_view: 'View Project',
+    project_project_list_delete: 'Delete Project',
+    project_detail: 'Project Detail',
+
+    // 其它业务菜单
     device_configuration: 'Device Configuration',
     device_group_management: 'Device Group Management',
     device_type_management: 'Device Type Management',
@@ -373,6 +391,8 @@ const local: App.I18n.Schema = {
     fuxa_management: 'FUXA Management',
     ioc_management: 'IOC Management',
     toolbox_management: 'Toolbox Management',
+
+    // 多平台公共菜单
     system_configuration: 'System Configuration',
     user_management: 'User Management',
     dept_management: 'Dept Management',
@@ -407,11 +427,15 @@ const local: App.I18n.Schema = {
     system_client: 'Client Management',
     system_tenant: 'Tenant Management',
     'system_tenant-package': 'Tenant Package Management',
+
+    // 其它存量菜单
     monitor: 'Video Monitor',
     monitor_logininfor: 'Login Log',
     monitor_operlog: 'Operate Log',
     monitor_cache: 'Cache Monitor',
     monitor_online: 'Online User',
+
+    // 公共内置路由
     'user-center': 'User Center',
     'social-callback': 'Social Callback',
     demo: 'Demo',
@@ -522,8 +546,8 @@ const local: App.I18n.Schema = {
   page: {
     login: {
       common: {
-        title: 'Modern enterprise-level multi-tenant management system',
-        subTitle: 'Provides developers with a complete enterprise management solution',
+        title: 'Chongshi Technology, your AI energy-saving digital partner',
+        subTitle: 'Provides a complete enterprise management solution for customers',
         loginOrRegister: 'Login / Register',
         register: 'Register',
         userNamePlaceholder: 'Please enter user name',
@@ -531,38 +555,123 @@ const local: App.I18n.Schema = {
         codePlaceholder: 'Please enter verification code',
         passwordPlaceholder: 'Please enter password',
         confirmPasswordPlaceholder: 'Please enter password again',
+        sendCodeDesc: 'Enter your phone number and we will send a verification code to your phone',
         codeLogin: 'Verification code login',
         confirm: 'Confirm',
         back: 'Back',
+        submit: 'Submit',
         validateSuccess: 'Verification passed',
         loginSuccess: 'Login successfully',
-        welcomeBack: 'Welcome back, {userName} !'
+        welcomeBack: 'Welcome back, {userName} !',
+        retryAfter: 'Retry after {time}s',
+        noCaptcha: 'No captcha',
+        noAccount: 'No account yet?',
+        applyCorpEntry: 'Integrator Entry'
       },
       pwdLogin: {
         title: 'Password Login',
+        accountTitle: 'Log in to your account',
+        accountSubtitle: 'Welcome back! Please enter your account information',
         rememberMe: 'Remember password',
         forgetPassword: 'Forget password?',
         register: 'Register',
         otherLoginMode: 'Other Login Mode',
+        selectCorpTitle: 'Select Integrator',
+        selectCorpSubtitle: 'Please select the integrator for this login',
+        searchCorpPlaceholder: 'Search integrator or username',
+        emptyCorp: 'No matching integrators',
+        selectProjectTitle: 'Select Project',
+        selectProjectSubtitle: 'Please select the project for this login',
+        searchProjectPlaceholder: 'Search projects',
+        emptyProject: 'No matching projects',
+        projectId: 'Project ID: {id}',
         superAdmin: 'Super Admin',
         admin: 'Admin',
         user: 'User'
       },
       codeLogin: {
         title: 'Verification Code Login',
-        getCode: 'Get verification code',
+        getCode: 'Get code',
         reGetCode: 'Reacquire after {time}s',
         sendCodeSuccess: 'Verification code sent successfully',
         imageCodePlaceholder: 'Please enter image verification code'
       },
       register: {
-        title: 'Register',
+        title: 'Project Member Registration',
+        subTitle: 'Enter project and account information to complete registration',
+        query: 'Query',
         agreement: 'I have read and agree to',
         protocol: '《User Agreement》',
-        policy: '《Privacy Policy》'
+        policy: '《Privacy Policy》',
+        projectChecked: 'Project verification passed',
+        projectNotFound: 'Project does not exist',
+        projectNamePlaceholder: 'Please enter Project Name',
+        userNamePlaceholder: 'Please enter username',
+        phoneExists: 'Phone number already exists and the existing account will be used',
+        registerSuccess: 'Registration successful',
+        form: {
+          projectName: {
+            required: 'Project Name cannot be empty',
+            invalid: 'Project Name cannot be empty'
+          },
+          userName: {
+            required: 'Username cannot be empty',
+            invalid: 'Username cannot be empty'
+          }
+        }
       },
       resetPwd: {
-        title: 'Reset Password'
+        title: 'Reset Password',
+        resetSuccess: 'Password reset successfully. Please log in again',
+        codePattern: 'Please enter a 4-digit verification code'
+      },
+      applyCorp: {
+        title: 'Integrator Entry',
+        subTitle: 'Enter the entry information and we will complete the review as soon as possible',
+        submitSuccess: 'Submitted successfully',
+        nameMax: 'Integrator Name cannot exceed 20 characters',
+        addressMax: 'Detailed Address cannot exceed 30 characters',
+        phoneExists: 'Phone already exists and the existing account will be used',
+        form: {
+          name: {
+            required: 'Integrator Name cannot be empty',
+            invalid: 'Integrator Name cannot be empty'
+          },
+          region: {
+            required: 'Location cannot be empty',
+            invalid: 'Location cannot be empty'
+          },
+          address: {
+            required: 'Detailed Address cannot be empty',
+            invalid: 'Detailed Address cannot be empty'
+          },
+          contactName: {
+            required: 'Contact Name cannot be empty',
+            invalid: 'Contact Name cannot be empty'
+          },
+          contactPhone: {
+            required: 'Phone cannot be empty',
+            invalid: 'Phone cannot be empty'
+          },
+          password: {
+            required: 'Login Password cannot be empty',
+            invalid: 'Login Password cannot be empty'
+          }
+        },
+        placeholder: {
+          name: 'Please enter Integrator Name',
+          region: 'Please select Location (required)',
+          address: 'Please enter Detailed Address',
+          contactName: 'Please enter Contact Name',
+          contactPhone: 'Please enter Phone',
+          password: 'The login password will not be displayed. Please keep it safe',
+          confirmPassword: 'The login password will not be displayed. Please keep it safe',
+          email: 'Please enter Email (optional)'
+        }
+      },
+      selectList: {
+        ariaEnter: 'Enter {name}',
+        backLogin: 'Back to Login'
       },
       bindWeChat: {
         title: 'Bind WeChat'
@@ -941,6 +1050,93 @@ const local: App.I18n.Schema = {
           versionNameMax: 'Version Name cannot exceed 10 characters',
           selectMenuRequired: 'Please select at least one menu',
           renewalSuccess: 'Renewal successful'
+        }
+      }
+    },
+    project: {
+      list: {
+        title: 'Project List',
+        projectName: 'Project Name',
+        key: 'Identifier',
+        address: 'Project Address',
+        leader: 'Leader',
+        contactPhone: 'Phone',
+        version: 'Version',
+        projectVersion: 'Project Version',
+        projectStatus: 'Project Status',
+        view: 'View',
+        member: 'Members',
+        memberName: 'Member Name',
+        phoneNumber: 'Phone Number',
+        addProject: 'Add Project',
+        editProject: 'Edit Project',
+        versionViewTitle: 'View Project Version',
+        memberTitle: 'Project Members',
+        memberTitleWithName: 'Project Members: {name}',
+        currentVersion: 'Current Version',
+        priceTime: 'Price / Time',
+        versionMenu: 'Version Menu',
+        platformPassword: 'Project Platform Password',
+        projectDesc: 'Project Description',
+        leaderPhone: 'Leader Phone',
+        enabled: 'Enabled',
+        disabled: 'Disabled',
+        form: {
+          projectName: {
+            required: 'Project Name cannot be empty',
+            invalid: 'Project Name cannot be empty'
+          },
+          key: {
+            required: 'Project Identifier cannot be empty',
+            invalid: 'Project Identifier cannot be empty'
+          },
+          region: {
+            required: 'Region cannot be empty',
+            invalid: 'Region cannot be empty'
+          },
+          address: {
+            required: 'Detailed Address cannot be empty',
+            invalid: 'Detailed Address cannot be empty'
+          },
+          version: {
+            required: 'Project Version cannot be empty',
+            invalid: 'Project Version cannot be empty'
+          },
+          leader: {
+            required: 'Leader cannot be empty',
+            invalid: 'Leader cannot be empty'
+          },
+          contactPhone: {
+            required: 'Phone cannot be empty',
+            invalid: 'Phone cannot be empty'
+          },
+          platformPassword: {
+            required: 'Project Platform Password cannot be empty',
+            invalid: 'Project Platform Password cannot be empty'
+          }
+        },
+        placeholder: {
+          projectName: 'Please enter Project Name',
+          key: 'Please enter Project Identifier',
+          region: 'Please select Region',
+          address: 'Please enter Detailed Address',
+          version: 'Please select Project Version',
+          leader: 'Please select Leader',
+          leaderPhone: 'Leader Phone',
+          password: 'The login password will not be displayed. Please keep it safe or reset it if forgotten.',
+          confirmPassword: 'The login password will not be displayed. Please keep it safe or reset it if forgotten.',
+          projectDesc: 'Please enter Project Description',
+          memberName: 'Please enter Member Name'
+        },
+        message: {
+          projectNameMax: 'Project Name cannot exceed 20 characters',
+          projectKeyPattern: 'Project Identifier must start with a letter and contain only letters, numbers, and underscores',
+          addressMax: 'Detailed Address cannot exceed 30 characters',
+          existingLeaderPhone: 'Leader phone already exists and the existing account will be used',
+          statusUpdateSuccess: 'Status updated successfully',
+          unboundVersion: 'Current project is not bound to a version',
+          emptyVersionMenu: 'No version menu',
+          emptyVersionData: 'No version data'
         }
       }
     },

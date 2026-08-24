@@ -58,15 +58,19 @@ const model: FormModel = reactive({
 const rsaPwd = computed(() => model.rsa_pwd);
 const isProjectChecked = computed(() => projectCheckStatus.value === 'checked' && model.project_id !== null);
 const isCountingDown = computed(() => countdown.value > 0);
-const verifyCodeButtonText = computed(() => (isCountingDown.value ? `${countdown.value}s后重试` : '获取验证码'));
+const verifyCodeButtonText = computed(() =>
+  isCountingDown.value
+    ? $t('page.login.common.retryAfter', { time: countdown.value })
+    : $t('page.login.codeLogin.getCode')
+);
 const projectValidationStatus = computed<'success' | 'error' | undefined>(() => {
   if (projectCheckStatus.value === 'checked') return 'success';
   if (projectCheckStatus.value === 'failed') return 'error';
   return undefined;
 });
 const projectFeedback = computed(() => {
-  if (projectCheckStatus.value === 'checked') return '项目校验通过';
-  if (projectCheckStatus.value === 'failed') return '项目不存在';
+  if (projectCheckStatus.value === 'checked') return $t('page.login.register.projectChecked');
+  if (projectCheckStatus.value === 'failed') return $t('page.login.register.projectNotFound');
   return undefined;
 });
 
@@ -83,17 +87,17 @@ const {
     model.phone = phone;
   },
   pType: menuPlatformType.project,
-  existsFeedback: '手机号已存在，将使用已存在账号',
+  existsFeedback: $t('page.login.register.phoneExists'),
   onExists: clearPassword,
   onReset: clearPassword
 });
 
 const rules = computed<RuleRecord>(() => {
   const baseRules: RuleRecord = {
-    project_name: [createRequiredRule('项目名称不能为空')],
+    project_name: [createRequiredRule($t('page.login.register.form.projectName.required'))],
     phone: formRules.phone,
     verify_code: [createRequiredRule($t('form.code.required')), { ...patternRules.code, trigger: ['change', 'blur'] }],
-    name: [createRequiredRule('用户名称不能为空')]
+    name: [createRequiredRule($t('page.login.register.form.userName.required'))]
   };
 
   if (!showPasswordFields.value) {
@@ -158,7 +162,7 @@ async function checkProject() {
       model.project_id = projectId;
       checkedProjectName.value = projectName;
       projectCheckStatus.value = 'checked';
-      window.$message?.success('项目校验通过');
+      window.$message?.success($t('page.login.register.projectChecked'));
       return true;
     } finally {
       endProjectLoading();
@@ -193,7 +197,7 @@ async function handleSendVerifyCode() {
     const { error } = await fetchSendVerifyCode({ phone: model.phone });
     if (error) return;
 
-    window.$message?.success('验证码已发送');
+    window.$message?.success($t('page.login.codeLogin.sendCodeSuccess'));
     startCountdown();
   } finally {
     endCodeLoading();
@@ -231,7 +235,7 @@ async function handleSubmit() {
     });
     if (error) return;
 
-    window.$message?.success('注册成功');
+    window.$message?.success($t('page.login.register.registerSuccess'));
     toggleLoginModule('pwd-login');
   } finally {
     endRegisterLoading();
@@ -280,8 +284,10 @@ onBeforeUnmount(stopCountdown);
 
 <template>
   <div>
-    <div class="mb-5px text-32px text-black font-600 sm:text-30px dark:text-white">项目成员注册</div>
-    <div class="pb-18px text-16px text-#858585">请输入项目和账户信息完成注册</div>
+    <div class="mb-5px text-32px text-black font-600 sm:text-30px dark:text-white">
+      {{ $t('page.login.register.title') }}
+    </div>
+    <div class="pb-18px text-16px text-#858585">{{ $t('page.login.register.subTitle') }}</div>
     <NForm
       ref="formRef"
       :model="model"
@@ -297,14 +303,14 @@ onBeforeUnmount(stopCountdown);
         :feedback="projectFeedback"
       >
         <div class="w-full flex-y-center gap-16px">
-          <NInput v-model:value="model.project_name" placeholder="请输入项目名称" />
+          <NInput v-model:value="model.project_name" :placeholder="$t('page.login.register.projectNamePlaceholder')" />
           <NButton
             class="w-88px"
             :loading="projectLoading"
             :disabled="projectCheckStatus === 'checked'"
             @click="handleCheckProject"
           >
-            查询
+            {{ $t('page.login.register.query') }}
           </NButton>
         </div>
       </NFormItem>
@@ -319,7 +325,7 @@ onBeforeUnmount(stopCountdown);
             v-model:value="model.phone"
             :allow-input="onlyDigits"
             :maxlength="11"
-            placeholder="请输入手机号码"
+            :placeholder="$t('page.login.common.phonePlaceholder')"
             @blur="checkPhone()"
           />
           <NButton
@@ -338,22 +344,27 @@ onBeforeUnmount(stopCountdown);
           v-model:value="model.verify_code"
           :allow-input="onlyDigits"
           :maxlength="6"
-          placeholder="请输入验证码"
+          :placeholder="$t('page.login.common.codePlaceholder')"
         ></NInput>
       </NFormItem>
       <NFormItem path="name">
-        <NInput v-model:value="model.name" placeholder="请输入用户名称" />
+        <NInput v-model:value="model.name" :placeholder="$t('page.login.register.userNamePlaceholder')" />
       </NFormItem>
       <template v-if="showPasswordFields">
         <NFormItem path="rsa_pwd">
-          <NInput v-model:value="model.rsa_pwd" type="password" show-password-on="click" placeholder="请输入密码" />
+          <NInput
+            v-model:value="model.rsa_pwd"
+            type="password"
+            show-password-on="click"
+            :placeholder="$t('page.login.common.passwordPlaceholder')"
+          />
         </NFormItem>
         <NFormItem path="confirm_rsa_pwd">
           <NInput
             v-model:value="model.confirm_rsa_pwd"
             type="password"
             show-password-on="click"
-            placeholder="请再次输入密码"
+            :placeholder="$t('page.login.common.confirmPasswordPlaceholder')"
           />
         </NFormItem>
       </template>
@@ -366,9 +377,9 @@ onBeforeUnmount(stopCountdown);
           :loading="registerLoading"
           @click="handleSubmit"
         >
-          提交
+          {{ $t('page.login.common.submit') }}
         </NButton>
-        <NButton size="large" block @click="toggleLoginModule('pwd-login')">返回</NButton>
+        <NButton size="large" block @click="toggleLoginModule('pwd-login')">{{ $t('page.login.common.back') }}</NButton>
       </NSpace>
     </NForm>
   </div>

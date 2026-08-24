@@ -39,7 +39,11 @@ let countdownTimer: ReturnType<typeof setInterval> | null = null;
 const countdown = shallowRef(0);
 const rsaPwd = computed(() => model.rsa_pwd);
 const isCountingDown = computed(() => countdown.value > 0);
-const verifyCodeButtonText = computed(() => (isCountingDown.value ? `${countdown.value}s后重试` : '获取验证码'));
+const verifyCodeButtonText = computed(() =>
+  isCountingDown.value
+    ? $t('page.login.common.retryAfter', { time: countdown.value })
+    : $t('page.login.codeLogin.getCode')
+);
 const { formRules, createConfirmPwdRule, createRequiredRule } = useFormRules();
 
 const rules: RuleRecord = {
@@ -48,7 +52,7 @@ const rules: RuleRecord = {
     createRequiredRule($t('form.code.required')),
     {
       pattern: REG_CODE_FOUR,
-      message: '请输入4位数字验证码',
+      message: $t('page.login.resetPwd.codePattern'),
       trigger: ['change', 'blur']
     }
   ],
@@ -74,7 +78,7 @@ async function handleSubmit() {
 
     if (error) return;
 
-    window.$message?.success('密码重置成功，请重新登录');
+    window.$message?.success($t('page.login.resetPwd.resetSuccess'));
     toggleLoginModule('pwd-login');
   } finally {
     endResetLoading();
@@ -104,7 +108,7 @@ async function handleSendVerifyCode() {
 
     if (error) return;
 
-    window.$message?.success('验证码已发送');
+    window.$message?.success($t('page.login.codeLogin.sendCodeSuccess'));
     startCountdown();
   } finally {
     endCodeLoading();
@@ -140,7 +144,7 @@ onBeforeUnmount(stopCountdown);
     <div class="mb-5px text-32px text-black font-600 sm:text-30px dark:text-white">
       {{ $t('page.login.resetPwd.title') }}
     </div>
-    <div class="pb-18px text-16px text-#858585">请输入您的手机号，我们将发送验证码到您的手机</div>
+    <div class="pb-18px text-16px text-#858585">{{ $t('page.login.common.sendCodeDesc') }}</div>
     <NForm
       ref="formRef"
       :model="model"

@@ -36,11 +36,11 @@ const { formRef, validate, restoreValidation } = useNaiveForm();
 const { createConfirmPwdRule, createRequiredRule, patternRules } = useFormRules();
 
 const title = computed(() => {
-  const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增项目',
-    edit: '编辑项目'
+  const titles: Record<NaiveUI.TableOperateType, App.I18n.I18nKey> = {
+    add: 'page.project.list.addProject',
+    edit: 'page.project.list.editProject'
   };
-  return titles[props.operateType];
+  return $t(titles[props.operateType]);
 });
 
 type Model = {
@@ -77,7 +77,7 @@ const {
     model.value.leader_phone = phone;
   },
   pType: menuPlatformType.project,
-  existsFeedback: '负责人电话已存在，将使用已存在账号',
+  existsFeedback: $t('page.project.list.message.existingLeaderPhone'),
   onExists: clearPassword,
   onReset: clearPassword
 });
@@ -162,37 +162,37 @@ type RuleKey = Extract<
 const rules = computed<Partial<Record<RuleKey, App.Global.FormRule | App.Global.FormRule[]>>>(() => {
   const baseRules: Partial<Record<RuleKey, App.Global.FormRule | App.Global.FormRule[]>> = {
     name: [
-      createRequiredRule('项目名称不能为空'),
+      createRequiredRule($t('page.project.list.form.projectName.required')),
       {
         max: 20,
-        message: '项目名称不能超过20个字符',
+        message: $t('page.project.list.message.projectNameMax'),
         trigger: ['input', 'blur']
       }
     ],
     key: [
-      createRequiredRule('项目标识不能为空'),
+      createRequiredRule($t('page.project.list.form.key.required')),
       {
         pattern: /^[A-Za-z][A-Za-z0-9_]*$/,
-        message: '项目标识必须以字母开头，且只能包含字母、数字和下划线',
+        message: $t('page.project.list.message.projectKeyPattern'),
         trigger: 'blur'
       }
     ],
-    ad_address: createRequiredRule('所属地区不能为空'),
+    ad_address: createRequiredRule($t('page.project.list.form.region.required')),
     address: [
-      createRequiredRule('详细地址不能为空'),
+      createRequiredRule($t('page.project.list.form.address.required')),
       {
         max: 30,
-        message: '详细地址不能超过30个字符',
+        message: $t('page.project.list.message.addressMax'),
         trigger: ['input', 'blur']
       }
     ],
-    version_id: createRequiredRule('项目版本不能为空'),
-    leader_id: createRequiredRule('负责人不能为空')
+    version_id: createRequiredRule($t('page.project.list.form.version.required')),
+    leader_id: createRequiredRule($t('page.project.list.form.leader.required'))
   };
 
   if (props.operateType === 'add') {
     baseRules.leader_phone = [
-      createRequiredRule('联系电话不能为空'),
+      createRequiredRule($t('page.project.list.form.contactPhone.required')),
       { ...patternRules.phone, trigger: ['change', 'blur'] }
     ];
   }
@@ -203,7 +203,7 @@ const rules = computed<Partial<Record<RuleKey, App.Global.FormRule | App.Global.
 
   return {
     ...baseRules,
-    rsa_pwd: [createRequiredRule('项目平台密码不能为空'), patternRules.pwd],
+    rsa_pwd: [createRequiredRule($t('page.project.list.form.platformPassword.required')), patternRules.pwd],
     confirm_password: createConfirmPwdRule(model.value.rsa_pwd)
   };
 });
@@ -348,26 +348,26 @@ async function handleLeaderChange() {
   <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="600" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top" :label-width="120">
-        <NFormItem label="项目名称" path="name">
-          <NInput v-model:value="model.name" placeholder="请输入项目名称" :maxlength="30" show-count />
+        <NFormItem :label="$t('page.project.list.projectName')" path="name">
+          <NInput v-model:value="model.name" :placeholder="$t('page.project.list.placeholder.projectName')" :maxlength="30" show-count />
         </NFormItem>
-        <NFormItem label="标识" path="key">
-          <NInput v-model:value="model.key" placeholder="请输入项目标识" :maxlength="48" show-count />
+        <NFormItem :label="$t('page.project.list.key')" path="key">
+          <NInput v-model:value="model.key" :placeholder="$t('page.project.list.placeholder.key')" :maxlength="48" show-count />
         </NFormItem>
-        <NFormItem label="所属地区" path="ad_address">
+        <NFormItem :label="$t('page.corp.common.region')" path="ad_address">
           <NCascader
             :value="model.ad_code || null"
             filterable
             clearable
             :options="regionOptions"
-            placeholder="请选择所属地区"
+            :placeholder="$t('page.project.list.placeholder.region')"
             @update:value="handleRegionUpdate"
           />
         </NFormItem>
-        <NFormItem label="详细地址" path="address">
-          <NInput v-model:value="model.address" placeholder="请输入详细地址" :maxlength="30" show-count />
+        <NFormItem :label="$t('page.corp.common.detailAddress')" path="address">
+          <NInput v-model:value="model.address" :placeholder="$t('page.project.list.placeholder.address')" :maxlength="30" show-count />
         </NFormItem>
-        <NFormItem label="项目版本" path="version_id">
+        <NFormItem :label="$t('page.project.list.projectVersion')" path="version_id">
           <RemoteSearchSelect
             v-model:value="model.version_id"
             :request="fetchProjectVersionList"
@@ -377,10 +377,10 @@ async function handleLeaderChange() {
             :limit="10"
             label-field="name"
             value-field="id"
-            placeholder="请选择项目版本"
+            :placeholder="$t('page.project.list.placeholder.version')"
           />
         </NFormItem>
-        <NFormItem label="负责人" path="leader_id">
+        <NFormItem :label="$t('page.project.list.leader')" path="leader_id">
           <RemoteSearchSelect
             v-model:value="model.leader_id"
             :request="fetchProjectUserList"
@@ -390,44 +390,44 @@ async function handleLeaderChange() {
             :limit="10"
             label-field="username"
             value-field="user_id"
-            placeholder="请选择负责人"
+            :placeholder="$t('page.project.list.placeholder.leader')"
             @selected-change="handleLeaderChange"
           />
         </NFormItem>
         <NFormItem
           ref="phoneFormItemRef"
-          label="联系电话"
+          :label="$t('page.project.list.contactPhone')"
           :path="operateType === 'add' ? 'leader_phone' : ''"
           :validation-status="phoneValidationStatus"
           :feedback="phoneFeedback"
         >
-          <NInput :value="selectedLeaderPhone" disabled placeholder="负责人电话" />
+          <NInput :value="selectedLeaderPhone" disabled :placeholder="$t('page.project.list.placeholder.leaderPhone')" />
         </NFormItem>
         <template v-if="showCreatePasswordFields">
-          <NFormItem label="项目平台密码" path="rsa_pwd">
+          <NFormItem :label="$t('page.project.list.platformPassword')" path="rsa_pwd">
             <NInput
               v-model:value="model.rsa_pwd"
               type="password"
               show-password-on="click"
               :input-props="{ autocomplete: 'new-password' }"
-              placeholder="密码不会显示在系统中，请牢记登录密码，如忘记可重置密码"
+              :placeholder="$t('page.project.list.placeholder.password')"
             />
           </NFormItem>
-          <NFormItem label="确认密码" path="confirm_password">
+          <NFormItem :label="$t('page.corp.common.confirmPassword')" path="confirm_password">
             <NInput
               v-model:value="model.confirm_password"
               type="password"
               show-password-on="click"
               :input-props="{ autocomplete: 'new-password' }"
-              placeholder="登录密码不会显示在系统中，请牢记登录密码，如忘记可重置密码"
+              :placeholder="$t('page.project.list.placeholder.confirmPassword')"
             />
           </NFormItem>
         </template>
-        <NFormItem label="项目描述">
+        <NFormItem :label="$t('page.project.list.projectDesc')">
           <NInput
             v-model:value="model.desc"
             type="textarea"
-            placeholder="请输入项目描述"
+            :placeholder="$t('page.project.list.placeholder.projectDesc')"
             :maxlength="200"
             show-count
             :autosize="{ minRows: 6, maxRows: 8 }"
