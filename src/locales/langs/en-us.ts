@@ -375,12 +375,6 @@ const local: App.I18n.Schema = {
     tool_gen: 'Code Generation',
     about: 'About'
   },
-  menu: {
-    system_tenant: 'Tenant Management',
-    system_log: 'Log Management',
-    'monitor_snail-job': 'Job Management',
-    monitor_admin: 'Admin Monitor'
-  },
   dict: {
     sys_user_sex: {
       male: 'Male',

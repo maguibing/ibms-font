@@ -357,12 +357,6 @@ const local: App.I18n.Schema = {
     exception_404: '404',
     exception_500: '500'
   },
-  menu: {
-    system_tenant: '租户管理',
-    system_log: '日志管理',
-    'monitor_snail-job': '任务调度中心',
-    monitor_admin: 'Admin 监控'
-  },
   dict: {
     sys_user_sex: {
       male: '男',
