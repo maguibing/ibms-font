@@ -45,18 +45,6 @@ const strategyCards = computed<StrategyCard[]>(() => [
 const isPermanent = computed(() => formModel.value.license_type === 2);
 const hasResult = computed(() => Boolean(generatedLicense.value));
 
-const submitPreview = computed(() => {
-  if (isPermanent.value) {
-    return $t('page.global.activate.previewPermanent');
-  }
-
-  if (!formModel.value.license_expire_at) {
-    return $t('page.global.activate.previewPending');
-  }
-
-  return $t('page.global.activate.previewSpecified', { expireAt: Number(formModel.value.license_expire_at) });
-});
-
 const rules = computed<Record<keyof FormModel, App.Global.FormRule[]>>(() => ({
   license_type: [createRequiredRule($t('page.global.activate.form.licenseType.required'))],
   license_expire_at: [
@@ -246,9 +234,6 @@ watch(
               "
             />
           </NFormItem>
-          <p class="m-0 text-12px text-base-text/65">
-            {{ submitPreview }}
-          </p>
         </section>
 
         <section class="space-y-3">

@@ -387,7 +387,7 @@ function handleLayoutChange(value: string) {
             <NInput
               v-model:value="model.title"
               :placeholder="$t('page.system.menu.form.menuName.required')"
-              :maxlength="48"
+              :maxlength="64"
               show-count
             />
           </NFormItemGi>

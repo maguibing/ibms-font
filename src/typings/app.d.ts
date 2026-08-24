@@ -1102,6 +1102,9 @@ declare namespace App {
             emptyMenu: string;
             menuDetail: string;
             cascadeDeleteContent: string;
+            expandCollapse: string;
+            selectDeselectAll: string;
+            parentChildCascade: string;
             isFrameTip: string;
             isCacheTip: string;
             visibleTip: string;

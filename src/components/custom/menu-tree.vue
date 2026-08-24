@@ -5,6 +5,7 @@ import { useBoolean } from '@sa/hooks';
 import { menuNodeType } from '@/constants/business';
 import { fetchGetMenuNodeTrees } from '@/service/api/system';
 import { translateRouteTitle } from '@/utils/common';
+import { $t } from '@/locales';
 import { defaultMenuIcon } from '@/plugins/iconify-offline-icons';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 
@@ -263,16 +264,20 @@ defineExpose({
 <template>
   <div class="w-full flex-col gap-12px">
     <div v-if="showHeader" class="w-full flex-center">
-      <NCheckbox v-model:checked="expandAll" :checked-value="true" :unchecked-value="false">展开/折叠</NCheckbox>
+      <NCheckbox v-model:checked="expandAll" :checked-value="true" :unchecked-value="false">
+        {{ $t('page.system.menu.expandCollapse') }}
+      </NCheckbox>
       <NCheckbox
         v-model:checked="checkAll"
         :checked-value="true"
         :unchecked-value="false"
         @update:checked="handleCheckedTreeNodeAll"
       >
-        全选/反选
+        {{ $t('page.system.menu.selectDeselectAll') }}
       </NCheckbox>
-      <NCheckbox v-model:checked="cascade" :checked-value="true" :unchecked-value="false">父子联动</NCheckbox>
+      <NCheckbox v-model:checked="cascade" :checked-value="true" :unchecked-value="false">
+        {{ $t('page.system.menu.parentChildCascade') }}
+      </NCheckbox>
     </div>
     <NSpin class="resource h-full w-full py-6px pl-3px" content-class="h-full" :show="loading">
       <NTree
