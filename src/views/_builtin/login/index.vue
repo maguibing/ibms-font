@@ -5,7 +5,7 @@ import { loginModuleRecord } from '@/constants/app';
 import { useAppStore } from '@/store/modules/app';
 import { useThemeStore } from '@/store/modules/theme';
 import loginBackground from '@/assets/svg-icon/login-background.svg';
-import { $t } from '@/locales';
+import { $t, getSystemTitle } from '@/locales';
 import PwdLogin from './modules/pwd-login.vue';
 import CodeLogin from './modules/code-login.vue';
 import Register from './modules/register.vue';
@@ -45,7 +45,7 @@ const activeModule = computed(() => moduleMap[props.module || 'pwd-login']);
     <div class="relative box-border hidden h-full w-65vw overflow-hidden bg-primary-50 xl:block dark:bg-primary-900">
       <div class="relative z-100 flex items-center pl-30px pt-30px">
         <SystemLogo class="fill-primary text-32px" />
-        <h3 class="ml-10px text-20px font-400">{{ $t('system.title') }}</h3>
+        <h3 class="ml-10px text-20px font-400">{{ getSystemTitle() }}</h3>
       </div>
       <div class="absolute inset-x-0 inset-b-10.5% inset-t-0 z-10 m-auto w-40%">
         <img class="size-full" :src="loginBackground" />
@@ -60,7 +60,7 @@ const activeModule = computed(() => moduleMap[props.module || 'pwd-login']);
       <header class="flex-y-center justify-between px-30px pt-30px xl:justify-end">
         <div class="relative z-100 flex items-center xl:hidden">
           <SystemLogo class="fill-primary text-32px" />
-          <h3 class="ml-10px text-20px font-400">{{ $t('system.title') }}</h3>
+          <h3 class="ml-10px text-20px font-400">{{ getSystemTitle() }}</h3>
         </div>
         <div class="flex items-center justify-end">
           <ThemeSchemaSwitch

@@ -1,12 +1,10 @@
-const systemTitleMap: Record<NonNullable<Env.ImportMeta['VITE_APP_SCENE']>, string> = {
-  pt: 'Operations Platform',
-  cp: 'Integrator Platform',
-  pj: 'Project Platform'
-};
-
 const local: App.I18n.Schema = {
   system: {
-    title: systemTitleMap[import.meta.env.VITE_APP_SCENE ?? 'pt'],
+    title: {
+      pt: 'Operations Platform',
+      cp: 'Integrator Platform',
+      pj: 'Project Platform'
+    },
     updateTitle: 'System Version Update Notification',
     updateContent: 'A new version of the system has been detected. Do you want to refresh the page immediately?',
     updateConfirm: 'Refresh immediately',

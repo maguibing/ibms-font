@@ -1,12 +1,10 @@
-const systemTitleMap: Record<NonNullable<Env.ImportMeta['VITE_APP_SCENE']>, string> = {
-  pt: '运营平台',
-  cp: '集成商平台',
-  pj: '项目平台'
-};
-
 const local: App.I18n.Schema = {
   system: {
-    title: systemTitleMap[import.meta.env.VITE_APP_SCENE ?? 'pt'],
+    title: {
+      pt: '运营平台',
+      cp: '集成商平台',
+      pj: '项目平台'
+    },
     updateTitle: '系统版本更新通知',
     updateContent: '检测到系统有新版本发布，是否立即刷新页面？',
     updateConfirm: '立即刷新',

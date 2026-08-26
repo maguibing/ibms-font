@@ -21,6 +21,18 @@ export function setupI18n(app: App) {
 
 export const $t = i18n.global.t as App.I18n.$T;
 
+const systemTitleKeyMap: Record<NonNullable<Env.ImportMeta['VITE_APP_SCENE']>, App.I18n.I18nKey> = {
+  pt: 'system.title.pt',
+  cp: 'system.title.cp',
+  pj: 'system.title.pj'
+};
+
+export function getSystemTitle() {
+  const scene = import.meta.env.VITE_APP_SCENE || 'pt';
+
+  return $t(systemTitleKeyMap[scene]);
+}
+
 export function hasLocaleKey(key: App.I18n.I18nKey) {
   return i18n.global.te(key);
 }

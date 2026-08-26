@@ -3,7 +3,7 @@ import { getRgb } from '@sa/color';
 import { DARK_CLASS } from '@/constants/app';
 import { localStg } from '@/utils/storage';
 import { toggleHtmlClass } from '@/utils/common';
-import { $t } from '@/locales';
+import { getSystemTitle } from '@/locales';
 import '@/styles/scss/loading.scss';
 
 export function setupLoading() {
@@ -25,7 +25,7 @@ export function setupLoading() {
     <!-- From Uiverse.io by SchawnnahJ -->
     <div class="loader"></div>
   </div>
-  <h2 class="text-30px text-primary-400 font-500">${$t('system.title')}</h2>
+  <h2 class="text-30px text-primary-400 font-500">${getSystemTitle()}</h2>
 </div>`;
 
   if (app) {
