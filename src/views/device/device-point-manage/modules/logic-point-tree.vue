@@ -143,14 +143,14 @@ onMounted(() => {
   }
 
   :deep(.infinite-scroll) {
-    height: calc(100vh - 270px - var(--calc-footer-height, 0px)) !important;
-    max-height: calc(100vh - 270px - var(--calc-footer-height, 0px)) !important;
+    height: calc(100vh - 240px - var(--calc-footer-height, 0px)) !important;
+    max-height: calc(100vh - 240px - var(--calc-footer-height, 0px)) !important;
   }
 
   @media screen and (max-width: 1024px) {
     :deep(.infinite-scroll) {
-      height: calc(100vh - 269px - var(--calc-footer-height, 0px)) !important;
-      max-height: calc(100vh - 269px - var(--calc-footer-height, 0px)) !important;
+      height: calc(100vh - 239px - var(--calc-footer-height, 0px)) !important;
+      max-height: calc(100vh - 239px - var(--calc-footer-height, 0px)) !important;
     }
   }
 

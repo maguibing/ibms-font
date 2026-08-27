@@ -1,19 +1,25 @@
-<script setup lang="tsx">
+<script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
-import type { TreeOption } from 'naive-ui';
 import { fetchGetGatewayList } from '@/service/api/gateway';
-import { GATEWAY_PROTOCOL_OPTIONS } from '@/views/gateway/gateway-list/shared';
+import StatusTag from '@/components/custom/status-tag.vue';
+import {
+  GATEWAY_LINK_STATUS_MAP,
+  GATEWAY_PROTOCOL_OPTIONS,
+  GATEWAY_UNKNOWN_STATUS
+} from '@/views/gateway/gateway-list/shared';
 
 defineOptions({
   name: 'DeviceGatewayTree'
 });
 
-type GatewayTreeOption = TreeOption & {
+type GatewayGroup = {
   key: string;
   label: string;
+  icon: string;
   protocolType: Api.Gateway.ProtocolType;
-  gateway?: Api.Gateway.Gateway;
-  children?: GatewayTreeOption[];
+  gateways: Api.Gateway.Gateway[];
+  loaded: boolean;
+  expanded: boolean;
 };
 
 type GatewayTreeState = {
@@ -23,8 +29,16 @@ type GatewayTreeState = {
 };
 
 const PROTOCOL_TREE_KEY_PREFIX = 'protocol-';
-const GATEWAY_TREE_KEY_PREFIX = 'gateway-';
-const EMPTY_TREE_KEY_PREFIX = 'empty-';
+const gatewayStatusTagProps = { size: 'small', bordered: false } as const;
+
+const protocolIconMap: Record<Api.Gateway.ProtocolType, string> = {
+  1: 'lucide:radio-tower',
+  2: 'lucide:server',
+  3: 'lucide:webhook',
+  4: 'lucide:cable',
+  5: 'lucide:network',
+  6: 'lucide:waypoints'
+};
 
 const selectedGatewayId = defineModel<CommonType.IdType | null>('selectedGatewayId', { required: true });
 
@@ -45,53 +59,25 @@ const gatewayLoading = computed(() => Object.values(gatewayState.loadingMap).som
 
 const gatewayList = computed(() => Object.values(gatewayState.listMap).flatMap(item => item ?? []));
 
-const selectedTreeKeys = computed(() =>
-  selectedGatewayId.value ? [getGatewayTreeKey(selectedGatewayId.value)] : []
-);
-
-const gatewayTreeData = computed<GatewayTreeOption[]>(() => {
+const gatewayGroups = computed<GatewayGroup[]>(() => {
   return GATEWAY_PROTOCOL_OPTIONS.map(item => {
     const protocolType = item.value;
-    const loaded = gatewayState.loadedMap[protocolType];
-    const gatewayChildren = gatewayState.listMap[protocolType] ?? [];
-    const children = gatewayChildren.length
-      ? gatewayChildren.map(gateway => ({
-          key: getGatewayTreeKey(gateway.id),
-          label: gateway.name || '-',
-          protocolType,
-          gateway,
-          isLeaf: true
-        }))
-      : [
-          {
-            key: getEmptyTreeKey(protocolType),
-            label: '暂无边缘设备',
-            protocolType,
-            disabled: true,
-            isLeaf: true
-          }
-        ];
+    const key = getProtocolTreeKey(protocolType);
 
     return {
-      key: getProtocolTreeKey(protocolType),
+      key,
       label: item.label,
+      icon: protocolIconMap[protocolType],
       protocolType,
-      isLeaf: false,
-      children: loaded ? children : undefined
+      gateways: gatewayState.listMap[protocolType] ?? [],
+      loaded: Boolean(gatewayState.loadedMap[protocolType]),
+      expanded: expandedTreeKeys.value.includes(key)
     };
   });
 });
 
 function getProtocolTreeKey(protocolType: Api.Gateway.ProtocolType) {
   return `${PROTOCOL_TREE_KEY_PREFIX}${protocolType}`;
-}
-
-function getGatewayTreeKey(gatewayId: CommonType.IdType) {
-  return `${GATEWAY_TREE_KEY_PREFIX}${gatewayId}`;
-}
-
-function getEmptyTreeKey(protocolType: Api.Gateway.ProtocolType) {
-  return `${EMPTY_TREE_KEY_PREFIX}${protocolType}`;
 }
 
 function getProtocolTypeByTreeKey(key: string) {
@@ -145,37 +131,36 @@ async function getGatewayData(protocolType: Api.Gateway.ProtocolType, force = fa
   }
 }
 
-async function handleLoadGatewayTreeNode(option: TreeOption) {
-  const protocolType = option.protocolType as Api.Gateway.ProtocolType | undefined;
-  if (option.gateway || !protocolType) return;
-
-  await getGatewayData(protocolType);
-}
-
 function refreshExpandedGatewayData() {
   for (const key of expandedTreeKeys.value) {
     getGatewayData(getProtocolTypeByTreeKey(key), true);
   }
 }
 
-function handleUpdateSelectedTreeKeys(_: Array<string | number>, options: Array<TreeOption | null>) {
-  const gateway = options.find(option => option?.gateway)?.gateway as Api.Gateway.Gateway | undefined;
-  handleSelectGateway(gateway?.id ?? null);
-}
+async function handleToggleProtocol(protocolType: Api.Gateway.ProtocolType) {
+  const key = getProtocolTreeKey(protocolType);
 
-function handleTreeNodeClickBehavior({ option }: { option: TreeOption }) {
-  return option.gateway ? 'toggleSelect' : 'toggleExpand';
-}
-
-function renderGatewayTreeSuffix({ option }: { option: TreeOption }) {
-  const gateway = option.gateway as Api.Gateway.Gateway | undefined;
-  if (!gateway) return null;
-
-  if (gateway.link_status === 2) {
-    return <SvgIcon icon="ic:round-cloud-done" class="text-16px text-success" />;
+  if (expandedTreeKeys.value.includes(key)) {
+    expandedTreeKeys.value = expandedTreeKeys.value.filter(item => item !== key);
+    return;
   }
 
-  return <SvgIcon icon="ic:round-cloud-off" class="text-16px text-error-200" />;
+  expandedTreeKeys.value = [...expandedTreeKeys.value, key];
+  await getGatewayData(protocolType);
+}
+
+function handleSelectAllGateway() {
+  handleSelectGateway(null);
+}
+
+function handleSelectGatewayItem(gateway: Api.Gateway.Gateway) {
+  const gatewayId = gateway.id;
+
+  handleSelectGateway(selectedGatewayId.value === gatewayId ? null : gatewayId);
+}
+
+function isGatewaySelected(gateway: Api.Gateway.Gateway) {
+  return selectedGatewayId.value === gateway.id;
 }
 
 function handleSelectGateway(gatewayId: CommonType.IdType | null) {
@@ -192,68 +177,171 @@ defineExpose({
 
 <template>
   <div class="h-full min-h-0 flex-col-stretch gap-12px overflow-hidden">
-    <NSpin class="gateway-tree" :show="gatewayLoading">
-      <NTree
-        v-model:expanded-keys="expandedTreeKeys"
-        :data="gatewayTreeData"
-        :selected-keys="selectedTreeKeys"
-        :on-load="handleLoadGatewayTreeNode"
-        :render-suffix="renderGatewayTreeSuffix"
-        :override-default-node-click-behavior="handleTreeNodeClickBehavior"
-        :selectable="!gatewayLoading"
-        block-node
-        show-line
-        virtual-scroll
-        class="infinite-scroll h-full min-h-200px"
-        @update:selected-keys="handleUpdateSelectedTreeKeys"
-      >
-        <template #empty>
-          <NEmpty description="暂无边缘设备" class="h-full min-h-200px justify-center" />
-        </template>
-      </NTree>
+    <NSpin class="gateway-tree h-full" :show="gatewayLoading">
+      <div class="infinite-scroll h-full min-h-200px overflow-y-auto pr-4px">
+        <button
+          type="button"
+          class="gateway-option"
+          :class="{ 'is-active': selectedGatewayId === null }"
+          :disabled="gatewayLoading"
+          @click="handleSelectAllGateway"
+        >
+          <span class="min-w-0 flex-y-center gap-8px">
+            <SvgIcon icon="lucide:layers" class="flex-none text-16px" />
+            <span class="truncate">全部设备</span>
+          </span>
+        </button>
+
+        <div v-for="group in gatewayGroups" :key="group.key" class="gateway-group">
+          <button
+            type="button"
+            class="gateway-group__header"
+            :disabled="gatewayLoading"
+            @click="handleToggleProtocol(group.protocolType)"
+          >
+            <span class="min-w-0 flex-y-center gap-6px">
+              <SvgIcon
+                :icon="group.expanded ? 'lucide:chevron-down' : 'lucide:chevron-right'"
+                class="flex-none text-15px"
+              />
+              <span class="truncate">{{ group.label }}</span>
+            </span>
+            <SvgIcon :icon="group.icon" class="flex-none text-16px" />
+          </button>
+
+          <div v-if="group.expanded" class="gateway-group__body">
+            <template v-if="group.gateways.length">
+              <button
+                v-for="gateway in group.gateways"
+                :key="gateway.id"
+                type="button"
+                class="gateway-item"
+                :class="{ 'is-active': isGatewaySelected(gateway) }"
+                :disabled="gatewayLoading"
+                @click="handleSelectGatewayItem(gateway)"
+              >
+                <span class="min-w-0 flex-y-center gap-8px">
+                  <SvgIcon
+                    :icon="gateway.link_status === 2 ? 'ic:round-cloud-done' : 'ic:round-cloud-off'"
+                    class="flex-none text-16px"
+                    :class="gateway.link_status === 2 ? 'text-success' : 'text-error-200'"
+                  />
+                  <span class="gateway-item__name">{{ gateway.name || '-' }}</span>
+                </span>
+                <StatusTag
+                  :value="gateway.link_status"
+                  :status-map="GATEWAY_LINK_STATUS_MAP"
+                  :unknown="GATEWAY_UNKNOWN_STATUS"
+                  :tag-props="gatewayStatusTagProps"
+                />
+              </button>
+            </template>
+            <NEmpty v-else-if="group.loaded" description="暂无边缘设备" size="small" class="gateway-empty" />
+          </div>
+        </div>
+      </div>
     </NSpin>
   </div>
 </template>
 
 <style scoped lang="scss">
 .gateway-tree {
-  .n-button {
-    --n-padding: 8px !important;
-  }
-
-  :deep(.n-tree__empty) {
-    height: 100%;
-    justify-content: center;
-  }
-
   :deep(.n-spin-content) {
     height: 100%;
   }
 
-  :deep(.infinite-scroll) {
+  .infinite-scroll {
     height: calc(100vh - 228px - var(--calc-footer-height, 0px)) !important;
     max-height: calc(100vh - 228px - var(--calc-footer-height, 0px)) !important;
   }
 
   @media screen and (max-width: 1024px) {
-    :deep(.infinite-scroll) {
+    .infinite-scroll {
       height: calc(100vh - 227px - var(--calc-footer-height, 0px)) !important;
       max-height: calc(100vh - 227px - var(--calc-footer-height, 0px)) !important;
     }
   }
+}
 
-  :deep(.n-tree-node) {
-    height: 30px;
+.gateway-option,
+.gateway-group__header,
+.gateway-item {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  color: var(--n-text-color-2);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.72;
   }
 
-  :deep(.n-tree-node-switcher) {
-    height: 30px;
+  &:hover:not(:disabled) {
+    background-color: rgba(100, 116, 139, 0.1);
+    color: var(--n-text-color-1);
   }
 
-  :deep(.n-tree-node-switcher__icon) {
-    font-size: 16px !important;
-    height: 16px !important;
-    width: 16px !important;
+  &.is-active {
+    background-color: rgb(var(--primary-color, 24 160 88) / 12%);
+    color: rgb(var(--primary-color, 24 160 88));
   }
+}
+
+.gateway-option {
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 6px;
+}
+
+.gateway-group {
+  margin-top: 6px;
+}
+
+.gateway-group__header {
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.gateway-group__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0 4px 22px;
+}
+
+.gateway-item {
+  min-height: 34px;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 6px;
+}
+
+.gateway-item__name {
+  min-width: 0;
+  overflow: hidden;
+  color: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gateway-empty {
+  min-height: 82px;
+  justify-content: center;
 }
 </style>

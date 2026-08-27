@@ -10,7 +10,7 @@ export const tokenPlacementOptions: CommonType.Option<Api.Gateway.TokenPlacement
 
 const tokenKeyFixedByPlacement: Partial<Record<Api.Gateway.TokenPlacement, string>> = {
   1: 'Authorization Bearer',
-  2: 'Athorization'
+  2: 'Authorization'
 };
 
 export const httpMethodSelectOptions = httpMethodOptions.map(method => ({

@@ -15,13 +15,11 @@ interface Emits {
 }
 
 interface Props {
-  collapsible?: boolean;
   showDeviceType?: boolean;
   showDeviceGroup?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  collapsible: true,
   showDeviceType: true,
   showDeviceGroup: true
 });
@@ -96,7 +94,7 @@ onMounted(() => {
 
 <template>
   <NCard size="small" class="card-wrapper">
-    <NCollapse v-if="props.collapsible">
+    <NCollapse>
       <NCollapseItem :title="$t('common.search')" name="device-list-search">
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="100">
           <NGrid responsive="screen" item-responsive>
@@ -165,71 +163,6 @@ onMounted(() => {
         </NForm>
       </NCollapseItem>
     </NCollapse>
-    <NForm v-else ref="formRef" :model="model" label-placement="left" :label-width="100" :show-feedback="false">
-      <NGrid responsive="screen" item-responsive>
-        <NFormItemGi :span="searchItemSpan" label="设备名称" path="name" class="pr-24px" label-width="auto">
-          <NInput v-model:value="model.name" clearable placeholder="请输入设备名称" @keyup.enter="search" />
-        </NFormItemGi>
-        <NFormItemGi :span="searchItemSpan" label="设备标识" path="key" class="pr-24px" label-width="auto">
-          <NInput v-model:value="model.key" clearable placeholder="请输入设备标识" @keyup.enter="search" />
-        </NFormItemGi>
-        <NFormItemGi
-          v-if="props.showDeviceType"
-          :span="searchItemSpan"
-          label="设备类型"
-          path="device_type_id"
-          class="pr-24px"
-          label-width="auto"
-        >
-          <RemoteSearchSelect
-            v-model:value="model.device_type_id"
-            :request="fetchDeviceTypeList"
-            :request-params="deviceTypeRequestParams"
-            :search-type="1"
-            label-field="name"
-            value-field="id"
-            clearable
-            placeholder="请选择设备类型"
-          />
-        </NFormItemGi>
-        <NFormItemGi
-          v-if="props.showDeviceGroup"
-          :span="searchItemSpan"
-          label="设备组"
-          path="device_group_id"
-          class="pr-24px"
-          label-width="auto"
-        >
-          <NTreeSelect
-            v-model:value="model.device_group_id"
-            v-model:expanded-keys="expandedKeys"
-            :loading="groupLoading"
-            :options="groupData"
-            clearable
-            filterable
-            label-field="group_name"
-            key-field="group_id"
-            placeholder="请选择设备组"
-          />
-        </NFormItemGi>
-        <NFormItemGi :show-feedback="false" :span="actionItemSpan" class="pr-24px">
-          <NSpace class="w-full" justify="end">
-            <NButton type="primary" ghost @click="search">
-              <template #icon>
-                <icon-ic-round-search class="text-icon" />
-              </template>
-              {{ $t('common.search') }}
-            </NButton>
-            <NButton @click="reset">
-              <template #icon>
-                <icon-ic-round-refresh class="text-icon" />
-              </template>
-              {{ $t('common.reset') }}
-            </NButton>
-          </NSpace>
-        </NFormItemGi>
-      </NGrid>
-    </NForm>
   </NCard>
 </template>
 

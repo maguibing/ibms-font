@@ -99,7 +99,6 @@ onMounted(() => {
             embedded
             :fixed-device-type-id="deviceTypeId"
             :fixed-device-type="deviceType"
-            :search-collapsible="false"
             :show-device-type-search="false"
             :show-device-group-search="false"
           />

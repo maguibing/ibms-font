@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, shallowRef, toRaw } from 'vue';
-import { NCollapse, NCollapseItem, type SelectOption } from 'naive-ui';
+import { onMounted, ref, shallowRef, toRaw } from 'vue';
+import type { SelectOption } from 'naive-ui';
 import { jsonClone } from '@sa/utils';
 import { fetchGetUserList } from '@/service/api/system';
 import { useNaiveForm } from '@/hooks/common/form';
@@ -12,13 +12,11 @@ defineOptions({
 
 interface Props {
   bordered?: boolean;
-  collapsible?: boolean;
   mode: 'repair' | 'deal';
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  bordered: false,
-  collapsible: true
+  bordered: false
 });
 
 const emit = defineEmits<{
@@ -31,11 +29,6 @@ const defaultModel = jsonClone(toRaw(model.value));
 const dateRange = ref<[string, string] | null>(null);
 const userLoading = shallowRef(false);
 const userOptions = shallowRef<SelectOption[]>([]);
-const searchWrapper = computed(() => (props.collapsible ? NCollapse : 'div'));
-const searchContentWrapper = computed(() => (props.collapsible ? NCollapseItem : 'div'));
-const searchContentProps = computed(() =>
-  props.collapsible ? { title: $t('common.search'), name: 'workorder-search' } : {}
-);
 const searchItemSpan = '24 s:12 m:6';
 
 const statusOptions = [
@@ -85,9 +78,9 @@ onMounted(fetchUserOptions);
 
 <template>
   <NCard :bordered="props.bordered" size="small" class="table-search card-wrapper">
-    <component :is="searchWrapper">
-      <component :is="searchContentWrapper" v-bind="searchContentProps">
-        <NForm ref="formRef" :model="model" label-placement="left" :show-feedback="props.collapsible">
+    <NCollapse>
+      <NCollapseItem :title="$t('common.search')" name="workorder-search">
+        <NForm ref="formRef" :model="model" label-placement="left">
           <NGrid responsive="screen" item-responsive>
             <NFormItemGi
               v-if="mode === 'repair'"
@@ -133,7 +126,7 @@ onMounted(fetchUserOptions);
                 @update:formatted-value="handleDateRangeUpdate"
               />
             </NFormItemGi>
-            <NFormItemGi :show-feedback="false" :span="searchItemSpan" class="pr-24px">
+            <NFormItemGi :span="searchItemSpan">
               <NSpace class="w-full" justify="end">
                 <NButton type="primary" ghost @click="search">
                   <template #icon>
@@ -151,8 +144,8 @@ onMounted(fetchUserOptions);
             </NFormItemGi>
           </NGrid>
         </NForm>
-      </component>
-    </component>
+      </NCollapseItem>
+    </NCollapse>
   </NCard>
 </template>
 

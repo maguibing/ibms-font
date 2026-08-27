@@ -363,7 +363,6 @@ onMounted(() => {
     <WorkorderSearch
       v-model:model="searchParams"
       :bordered="embedded"
-      :collapsible="!embedded"
       :mode="workorderMode"
       @search="handleSearch"
     />

@@ -22,7 +22,6 @@ interface Props {
   fixedDeviceTypeId?: CommonType.IdType | null;
   fixedDeviceType?: Api.Device.DeviceType | null;
   embedded?: boolean;
-  searchCollapsible?: boolean;
   showDeviceTypeSearch?: boolean;
   showDeviceGroupSearch?: boolean;
 }
@@ -31,7 +30,6 @@ const props = withDefaults(defineProps<Props>(), {
   fixedDeviceTypeId: null,
   fixedDeviceType: null,
   embedded: false,
-  searchCollapsible: true,
   showDeviceTypeSearch: true,
   showDeviceGroupSearch: true
 });
@@ -299,7 +297,6 @@ function handleSearch() {
   <div :class="pageClass">
     <DeviceListSearch
       v-model:model="searchParams"
-      :collapsible="props.searchCollapsible"
       :show-device-type="showDeviceTypeSearch"
       :show-device-group="props.showDeviceGroupSearch"
       @search="handleSearch"

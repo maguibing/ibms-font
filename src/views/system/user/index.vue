@@ -28,7 +28,7 @@ const { hasAuth } = useAuth();
 const appStore = useAppStore();
 const { download } = useDownload();
 
-const DEFAULT_RESET_PASSWORD = '123456789##';
+const DEFAULT_RESET_PASSWORD = 'csautodriver.com';
 const ROOT_DEPT: Api.Common.DeptNode = {
   dept_id: 0,
   dept_name: '全部',

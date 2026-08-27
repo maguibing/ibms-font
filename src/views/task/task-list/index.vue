@@ -266,7 +266,7 @@ async function handleBatchDelete() {
 
 <template>
   <div :class="containerClass">
-    <TaskListSearch v-model:model="searchParams" :bordered="embedded" :collapsible="!embedded" @search="handleSearch" />
+    <TaskListSearch v-model:model="searchParams" :bordered="embedded" @search="handleSearch" />
 
     <NCard title="任务列表" :bordered="embedded" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>

@@ -149,7 +149,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         key: 'key',
         title: '逻辑点位标识',
         align: 'center',
-        minWidth: 160,
+        width: 180,
         ellipsis: { tooltip: true },
         render: row => h(CopyableValue, { value: row.key })
       },
@@ -167,7 +167,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         minWidth: 180,
         ellipsis: { tooltip: true },
         render: row => {
-          if (!row.physical_point_id) return '-';
+          if (!row.physical_point_id) return '暂未绑定';
 
           return renderPointLink(getExtraMapName('physical_point_map', row.physical_point_id), () =>
             handlePhysicalPointPanelJump(row.physical_point_id!)
@@ -178,7 +178,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         key: 'report_at',
         title: '最新更新时间',
         align: 'center',
-        minWidth: 180,
+        minWidth: 240,
         render: row => formatReportAt(row)
       },
       {

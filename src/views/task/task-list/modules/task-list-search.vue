@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { computed, toRaw } from 'vue';
-import { NCollapse, NCollapseItem } from 'naive-ui';
+import { toRaw } from 'vue';
 import { jsonClone } from '@sa/utils';
 import { useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
@@ -15,12 +14,10 @@ interface Emits {
 
 interface Props {
   bordered?: boolean;
-  collapsible?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  bordered: false,
-  collapsible: true
+  bordered: false
 });
 
 const emit = defineEmits<Emits>();
@@ -30,11 +27,6 @@ const { formRef, validate, restoreValidation } = useNaiveForm();
 const model = defineModel<Api.Task.TaskSearchParams>('model', { required: true });
 
 const defaultModel = jsonClone(toRaw(model.value));
-const searchWrapper = computed(() => (props.collapsible ? NCollapse : 'div'));
-const searchContentWrapper = computed(() => (props.collapsible ? NCollapseItem : 'div'));
-const searchContentProps = computed(() =>
-  props.collapsible ? { title: $t('common.search'), name: 'task-list-search' } : {}
-);
 
 function resetModel() {
   Object.assign(model.value, defaultModel);
@@ -54,9 +46,9 @@ async function search() {
 
 <template>
   <NCard :bordered="props.bordered" size="small" class="card-wrapper">
-    <component :is="searchWrapper">
-      <component :is="searchContentWrapper" v-bind="searchContentProps">
-        <NForm ref="formRef" :model="model" label-placement="left" :label-width="90" :show-feedback="props.collapsible">
+    <NCollapse>
+      <NCollapseItem :title="$t('common.search')" name="task-list-search">
+        <NForm ref="formRef" :model="model" label-placement="left" :label-width="90">
           <NGrid responsive="screen" item-responsive>
             <NFormItemGi span="24 s:12 m:8" label="任务名称" path="name" label-width="auto">
               <NInput v-model:value="model.name" clearable placeholder="请输入任务名称" @keyup.enter="search" />
@@ -79,8 +71,8 @@ async function search() {
             </NFormItemGi>
           </NGrid>
         </NForm>
-      </component>
-    </component>
+      </NCollapseItem>
+    </NCollapse>
   </NCard>
 </template>
 

@@ -169,14 +169,14 @@ function createNzHttpClientModel(
     poll_route: {
       method: 'GET',
       path: '/api/Point/GetAll?pageNumber=1&pageSize=2000',
-      token_key: 'Athorization',
+      token_key: 'Authorization',
       token_placement: 2,
       with_auth: true
     },
     send_route: {
       method: 'POST',
       path: '/api/Point/SendMqMessage',
-      token_key: 'Athorization',
+      token_key: 'Authorization',
       token_placement: 2,
       with_auth: true
     },

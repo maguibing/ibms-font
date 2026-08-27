@@ -135,7 +135,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         key: 'name',
         title: '名称',
         align: 'center',
-        minWidth: 150,
+        minWidth: 180,
         ellipsis: { tooltip: true },
         render: row => row.name || '-'
       },
@@ -143,7 +143,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         key: 'key',
         title: '标识',
         align: 'center',
-        minWidth: 150,
+        minWidth: 180,
         ellipsis: { tooltip: true },
         render: row => h(CopyableValue, { value: row.key })
       },
@@ -151,7 +151,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         key: 'report_at',
         title: '最新更新时间',
         align: 'center',
-        minWidth: 180,
+        width: 240,
         render: row => formatReportAt(row)
       },
       {
@@ -183,7 +183,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         minWidth: 160,
         render: row => {
           const logicPoint = getLogicPoint(row.logic_point_id);
-          if (!logicPoint?.key) return logicPoint?.name ?? '-';
+          if (!logicPoint?.key) return logicPoint?.name ?? '暂未绑定';
 
           return renderPointLink(logicPoint.name, () => emit('jumpToLogicPoint', logicPoint.key!));
         }
@@ -192,7 +192,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         key: 'operate',
         title: $t('common.operate'),
         align: 'center',
-        width: 220,
+        width: 200,
         fixed: 'right',
         render: row => renderOperate(row)
       }

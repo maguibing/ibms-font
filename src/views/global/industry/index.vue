@@ -9,7 +9,7 @@ import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hoo
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import IndustryOperateDrawer from './modules/industry-operate-drawer.vue';
-import DemoSearch from './modules/industry-search.vue';
+import IndustrySearch from './modules/industry-search.vue';
 
 defineOptions({
   name: 'IndustryList'
@@ -155,7 +155,7 @@ function edit(id: CommonType.IdType) {
 
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
-    <DemoSearch v-model:model="searchParams" @search="getDataByPage" />
+    <IndustrySearch v-model:model="searchParams" @search="getDataByPage" />
     <NCard
       :title="$t('page.global.industry.title')"
       :bordered="false"

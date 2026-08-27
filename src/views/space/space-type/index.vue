@@ -1,183 +1,203 @@
-<script lang="ts" setup>
-import type { FUniver, Univer } from '@univerjs/presets';
-import type { IDisposable } from '@univerjs/core';
-import { UniverSheetsCorePreset } from '@univerjs/preset-sheets-core';
-import UniverPresetSheetsCoreZhCN from '@univerjs/preset-sheets-core/locales/zh-CN';
-import { createUniver, LocaleType, mergeLocales } from '@univerjs/presets';
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { useThemeStore } from '@/store/modules/theme';
-import '@univerjs/preset-sheets-core/lib/index.css';
+<script setup lang="tsx">
+import { ref } from 'vue';
+import { NDivider } from 'naive-ui';
+import { formatDateTime } from '@sa/utils';
+import { fetchDeleteSpaceType, fetchGetSpaceTypeList } from '@/service/api/space';
+import { useAppStore } from '@/store/modules/app';
+import { useAuth } from '@/hooks/business/auth';
+import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
+import { $t } from '@/locales';
+import ButtonIcon from '@/components/custom/button-icon.vue';
+import SpaceTypeOperateDrawer from './modules/space-type-operate-drawer.vue';
+import SpaceTypeSearch from './modules/space-type-search.vue';
 
-const themeStore = useThemeStore();
-const container = ref<HTMLElement | null>(null);
-const selectedCell = ref('A1');
-const selectedRange = ref('A1');
-const selectedSheet = ref('Sheet1');
-const selectedValue = ref('');
-const saveStatus = ref('未保存');
+defineOptions({
+  name: 'SpaceType'
+});
 
-let univerInstance: Univer | null = null;
-let univerAPIInstance: FUniver | null = null;
-let selectionDisposable: IDisposable | null = null;
+const appStore = useAppStore();
+const { hasAuth } = useAuth();
 
-function syncSelection() {
-  const workbook = univerAPIInstance?.getActiveWorkbook();
-  const sheet = workbook?.getActiveSheet();
-  const activeCell = sheet?.getActiveCell();
-  const activeRange = sheet?.getActiveRange();
+const searchParams = ref<Api.Space.SpaceTypeSearchParams>({
+  pageNum: 1,
+  pageSize: 10,
+  keyword: null
+});
 
-  if (!sheet || !activeCell || !activeRange) return;
+function transformSearchParamsToRequest(params: Api.Space.SpaceTypeSearchParams): CommonType.CommonListQueryParams {
+  const pageNum = params.pageNum || 1;
+  const pageSize = params.pageSize || 10;
+  const filterConfigs = [{ type: 1, value: params.keyword }];
 
-  selectedSheet.value = sheet.getSheetName();
-  selectedCell.value = activeCell.getA1Notation();
-  selectedRange.value = activeRange.getA1Notation();
-  selectedValue.value = String(activeCell.getValue() ?? '');
+  const options = filterConfigs
+    .filter((item): item is { type: number; value: string } => Boolean(item.value))
+    .map(({ type, value }) => ({ type, value }));
+
+  return {
+    list_option: {
+      options,
+      offset: (pageNum - 1) * pageSize,
+      limit: pageSize
+    }
+  };
 }
 
-function updateSelectedCell() {
-  const workbook = univerAPIInstance?.getActiveWorkbook();
-  const sheet = workbook?.getActiveSheet();
-  if (!sheet) return;
-
-  sheet.getRange(selectedCell.value).setValue(selectedValue.value);
-  saveStatus.value = '有未保存修改';
-}
-
-function saveWorkbook() {
-  const snapshot = univerAPIInstance?.getActiveWorkbook()?.save();
-  if (!snapshot) return;
-  console.log(snapshot);
-  // localStorage.setItem('space-type-workbook', JSON.stringify(snapshot));
-  // saveStatus.value = `已保存 ${new Date().toLocaleTimeString()}`;
-}
-
-function exportWorkbook() {
-  const snapshot = univerAPIInstance?.getActiveWorkbook()?.save();
-  if (!snapshot) return;
-
-  const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `space-workbook-${new Date().toISOString().slice(0, 10)}.json`;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-onMounted(() => {
-  const { univer, univerAPI } = createUniver({
-    locale: LocaleType.ZH_CN,
-    locales: {
-      [LocaleType.ZH_CN]: mergeLocales(UniverPresetSheetsCoreZhCN)
+const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagination, scrollX } =
+  useNaivePaginatedTable({
+    api: () => fetchGetSpaceTypeList(transformSearchParamsToRequest(searchParams.value)),
+    transform: response => defaultTransform<Api.Space.SpaceType>(response),
+    onPaginationParamsChange: params => {
+      searchParams.value.pageNum = params.page;
+      searchParams.value.pageSize = params.pageSize;
     },
-    darkMode: themeStore.darkMode,
-    presets: [
-      UniverSheetsCorePreset({
-        container: container.value as HTMLElement
-      })
+    columns: () => [
+      {
+        type: 'selection',
+        align: 'center',
+        width: 48
+      },
+      {
+        key: 'index',
+        title: $t('common.index'),
+        align: 'center',
+        width: 64,
+        render: (_, index) => index + 1
+      },
+      {
+        key: 'name',
+        title: '空间类型名称',
+        align: 'center',
+        minWidth: 140,
+        ellipsis: {
+          tooltip: true
+        }
+      },
+      {
+        key: 'desc',
+        title: '描述',
+        align: 'center',
+        minWidth: 180,
+        ellipsis: {
+          tooltip: true
+        },
+        render: row => row.desc || '-'
+      },
+      {
+        key: 'created_at',
+        title: '创建时间',
+        align: 'center',
+        minWidth: 180,
+        render: row => formatDateTime(row.created_at)
+      },
+      {
+        key: 'operate',
+        title: $t('common.operate'),
+        align: 'center',
+        width: 130,
+        render: row => {
+          const editBtn = () => {
+            return (
+              <ButtonIcon
+                text
+                type="primary"
+                icon="material-symbols:drive-file-rename-outline-outline"
+                tooltipContent={$t('common.edit')}
+                onClick={() => edit(row.id)}
+              />
+            );
+          };
+
+          const deleteBtn = () => {
+            return (
+              <ButtonIcon
+                text
+                type="error"
+                icon="material-symbols:delete-outline"
+                tooltipContent={$t('common.delete')}
+                popconfirmContent={$t('common.confirmDelete')}
+                onPositiveClick={() => handleDelete(row.id)}
+              />
+            );
+          };
+
+          const buttons = [];
+          if (hasAuth('space:space-type:edit')) buttons.push(editBtn());
+          if (hasAuth('space:space-type:delete')) buttons.push(deleteBtn());
+
+          return (
+            <div class="flex-center gap-8px">
+              {buttons.map((btn, index) => (
+                <>
+                  {index !== 0 && <NDivider vertical />}
+                  {btn}
+                </>
+              ))}
+            </div>
+          );
+        }
+      }
     ]
   });
 
-  univerAPI.createWorkbook({});
+const { drawerVisible, operateType, editingData, handleAdd, handleEdit, checkedRowKeys, onBatchDeleted, onDeleted } =
+  useTableOperate(data, 'id', getData);
 
-  univerInstance = univer;
-  univerAPIInstance = univerAPI;
-  const workbook = univerAPI.getActiveWorkbook();
-  selectionDisposable = workbook?.onSelectionChange(syncSelection) ?? null;
-  syncSelection();
-});
+async function handleBatchDelete() {
+  const { error } = await fetchDeleteSpaceType({ id_list: checkedRowKeys.value });
+  if (error) return;
 
-watch(
-  () => themeStore.darkMode,
-  darkMode => univerAPIInstance?.toggleDarkMode(darkMode)
-);
+  onBatchDeleted();
+}
 
-onBeforeUnmount(() => {
-  univerInstance?.dispose();
-  univerAPIInstance?.dispose();
-  selectionDisposable?.dispose();
-  univerInstance = null;
-  univerAPIInstance = null;
-  selectionDisposable = null;
-});
+async function handleDelete(id: CommonType.IdType) {
+  const { error } = await fetchDeleteSpaceType({ id_list: [id] });
+  if (error) return;
+
+  onDeleted();
+}
+
+function edit(id: CommonType.IdType) {
+  handleEdit(id);
+}
 </script>
 
 <template>
-  <div
-    class="space-type-page flex h-[calc(100vh-112px)] min-h-0 w-full flex-col overflow-hidden bg-[#f5f7fa] dark:bg-[#17191c]"
-  >
-    <header
-      class="flex h-56px shrink-0 items-center justify-between border-b border-[#e5e7eb] bg-white px-20px dark:border-[#30343b] dark:bg-[#202328]"
-    >
-      <div class="flex items-center gap-12px">
-        <div class="h-28px w-4px rounded-2px bg-[#18a058]" />
-        <div>
-          <div class="text-16px font-semibold text-[#1f2937] dark:text-[#f3f4f6]">空间类型配置</div>
-          <div class="text-12px text-[#8b95a5]">配置表格数据并维护空间基础信息</div>
-        </div>
-      </div>
-      <div class="flex items-center gap-10px">
-        <span class="mr-4px text-12px text-[#8b95a5]">{{ saveStatus }}</span>
-        <NButton secondary size="small" @click="saveWorkbook">
-          <template #icon><icon-ic-round-save class="text-16px" /></template>
-          保存
-        </NButton>
-        <NButton type="primary" size="small" @click="exportWorkbook">
-          <template #icon><icon-ic-round-download class="text-16px" /></template>
-          导出
-        </NButton>
-      </div>
-    </header>
-
-    <div class="flex min-h-0 flex-1 gap-12px p-12px">
-      <main
-        class="min-w-0 flex-1 overflow-hidden rounded-6px border border-[#e5e7eb] bg-white dark:border-[#30343b] dark:bg-[#202328]"
-      >
-        <div ref="container" class="univer-container h-full min-h-0 w-full" />
-      </main>
-      <aside
-        class="w-280px shrink-0 overflow-y-auto rounded-6px border border-[#e5e7eb] bg-white p-16px dark:border-[#30343b] dark:bg-[#202328]"
-      >
-        <div class="mb-18px flex items-center justify-between">
-          <div class="text-15px font-semibold text-[#1f2937] dark:text-[#f3f4f6]">数据配置</div>
-          <span class="rounded-4px bg-[#e8f7ee] px-8px py-3px text-12px text-[#18a058] dark:bg-[#173b29]">已选中</span>
-        </div>
-
-        <div class="mb-14px grid grid-cols-2 gap-8px">
-          <div class="rounded-4px bg-[#f7f8fa] p-10px dark:bg-[#292d33]">
-            <div class="mb-4px text-11px text-[#8b95a5]">工作表</div>
-            <div class="truncate text-13px font-medium text-[#374151] dark:text-[#e5e7eb]">{{ selectedSheet }}</div>
-          </div>
-          <div class="rounded-4px bg-[#f7f8fa] p-10px dark:bg-[#292d33]">
-            <div class="mb-4px text-11px text-[#8b95a5]">当前单元格</div>
-            <div class="text-13px font-semibold text-[#18a058]">{{ selectedCell }}</div>
-          </div>
-        </div>
-
-        <div class="mb-16px">
-          <div class="mb-7px text-12px font-medium text-[#4b5563] dark:text-[#d1d5db]">当前选区</div>
-          <div
-            class="rounded-4px border border-[#e5e7eb] bg-[#fafafa] px-10px py-8px text-13px text-[#374151] dark:border-[#3a4048] dark:bg-[#292d33] dark:text-[#e5e7eb]"
-          >
-            {{ selectedRange }}
-          </div>
-        </div>
-
-        <div class="mb-16px">
-          <div class="mb-7px text-12px font-medium text-[#4b5563] dark:text-[#d1d5db]">单元格内容</div>
-          <NInput v-model:value="selectedValue" type="textarea" :rows="4" placeholder="点击表格单元格后编辑内容" />
-        </div>
-        <NButton type="primary" block @click="updateSelectedCell">
-          <template #icon><icon-ic-round-check class="text-16px" /></template>
-          应用到 {{ selectedCell }}
-        </NButton>
-
-        <div
-          class="mt-22px border-t border-[#eef0f3] pt-16px text-12px leading-20px text-[#8b95a5] dark:border-[#30343b]"
-        >
-          点击表格中的任意单元格，右侧会同步显示它的位置和内容。
-        </div>
-      </aside>
-    </div>
+  <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
+    <SpaceTypeSearch v-model:model="searchParams" @search="getDataByPage" />
+    <NCard title="空间类型管理" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+      <template #header-extra>
+        <TableHeaderOperation
+          v-model:columns="columnChecks"
+          :disabled-delete="checkedRowKeys.length === 0"
+          :loading="loading"
+          :show-add="hasAuth('space:space-type:add')"
+          :show-delete="hasAuth('space:space-type:delete')"
+          :show-export="false"
+          @add="handleAdd"
+          @delete="handleBatchDelete"
+          @refresh="getData"
+        />
+      </template>
+      <DataTable
+        v-model:checked-row-keys="checkedRowKeys"
+        :columns="columns"
+        :data="data"
+        :flex-height="!appStore.isMobile"
+        :scroll-x="scrollX"
+        :loading="loading"
+        remote
+        :row-key="row => row.id"
+        :pagination="mobilePagination"
+        class="sm:h-full"
+      />
+      <SpaceTypeOperateDrawer
+        v-model:visible="drawerVisible"
+        :operate-type="operateType"
+        :row-data="editingData"
+        @submitted="getDataByPage"
+      />
+    </NCard>
   </div>
 </template>
+
+<style scoped></style>
