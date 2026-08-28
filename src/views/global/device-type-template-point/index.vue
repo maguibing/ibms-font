@@ -29,7 +29,7 @@ const templateId = computed(() => route.query.template_id as string | undefined)
 
 const searchParams = ref<Api.System.DeviceTypeTemplatePointSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   name: null
 });
 
@@ -37,7 +37,7 @@ function transformSearchParamsToRequest(
   params: Api.System.DeviceTypeTemplatePointSearchParams
 ): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs = [
     { type: 1, value: templateId.value },
     { type: 2, value: params.name }

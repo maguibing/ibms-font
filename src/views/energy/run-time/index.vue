@@ -38,7 +38,7 @@ function createDefaultEnergyExtra(): EnergyExtra {
 function createDefaultSearchParams(): Api.Energy.DevicePointEnergySearchParams {
   return {
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 15,
     device_names: [],
     dateRange: createDefaultDateRange()
   };
@@ -48,7 +48,7 @@ function transformSearchParamsToRequest(
   params: Api.Energy.DevicePointEnergySearchParams
 ): Api.Energy.DevicePointEnergyListParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs: FilterConfig[] = [
     { type: 104, value: '101' },
     { type: 53, value: '2' },
@@ -107,7 +107,7 @@ function transformEnergyResponse(response: unknown) {
   }
 
   const pageNum = searchParams.value.pageNum || 1;
-  const pageSize = searchParams.value.pageSize || 10;
+  const pageSize = searchParams.value.pageSize || 15;
   const normalizedResponse: Api.Common.PaginatingQueryRecord<Api.Energy.DevicePointEnergy, EnergyExtra> = {
     list: Array.isArray(payload.energy_list) ? payload.energy_list : [],
     paginate: {
@@ -133,7 +133,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
     transform: transformEnergyResponse,
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page ?? 1;
-      searchParams.value.pageSize = params.pageSize ?? 10;
+      searchParams.value.pageSize = params.pageSize ?? 15;
     },
     columns: (): NaiveUI.TableColumn<Api.Energy.DevicePointEnergy>[] => [
       {
@@ -210,7 +210,7 @@ function handleSearch() {
 }
 
 function handleReset() {
-  const pageSize = searchParams.value.pageSize ?? 10;
+  const pageSize = searchParams.value.pageSize ?? 15;
 
   Object.assign(searchParams.value, createDefaultSearchParams(), {
     pageSize

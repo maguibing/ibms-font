@@ -74,7 +74,7 @@ const containerClass = computed(() => [
 
 const searchParams = ref<Api.Workorder.WorkorderSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   repairman_uid: null,
   dealer_uid: null,
   deal_status: null,
@@ -360,12 +360,7 @@ onMounted(() => {
       </NGridItem>
     </NGrid>
 
-    <WorkorderSearch
-      v-model:model="searchParams"
-      :bordered="embedded"
-      :mode="workorderMode"
-      @search="handleSearch"
-    />
+    <WorkorderSearch v-model:model="searchParams" :bordered="embedded" :mode="workorderMode" @search="handleSearch" />
 
     <NCard title="工单列表" :bordered="embedded" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>

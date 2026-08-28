@@ -24,14 +24,14 @@ const benefitDrawerRef = useTemplateRef<InstanceType<typeof VersionBenefitDrawer
 function createDefaultSearchParams(): SearchParams {
   return {
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 15,
     name: null
   };
 }
 
 function transformSearchParamsToRequest(params: SearchParams): Api.System.CorpProjectVersionListParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs: FilterConfig[] = [{ type: 1, value: params.name }];
   const options = filterConfigs.filter(isValidFilterConfig).map(({ type, value }) => ({ type, value }));
 

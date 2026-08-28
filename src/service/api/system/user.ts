@@ -17,7 +17,7 @@ export function fetchGetDeptUserList(deptId: CommonType.IdType) {
 }
 
 /** 新增用户信息 */
-export function fetchCreateUser(data: { rsa_pwd: string; user: Api.System.UserOperateParams }) {
+export function fetchCreateUser(data: Api.System.CreateUserParams) {
   return request<boolean>({
     url: '/CreateUser',
     method: 'post',

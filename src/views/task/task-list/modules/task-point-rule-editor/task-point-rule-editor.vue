@@ -2,7 +2,6 @@
 import { computed } from 'vue';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import RemoteSearchSelect from '@/components/custom/remote-search-select.vue';
-import SectionHeader from '@/components/custom/section-header.vue';
 import SvgIcon from '@/components/custom/svg-icon.vue';
 import { fetchGetDeviceList, fetchGetDeviceTypeList, fetchGetDeviceTypePointList } from '@/service/api/device';
 import TaskPointValueInput from './task-point-value-input.vue';
@@ -176,53 +175,37 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
 </script>
 
 <template>
-  <div class="flex flex-col gap-16px p-2px">
+  <div class="flex flex-col gap-12px">
     <template v-if="isConditionMode">
-      <SectionHeader title="触发条件">
-        <template #actions>
-          <NButton class="flex-none" size="small" type="primary" :disabled="props.disabled" @click="addCondition">
-            <template #icon>
-              <SvgIcon icon="material-symbols:add-rounded" />
-            </template>
-            新增条件项
-          </NButton>
-        </template>
-      </SectionHeader>
+      <div class="flex items-center justify-between gap-12px text-14px text-[var(--n-text-color-1)] font-600">
+        <span>触发条件</span>
+        <NButton text type="primary" :disabled="props.disabled" @click="addCondition">
+          <template #icon><SvgIcon icon="material-symbols:add-rounded" /></template>
+          新增条件项
+        </NButton>
+      </div>
 
-      <div class="flex flex-col gap-14px">
+      <div class="flex flex-col gap-10px">
         <section
           v-for="(condition, conditionIndex) in conditionModel.conds"
           :key="condition._key"
-          class="rounded-8px border border-#e2e8f0/72 border-solid bg-white p-16px shadow-[0_8px_22px_rgba(15,23,42,0.05)] dark:border-#2f3338 dark:bg-#1f2228 dark:shadow-none [&_.n-form-item-label]:font-500 [&_.n-form-item]:mb-0"
+          class="rounded-6px border border-#e5e7eb border-solid px-14px py-12px dark:border-#2f3338"
         >
           <div
-            class="flex items-center justify-between gap-16px border-b border-b-#edf1f7 border-b-solid pb-14px dark:border-b-#2f3338 lt-sm:flex-col lt-sm:items-start"
+            class="mb-12px flex items-center justify-between gap-12px text-14px text-[var(--n-text-color-1)] font-600"
           >
-            <div class="min-w-0 flex items-center gap-10px">
-              <span
-                class="h-28px w-28px flex flex-none items-center justify-center rounded-8px bg-#eff6ff text-13px text-#2563eb font-600 dark:bg-#172554 dark:text-#93c5fd"
-              >
-                {{ conditionIndex + 1 }}
-              </span>
-              <div>
-                <div class="text-14px text-[var(--n-text-color-1)] font-600 leading-20px">
-                  条件项 {{ conditionIndex + 1 }}
-                </div>
-              </div>
-            </div>
-            <div class="flex flex-none items-center gap-8px lt-sm:w-full lt-sm:justify-end">
-              <ButtonIcon
-                size="small"
-                type="error"
-                icon="material-symbols:delete-outline"
-                tooltip-content="删除条件项"
-                :disabled="props.disabled"
-                @click="removeCondition(conditionIndex)"
-              />
-            </div>
+            <span>条件项 {{ conditionIndex + 1 }}</span>
+            <ButtonIcon
+              size="small"
+              type="error"
+              icon="material-symbols:delete-outline"
+              tooltip-content="删除条件项"
+              :disabled="props.disabled"
+              @click="removeCondition(conditionIndex)"
+            />
           </div>
 
-          <NForm class="mt-14px" label-placement="top" :show-feedback="false" :disabled="props.disabled">
+          <NForm label-placement="top" :show-feedback="false" :disabled="props.disabled">
             <NGrid responsive="screen" item-responsive :x-gap="16" :y-gap="4">
               <NFormItemGi :span="props.hideConditionRelation ? 24 : '24 m:16'" :label="conditionDeviceLabel">
                 <RemoteSearchSelect
@@ -249,32 +232,25 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
             </NGrid>
           </NForm>
 
-          <div class="mt-14px rounded-8px bg-#f8fafc p-12px dark:bg-#18181c">
-            <div class="mb-10px flex items-center justify-between gap-12px lt-sm:flex-col lt-sm:items-start">
-              <div class="text-13px text-[var(--n-text-color-1)] font-600 leading-18px">点位条件</div>
+          <div class="mt-4px">
+            <div class="mb-8px flex items-center justify-between gap-12px text-13px text-[var(--n-text-color-3)]">
+              <span>点位阈值设置</span>
               <NButton
-                class="flex-none"
                 size="small"
                 type="primary"
-                secondary
+                text
                 :disabled="props.disabled"
                 @click="addConditionPoint(condition)"
               >
-                <template #icon>
-                  <SvgIcon icon="material-symbols:add-rounded" />
-                </template>
-                新增点位
+                <template #icon><SvgIcon icon="material-symbols:add-rounded" /></template>
+                添加阈值
               </NButton>
             </div>
             <div class="flex flex-col gap-8px">
-              <div
-                v-for="(point, pointIndex) in condition.sub_conds"
-                :key="point._key"
-                class="rounded-6px border border-#edf1f7 border-solid bg-white px-12px py-10px dark:border-#2f3338 dark:bg-#202126"
-              >
-                <NForm label-placement="top" :show-feedback="false" :disabled="props.disabled">
+              <div v-for="(point, pointIndex) in condition.sub_conds" :key="point._key" class="[&_.n-form-item]:mb-0">
+                <NForm :show-label="false" :show-feedback="false" :disabled="props.disabled">
                   <NGrid responsive="screen" item-responsive :x-gap="12" :y-gap="4">
-                    <NFormItemGi span="24 m:3" label="点位关系">
+                    <NFormItemGi span="24 m:3">
                       <NSelect
                         v-model:value="point.logic_operator_type"
                         :disabled="props.disabled || pointIndex === 0"
@@ -282,7 +258,7 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
                         placeholder="请选择关系"
                       />
                     </NFormItemGi>
-                    <NFormItemGi span="24 m:7" label="点位名称">
+                    <NFormItemGi span="24 m:6">
                       <RemoteSearchSelect
                         v-model:value="point.device_type_point_id"
                         :disabled="!condition.device_source_id"
@@ -300,7 +276,7 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
                         @selected-change="syncConditionPoint(point, $event)"
                       />
                     </NFormItemGi>
-                    <NFormItemGi span="24 m:4" label="阈值">
+                    <NFormItemGi span="24 m:4">
                       <NSelect
                         v-model:value="point.threshold_type"
                         :disabled="!point.data_type"
@@ -308,7 +284,7 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
                         placeholder="请选择阈值"
                       />
                     </NFormItemGi>
-                    <NFormItemGi span="24 m:8" label="值">
+                    <NFormItemGi span="24 m:9">
                       <TaskPointValueInput
                         v-model:value="point.single_val"
                         v-model:range-value="point.range_val"
@@ -318,7 +294,7 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
                         :disabled="!point.data_type"
                       />
                     </NFormItemGi>
-                    <NFormItemGi span="24 m:2" label="操作">
+                    <NFormItemGi span="24 m:2">
                       <ButtonIcon
                         class="w-full"
                         size="small"
@@ -339,24 +315,11 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
 
       <section
         v-if="props.showConditionFreq"
-        class="mt-2px rounded-8px border border-#e2e8f0/72 border-solid bg-white p-16px shadow-[0_8px_22px_rgba(15,23,42,0.05)] dark:border-#2f3338 dark:bg-#1f2228 dark:shadow-none [&_.n-form-item-label]:font-500 [&_.n-form-item]:mb-0"
+        class="rounded-6px border border-#e5e7eb border-solid px-16px py-14px dark:border-#2f3338"
       >
-        <div
-          class="flex items-center justify-between gap-16px border-b border-b-#edf1f7 border-b-solid pb-14px dark:border-b-#2f3338 lt-sm:flex-col lt-sm:items-start"
-        >
-          <div class="min-w-0 flex items-center gap-10px">
-            <span
-              class="h-28px w-28px flex flex-none items-center justify-center rounded-8px bg-#eff6ff text-13px text-#2563eb font-600 dark:bg-#172554 dark:text-#93c5fd"
-            >
-              频
-            </span>
-            <div>
-              <div class="text-14px text-[var(--n-text-color-1)] font-600 leading-20px">触发频率</div>
-            </div>
-          </div>
-        </div>
+        <div class="mb-12px text-14px text-[var(--n-text-color-1)] font-600">触发频率</div>
 
-        <NForm class="mt-14px" label-placement="top" :show-feedback="false" :disabled="props.disabled">
+        <NForm label-placement="top" :show-feedback="false" :disabled="props.disabled">
           <NGrid responsive="screen" item-responsive :x-gap="16" :y-gap="4">
             <NFormItemGi span="24 m:12" label="持续时间">
               <NInputGroup>
@@ -393,51 +356,35 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
     </template>
 
     <template v-else>
-      <SectionHeader title="执行动作" type="info">
-        <template #actions>
-          <NButton class="flex-none" size="small" type="primary" :disabled="props.disabled" @click="addAction">
-            <template #icon>
-              <SvgIcon icon="material-symbols:add-rounded" />
-            </template>
-            新增执行项
-          </NButton>
-        </template>
-      </SectionHeader>
+      <div class="flex items-center justify-between gap-12px text-14px text-[var(--n-text-color-1)] font-600">
+        <span>执行动作</span>
+        <NButton text type="primary" :disabled="props.disabled" @click="addAction">
+          <template #icon><SvgIcon icon="material-symbols:add-rounded" /></template>
+          新增执行项
+        </NButton>
+      </div>
 
-      <div class="flex flex-col gap-14px">
+      <div class="flex flex-col gap-10px">
         <section
           v-for="(action, actionIndex) in actionModel.actions"
           :key="action._key"
-          class="rounded-8px border border-#e2e8f0/72 border-solid bg-white p-16px shadow-[0_8px_22px_rgba(15,23,42,0.05)] dark:border-#2f3338 dark:bg-#1f2228 dark:shadow-none [&_.n-form-item-label]:font-500 [&_.n-form-item]:mb-0"
+          class="rounded-6px border border-#e5e7eb border-solid px-14px py-12px dark:border-#2f3338"
         >
           <div
-            class="flex items-center justify-between gap-16px border-b border-b-#edf1f7 border-b-solid pb-14px dark:border-b-#2f3338 lt-sm:flex-col lt-sm:items-start"
+            class="mb-12px flex items-center justify-between gap-12px text-14px text-[var(--n-text-color-1)] font-600"
           >
-            <div class="min-w-0 flex items-center gap-10px">
-              <span
-                class="h-28px w-28px flex flex-none items-center justify-center rounded-8px bg-#ecfeff text-13px text-#0891b2 font-600 dark:bg-#164e63 dark:text-#67e8f9"
-              >
-                {{ actionIndex + 1 }}
-              </span>
-              <div>
-                <div class="text-14px text-[var(--n-text-color-1)] font-600 leading-20px">
-                  执行项 {{ actionIndex + 1 }}
-                </div>
-              </div>
-            </div>
-            <div class="flex flex-none items-center gap-8px lt-sm:w-full lt-sm:justify-end">
-              <ButtonIcon
-                size="small"
-                type="error"
-                icon="material-symbols:delete-outline"
-                tooltip-content="删除执行项"
-                :disabled="props.disabled"
-                @click="removeAction(actionIndex)"
-              />
-            </div>
+            <span>执行项 {{ actionIndex + 1 }}</span>
+            <ButtonIcon
+              size="small"
+              type="error"
+              icon="material-symbols:delete-outline"
+              tooltip-content="删除执行项"
+              :disabled="props.disabled"
+              @click="removeAction(actionIndex)"
+            />
           </div>
 
-          <NForm class="mt-14px" label-placement="top" :show-feedback="false" :disabled="props.disabled">
+          <NForm label-placement="top" :show-feedback="false" :disabled="props.disabled">
             <NGrid responsive="screen" item-responsive :x-gap="16" :y-gap="4">
               <NFormItemGi span="24 m:12" label="执行设备">
                 <RemoteSearchSelect
@@ -478,32 +425,19 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
             </NGrid>
           </NForm>
 
-          <div class="mt-14px rounded-8px bg-#f8fafc p-12px dark:bg-#18181c">
-            <div class="mb-10px flex items-center justify-between gap-12px lt-sm:flex-col lt-sm:items-start">
-              <div class="text-13px text-[var(--n-text-color-1)] font-600 leading-18px">执行点位</div>
-              <NButton
-                class="flex-none"
-                size="small"
-                type="primary"
-                secondary
-                :disabled="props.disabled"
-                @click="addActionPoint(action)"
-              >
-                <template #icon>
-                  <SvgIcon icon="material-symbols:add-rounded" />
-                </template>
+          <div class="mt-4px">
+            <div class="mb-8px flex items-center justify-between gap-12px text-13px text-[var(--n-text-color-3)]">
+              <span>执行点位设置</span>
+              <NButton size="small" type="primary" text :disabled="props.disabled" @click="addActionPoint(action)">
+                <template #icon><SvgIcon icon="material-symbols:add-rounded" /></template>
                 新增点位
               </NButton>
             </div>
             <div class="flex flex-col gap-8px">
-              <div
-                v-for="(point, pointIndex) in action.point_vals"
-                :key="point._key"
-                class="rounded-6px border border-#edf1f7 border-solid bg-white px-12px py-10px dark:border-#2f3338 dark:bg-#202126"
-              >
-                <NForm label-placement="top" :show-feedback="false" :disabled="props.disabled">
+              <div v-for="(point, pointIndex) in action.point_vals" :key="point._key" class="[&_.n-form-item]:mb-0">
+                <NForm :show-label="false" :show-feedback="false" :disabled="props.disabled">
                   <NGrid responsive="screen" item-responsive :x-gap="12" :y-gap="4">
-                    <NFormItemGi span="24 m:10" label="点位名称">
+                    <NFormItemGi span="24 m:10">
                       <RemoteSearchSelect
                         v-model:value="point.device_type_point_id"
                         :disabled="!action.device_id"
@@ -521,7 +455,7 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
                         @selected-change="syncActionPoint(point, $event)"
                       />
                     </NFormItemGi>
-                    <NFormItemGi span="24 m:12" label="执行值">
+                    <NFormItemGi span="24 m:12">
                       <TaskPointValueInput
                         v-model:value="point.point_val"
                         :data-type="point.data_type"
@@ -529,7 +463,7 @@ function updateConditionFreq(key: 'durations' | 'repeat_times', value: number | 
                         :disabled="!point.data_type"
                       />
                     </NFormItemGi>
-                    <NFormItemGi span="24 m:2" label="操作">
+                    <NFormItemGi span="24 m:2">
                       <ButtonIcon
                         class="w-full"
                         size="small"

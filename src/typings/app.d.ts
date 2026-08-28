@@ -1517,6 +1517,8 @@ declare namespace App {
             roleIds: string;
             postIds: string;
             email: string;
+            expiredAt: string;
+            expiredAtPlaceholder: string;
             avatar: string;
             remark: string;
             form: {

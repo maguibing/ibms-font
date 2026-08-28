@@ -61,14 +61,14 @@ const importMappingVisible = shallowRef(false);
 
 const searchParams = ref<SearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   name: null,
   key: props.initialSearchKey || null
 });
 
 function transformSearchParamsToRequest(): CommonType.CommonListQueryParams {
   const pageNum = searchParams.value.pageNum || 1;
-  const pageSize = searchParams.value.pageSize || 10;
+  const pageSize = searchParams.value.pageSize || 15;
   const options: CommonType.CommonTypeOptions[] = [];
 
   if (props.selectedNode) {
@@ -109,7 +109,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
     transform: response => defaultTransform<Api.Device.LogicPoint>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page ?? 1;
-      searchParams.value.pageSize = params.pageSize ?? 10;
+      searchParams.value.pageSize = params.pageSize ?? 15;
     },
     columns: (): NaiveUI.TableColumn<Api.Device.LogicPoint>[] => [
       {

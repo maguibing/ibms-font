@@ -20,13 +20,13 @@ const { hasAuth } = useAuth();
 
 const searchParams = ref<Api.System.IndustrySearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   name: null
 });
 
 function transformSearchParamsToRequest(params: Api.System.IndustrySearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs = [{ type: 1, value: params.name }];
 
   const options = filterConfigs

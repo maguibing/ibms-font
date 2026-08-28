@@ -21,7 +21,7 @@ const taskLogRelatedOptions: CommonType.CommonKeysOptions[] = [{ key: 1 }, { key
 
 const searchParams = ref<Api.Task.TaskLogSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   task_name: null,
   task_type: null
 });
@@ -31,7 +31,7 @@ const detailRowData = shallowRef<Api.Task.TaskLog | null>(null);
 
 function transformSearchParamsToRequest(params: Api.Task.TaskLogSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs = [
     { type: 104, value: '101' },
     { type: 51, value: params.task_name },

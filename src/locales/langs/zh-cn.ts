@@ -2000,6 +2000,8 @@ const local: App.I18n.Schema = {
         roleIds: '角色',
         postIds: '岗位',
         email: '邮箱',
+        expiredAt: '过期时间',
+        expiredAtPlaceholder: '不填为永久',
         avatar: '头像',
         remark: '备注',
         form: {

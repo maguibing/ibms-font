@@ -104,7 +104,7 @@ function transformSearchParamsToRequest(
   params: Api.System.DeviceOperationLogSearchParams
 ): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 50;
   const filterConfigs = [
     { type: 104, value: '101' },
     { type: 1, value: params.device_id },

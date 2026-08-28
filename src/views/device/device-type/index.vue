@@ -10,8 +10,11 @@ import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hoo
 import { useRouterPush } from '@/hooks/common/router';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
+import DataGrid from '@/components/common/data-grid.vue';
+import TableCardViewSwitch from '@/components/common/table-card-view-switch.vue';
 import DeviceTypeOperateDrawer from './modules/device-type-operate-drawer.vue';
 import DeviceTypeSearch from './modules/device-type-search.vue';
+import DeviceTypeCard from './modules/device-type-card.vue';
 import CopyableValue from '@/components/custom/copyable-value.vue';
 import { getOssUrl } from '@/utils/common-methods';
 
@@ -23,19 +26,20 @@ const appStore = useAppStore();
 const { hasAuth } = useAuth();
 const { routerPushByKey } = useRouterPush();
 const operateDrawerVisible = shallowRef(false);
+const viewMode = shallowRef<'table' | 'card'>('card');
 const operateType = shallowRef<NaiveUI.TableOperateType>('add');
 const operateRowId = shallowRef<CommonType.IdType | null>(null);
 
 const searchParams = ref<Api.Device.DeviceTypeSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   name: null,
   key: null
 });
 
 function transformSearchParamsToRequest(params: Api.Device.DeviceTypeSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs = [
     { type: 104, value: '101' },
     { type: 1, value: params.name },
@@ -55,13 +59,13 @@ function transformSearchParamsToRequest(params: Api.Device.DeviceTypeSearchParam
   };
 }
 
-const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagination, scrollX } =
+const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagination, pagination, scrollX } =
   useNaivePaginatedTable({
     api: () => fetchGetDeviceTypeList(transformSearchParamsToRequest(searchParams.value)),
     transform: response => defaultTransform<Api.Device.DeviceType>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page ?? 1;
-      searchParams.value.pageSize = params.pageSize ?? 10;
+      searchParams.value.pageSize = params.pageSize ?? 15;
     },
     columns: (): NaiveUI.TableColumn<Api.Device.DeviceType>[] => [
       {
@@ -220,7 +224,13 @@ async function handleDelete(id: CommonType.IdType) {
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <DeviceTypeSearch v-model:model="searchParams" @search="getDataByPage" />
-    <NCard title="设备类型管理" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard
+      title="设备类型管理"
+      :bordered="false"
+      size="small"
+      class="card-wrapper sm:flex-1-hidden"
+      content-class="min-h-0 flex-col-stretch overflow-hidden"
+    >
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"
@@ -229,12 +239,22 @@ async function handleDelete(id: CommonType.IdType) {
           :show-add="hasAuth('device:device-type:add')"
           :show-delete="hasAuth('device:device-type:delete')"
           :show-export="false"
+          :show-column-setting="viewMode === 'table'"
           @add="handleAdd"
           @delete="handleBatchDelete"
           @refresh="getData"
-        />
+        >
+          <template #prefix>
+            <TableCardViewSwitch
+              v-model="viewMode"
+              v-model:page="pagination.page"
+              v-model:page-size="pagination.pageSize"
+            />
+          </template>
+        </TableHeaderOperation>
       </template>
       <DataTable
+        v-if="viewMode === 'table'"
         v-model:checked-row-keys="checkedRowKeys"
         :columns="columns"
         :data="data"
@@ -246,6 +266,31 @@ async function handleDelete(id: CommonType.IdType) {
         :pagination="mobilePagination"
         class="sm:h-full"
       />
+      <DataGrid
+        v-else
+        v-model:checked-row-keys="checkedRowKeys"
+        :data="data"
+        :loading="loading"
+        :pagination="mobilePagination"
+        :row-key="row => row.id"
+        selectable
+        empty-description="暂无设备类型"
+        class="min-h-0 flex-1 overflow-hidden sm:h-full"
+      >
+        <template #default="{ item, checked, toggleChecked }">
+          <DeviceTypeCard
+            :device-type="item"
+            :checked="checked"
+            :show-view="hasAuth('device:device-type:view')"
+            :show-edit="hasAuth('device:device-type:edit')"
+            :show-delete="hasAuth('device:device-type:delete')"
+            @update:checked="toggleChecked"
+            @view="handleView(item.id)"
+            @edit="handleEdit(item)"
+            @delete="handleDelete(item.id)"
+          />
+        </template>
+      </DataGrid>
       <DeviceTypeOperateDrawer
         v-model:visible="operateDrawerVisible"
         :operate-type="operateType"

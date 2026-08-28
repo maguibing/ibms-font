@@ -31,14 +31,14 @@ const dataScopeLabelKeys: Record<Api.System.DataScope, App.I18n.I18nKey> = {
 
 const searchParams = ref<Api.System.RoleSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   name: null
 });
 
 /** 将 RoleSearchParams 转换为 CommonListQueryParams */
 function transformSearchParamsToRequest(params: Api.System.RoleSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
 
   const filterConfigs: FilterConfig[] = [{ type: 1, value: params.name }];
 

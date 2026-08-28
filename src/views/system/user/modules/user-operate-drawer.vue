@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import dayjs from 'dayjs';
 import { encryptByRsa, jsonClone } from '@sa/utils';
 import { useLoading } from '@sa/hooks';
 import { fetchCreateUser, fetchGetRoleSelect, fetchUpdateUser } from '@/service/api/system';
@@ -47,7 +48,11 @@ const title = computed(() => {
   return titles[props.operateType];
 });
 
-type Model = Api.System.UserOperateParams & { rsa_pwd: string };
+type Model = Omit<Api.System.UserOperateParams, 'expired_at'> & {
+  expired_at: string | null;
+  password: string;
+  rsa_pwd: string;
+};
 
 const model = ref<Model>(createDefaultModel());
 const {
@@ -75,6 +80,7 @@ function createDefaultModel(): Model {
     role_id: undefined,
     username: '',
     email: '',
+    expired_at: null,
     phone: '',
     gender: 3,
     status: 1,
@@ -122,6 +128,7 @@ function handleUpdateModelWhenEdit() {
   if (props.operateType === 'edit' && props.rowData) {
     startDeptLoading();
     Object.assign(model.value, jsonClone(props.rowData));
+    model.value.expired_at = props.rowData.expired_at ? dayjs.unix(props.rowData.expired_at).format('YYYY-MM-DD') : null;
     endDeptLoading();
   }
   endLoading();
@@ -136,6 +143,22 @@ async function handlePhoneBlur() {
   await checkPhone();
 }
 
+function isExpiredDateDisabled(timestamp: number) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return timestamp <= today.getTime();
+}
+
+function createSubmitModel(): Api.System.UserOperateParams {
+  const { password: _password, rsa_pwd: _rsaPwd, expired_at, ...user } = model.value;
+
+  return {
+    ...user,
+    expired_at: expired_at ? dayjs(`${expired_at} 23:59:59`).unix() : 0
+  };
+}
+
 async function handleSubmit() {
   await validate();
 
@@ -143,11 +166,12 @@ async function handleSubmit() {
     const checked = await checkPhone();
     if (!checked) return;
 
+    const submitModel = createSubmitModel();
     const params = {
       rsa_pwd: showPasswordFields.value
         ? (encryptByRsa(model.value.rsa_pwd as string, import.meta.env.VITE_APP_RSA_PUBLIC_KEY || '') as string)
         : '',
-      user: model.value
+      user: submitModel
     };
 
     const { error } = await fetchCreateUser(params);
@@ -156,7 +180,8 @@ async function handleSubmit() {
   }
 
   if (props.operateType === 'edit') {
-    const { error } = await fetchUpdateUser(model.value);
+    const submitModel = createSubmitModel();
+    const { error } = await fetchUpdateUser(submitModel);
     if (error) return;
     window.$message?.success($t('common.updateSuccess'));
   }
@@ -261,6 +286,17 @@ watch(
 
           <NFormItem :label="$t('page.system.user.email')" path="email">
             <NInput v-model:value="model.email" :placeholder="$t('page.system.user.form.email.required')" />
+          </NFormItem>
+          <NFormItem :label="$t('page.system.user.expiredAt')" path="expired_at">
+            <NDatePicker
+              v-model:formatted-value="model.expired_at"
+              type="date"
+              value-format="yyyy-MM-dd"
+              clearable
+              class="w-full"
+              :placeholder="$t('page.system.user.expiredAtPlaceholder')"
+              :is-date-disabled="isExpiredDateDisabled"
+            />
           </NFormItem>
           <NFormItem :label="$t('page.system.user.status')" path="status">
             <NRadioGroup v-model:value="model.status">

@@ -20,13 +20,13 @@ const { hasAuth } = useAuth();
 
 const searchParams = ref<Api.Space.SpaceTypeSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   keyword: null
 });
 
 function transformSearchParamsToRequest(params: Api.Space.SpaceTypeSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs = [{ type: 1, value: params.keyword }];
 
   const options = filterConfigs

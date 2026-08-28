@@ -9,7 +9,7 @@ defineOptions({
 
 const searchParams = ref<Api.Alarm.AlarmRuleSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   name: null,
   alarm_level: null
 });

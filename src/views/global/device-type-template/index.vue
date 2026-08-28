@@ -41,7 +41,7 @@ const { loading: treeLoading, startLoading: startTreeLoading, endLoading: endTre
 
 const searchParams = ref<Api.System.DeviceTypeTemplateSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   name: null,
   category_id: null
 });
@@ -70,7 +70,7 @@ function categoryFilter(pattern: string, node: TreeOption) {
 
 function transformSearchParamsToRequest(params: Api.System.DeviceTypeTemplateSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs = [
     { type: 1, value: params.category_id?.toString() },
     { type: 2, value: params.name }

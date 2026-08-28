@@ -29,7 +29,7 @@ const operateType = shallowRef<NaiveUI.TableOperateType>('add');
 const operateRowId = shallowRef<CommonType.IdType | null>(null);
 const historyModalVisible = shallowRef(false);
 const historyRow = shallowRef<Api.Device.VirtualPoint | null>(null);
-const paginationParams = ref({ page: 1, pageSize: 10 });
+const paginationParams = ref({ page: 1, pageSize: 15 });
 
 // 列表接口需要使用 offset + limit，同时请求逻辑点和物理点映射用于展示。
 const {
@@ -47,7 +47,7 @@ const {
   transform: response => defaultTransform<Api.Device.VirtualPoint>(response),
   onPaginationParamsChange: params => {
     paginationParams.value.page = params.page ?? 1;
-    paginationParams.value.pageSize = params.pageSize ?? 10;
+    paginationParams.value.pageSize = params.pageSize ?? 15;
   },
   columns: (): NaiveUI.TableColumn<Api.Device.VirtualPoint>[] => [
     { type: 'selection', align: 'center', width: 48 },

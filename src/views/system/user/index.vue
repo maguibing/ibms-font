@@ -37,7 +37,7 @@ const ROOT_DEPT: Api.Common.DeptNode = {
 
 const searchParams = ref<Api.System.UserSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   username: '',
   phone: '',
   dept_id: undefined,
@@ -47,7 +47,7 @@ const searchParams = ref<Api.System.UserSearchParams>({
 /** 将 UserSearchParams 转换为 CommonListQueryParams */
 function transformSearchParamsToRequest(params: Api.System.UserSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
 
   const dateRangeValue =
     Array.isArray(params.dateRange) && params.dateRange.length === 2

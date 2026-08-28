@@ -25,7 +25,7 @@ const searchParams = ref<Api.Monitor.ProviderSearchParams>(createDefaultSearchPa
 function createDefaultSearchParams(): Api.Monitor.ProviderSearchParams {
   return {
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 15,
     name: null,
     provider_type: null,
     status: null
@@ -34,7 +34,7 @@ function createDefaultSearchParams(): Api.Monitor.ProviderSearchParams {
 
 function transformSearchParamsToRequest(params: Api.Monitor.ProviderSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs = [
     { type: 1, value: params.name },
     { type: 3, value: params.provider_type },

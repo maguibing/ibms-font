@@ -57,7 +57,7 @@ const projectSysScreenId = computed(() => route.query.project_sys_screen_id as s
 
 const searchParams = ref<Api.Visual.ProjectSysScreenTagPointSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   device_id: null,
   logic_point_id: null,
   mapping_point_name: null
@@ -101,7 +101,7 @@ const {
   transform: response => defaultTransform<Api.Visual.ProjectSysScreenTagPoint>(response),
   onPaginationParamsChange: params => {
     searchParams.value.pageNum = params.page ?? 1;
-    searchParams.value.pageSize = params.pageSize ?? 10;
+    searchParams.value.pageSize = params.pageSize ?? 15;
   },
   columns: (): NaiveUI.TableColumn<Api.Visual.ProjectSysScreenTagPoint>[] => [
     {

@@ -31,7 +31,7 @@ const { bool: drawerVisible, setTrue: openDrawer } = useBoolean();
 const { bool: cloneModalVisible, setTrue: openCloneModal } = useBoolean();
 const searchParams = ref<Api.Visual.CustomScreenSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   name: null
 });
 
@@ -41,7 +41,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
     transform: response => defaultTransform<Api.Visual.CustomScreen>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page ?? 1;
-      searchParams.value.pageSize = params.pageSize ?? 10;
+      searchParams.value.pageSize = params.pageSize ?? 15;
     },
     columns: (): NaiveUI.TableColumn<Api.Visual.CustomScreen>[] => [
       {
@@ -214,7 +214,7 @@ const customScreenExtra = computed<Api.Visual.CustomScreenListExtra>(() => {
 
 function transformSearchParamsToRequest(params: Api.Visual.CustomScreenSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const options: CommonType.CommonTypeOptions[] = [];
 
   if (params.name) {

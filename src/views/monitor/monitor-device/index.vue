@@ -32,7 +32,7 @@ const monitorChannelId = shallowRef<CommonType.IdType>(13);
 function createDefaultMonitorSearchParams(): Api.Monitor.MonitorSearchParams {
   return {
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 15,
     name: null,
     access_type: null,
     status: null
@@ -45,7 +45,7 @@ function getMonitorAccessTypeLabel(value: Api.Monitor.MonitorAccessType | null |
 
 function transformSearchParamsToRequest(params: Api.Monitor.MonitorSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs = [
     { type: 1, value: params.name },
     { type: 3, value: params.access_type },
@@ -72,7 +72,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
     transform: response => defaultTransform<Api.Monitor.Monitor>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page ?? 1;
-      searchParams.value.pageSize = params.pageSize ?? 10;
+      searchParams.value.pageSize = params.pageSize ?? 15;
     },
     columns: (): NaiveUI.TableColumn<Api.Monitor.Monitor>[] => [
       {

@@ -9,9 +9,12 @@ import { useAuth } from '@/hooks/business/auth';
 import { defaultTransform, useNaivePaginatedTable } from '@/hooks/common/table';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
+import DataGrid from '@/components/common/data-grid.vue';
+import TableCardViewSwitch from '@/components/common/table-card-view-switch.vue';
 import GatewayOperateDrawer from './modules/gateway-operate-drawer.vue';
 import GatewaySearch from './modules/gateway-search.vue';
 import GatewayViewDrawer from './modules/gateway-view-drawer.vue';
+import GatewayCard from './modules/gateway-card.vue';
 import CopyableValue from '@/components/custom/copyable-value.vue';
 import {
   GATEWAY_LINK_STATUS_MAP,
@@ -27,6 +30,7 @@ const appStore = useAppStore();
 const { hasAuth } = useAuth();
 
 const checkedRowKeys = ref<CommonType.IdType[]>([]);
+const viewMode = ref<'table' | 'card'>('card');
 const drawerVisible = ref(false);
 const viewDrawerVisible = ref(false);
 const operateType = ref<NaiveUI.TableOperateType>('add');
@@ -34,14 +38,14 @@ const editingId = ref<CommonType.IdType | null>(null);
 const viewingId = ref<CommonType.IdType | null>(null);
 const searchParams = ref<Api.Gateway.GatewaySearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   name: null,
   protocol_type: null
 });
 
 function transformSearchParamsToRequest(params: Api.Gateway.GatewaySearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 12;
+  const pageSize = params.pageSize || 15;
   const options: CommonType.CommonTypeOptions[] = [{ type: 104, value: '101' }];
 
   if (params.name) {
@@ -62,13 +66,13 @@ function transformSearchParamsToRequest(params: Api.Gateway.GatewaySearchParams)
   };
 }
 
-const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagination, scrollX } =
+const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagination, pagination, scrollX } =
   useNaivePaginatedTable({
     api: () => fetchGetGatewayList(transformSearchParamsToRequest(searchParams.value)),
     transform: response => defaultTransform<Api.Gateway.Gateway>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page ?? 1;
-      searchParams.value.pageSize = params.pageSize ?? 10;
+      searchParams.value.pageSize = params.pageSize ?? 15;
     },
     columns: (): NaiveUI.TableColumn<Api.Gateway.Gateway>[] => [
       {
@@ -234,7 +238,13 @@ function handleSearch() {
 <template>
   <div class="h-full flex-col-stretch gap-12px overflow-hidden lt-sm:overflow-auto">
     <GatewaySearch v-model:model="searchParams" @search="handleSearch" />
-    <NCard title="边缘设备列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard
+      title="边缘设备列表"
+      :bordered="false"
+      size="small"
+      class="card-wrapper sm:flex-1-hidden"
+      content-class="min-h-0 flex-col-stretch overflow-hidden"
+    >
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"
@@ -243,12 +253,22 @@ function handleSearch() {
           :show-add="hasAuth('gateway:gateway-list:add')"
           :show-delete="hasAuth('gateway:gateway-list:delete')"
           :show-export="false"
+          :show-column-setting="viewMode === 'table'"
           @add="handleAdd"
           @delete="handleBatchDelete"
           @refresh="getData"
-        />
+        >
+          <template #prefix>
+            <TableCardViewSwitch
+              v-model="viewMode"
+              v-model:page="pagination.page"
+              v-model:page-size="pagination.pageSize"
+            />
+          </template>
+        </TableHeaderOperation>
       </template>
       <DataTable
+        v-if="viewMode === 'table'"
         v-model:checked-row-keys="checkedRowKeys"
         :columns="columns"
         :data="data"
@@ -260,6 +280,30 @@ function handleSearch() {
         :pagination="mobilePagination"
         class="sm:h-full"
       />
+      <DataGrid
+        v-else
+        v-model:checked-row-keys="checkedRowKeys"
+        :data="data"
+        :loading="loading"
+        :pagination="mobilePagination"
+        :row-key="row => row.id"
+        selectable
+        empty-description="暂无边缘设备"
+        class="min-h-0 flex-1 overflow-hidden sm:h-full"
+      >
+        <template #default="{ item, checked, toggleChecked }">
+          <GatewayCard
+            :gateway="item"
+            :checked="checked"
+            :show-edit="hasAuth('gateway:gateway-list:edit')"
+            :show-delete="hasAuth('gateway:gateway-list:delete')"
+            @update:checked="toggleChecked"
+            @view="handleView(item.id)"
+            @edit="handleEdit(item.id)"
+            @delete="handleDelete(item.id)"
+          />
+        </template>
+      </DataGrid>
       <GatewayOperateDrawer
         v-model:visible="drawerVisible"
         :operate-type="operateType"

@@ -20,14 +20,14 @@ const { hasAuth } = useAuth();
 
 const searchParams = ref<Api.Ledger.AssetsTypeSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   name: null,
   status: null
 });
 
 function transformSearchParamsToRequest(params: Api.Ledger.AssetsTypeSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs = [
     { type: 1, value: params.name },
     { type: 2, value: params.status }

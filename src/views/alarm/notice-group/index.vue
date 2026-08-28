@@ -30,13 +30,13 @@ const { hasAuth } = useAuth();
 
 const searchParams = ref<Api.Alarm.NoticeGroupSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   name: null
 });
 
 function transformSearchParamsToRequest(params: Api.Alarm.NoticeGroupSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const options: CommonType.CommonTypeOptions[] = [{ type: 104, value: '101' }];
 
   if (params.name) {

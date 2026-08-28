@@ -30,7 +30,7 @@ const logMenuOptions: LogTab[] = [
   {
     label: logTitleMap.system,
     key: 'system',
-    icon: 'material-symbols:receipt-long-outline-rounded'
+    icon: 'lucide:file-text'
   },
   {
     label: logTitleMap.device,

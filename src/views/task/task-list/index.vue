@@ -40,7 +40,7 @@ const detailRowData = shallowRef<Api.Task.Task | null>(null);
 
 const searchParams = ref<Api.Task.TaskSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   name: null
 });
 

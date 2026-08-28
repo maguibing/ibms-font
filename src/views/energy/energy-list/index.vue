@@ -52,7 +52,7 @@ const visibleEnergyTypeOptions = computed(() => {
 function createDefaultSearchParams(): Api.Energy.DevicePointEnergyListSearchParams {
   return {
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 15,
     aggregation_type: 1,
     energy_types: [],
     space_id: null,
@@ -86,7 +86,7 @@ function transformSearchParamsToRequest(
   params: Api.Energy.DevicePointEnergyListSearchParams
 ): Api.Energy.DevicePointEnergyListParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs: FilterConfig[] = [
     { type: 104, value: '101' },
     { type: 53, value: params.aggregation_type },
@@ -160,7 +160,7 @@ function transformEnergyResponse(response: unknown) {
   }
 
   const pageNum = searchParams.value.pageNum || 1;
-  const pageSize = searchParams.value.pageSize || 10;
+  const pageSize = searchParams.value.pageSize || 15;
   const normalizedResponse = createEnergyTableRecord(payload, pageNum, pageSize);
   const { device_map, logic_point_map } = normalizedResponse;
 
@@ -178,7 +178,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
     transform: transformEnergyResponse,
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page ?? 1;
-      searchParams.value.pageSize = params.pageSize ?? 10;
+      searchParams.value.pageSize = params.pageSize ?? 15;
     },
     columns: (): EnergyColumn[] => [
       {

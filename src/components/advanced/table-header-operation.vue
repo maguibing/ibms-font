@@ -13,13 +13,15 @@ interface Props {
   showAdd?: boolean;
   showDelete?: boolean;
   showExport?: boolean;
+  showColumnSetting?: boolean;
 }
 
 withDefaults(defineProps<Props>(), {
   itemAlign: undefined,
   showAdd: true,
   showDelete: true,
-  showExport: false
+  showExport: false,
+  showColumnSetting: true
 });
 
 interface Emits {
@@ -87,7 +89,7 @@ function handleExport() {
       </template>
       {{ $t('common.refresh') }}
     </NButton>
-    <TableColumnSetting v-model:columns="columns" />
+    <TableColumnSetting v-if="showColumnSetting" v-model:columns="columns" />
     <slot name="suffix"></slot>
   </NSpace>
 </template>

@@ -2022,6 +2022,8 @@ const local: App.I18n.Schema = {
         roleIds: 'Roles',
         postIds: 'Posts',
         email: 'Email',
+        expiredAt: 'Expiration Time',
+        expiredAtPlaceholder: 'Leave blank for permanent',
         avatar: 'Avatar',
         remark: 'Remark',
         form: {

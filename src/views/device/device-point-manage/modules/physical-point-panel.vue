@@ -54,7 +54,7 @@ const importPhysicalPointVisible = shallowRef(false);
 
 const searchParams = ref<Api.Device.PhysicalPointSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   gateway_id: null,
   name: null,
   key: props.initialSearchKey || null,
@@ -65,7 +65,7 @@ function transformSearchParamsToRequest(
   params: Api.Device.PhysicalPointSearchParams
 ): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs = [
     { type: 104, value: '101' },
     { type: 1, value: props.selectedGatewayId },
@@ -106,7 +106,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
     transform: response => defaultTransform<Api.Device.PhysicalPoint>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page ?? 1;
-      searchParams.value.pageSize = params.pageSize ?? 10;
+      searchParams.value.pageSize = params.pageSize ?? 15;
     },
     columns: (): NaiveUI.TableColumn<Api.Device.PhysicalPoint>[] => [
       {

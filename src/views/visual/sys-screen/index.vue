@@ -26,13 +26,13 @@ const editingCoverUrl = ref('');
 
 const searchParams = ref<Api.Visual.ProjectSysScreenSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   name: null
 });
 
 function transformSearchParamsToRequest(params: Api.Visual.ProjectSysScreenSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const options: CommonType.CommonTypeOptions[] = [{ type: 51, value: 'true' }];
 
   if (params.name) {
@@ -55,7 +55,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
     transform: response => defaultTransform<Api.Visual.ProjectSysScreen>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page ?? 1;
-      searchParams.value.pageSize = params.pageSize ?? 10;
+      searchParams.value.pageSize = params.pageSize ?? 15;
     },
     columns: () => [
       {

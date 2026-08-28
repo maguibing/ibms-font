@@ -154,10 +154,10 @@ export function useNaivePaginatedTable<ResponseData, ApiData>(
 
   const pagination = reactive({
     page: 1,
-    pageSize: 10,
+    pageSize: 15,
     itemCount: 0,
     showSizePicker: true,
-    pageSizes: [10, 20, 30, 50, 100, 200, 500, 1000],
+    pageSizes: [10, 15, 20, 30, 50, 100, 200, 500, 1000],
     prefix: showTotal.value ? page => $t('datatable.itemCount', { total: page.itemCount }) : undefined,
     onUpdatePage(page) {
       pagination.page = page;

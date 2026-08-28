@@ -62,7 +62,7 @@ const { bool: categoryDrawerVisible, setTrue: openCategoryDrawer } = useBoolean(
 const { loading: treeLoading, startLoading: startTreeLoading, endLoading: endTreeLoading } = useLoading();
 const searchParams = ref<Api.Visual.ConfigurationSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   name: null
 });
 
@@ -91,7 +91,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
     transform: response => defaultTransform<Api.Visual.Configuration>(response),
     onPaginationParamsChange: params => {
       searchParams.value.pageNum = params.page ?? 1;
-      searchParams.value.pageSize = params.pageSize ?? 10;
+      searchParams.value.pageSize = params.pageSize ?? 15;
     },
     columns: (): NaiveUI.TableColumn<Api.Visual.Configuration>[] => [
       {
@@ -279,7 +279,7 @@ function findCategoryById(
 
 function transformSearchParamsToRequest(params: Api.Visual.ConfigurationSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const options: CommonType.CommonTypeOptions[] = [
     { type: 104, value: '101' },
     { type: 5, value: String(props.configurationType) },

@@ -375,7 +375,7 @@ watch(visible, () => {
 </script>
 
 <template>
-  <NDrawer v-model:show="visible" display-directive="show" :width="1100" class="max-w-90%">
+  <NDrawer v-model:show="visible" display-directive="show" :width="950" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NSpin :show="loading">
         <div class="alarm-rule-operate-content">

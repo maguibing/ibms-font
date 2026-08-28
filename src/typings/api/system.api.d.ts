@@ -608,8 +608,11 @@ declare namespace Api {
       gender?: number;
       role_id: number;
       biz_id?: number;
+      deleted_at?: number;
       phone: string;
       email?: string;
+      expired_at?: number;
+      language?: number;
       status?: number;
     };
 
@@ -619,11 +622,13 @@ declare namespace Api {
     >;
 
     /** user operate params */
-    type UserOperateParams = CommonType.RecordNullable<
-      Pick<User, 'user_id' | 'dept_id' | 'username' | 'email' | 'phone' | 'gender' | 'status' | 'role_id'> & {
-        password: string;
-      }
-    >;
+    type UserOperateParams = CommonType.RecordNullable<User>;
+
+    /** create user params */
+    type CreateUserParams = {
+      rsa_pwd: string;
+      user: UserOperateParams;
+    };
 
     /** user profile operate params */
     type UserProfileOperateParams = CommonType.RecordNullable<Pick<User, 'username' | 'email' | 'phone' | 'gender'>>;

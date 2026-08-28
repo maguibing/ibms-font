@@ -31,13 +31,13 @@ const RULE_TYPE_STATUS_MAP: StatusTagMap = {
 
 const searchParams = ref<Api.Rule.MessageRuleSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   name: null
 });
 
 function transformSearchParamsToRequest(params: Api.Rule.MessageRuleSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const options: CommonType.CommonTypeOptions[] = [{ type: 104, value: '101' }];
 
   if (params.name) {

@@ -29,7 +29,7 @@ const { startExport, stopExport } = useExportProgress();
 
 const searchParams = ref<Api.Ledger.AssetsSearchParams>({
   pageNum: 1,
-  pageSize: 10,
+  pageSize: 15,
   sn: null,
   name: null,
   status: null,
@@ -38,7 +38,7 @@ const searchParams = ref<Api.Ledger.AssetsSearchParams>({
 
 function transformSearchParamsToRequest(params: Api.Ledger.AssetsSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs = [
     { type: 104, value: '101' },
     { type: 1, value: params.sn },

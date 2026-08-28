@@ -53,7 +53,7 @@ const statusCards = computed(() =>
 function createDefaultSearchParams(): Api.Alarm.AlarmRecordSearchParams {
   return {
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 15,
     alarm_rule_id: null,
     alarm_level: null,
     dateRange: null
@@ -62,7 +62,7 @@ function createDefaultSearchParams(): Api.Alarm.AlarmRecordSearchParams {
 
 function transformSearchParamsToRequest(params: Api.Alarm.AlarmRecordSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs = [
     ...createAlarmBaseOptions(),
     { type: 2, value: params.alarm_rule_id },

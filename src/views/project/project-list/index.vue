@@ -29,14 +29,14 @@ const versionViewDrawerRef = useTemplateRef<InstanceType<typeof ProjectVersionVi
 function createDefaultSearchParams(): Api.System.ProjectSearchParams {
   return {
     pageNum: 1,
-    pageSize: 10,
+    pageSize: 15,
     name: null
   };
 }
 
 function transformSearchParamsToRequest(params: Api.System.ProjectSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
-  const pageSize = params.pageSize || 10;
+  const pageSize = params.pageSize || 15;
   const filterConfigs: FilterConfig[] = [
     { type: 104, value: '101' },
     { type: 1, value: params.name }
