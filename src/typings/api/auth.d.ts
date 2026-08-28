@@ -165,27 +165,111 @@ declare namespace Api {
       | undefined;
 
     /** 用户基础信息 */
-    interface UserInfoUser {
-      user_id: number;
-      created_at?: number;
+    type UserInfoUser = Api.System.User;
+
+    /** 部门信息 */
+    type UserInfoDept = Api.Common.CommonRecord<{
+      biz_id: CommonType.IdType;
+      deleted_at: number;
+      id: CommonType.IdType;
+      leader_id: CommonType.IdType;
+      level: number;
+      name: string;
       p_type: number;
-      username: string;
-      account_id: number;
-      dept_id?: number;
-      gender?: number;
-      role_id: number;
-      phone: string;
-      email?: string;
-      status?: number;
+      parent_id: CommonType.IdType;
+      sort: number;
+    }>;
+
+    /** 菜单详情 */
+    interface UserInfoMenuDetail {
+      button?: {
+        perm_key: string;
+      };
+      dir?: {
+        always_show: boolean;
+        component_path: string;
+        redirect_route: string;
+        route_path: string;
+      };
+      ext_link?: {
+        url: string;
+      };
+      page?: {
+        component_path: string;
+        keep_alive: boolean;
+        route_name: string;
+        route_path: string;
+      };
     }
+
+    /** 菜单信息 */
+    type UserInfoMenu = Api.Common.CommonRecord<{
+      deleted_at: number;
+      detail: UserInfoMenuDetail;
+      icon: string;
+      id: CommonType.IdType;
+      is_visible: boolean;
+      level: number;
+      name: string;
+      p_type: number;
+      parent_id: CommonType.IdType;
+      sort: number;
+      type: Api.System.MenuNodeType;
+    }>;
+
+    /** 项目信息 */
+    type UserInfoProject = Api.Common.CommonRecord<{
+      ad_address: string;
+      ad_code: string;
+      address: string;
+      deleted_at: number;
+      desc: string;
+      id: CommonType.IdType;
+      key: string;
+      logo: string;
+      main_custom_screen_id: CommonType.IdType;
+      main_custom_screen_key: string;
+      name: string;
+      status: number;
+      version_id: CommonType.IdType;
+    }>;
+
+    /** 版本信息 */
+    type UserInfoVersion = Api.Common.CommonRecord<{
+      corp_id: CommonType.IdType;
+      deleted_at: number;
+      desc: string;
+      end_at: number;
+      id: CommonType.IdType;
+      menu_conf: {
+        menu_id_list: CommonType.IdType[];
+      };
+      name: string;
+      price_conf: {
+        day: number;
+        discount_price: number;
+        original_price: number;
+        time_type: Api.System.VersionTimeType;
+      };
+      project_id: CommonType.IdType;
+      resource_conf: {
+        data_store_day: number;
+        day_msg_num: number;
+        device_num: number;
+        project_user_num: number;
+        time_type: Api.System.VersionTimeType;
+      };
+      start_at: number;
+    }>;
 
     /** 菜单元信息 */
     interface UserInfoMenuMeta {
+      always_show: boolean;
       id: number;
       title: string;
       icon: string;
-      is_visible?: boolean;
-      keep_alive?: boolean;
+      is_visible: boolean;
+      keep_alive: boolean;
       menu_type: number;
     }
 
@@ -193,19 +277,36 @@ declare namespace Api {
     interface UserInfoMenuTreeItem {
       path: string;
       component: string;
-      name?: string;
-      redirect?: string;
+      name: string;
+      redirect: string;
       meta: UserInfoMenuMeta;
+      perm_key: string;
       children?: UserInfoMenuTreeItem[];
     }
 
+    /** 项目大屏路由元信息 */
+    interface ProjectSysScreenRouteMeta {
+      id: CommonType.IdType;
+      industry_id_list: CommonType.IdType[];
+      name: string;
+      project_sys_screen_id: CommonType.IdType;
+      project_sys_screen_is_ctrl: boolean;
+      project_sys_screen_is_mock: boolean;
+      project_sys_screen_show_3d_visual: boolean;
+      project_sys_screen_show_enter_system: boolean;
+      project_sys_screen_show_logout_button: boolean;
+      project_sys_screen_show_personal_info: boolean;
+      status: number;
+      title: string;
+      url: string;
+    }
+
     interface ProjectSysScreenRouteItem {
+      component: string;
+      name: string;
       path: string;
-      meta: {
-        project_sys_screen_id?: CommonType.IdType;
-        [key: string]: unknown;
-      };
-      [key: string]: unknown;
+      redirect: string;
+      meta: ProjectSysScreenRouteMeta;
     }
 
     /** 角色信息 */
@@ -215,18 +316,18 @@ declare namespace Api {
       role_type: number;
       menu_tree: UserInfoMenuTreeItem[];
       button_perm_key_list: string[];
-      project_sys_screen_list?: ProjectSysScreenRouteItem[];
+      project_sys_screen_list: ProjectSysScreenRouteItem[];
     }
 
     /** userinfo - 对应 /GetBaseInfo 接口 data 字段 */
     interface BaseInfo {
-      user?: UserInfoUser;
+      corp?: CorpLoginCorp;
+      dept?: UserInfoDept;
+      menu_map?: Record<string, UserInfoMenu>;
+      project?: UserInfoProject;
       role?: UserInfoRole;
-      /** 以 id 作为键的部门映射，如 { 1: { id: 1, name: 'xx' } } */
-      dept?: {
-        id: number;
-        name: string;
-      };
+      user?: UserInfoUser;
+      version?: UserInfoVersion;
     }
 
     interface CaptchaCode {

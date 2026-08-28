@@ -446,38 +446,42 @@ watch(
 <template>
   <div class="h-full min-h-0 flex-col-stretch gap-12px overflow-hidden lt-sm:overflow-auto">
     <NCard size="small" class="card-wrapper shrink-0">
-      <NForm :show-feedback="false" label-placement="left">
-        <NGrid responsive="screen" item-responsive>
-          <NFormItemGi span="24 s:12 m:8" label="点位名称" class="pr-24px">
-            <NInput
-              v-model:value="searchParams.name"
-              clearable
-              placeholder="请输入点位名称"
-              @keyup.enter="handleSearch"
-            />
-          </NFormItemGi>
-          <NFormItemGi span="24 s:12 m:8" label="点位标识" class="pr-24px">
-            <NInput
-              v-model:value="searchParams.key"
-              clearable
-              placeholder="请输入点位标识"
-              @keyup.enter="handleSearch"
-            />
-          </NFormItemGi>
-          <NFormItemGi :show-feedback="false" span="24 s:24 m:8">
-            <NSpace class="w-full" justify="end">
-              <NButton type="primary" ghost @click="handleSearch">
-                <template #icon><icon-ic-round-search class="text-icon" /></template>
-                {{ $t('common.search') }}
-              </NButton>
-              <NButton @click="handleResetSearch">
-                <template #icon><icon-ic-round-refresh class="text-icon" /></template>
-                {{ $t('common.reset') }}
-              </NButton>
-            </NSpace>
-          </NFormItemGi>
-        </NGrid>
-      </NForm>
+      <NCollapse>
+        <NCollapseItem :title="$t('common.search')" name="logic-point-search">
+          <NForm label-placement="left">
+            <NGrid responsive="screen" item-responsive>
+              <NFormItemGi span="24 s:12 m:8" label="点位名称" class="pr-24px">
+                <NInput
+                  v-model:value="searchParams.name"
+                  clearable
+                  placeholder="请输入点位名称"
+                  @keyup.enter="handleSearch"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="24 s:12 m:8" label="点位标识" class="pr-24px">
+                <NInput
+                  v-model:value="searchParams.key"
+                  clearable
+                  placeholder="请输入点位标识"
+                  @keyup.enter="handleSearch"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="24 s:24 m:8">
+                <NSpace class="w-full" justify="end">
+                  <NButton type="primary" ghost @click="handleSearch">
+                    <template #icon><icon-ic-round-search class="text-icon" /></template>
+                    {{ $t('common.search') }}
+                  </NButton>
+                  <NButton @click="handleResetSearch">
+                    <template #icon><icon-ic-round-refresh class="text-icon" /></template>
+                    {{ $t('common.reset') }}
+                  </NButton>
+                </NSpace>
+              </NFormItemGi>
+            </NGrid>
+          </NForm>
+        </NCollapseItem>
+      </NCollapse>
     </NCard>
 
     <NCard title="逻辑点位" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">

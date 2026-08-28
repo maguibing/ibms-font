@@ -1,6 +1,6 @@
 <script setup lang="tsx">
-import { computed, defineComponent, watch } from 'vue';
-import type { UploadFileInfo } from 'naive-ui';
+import { computed, defineComponent, useTemplateRef, watch } from 'vue';
+import type { UploadFileInfo, UploadInst } from 'naive-ui';
 import type { JSX } from 'vue/jsx-runtime';
 import { getAuthorizationToken } from '@/store/modules/auth/shared';
 import { getServiceBaseURL } from '@/utils/service';
@@ -65,6 +65,21 @@ const value = defineModel<string | string[]>('value');
 const fileList = defineModel<UploadFileInfo[]>('fileList', {
   default: () => []
 });
+const uploadRef = useTemplateRef<UploadInst>('uploadRef');
+
+/** 提交待上传文件 */
+function submit(fileId?: string) {
+  uploadRef.value?.submit(fileId ? { fileId } : undefined);
+}
+
+/** 丢弃待上传文件 */
+function discard(fileId: string) {
+  const file = fileList.value.find(item => item.id === fileId);
+  if (file?.status === 'pending') fileNum = Math.max(0, fileNum - 1);
+  fileList.value = fileList.value.filter(item => item.id !== fileId);
+}
+
+defineExpose({ submit, discard });
 
 /** 上传限制提示内容 */
 const TooltipContent = defineComponent({
@@ -341,6 +356,7 @@ function handleRemove({ file }: { file: UploadFileInfo }) {
 <template>
   <div class="w-full flex-col">
     <NUpload
+      ref="uploadRef"
       v-bind="$attrs"
       v-model:file-list="fileList"
       :action="`${baseURL}${action}`"
@@ -366,9 +382,11 @@ function handleRemove({ file }: { file: UploadFileInfo }) {
         <NText class="text-16px">点击或者拖动文件到该区域来上传</NText>
         <TooltipContent v-if="showTip" class="mt-8px text-center" />
       </NUploadDragger>
-      <NUploadDragger v-else>
-        <SvgIcon icon="material-symbols:image-arrow-up-outline" class="text-58px color-#d8d8db dark:color-#a1a1a2" />
-      </NUploadDragger>
+      <SvgIcon
+        v-else
+        icon="material-symbols:image-arrow-up-outline"
+        class="text-58px color-#d8d8db dark:color-#a1a1a2"
+      />
     </NUpload>
     <TooltipContent v-if="showTip && uploadType === 'image'" class="mt-12px" />
   </div>

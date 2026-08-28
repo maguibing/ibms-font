@@ -1081,6 +1081,7 @@ declare namespace App {
           personalInfo: string;
           basicInfo: string;
           updatePassword: string;
+          projectLogo: string;
           username: string;
           phoneNumber: string;
           dept: string;
@@ -1091,6 +1092,7 @@ declare namespace App {
           newPassword: string;
           confirmPassword: string;
           editAvatar: string;
+          editProjectLogo: string;
           selectImage: string;
           confirmCrop: string;
           form: {
@@ -1116,6 +1118,7 @@ declare namespace App {
             passwordUpdateSuccess: string;
             imageTypeRequired: string;
             avatarUpdateSuccess: string;
+            projectLogoUpdateSuccess: string;
           };
         };
         system: {

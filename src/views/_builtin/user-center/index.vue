@@ -8,6 +8,7 @@ import { useAuthStore } from '@/store/modules/auth';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
 import UserAvatar from './modules/user-avatar.vue';
+import ProjectLogo from './modules/project-logo.vue';
 defineOptions({
   name: 'UserCenter'
 });
@@ -251,6 +252,9 @@ async function updatePassword() {
               </NButton>
             </NFormItem>
           </NForm>
+        </NTabPane>
+        <NTabPane name="projectLogo" :tab="$t('page.userCenter.projectLogo')">
+          <ProjectLogo />
         </NTabPane>
       </NTabs>
     </NCard>

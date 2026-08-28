@@ -690,6 +690,7 @@ const local: App.I18n.Schema = {
       personalInfo: '个人信息',
       basicInfo: '基本资料',
       updatePassword: '修改密码',
+      projectLogo: '项目 Logo',
       username: '用户名',
       phoneNumber: '手机号码',
       dept: '所属部门',
@@ -700,6 +701,7 @@ const local: App.I18n.Schema = {
       newPassword: '新密码',
       confirmPassword: '确认密码',
       editAvatar: '修改头像',
+      editProjectLogo: '修改项目 Logo',
       selectImage: '选择图片',
       confirmCrop: '确认裁剪',
       form: {
@@ -739,7 +741,8 @@ const local: App.I18n.Schema = {
         passwordMismatch: '两次输入的密码不一致',
         passwordUpdateSuccess: '密码修改成功',
         imageTypeRequired: '请上传图片类型文件（JPG、PNG等）',
-        avatarUpdateSuccess: '头像更新成功！'
+        avatarUpdateSuccess: '头像更新成功！',
+        projectLogoUpdateSuccess: '项目 Logo 更新成功！'
       }
     },
     common: {

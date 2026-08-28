@@ -303,7 +303,7 @@ watch(visible, show => {
 </script>
 
 <template>
-  <NDrawer v-model:show="visible" :width="800" class="max-w-95%">
+  <NDrawer v-model:show="visible" :width="750" class="max-w-95%">
     <NDrawerContent :title="title" closable :native-scrollbar="false">
       <NSpin :show="loading">
         <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">

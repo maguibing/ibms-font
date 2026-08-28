@@ -18,6 +18,7 @@ import { useRouteStore } from '../route';
 import { useTabStore } from '../tab';
 import { useNoticeStore } from '../notice';
 import { clearAuthStorage, getToken } from './shared';
+import { $t } from '@/locales';
 
 type LoginListResult = Exclude<Api.Auth.LoginResult, undefined>;
 
@@ -37,7 +38,10 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   const userInfo: Api.Auth.BaseInfo = reactive({
     user: undefined,
     role: undefined,
-    dept: undefined
+    dept: undefined,
+    corp: undefined,
+    project: undefined,
+    version: undefined
   });
 
   const userRoles = computed(() => {
@@ -116,15 +120,8 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   }
 
   async function redirectAfterLogin(redirect: boolean) {
-    const isClear = checkTabClear();
-    let needRedirect = redirect;
-
-    if (isClear) {
-      // If the tab needs to be cleared,it means we don't need to redirect.
-      needRedirect = false;
-    }
-
-    await redirectFromLogin(needRedirect);
+    checkTabClear();
+    await redirectFromLogin(redirect);
   }
 
   /**
@@ -163,12 +160,11 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
 
         if (pass) {
           await redirectAfterLogin(redirect);
-
-          // window.$notification?.success({
-          //   title: $t('page.login.common.loginSuccess'),
-          //   content: $t('page.login.common.welcomeBack', { userName: userInfo.userName }),
-          //   duration: 4500
-          // });
+          window.$notification?.success({
+            title: $t('page.login.common.loginSuccess'),
+            content: $t('page.login.common.welcomeBack', { userName: userInfo.user?.username }),
+            duration: 4500
+          });
         }
       } else {
         loginError = error;
@@ -198,16 +194,12 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   }
 
   async function selectCorpLogin(selectCorpForm: Api.Auth.SelectCorpForm, redirect = true) {
-    // 先写入业务上下文，避免跳转后 Header 首次挂载读不到默认值
     localStg.set('loginToken', selectCorpForm.login_token);
-    localStg.set('corpId', selectCorpForm.corp_id);
     await selectLoginToken(() => fetchSelectCorp(selectCorpForm), redirect);
   }
 
   async function selectProjectLogin(selectProjectForm: Api.Auth.SelectProjectForm, redirect = true) {
-    // 先写入业务上下文，避免跳转后 Header 首次挂载读不到默认值
     localStg.set('loginToken', selectProjectForm.login_token);
-    localStg.set('projectId', selectProjectForm.project_id);
     await selectLoginToken(() => fetchSelectProject(selectProjectForm), redirect);
   }
 
@@ -251,11 +243,21 @@ export const useAuthStore = defineStore(SetupStoreId.Auth, () => {
   }
 
   async function getUserInfo() {
-    const { data: info, error } = await fetchGetBaseInfo({ options: [{ key: 1 }, { key: 2 }] });
+    const { data: info, error } = await fetchGetBaseInfo({ options: [{ key: 1 }, { key: 2 }, { key: 3 }, { key: 4 }] });
 
     if (!error) {
       // update store
       Object.assign(userInfo, info);
+
+      if (import.meta.env.VITE_APP_SCENE === 'cp') {
+        if (info.corp) localStg.set('corp', info.corp);
+        else localStg.remove('corp');
+      }
+
+      if (import.meta.env.VITE_APP_SCENE === 'pj') {
+        if (info.project) localStg.set('project', info.project);
+        else localStg.remove('project');
+      }
 
       return true;
     }

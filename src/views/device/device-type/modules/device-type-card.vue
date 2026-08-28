@@ -47,7 +47,7 @@ const emit = defineEmits<{
       {{ deviceType.name || '-' }}
     </NEllipsis>
     <div class="mt-9px min-w-0 flex items-center gap-8px text-13px text-[var(--n-text-color-2)]">
-      <span class="shrink-0">设备类型标识</span>
+      <span class="shrink-0">标识</span>
       <CopyableValue :value="deviceType.key" @click.stop />
     </div>
     <div class="mt-7px flex items-center gap-8px text-13px text-[var(--n-text-color-2)]">

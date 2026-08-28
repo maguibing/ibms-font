@@ -19,6 +19,6 @@ export function clearAuthStorage() {
   localStg.remove('token');
   localStg.remove('refreshToken');
   localStg.remove('loginToken');
-  localStg.remove('corpId');
-  localStg.remove('projectId');
+  localStg.remove('corp');
+  localStg.remove('project');
 }

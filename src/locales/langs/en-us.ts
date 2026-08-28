@@ -708,6 +708,7 @@ const local: App.I18n.Schema = {
       personalInfo: 'Personal Info',
       basicInfo: 'Basic Info',
       updatePassword: 'Change Password',
+      projectLogo: 'Project Logo',
       username: 'Username',
       phoneNumber: 'Phone Number',
       dept: 'Department',
@@ -718,6 +719,7 @@ const local: App.I18n.Schema = {
       newPassword: 'New Password',
       confirmPassword: 'Confirm Password',
       editAvatar: 'Edit Avatar',
+      editProjectLogo: 'Edit Project Logo',
       selectImage: 'Select Image',
       confirmCrop: 'Confirm Crop',
       form: {
@@ -757,7 +759,8 @@ const local: App.I18n.Schema = {
         passwordMismatch: 'The two passwords are inconsistent',
         passwordUpdateSuccess: 'Password changed successfully',
         imageTypeRequired: 'Please upload an image file (JPG, PNG, etc.)',
-        avatarUpdateSuccess: 'Avatar updated successfully!'
+        avatarUpdateSuccess: 'Avatar updated successfully!',
+        projectLogoUpdateSuccess: 'Project logo updated successfully!'
       }
     },
     common: {

@@ -63,6 +63,15 @@ export function fetchUpdateProject(data: Api.System.ProjectUpdateParams) {
   });
 }
 
+/** 修改项目 Logo */
+export function fetchUpdateProjectLogo(data: Api.System.ProjectLogoUpdateParams) {
+  return request({
+    url: '/UpdateProjectLogo',
+    method: 'post',
+    data
+  });
+}
+
 /** 删除项目 */
 export function fetchDeleteProject(data: Api.Common.CommonIdList) {
   return request({

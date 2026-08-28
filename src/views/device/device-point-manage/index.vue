@@ -97,7 +97,7 @@ async function handleJumpToLogicPoint(key: string) {
     </template>
 
     <div class="h-full min-h-0 flex-col-stretch overflow-hidden lt-sm:overflow-auto">
-      <NTabs v-model:value="activePointKind" type="line" animated class="shrink-0 [&_.n-tabs-nav]:mb-0">
+      <NTabs v-model:value="activePointKind" type="segment" animated class="shrink-0 [&_.n-tabs-nav]:mb-0">
         <NTabPane name="physical" tab="物理点位" />
         <NTabPane name="logic" tab="逻辑点位" />
       </NTabs>

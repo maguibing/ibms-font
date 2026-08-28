@@ -477,50 +477,54 @@ watch(
 <template>
   <div class="h-full min-h-0 flex-col-stretch gap-12px overflow-hidden lt-sm:overflow-auto">
     <NCard size="small" class="card-wrapper shrink-0">
-      <NForm :show-feedback="false" label-placement="left" :label-width="90">
-        <NGrid responsive="screen" item-responsive>
-          <NFormItemGi span="24 s:12 m:8 xl:6" label="点位名称" label-width="auto" class="pr-24px">
-            <NInput
-              v-model:value="searchParams.name"
-              clearable
-              placeholder="请输入点位名称"
-              @keyup.enter="handleSearch"
-            />
-          </NFormItemGi>
-          <NFormItemGi span="24 s:12 m:8 xl:6" label="点位标识" label-width="auto" class="pr-24px">
-            <NInput
-              v-model:value="searchParams.key"
-              clearable
-              placeholder="请输入点位标识"
-              @keyup.enter="handleSearch"
-            />
-          </NFormItemGi>
-          <NFormItemGi span="24 s:12 m:8 xl:5" label="数据类型" label-width="auto" class="pr-24px">
-            <NSelect
-              v-model:value="searchParams.data_type"
-              clearable
-              :options="DATA_TYPE_OPTIONS"
-              placeholder="请选择数据类型"
-            />
-          </NFormItemGi>
-          <NFormItemGi :show-feedback="false" span="24 s:24 m:24 xl:7">
-            <NSpace class="w-full" justify="end">
-              <NButton type="primary" ghost @click="handleSearch">
-                <template #icon>
-                  <icon-ic-round-search class="text-icon" />
-                </template>
-                {{ $t('common.search') }}
-              </NButton>
-              <NButton @click="handleResetSearch">
-                <template #icon>
-                  <icon-ic-round-refresh class="text-icon" />
-                </template>
-                {{ $t('common.reset') }}
-              </NButton>
-            </NSpace>
-          </NFormItemGi>
-        </NGrid>
-      </NForm>
+      <NCollapse>
+        <NCollapseItem :title="$t('common.search')" name="physical-point-search">
+          <NForm label-placement="left" :label-width="90">
+            <NGrid responsive="screen" item-responsive>
+              <NFormItemGi span="24 s:12 m:8 xl:6" label="点位名称" label-width="auto" class="pr-24px">
+                <NInput
+                  v-model:value="searchParams.name"
+                  clearable
+                  placeholder="请输入点位名称"
+                  @keyup.enter="handleSearch"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="24 s:12 m:8 xl:6" label="点位标识" label-width="auto" class="pr-24px">
+                <NInput
+                  v-model:value="searchParams.key"
+                  clearable
+                  placeholder="请输入点位标识"
+                  @keyup.enter="handleSearch"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="24 s:12 m:8 xl:5" label="数据类型" label-width="auto" class="pr-24px">
+                <NSelect
+                  v-model:value="searchParams.data_type"
+                  clearable
+                  :options="DATA_TYPE_OPTIONS"
+                  placeholder="请选择数据类型"
+                />
+              </NFormItemGi>
+              <NFormItemGi span="24 s:24 m:24 xl:7">
+                <NSpace class="w-full" justify="end">
+                  <NButton type="primary" ghost @click="handleSearch">
+                    <template #icon>
+                      <icon-ic-round-search class="text-icon" />
+                    </template>
+                    {{ $t('common.search') }}
+                  </NButton>
+                  <NButton @click="handleResetSearch">
+                    <template #icon>
+                      <icon-ic-round-refresh class="text-icon" />
+                    </template>
+                    {{ $t('common.reset') }}
+                  </NButton>
+                </NSpace>
+              </NFormItemGi>
+            </NGrid>
+          </NForm>
+        </NCollapseItem>
+      </NCollapse>
     </NCard>
 
     <NCard :title="physicalPointTitle" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">

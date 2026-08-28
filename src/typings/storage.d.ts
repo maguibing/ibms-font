@@ -29,10 +29,10 @@ declare namespace StorageType {
     refreshToken: string;
     /** The login token */
     loginToken: string;
-    /** The current corp id */
-    corpId: CommonType.IdType;
-    /** The current project id */
-    projectId: CommonType.IdType;
+    /** The current corp */
+    corp: Api.Auth.CorpLoginCorp;
+    /** The current project */
+    project: Api.Auth.UserInfoProject;
     /** The theme color */
     themeColor: string;
     /** The dark mode */

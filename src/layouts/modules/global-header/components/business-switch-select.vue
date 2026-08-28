@@ -48,8 +48,8 @@ const placeholder = computed(() => {
 });
 
 function getStoredSelectedId() {
-  if (isCpScene) return localStg.get('corpId');
-  if (isPjScene) return localStg.get('projectId');
+  if (isCpScene) return localStg.get('corp')?.corp_id ?? null;
+  if (isPjScene) return localStg.get('project')?.id ?? null;
 
   return null;
 }
@@ -68,13 +68,6 @@ function getDisabledReason(item: Api.Auth.CorpLoginItem) {
 /** 切换后清理页面状态并刷新 */
 async function closeAndRefresh(id: CommonType.IdType) {
   lastSelected.value = id;
-
-  if (isCpScene) {
-    localStg.set('corpId', id);
-  }
-  if (isPjScene) {
-    localStg.set('projectId', id);
-  }
 
   window.$message?.success(isCpScene ? '切换集成商成功' : '切换项目成功');
   await clearTabs([], true);

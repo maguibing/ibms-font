@@ -413,7 +413,7 @@ watch(visible, async () => {
 </script>
 
 <template>
-  <NDrawer v-model:show="visible" display-directive="show" :width="760" class="max-w-90%">
+  <NDrawer v-model:show="visible" display-directive="show" :width="750" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NSpin :show="loading">
         <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
@@ -472,7 +472,7 @@ watch(visible, async () => {
               type="textarea"
               maxlength="200"
               show-count
-              :autosize="{ minRows: 7, maxRows: 10 }"
+              :rows="3"
               :disabled="!isAddMode"
               placeholder="请输入故障描述"
             />
@@ -553,7 +553,7 @@ watch(visible, async () => {
                 type="textarea"
                 maxlength="200"
                 show-count
-                :autosize="{ minRows: 7, maxRows: 10 }"
+                :rows="3"
                 :disabled="!isDealMode"
                 placeholder="请输入处理说明"
               />

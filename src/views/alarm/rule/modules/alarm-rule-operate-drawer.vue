@@ -84,11 +84,6 @@ const deviceSourceTypeOptions: CommonType.Option<Api.Alarm.AlarmRuleDeviceSource
   { label: '设备类型', value: 2 }
 ];
 
-const statusOptions: CommonType.Option<Api.Alarm.AlarmRuleStatus>[] = [
-  { label: '启用', value: 1 },
-  { label: '停用', value: 2 }
-];
-
 const noticeGroupRequestParams: CommonType.CommonListQueryParams = {
   list_option: {
     options: createAlarmBaseOptions()
@@ -375,20 +370,29 @@ watch(visible, () => {
 </script>
 
 <template>
-  <NDrawer v-model:show="visible" display-directive="show" :width="950" class="max-w-90%">
+  <NDrawer v-model:show="visible" display-directive="show" :width="750" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NSpin :show="loading">
         <div class="alarm-rule-operate-content">
           <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
             <NGrid responsive="screen" item-responsive :x-gap="16">
-              <NFormItemGi span="24 m:12" label="报警规则名称" path="name">
-                <NInput v-model:value="model.name" maxlength="50" show-count placeholder="请输入报警规则名称" />
+              <NFormItemGi span="24" label="报警规则名称" path="name">
+                <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入报警规则名称" />
               </NFormItemGi>
-              <NFormItemGi span="24 m:6" label="报警等级" path="alarm_level">
-                <NSelect v-model:value="model.alarm_level" :options="alarmLevelOptions" placeholder="请选择报警等级" />
+              <NFormItemGi span="24 m:12" label="报警等级" path="alarm_level">
+                <NRadioGroup v-model:value="model.alarm_level">
+                  <NSpace>
+                    <NRadio v-for="item in alarmLevelOptions" :key="item.value" :value="item.value">
+                      {{ item.label }}
+                    </NRadio>
+                  </NSpace>
+                </NRadioGroup>
               </NFormItemGi>
-              <NFormItemGi span="24 m:6" label="状态" path="status">
-                <NSelect v-model:value="model.status" :options="statusOptions" placeholder="请选择状态" />
+              <NFormItemGi span="24 m:12" label="状态" path="status">
+                <NSwitch v-model:value="model.status" :checked-value="1" :unchecked-value="2">
+                  <template #checked>启用</template>
+                  <template #unchecked>停用</template>
+                </NSwitch>
               </NFormItemGi>
               <NFormItemGi span="24 m:12" label="触发类型" path="trigger_type">
                 <NSelect v-model:value="model.trigger_type" :options="triggerTypeOptions" disabled />

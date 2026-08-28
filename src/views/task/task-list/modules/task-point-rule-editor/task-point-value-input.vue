@@ -35,7 +35,6 @@ const rangeValue = defineModel<TaskRuleRangeValue>('rangeValue', {
 
 const switchOptions = computed(() => getSwitchValueOptions(props.setting));
 const enumOptions = computed(() => getEnumValueOptions(props.setting));
-const unit = computed(() => props.setting?.num_val?.unit || value.value.unit || '');
 const precision = computed(() => props.setting?.num_val?.scale);
 
 const selectValue = computed<CommonType.IdType | null>({
@@ -87,7 +86,7 @@ function normalizeInputNumber(input: unknown) {
 function updateNumberValue(pointValue: TaskRulePointValue, nextValue: number | null) {
   pointValue.value = nextValue;
   pointValue.alias = null;
-  pointValue.unit = unit.value || null;
+  pointValue.unit = props.setting?.num_val?.unit || value.value.unit || null;
 }
 
 function handleSelectValueChange(_nextValue: unknown, option: SelectOption | null) {
@@ -100,39 +99,31 @@ function handleSelectValueChange(_nextValue: unknown, option: SelectOption | nul
   <NInput v-if="props.disabled || !props.dataType" disabled placeholder="请先选择点位" />
 
   <div v-else-if="props.range && props.dataType === 1" class="grid grid-cols-[1fr_auto_1fr] items-center gap-8px">
-    <NInputGroup>
-      <NInputNumber
-        v-model:value="minNumberValue"
-        :precision="precision"
-        button-placement="right"
-        class="w-full"
-        placeholder="最小值"
-      />
-      <NInputGroupLabel v-if="unit">{{ unit }}</NInputGroupLabel>
-    </NInputGroup>
-    <span class="text-#999">至</span>
-    <NInputGroup>
-      <NInputNumber
-        v-model:value="maxNumberValue"
-        :precision="precision"
-        button-placement="right"
-        class="w-full"
-        placeholder="最大值"
-      />
-      <NInputGroupLabel v-if="unit">{{ unit }}</NInputGroupLabel>
-    </NInputGroup>
-  </div>
-
-  <NInputGroup v-else-if="props.dataType === 1">
     <NInputNumber
-      v-model:value="numberValue"
+      v-model:value="minNumberValue"
       :precision="precision"
       button-placement="right"
       class="w-full"
-      placeholder="请输入数值"
+      placeholder="最小值"
     />
-    <NInputGroupLabel v-if="unit">{{ unit }}</NInputGroupLabel>
-  </NInputGroup>
+    <span class="text-#999">至</span>
+    <NInputNumber
+      v-model:value="maxNumberValue"
+      :precision="precision"
+      button-placement="right"
+      class="w-full"
+      placeholder="最大值"
+    />
+  </div>
+
+  <NInputNumber
+    v-else-if="props.dataType === 1"
+    v-model:value="numberValue"
+    :precision="precision"
+    button-placement="right"
+    class="w-full"
+    placeholder="请输入数值"
+  />
 
   <NSelect
     v-else-if="props.dataType === 2"

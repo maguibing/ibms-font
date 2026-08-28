@@ -567,6 +567,10 @@ declare namespace Api {
       id: CommonType.IdType;
     };
 
+    type ProjectLogoUpdateParams = {
+      logo: string;
+    };
+
     type ProjectSearchParams = CommonType.RecordNullable<Pick<Project, 'name'> & Api.Common.CommonSearchParams>;
 
     /** license type */
