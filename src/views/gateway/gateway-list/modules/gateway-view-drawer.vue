@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, shallowRef, watch } from 'vue';
+import { computed, ref, shallowRef, watch } from 'vue';
 import StatusTag from '@/components/custom/status-tag.vue';
 import { useLoading } from '@sa/hooks';
 import { copyText, isClipboardSupported } from '@sa/utils';
@@ -7,6 +7,7 @@ import { fetchGetGateway } from '@/service/api/gateway';
 import { $t } from '@/locales';
 import { displayValue } from '@/utils/common-methods';
 import CopyableValue from '@/components/custom/copyable-value.vue';
+import JsCodeEditor from '@/components/custom/js-code-editor.vue';
 import {
   GATEWAY_UNKNOWN_STATUS,
   getGatewayProtocolLabel,
@@ -58,6 +59,35 @@ const isOpcUa = computed(() => protocolType.value === 6);
 const httpClientBodyEntries = computed(() =>
   recordEntries(isHttpClient.value ? protocol.value?.http_client?.token?.body : null)
 );
+const mqttExampleTab = ref<'xunrao' | 'standard'>('standard');
+const mqttReportAddress = computed(() => {
+  const currentGateway = gateway.value;
+  if (!currentGateway) return '';
+
+  return `/iot/${currentGateway.p_key}/${currentGateway.key}/report`;
+});
+const mqttExamples = computed(() => {
+  const timestamp = Math.floor(Date.now() / 1000);
+
+  return {
+    xunrao: {
+      devs: [
+        {
+          d: [{ dq: 192, m: '示例点', ts: timestamp, v: 0 }],
+          dev: '示例设备'
+        }
+      ],
+      pKey: gateway.value?.p_key || 'pkey_P0XiEV',
+      sn: gateway.value?.key || 'sn_Gow6Ae',
+      ts: timestamp,
+      ver: '2.0.0'
+    },
+    standard: {
+      device_points: [{ key: '示例点', value: '值' }]
+    }
+  };
+});
+const mqttExampleCode = computed(() => JSON.stringify(mqttExamples.value[mqttExampleTab.value], null, 2));
 
 function closeDrawer() {
   visible.value = false;
@@ -113,6 +143,21 @@ async function copyMqttBasicInfo() {
   window.$message?.error('复制失败，请手动复制');
 }
 
+async function copyMqttValue(value: string, label: string) {
+  if (!value) {
+    window.$message?.warning(`暂无可复制的${label}`);
+    return;
+  }
+
+  if (!isClipboardSupported()) {
+    window.$message?.error('当前浏览器不支持复制');
+    return;
+  }
+
+  const copied = await copyText(value);
+  window.$message?.[copied ? 'success' : 'error'](copied ? '复制成功' : '复制失败，请手动复制');
+}
+
 async function getGatewayDetail(id: CommonType.IdType) {
   startLoading();
   const { data, error } = await fetchGetGateway({ id, options: [{ key: 1 }, { key: 2 }] }).finally(endLoading);
@@ -152,11 +197,11 @@ watch(visible, () => {
             <NDescriptions label-placement="left" bordered size="small" :column="2" label-class="w-100px">
               <NDescriptionsItem label="名称">{{ displayValue(gateway.name) }}</NDescriptionsItem>
               <NDescriptionsItem label="协议">{{ getGatewayProtocolLabel(gateway.protocol_type) }}</NDescriptionsItem>
-              <NDescriptionsItem label="设备Key">
-                <CopyableValue :value="gateway.key" />
-              </NDescriptionsItem>
               <NDescriptionsItem label="主题">
                 <CopyableValue :value="gateway.p_key" />
+              </NDescriptionsItem>
+              <NDescriptionsItem label="标识">
+                <CopyableValue :value="gateway.key" />
               </NDescriptionsItem>
               <NDescriptionsItem label="用户名">
                 <CopyableValue :value="gateway.username" />
@@ -178,14 +223,62 @@ watch(visible, () => {
           <div v-if="protocol">
             <SectionHeader :title="protocolTitle" extra-class="mb-10px" />
 
-            <NDescriptions v-if="isMqtt" label-placement="left" bordered size="small" :column="2" label-class="w-120px">
-              <NDescriptionsItem label="主机域名">
-                <CopyableValue :value="protocol.mqtt?.domain" />
-              </NDescriptionsItem>
-              <NDescriptionsItem label="端口">
-                <CopyableValue :value="protocol.mqtt?.port" />
-              </NDescriptionsItem>
-            </NDescriptions>
+            <template v-if="isMqtt">
+              <NCard title="MQTT 上报配置" size="small" segmented>
+                <NDescriptions label-placement="left" bordered size="small" :column="2" label-class="w-120px">
+                  <NDescriptionsItem label="主机域名">
+                    <CopyableValue :value="protocol.mqtt?.domain" />
+                  </NDescriptionsItem>
+                  <NDescriptionsItem label="端口">
+                    <CopyableValue :value="protocol.mqtt?.port" />
+                  </NDescriptionsItem>
+                  <NDescriptionsItem label="上报地址" :span="2">
+                    <CopyableValue :value="mqttReportAddress" />
+                  </NDescriptionsItem>
+                </NDescriptions>
+
+                <NTabs v-model:value="mqttExampleTab" animated class="mt-12px">
+                  <NTabPane name="standard" tab="标准格式">
+                    <JsCodeEditor
+                      :value="mqttExampleCode"
+                      label="数据示例 JSON"
+                      readonly
+                      :show-format="false"
+                      format-parser="json"
+                      :height="220"
+                    >
+                      <template #toolbar-actions>
+                        <NButton size="tiny" secondary @click="copyMqttValue(mqttExampleCode, '数据示例')">
+                          <template #icon>
+                            <SvgIcon icon="ep:copy-document" />
+                          </template>
+                          复制示例
+                        </NButton>
+                      </template>
+                    </JsCodeEditor>
+                  </NTabPane>
+                  <NTabPane name="xunrao" tab="讯饶格式">
+                    <JsCodeEditor
+                      :value="mqttExampleCode"
+                      label="数据示例 JSON"
+                      readonly
+                      :show-format="false"
+                      format-parser="json"
+                      :height="300"
+                    >
+                      <template #toolbar-actions>
+                        <NButton size="tiny" secondary @click="copyMqttValue(mqttExampleCode, '数据示例')">
+                          <template #icon>
+                            <SvgIcon icon="ep:copy-document" />
+                          </template>
+                          复制示例
+                        </NButton>
+                      </template>
+                    </JsCodeEditor>
+                  </NTabPane>
+                </NTabs>
+              </NCard>
+            </template>
 
             <NDescriptions
               v-else-if="isHttpServer"
@@ -238,6 +331,22 @@ watch(visible, () => {
               <NDescriptionsItem label="过期秒数">
                 {{ displayValue(protocol.http_client?.token?.expire_seconds) }} 秒
               </NDescriptionsItem>
+              <NDescriptionsItem label="请求头" :span="2">
+                {{ formatRecord(protocol.http_client?.token?.headers) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem label="请求体" :span="2">
+                <div v-if="httpClientBodyEntries.length" class="flex-col gap-6px">
+                  <div
+                    v-for="[key, value] in httpClientBodyEntries"
+                    :key="key"
+                    class="grid grid-cols-[140px_minmax(0,1fr)] gap-10px"
+                  >
+                    <span class="text-#666 dark:text-#aaa">{{ key }}</span>
+                    <span>{{ displayValue(value) }}</span>
+                  </div>
+                </div>
+                <span v-else>-</span>
+              </NDescriptionsItem>
               <NDescriptionsItem label="轮询请求方法">
                 {{ displayValue(protocol.http_client?.poll_route?.method) }}
               </NDescriptionsItem>
@@ -267,22 +376,6 @@ watch(visible, () => {
               </NDescriptionsItem>
               <NDescriptionsItem label="下发令牌字段">
                 {{ displayValue(protocol.http_client?.send_route?.token_key) }}
-              </NDescriptionsItem>
-              <NDescriptionsItem label="请求头" :span="2">
-                {{ formatRecord(protocol.http_client?.token?.headers) }}
-              </NDescriptionsItem>
-              <NDescriptionsItem label="请求体" :span="2">
-                <div v-if="httpClientBodyEntries.length" class="flex-col gap-6px">
-                  <div
-                    v-for="[key, value] in httpClientBodyEntries"
-                    :key="key"
-                    class="grid grid-cols-[140px_minmax(0,1fr)] gap-10px"
-                  >
-                    <span class="text-#666 dark:text-#aaa">{{ key }}</span>
-                    <span>{{ displayValue(value) }}</span>
-                  </div>
-                </div>
-                <span v-else>-</span>
               </NDescriptionsItem>
             </NDescriptions>
 

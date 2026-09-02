@@ -36,6 +36,9 @@ declare namespace Api {
     type TokenPlacement = 1 | 2 | 3 | 4 | 5;
 
     type GatewayHttpClientRoute = {
+      body?: Record<string, string> | null;
+      content_type: string;
+      headers?: Record<string, string> | null;
       method: string;
       path: string;
       token_key: string;
@@ -45,6 +48,7 @@ declare namespace Api {
 
     type GatewayHttpClientToken = {
       body?: Record<string, string> | null;
+      content_type: string;
       expire_field: string;
       expire_seconds: number;
       headers?: Record<string, string> | null;
@@ -57,7 +61,7 @@ declare namespace Api {
     type GatewayHttpClientProtocol = {
       poll_interval: number;
       poll_route: GatewayHttpClientRoute;
-      send_route: GatewayHttpClientRoute;
+      send_route?: GatewayHttpClientRoute;
       server: string;
       timeout: number;
       token: GatewayHttpClientToken;
@@ -69,6 +73,9 @@ declare namespace Api {
     };
 
     type GatewayHttpClientRouteModel = {
+      body: GatewayHttpClientKeyValueRow[];
+      content_type: string;
+      headers: GatewayHttpClientKeyValueRow[];
       method: string;
       path: string;
       token_key: string;
@@ -77,6 +84,7 @@ declare namespace Api {
     };
 
     type GatewayHttpClientModel = {
+      is_support_send: boolean;
       poll_interval: number | null;
       poll_route: GatewayHttpClientRouteModel;
       send_route: GatewayHttpClientRouteModel;
@@ -84,6 +92,7 @@ declare namespace Api {
       timeout: number | null;
       token: {
         body: GatewayHttpClientKeyValueRow[];
+        content_type: string;
         expire_field: string;
         expire_seconds: number | null;
         headers: GatewayHttpClientKeyValueRow[];

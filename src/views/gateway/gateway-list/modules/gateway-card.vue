@@ -45,7 +45,7 @@ const emit = defineEmits<{
     <NEllipsis class="block text-16px text-[var(--n-text-color)] font-600">{{ gateway.name || '-' }}</NEllipsis>
     <div class="mt-9px min-w-0 flex items-center gap-8px text-13px text-[var(--n-text-color-2)]">
       <span class="shrink-0">标识</span>
-      <CopyableValue :value="gateway.key" @click.stop />
+      <CopyableValue class="min-w-0 flex-1" :value="gateway.key" @click.stop />
     </div>
     <div class="mt-7px flex items-center gap-8px text-13px text-[var(--n-text-color-2)]">
       <span class="shrink-0">协议</span>

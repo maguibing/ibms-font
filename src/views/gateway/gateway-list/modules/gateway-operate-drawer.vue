@@ -165,8 +165,12 @@ function createNzHttpClientModel(
 ): Api.Gateway.GatewayHttpClientModel {
   return {
     ...createGatewayHttpClientModel(),
+    is_support_send: currentHttpClient.is_support_send,
     poll_interval: 10,
     poll_route: {
+      body: [],
+      content_type: 'application/json',
+      headers: [],
       method: 'GET',
       path: '/api/Point/GetAll?pageNumber=1&pageSize=2000',
       token_key: 'Authorization',
@@ -174,6 +178,9 @@ function createNzHttpClientModel(
       with_auth: true
     },
     send_route: {
+      body: [],
+      content_type: 'application/json',
+      headers: [],
       method: 'POST',
       path: '/api/Point/SendMqMessage',
       token_key: 'Authorization',
@@ -193,6 +200,7 @@ function createNzHttpClientModel(
           value: ''
         }
       ],
+      content_type: 'application/json',
       expire_field: '',
       expire_seconds: 1800,
       headers: [],
@@ -256,6 +264,9 @@ function createHttpClientRouteModel(
   route: Api.Gateway.GatewayHttpClientRoute
 ): Api.Gateway.GatewayHttpClientRouteModel {
   return {
+    body: recordToKeyValueRows(route.body),
+    content_type: route.content_type || 'application/json',
+    headers: recordToKeyValueRows(route.headers),
     method: route.method,
     path: route.path,
     token_key: route.token_key,
@@ -286,11 +297,15 @@ function fillModelByGateway(gateway: Api.Gateway.GatewayDetail) {
     nextModel.http_client = {
       poll_interval: httpClient.poll_interval,
       poll_route: createHttpClientRouteModel(httpClient.poll_route),
-      send_route: createHttpClientRouteModel(httpClient.send_route),
+      send_route: httpClient.send_route
+        ? createHttpClientRouteModel(httpClient.send_route)
+        : createGatewayHttpClientModel().send_route,
+      is_support_send: Boolean(httpClient.send_route),
       server: httpClient.server,
       timeout: httpClient.timeout,
       token: {
         body: recordToKeyValueRows(httpClient.token.body),
+        content_type: httpClient.token.content_type || 'application/json',
         expire_field: httpClient.token.expire_field,
         expire_seconds: httpClient.token.expire_seconds,
         headers: recordToKeyValueRows(httpClient.token.headers),
@@ -410,12 +425,21 @@ function createProtocolParams(): Api.Gateway.GatewayCreateProtocol {
     protocol.data_format = model.value.data_format;
     protocol.http_client = {
       poll_interval: model.value.http_client.poll_interval ?? 5,
-      poll_route: createGatewayHttpClientRouteParams(model.value.http_client.poll_route),
-      send_route: createGatewayHttpClientRouteParams(model.value.http_client.send_route),
+      poll_route: createGatewayHttpClientRouteParams(model.value.http_client.poll_route, {
+        includeBody: model.value.http_client.poll_route.method.trim().toUpperCase() !== 'GET'
+      }),
+      ...(model.value.http_client.is_support_send
+        ? {
+            send_route: createGatewayHttpClientRouteParams(model.value.http_client.send_route, {
+              includeBody: false
+            })
+          }
+        : {}),
       server: model.value.http_client.server,
       timeout: model.value.http_client.timeout ?? 10,
       token: {
         body: gatewayHttpClientKeyValueRowsToMap(model.value.http_client.token.body),
+        content_type: model.value.http_client.token.content_type,
         expire_field: model.value.http_client.token.expire_field,
         expire_seconds: model.value.http_client.token.expire_seconds ?? 0,
         headers: gatewayHttpClientKeyValueRowsToMap(model.value.http_client.token.headers),
