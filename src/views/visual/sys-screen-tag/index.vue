@@ -46,11 +46,11 @@ const { loading: treeLoading, startLoading: startTreeLoading, endLoading: endTre
 let isMounted = false;
 
 const scopeOptions: SelectOption[] = [
-  { label: '实时数据', value: 101 },
-  { label: '导出', value: 201 },
-  { label: '状态统计', value: 303 },
-  { label: '变化量统计', value: 304 },
-  { label: '平均值统计', value: 305 }
+  { label: $t('visualSysScreenTag.realtime'), value: 101 },
+  { label: $t('visualSysScreenTag.export'), value: 201 },
+  { label: $t('visualSysScreenTag.statusStats'), value: 303 },
+  { label: $t('visualSysScreenTag.changeStats'), value: 304 },
+  { label: $t('visualSysScreenTag.averageStats'), value: 305 }
 ];
 
 const projectSysScreenId = computed(() => route.query.project_sys_screen_id as string | undefined);
@@ -76,9 +76,9 @@ function getMapFieldValue(
 }
 
 const pageTitle = computed(() => {
-  if (!projectSysScreenId.value) return '大屏标签';
+  if (!projectSysScreenId.value) return $t('visualSysScreenTag.title');
 
-  return projectSysScreenMap.value[projectSysScreenId.value]?.name || '大屏标签';
+  return projectSysScreenMap.value[projectSysScreenId.value]?.name || $t('visualSysScreenTag.title');
 });
 
 const selectable = computed(() => {
@@ -118,7 +118,7 @@ const {
     },
     {
       key: 'device_id',
-      title: '设备名称',
+      title: $t('visualSysScreenTag.device'),
       align: 'center',
       minWidth: 160,
       ellipsis: {
@@ -128,7 +128,7 @@ const {
     },
     {
       key: 'logic_point_name',
-      title: '点位名称',
+      title: $t('visualSysScreenTag.point'),
       align: 'center',
       minWidth: 160,
       ellipsis: {
@@ -138,7 +138,7 @@ const {
     },
     {
       key: 'logic_point_key',
-      title: '点位标识',
+      title: $t('visualSysScreenTag.pointKey'),
       align: 'center',
       minWidth: 160,
       ellipsis: {
@@ -148,7 +148,7 @@ const {
     },
     {
       key: 'mapping_point_name',
-      title: '映射点位名称',
+      title: $t('visualSysScreenTag.mappingPoint'),
       align: 'center',
       minWidth: 160,
       ellipsis: {
@@ -258,7 +258,7 @@ function handleResetTreeData() {
 
 function handleAddTag() {
   if (!projectSysScreenId.value) {
-    window.$message?.warning('缺少大屏ID');
+    window.$message?.warning($t('visualSysScreenTag.missingScreen'));
     return;
   }
 
@@ -292,7 +292,7 @@ function handleSubmitTag() {
 
 function handleAddTagPoint() {
   if (!projectSysScreenId.value || !selectedTagId.value) {
-    window.$message?.warning('请选择左侧标签');
+    window.$message?.warning($t('visualSysScreenTag.selectTag'));
     return;
   }
 
@@ -303,7 +303,7 @@ function handleAddTagPoint() {
 
 function handleImportTagPoint() {
   if (!projectSysScreenId.value) {
-    window.$message?.warning('缺少大屏ID');
+    window.$message?.warning($t('visualSysScreenTag.missingScreen'));
     return;
   }
 
@@ -426,7 +426,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <TableSiderLayout sider-title="大屏标签">
+  <TableSiderLayout :sider-title="$t('visualSysScreenTag.title')">
     <template #header-extra>
       <ButtonIcon
         v-if="hasAuth('visual:sys-screen-tag:add')"
@@ -465,7 +465,7 @@ onMounted(() => {
           @update:selected-keys="handleClickTree"
         >
           <template #empty>
-            <NEmpty description="暂无大屏标签" class="h-full min-h-200px justify-center" />
+            <NEmpty :description="$t('visualSysScreenTag.noTags')" class="h-full min-h-200px justify-center" />
           </template>
         </NTree>
       </NSpin>
@@ -503,13 +503,13 @@ onMounted(() => {
                 <template #icon>
                   <SvgIcon icon="material-symbols:upload-rounded" class="text-icon" />
                 </template>
-                导入
+                {{ $t('visualSysScreenTag.import') }}
               </NButton>
             </template>
           </TableHeaderOperation>
         </template>
-        <NEmpty v-if="!projectSysScreenId" description="缺少大屏ID" class="py-48px" />
-        <NEmpty v-else-if="!selectedTagId" description="请选择左侧标签" class="py-48px" />
+        <NEmpty v-if="!projectSysScreenId" :description="$t('visualSysScreenTag.missingScreen')" class="py-48px" />
+        <NEmpty v-else-if="!selectedTagId" :description="$t('visualSysScreenTag.selectTag')" class="py-48px" />
         <DataTable
           v-else
           v-model:checked-row-keys="checkedRowKeys"
@@ -544,13 +544,13 @@ onMounted(() => {
         v-model:visible="importTagPointVisible"
         :biz-type="ImportBizType.ProjectSysScreenTagPoint"
         :template-path="ImportTemplatePath.SysScreenTagPoint"
-        :template-file-name="`系统大屏标签点位_${$t('common.importTemplate')}_${new Date().getTime()}.xlsx`"
+        :template-file-name="`${$t('visualSysScreenTag.taskName')}_${$t('common.importTemplate')}_${new Date().getTime()}.xlsx`"
         :meta="{
           project_sys_screen_tag_point: {
             project_sys_screen_id: Number(projectSysScreenId)
           }
         }"
-        task-name="系统大屏标签点位"
+        :task-name="$t('visualSysScreenTag.taskName')"
         @submitted="handleImportTagPointSubmitted"
       />
     </div>

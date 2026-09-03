@@ -45,11 +45,11 @@ const model = ref<Model>(createDefaultModel());
 const expandedKeys = ref<CommonType.IdType[]>([0]);
 
 const isEdit = computed(() => props.operateType === 'edit');
-const drawerTitle = computed(() => (isEdit.value ? '编辑组态' : '新增组态'));
+const drawerTitle = computed(() => (isEdit.value ? $t('visualConfiguration.edit') : $t('visualConfiguration.add')));
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  configuration_category_id: createRequiredRule('请选择组态分类'),
-  name: createRequiredRule('请输入组态名称')
+  configuration_category_id: createRequiredRule($t('visualConfiguration.categoryPlaceholder')),
+  name: createRequiredRule($t('visualConfiguration.namePlaceholder'))
 };
 
 function createDefaultModel(): Model {
@@ -120,7 +120,7 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" display-directive="show" :width="520" class="max-w-90%">
     <NDrawerContent :title="drawerTitle" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
-        <NFormItem label="组态分类" path="configuration_category_id">
+        <NFormItem :label="$t('visualConfiguration.category')" path="configuration_category_id">
           <NTreeSelect
             v-model:value="model.configuration_category_id"
             v-model:expanded-keys="expandedKeys"
@@ -128,20 +128,25 @@ watch(visible, () => {
             :options="categories"
             label-field="name"
             key-field="id"
-            placeholder="请选择组态分类"
+            :placeholder="$t('visualConfiguration.categoryPlaceholder')"
           />
         </NFormItem>
-        <NFormItem label="组态名称" path="name">
-          <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入组态名称" />
+        <NFormItem :label="$t('visualConfiguration.name')" path="name">
+          <NInput
+            v-model:value="model.name"
+            maxlength="30"
+            show-count
+            :placeholder="$t('visualConfiguration.namePlaceholder')"
+          />
         </NFormItem>
-        <NFormItem label="组态描述">
+        <NFormItem :label="$t('visualConfiguration.description')">
           <NInput
             v-model:value="model.desc"
             type="textarea"
             :rows="3"
             maxlength="200"
             show-count
-            placeholder="请输入组态描述"
+            :placeholder="$t('visualConfiguration.descriptionPlaceholder')"
           />
         </NFormItem>
       </NForm>

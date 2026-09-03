@@ -42,19 +42,19 @@ function reset() {
       <NCollapseItem :title="$t('common.search')" name="energy-run-time-search">
         <NForm :model="model" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="设备名称" path="device_names" class="pr-24px">
+            <NFormItemGi span="24 s:12 m:8" :label="$t('energy.device')" path="device_names" class="pr-24px">
               <RemoteSearchSelect
                 v-model:value="model.device_names"
                 :request="fetchGetDeviceList"
                 :search-type="2"
                 label-field="name"
                 value-field="id"
-                placeholder="请选择设备"
+                :placeholder="$t('energy.selectDevice')"
                 multiple
                 clearable
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="统计日期" path="dateRange" class="pr-24px">
+            <NFormItemGi span="24 s:12 m:8" :label="$t('energy.date')" path="dateRange" class="pr-24px">
               <NDatePicker
                 v-model:formatted-value="dateRangeValue"
                 type="datetimerange"

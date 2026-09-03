@@ -78,37 +78,72 @@ async function search() {
       <NCollapseItem :title="$t('common.search')" name="system-operation-log-search">
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="操作人" label-width="auto" path="user_id" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('systemLog.fields.operator')"
+              label-width="auto"
+              path="user_id"
+              class="pr-24px"
+            >
               <RemoteSearchSelect
                 v-model:value="model.user_id"
                 :request="fetchOperatorList"
                 :search-type="4"
                 label-field="username"
                 value-field="user_id"
-                placeholder="请选择操作人"
+                :placeholder="$t('systemLog.placeholders.operator')"
                 clearable
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="操作类型" label-width="auto" path="operate_type" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('systemLog.fields.operateType')"
+              label-width="auto"
+              path="operate_type"
+              class="pr-24px"
+            >
               <NSelect
                 v-model:value="model.operate_type"
                 :options="operateTypeOptions"
-                placeholder="请选择操作类型"
+                :placeholder="$t('systemLog.placeholders.operateType')"
                 clearable
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="操作模块" label-width="auto" path="operate_module" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('systemLog.fields.operateModule')"
+              label-width="auto"
+              path="operate_module"
+              class="pr-24px"
+            >
               <NSelect
                 v-model:value="model.operate_module"
                 :options="operateModuleOptions"
-                placeholder="请选择操作模块"
+                :placeholder="$t('systemLog.placeholders.operateModule')"
                 clearable
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="IP" label-width="auto" path="ip" class="pr-24px">
-              <NInput v-model:value="model.ip" placeholder="请输入IP名称" clearable @keyup.enter="search" />
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('systemLog.fields.ip')"
+              label-width="auto"
+              path="ip"
+              class="pr-24px"
+            >
+              <NInput
+                v-model:value="model.ip"
+                :placeholder="$t('systemLog.placeholders.ip')"
+                clearable
+                @keyup.enter="search"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="操作时间" label-width="auto" path="dateRange" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('systemLog.fields.time')"
+              label-width="auto"
+              path="dateRange"
+              class="pr-24px"
+            >
               <NDatePicker
                 v-model:formatted-value="dateRangeCreateTime"
                 type="datetimerange"

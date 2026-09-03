@@ -33,14 +33,14 @@ const { columns, data, getDataByPage, loading, mobilePagination, scrollX, extraD
     },
     {
       key: 'created_at',
-      title: '操作时间',
+      title: $t('systemLog.fields.time'),
       align: 'center',
       minWidth: 180,
       render: row => formatDateTime(row.created_at)
     },
     {
       key: 'operator_id',
-      title: '操作人',
+      title: $t('systemLog.fields.operator'),
       align: 'center',
       minWidth: 140,
       ellipsis: {
@@ -50,7 +50,7 @@ const { columns, data, getDataByPage, loading, mobilePagination, scrollX, extraD
     },
     {
       key: 'point',
-      title: '点位',
+      title: $t('systemLog.fields.point'),
       align: 'center',
       minWidth: 140,
       ellipsis: {
@@ -60,14 +60,14 @@ const { columns, data, getDataByPage, loading, mobilePagination, scrollX, extraD
     },
     {
       key: 'is_success',
-      title: '执行结果',
+      title: $t('systemLog.fields.executeResult'),
       align: 'center',
       minWidth: 120,
       render: row => getExecuteResult(row)
     },
     {
       key: 'fail_reason',
-      title: '失败原因',
+      title: $t('systemLog.fields.failReason'),
       align: 'center',
       minWidth: 160,
       ellipsis: {
@@ -128,7 +128,7 @@ function transformSearchParamsToRequest(
 }
 
 function getOperatorName(operatorId?: CommonType.IdType) {
-  if (operatorId === undefined || operatorId === null || operatorId === '') return '系统';
+  if (operatorId === undefined || operatorId === null || operatorId === '') return $t('systemLog.defaultOperator');
 
   const raw = extraData.value as Api.System.OperationLogListExtra | null;
 
@@ -145,10 +145,8 @@ function getPointName(row: Api.System.DeviceOperationLog) {
 }
 
 function getExecuteResult(row: Api.System.DeviceOperationLog) {
-  if (row.is_success === true) return '成功';
-  if (row.is_success === false) return '失败';
-
-  return '-';
+  if (row.is_success === true) return $t('systemLog.result.success');
+  return $t('systemLog.result.failure');
 }
 
 function getFailReason(row: Api.System.DeviceOperationLog) {
@@ -159,7 +157,7 @@ function getFailReason(row: Api.System.DeviceOperationLog) {
 <template>
   <div class="system-log-content flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <DeviceOperationLogSearch v-model:model="searchParams" @search="getDataByPage" />
-    <NCard title="设备操作日志" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('systemLog.deviceTitle')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <DataTable
         :columns="columns"
         :data="data"

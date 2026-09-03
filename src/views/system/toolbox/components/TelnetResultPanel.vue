@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { $t } from '@/locales';
 import { formatLatency, getTelnetStatusText, getTelnetStatusType } from './shared';
 
 interface Props {
@@ -25,7 +26,7 @@ const latencyText = computed(() => formatLatency(props.data.latency_ms, 3));
       <div
         class="min-w-0 rounded-6px border border-[var(--n-border-color)] border-solid bg-[var(--n-color-embedded)] p-10px"
       >
-        <span class="mb-4px block text-12px text-[var(--n-text-color-3)]">目标 IP</span>
+        <span class="mb-4px block text-12px text-[var(--n-text-color-3)]">{{ $t('toolbox.common.ip') }}</span>
         <strong class="block overflow-hidden text-14px text-[var(--n-text-color-1)] text-ellipsis whitespace-nowrap">
           {{ data.ip ?? '--' }}
         </strong>
@@ -33,13 +34,15 @@ const latencyText = computed(() => formatLatency(props.data.latency_ms, 3));
       <div
         class="min-w-0 rounded-6px border border-[var(--n-border-color)] border-solid bg-[var(--n-color-embedded)] p-10px"
       >
-        <span class="mb-4px block text-12px text-[var(--n-text-color-3)]">连接延迟</span>
+        <span class="mb-4px block text-12px text-[var(--n-text-color-3)]">{{ $t('toolbox.common.latency') }}</span>
         <strong class="block overflow-hidden text-14px text-[var(--n-text-color-1)] text-ellipsis whitespace-nowrap">
           {{ latencyText }}
         </strong>
       </div>
     </div>
 
-    <div v-if="elapsed !== undefined" class="text-12px text-[var(--n-text-color-3)]">耗时 {{ elapsed }} ms</div>
+    <div v-if="elapsed !== undefined" class="text-12px text-[var(--n-text-color-3)]">
+      {{ $t('toolbox.common.elapsed', { value: elapsed }) }}
+    </div>
   </section>
 </template>

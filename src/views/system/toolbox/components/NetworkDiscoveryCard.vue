@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, shallowRef, useTemplateRef } from 'vue';
+import { $t } from '@/locales';
 import type { FormInst, FormRules } from 'naive-ui';
 import { fetchDiscoverNetwork, fetchListNetworkInterface } from '@/service/api/system';
 import NetworkDiscoveryResultPanel from './NetworkDiscoveryResultPanel.vue';
@@ -22,7 +23,9 @@ const errorText = shallowRef('');
 const elapsed = shallowRef<number>();
 
 const rules: FormRules = {
-  interface_name: [{ required: true, message: '请选择网卡接口', trigger: ['blur', 'change'] }]
+  interface_name: [
+    { required: true, message: $t('toolbox.discovery.interfacePlaceholder'), trigger: ['blur', 'change'] }
+  ]
 };
 
 const interfaceOptions = computed(() =>
@@ -35,26 +38,28 @@ const interfaceOptions = computed(() =>
 const selectedInterface = computed(() => networkInterfaces.value.find(item => item.name === form.interface_name));
 
 const scanSteps = [
-  { key: 'interface', label: '确认接口' },
-  { key: 'segment', label: '解析网段' },
-  { key: 'probe', label: '探测主机' },
-  { key: 'collect', label: '汇总结果' }
+  { key: 'interface', label: $t('toolbox.discovery.steps.interface') },
+  { key: 'segment', label: $t('toolbox.discovery.steps.segment') },
+  { key: 'probe', label: $t('toolbox.discovery.steps.probe') },
+  { key: 'collect', label: $t('toolbox.discovery.steps.collect') }
 ] as const;
 
 const scanPanelTitle = computed(() => {
-  if (status.value === 'running') return '正在扫描局域网';
-  if (status.value === 'error') return '扫描失败';
-  if (selectedInterface.value) return '接口已就绪';
+  if (status.value === 'running') return $t('toolbox.discovery.scanning');
+  if (status.value === 'error') return $t('toolbox.discovery.failed');
+  if (selectedInterface.value) return $t('toolbox.discovery.ready');
 
-  return '等待选择网卡';
+  return $t('toolbox.discovery.waiting');
 });
 
-const scanIdleText = computed(() => (selectedInterface.value ? '等待开始扫描' : '选择网卡后展示扫描目标'));
+const scanIdleText = computed(() =>
+  selectedInterface.value ? $t('toolbox.discovery.startWaiting') : $t('toolbox.discovery.targetWaiting')
+);
 
 const scanStats = computed(() => [
-  { label: '本机地址', value: selectedInterface.value?.local_addr || '--' },
-  { label: '扫描网段', value: selectedInterface.value?.cidr || '--' },
-  { label: '广播地址', value: selectedInterface.value?.broadcast_addr || '--' }
+  { label: $t('toolbox.discovery.localAddress'), value: selectedInterface.value?.local_addr || '--' },
+  { label: $t('toolbox.discovery.segment'), value: selectedInterface.value?.cidr || '--' },
+  { label: $t('toolbox.discovery.broadcast'), value: selectedInterface.value?.broadcast_addr || '--' }
 ]);
 
 async function loadNetworkInterfaces() {
@@ -116,21 +121,21 @@ onMounted(loadNetworkInterfaces);
 <template>
   <ToolCardShell
     badge="LAN"
-    description="选择网卡后扫描局域网在线主机"
+    :description="$t('toolbox.discovery.description')"
     icon="material-symbols:travel-explore-rounded"
-    title="网络发现"
+    :title="$t('toolbox.tabs.discovery')"
     tone="warning"
   >
     <template #form>
       <NForm ref="formRef" :model="form" :rules="rules" label-placement="top" :show-require-mark="false">
-        <NFormItem label="网卡接口" path="interface_name">
+        <NFormItem :label="$t('toolbox.discovery.interface')" path="interface_name">
           <NSelect
             v-model:value="form.interface_name"
             clearable
             filterable
             :loading="optionsLoading"
             :options="interfaceOptions"
-            placeholder="请选择网卡接口"
+            :placeholder="$t('toolbox.discovery.interfacePlaceholder')"
           />
         </NFormItem>
 
@@ -140,7 +145,9 @@ onMounted(loadNetworkInterfaces);
         >
           <template v-if="selectedInterface">
             <div class="flex min-w-0 items-center justify-between gap-10px">
-              <div class="text-13px text-[var(--n-title-text-color)] font-600">扫描目标</div>
+              <div class="text-13px text-[var(--n-title-text-color)] font-600">
+                {{ $t('toolbox.discovery.target') }}
+              </div>
               <NTag round size="small" type="warning">{{ selectedInterface.name }}</NTag>
             </div>
 
@@ -148,7 +155,9 @@ onMounted(loadNetworkInterfaces);
               <div
                 class="min-w-0 flex items-center gap-6px rounded-6px border border-[var(--n-border-color)] border-solid bg-[var(--n-color)] px-10px py-8px"
               >
-                <span class="shrink-0 text-12px text-[var(--n-text-color-3)]">地址</span>
+                <span class="shrink-0 text-12px text-[var(--n-text-color-3)]">
+                  {{ $t('toolbox.discovery.address') }}
+                </span>
                 <span
                   class="min-w-0 overflow-hidden text-12px text-[var(--n-text-color-2)] text-ellipsis whitespace-nowrap"
                 >
@@ -158,7 +167,9 @@ onMounted(loadNetworkInterfaces);
               <div
                 class="min-w-0 flex items-center gap-6px rounded-6px border border-[var(--n-border-color)] border-solid bg-[var(--n-color)] px-10px py-8px"
               >
-                <span class="shrink-0 text-12px text-[var(--n-text-color-3)]">网段</span>
+                <span class="shrink-0 text-12px text-[var(--n-text-color-3)]">
+                  {{ $t('toolbox.discovery.segment') }}
+                </span>
                 <span
                   class="min-w-0 overflow-hidden text-12px text-[var(--n-text-color-2)] text-ellipsis whitespace-nowrap"
                 >
@@ -168,7 +179,9 @@ onMounted(loadNetworkInterfaces);
               <div
                 class="min-w-0 flex items-center gap-6px rounded-6px border border-[var(--n-border-color)] border-solid bg-[var(--n-color)] px-10px py-8px"
               >
-                <span class="shrink-0 text-12px text-[var(--n-text-color-3)]">广播</span>
+                <span class="shrink-0 text-12px text-[var(--n-text-color-3)]">
+                  {{ $t('toolbox.discovery.broadcast') }}
+                </span>
                 <span
                   class="min-w-0 overflow-hidden text-12px text-[var(--n-text-color-2)] text-ellipsis whitespace-nowrap"
                 >
@@ -188,7 +201,9 @@ onMounted(loadNetworkInterfaces);
               <div
                 class="col-span-full min-w-0 flex items-center gap-6px rounded-6px border border-[var(--n-border-color)] border-solid bg-[var(--n-color)] px-10px py-8px"
               >
-                <span class="shrink-0 text-12px text-[var(--n-text-color-3)]">系统</span>
+                <span class="shrink-0 text-12px text-[var(--n-text-color-3)]">
+                  {{ $t('toolbox.discovery.system') }}
+                </span>
                 <span
                   class="min-w-0 overflow-hidden text-12px text-[var(--n-text-color-2)] text-ellipsis whitespace-nowrap"
                 >
@@ -197,14 +212,14 @@ onMounted(loadNetworkInterfaces);
               </div>
             </div>
           </template>
-          <NEmpty v-else class="min-h-120px" size="small" description="选择网卡后展示接口信息" />
+          <NEmpty v-else class="min-h-120px" size="small" :description="$t('toolbox.discovery.empty')" />
         </div>
 
         <NButton block :disabled="optionsLoading" :loading="discoverLoading" type="warning" @click="handleDiscover">
           <template #icon>
             <SvgIcon icon="material-symbols:travel-explore" />
           </template>
-          {{ discoverLoading ? '扫描中' : '开始扫描' }}
+          {{ discoverLoading ? $t('toolbox.discovery.scanningShort') : $t('toolbox.discovery.start') }}
         </NButton>
       </NForm>
     </template>
@@ -220,7 +235,7 @@ onMounted(loadNetworkInterfaces);
           :idle-text="scanIdleText"
           :items="scanStats"
           :result="status === 'error' ? errorText : undefined"
-          running-text="正在探测可达主机，请稍候"
+          :running-text="$t('toolbox.discovery.running')"
           :status="status"
           :steps="scanSteps"
           :title="scanPanelTitle"

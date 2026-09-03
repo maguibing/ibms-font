@@ -124,19 +124,31 @@ defineExpose({
       <NCollapseItem :title="$t('common.search')" name="tag-point-search">
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="90">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="设备名称" label-width="auto" path="device_id" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('visualSysScreenTag.device')"
+              label-width="auto"
+              path="device_id"
+              class="pr-24px"
+            >
               <RemoteSearchSelect
                 v-model:value="model.device_id"
                 :request="fetchDeviceList"
                 :search-type="2"
                 label-field="name"
                 value-field="id"
-                placeholder="请选择设备"
+                :placeholder="$t('visualSysScreenTag.selectDevice')"
                 clearable
                 @selected-change="handleLogicPointSelectedChange"
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="点位标识" label-width="auto" path="logic_point_id" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('visualSysScreenTag.pointKey')"
+              label-width="auto"
+              path="logic_point_id"
+              class="pr-24px"
+            >
               <RemoteSearchSelect
                 v-model:value="model.logic_point_id"
                 :request="fetchLogicPointList"
@@ -144,13 +156,13 @@ defineExpose({
                 :search-type="7"
                 label-field="name"
                 value-field="id"
-                placeholder="请选择点位标识"
+                :placeholder="$t('visualSysScreenTag.selectPointKey')"
                 clearable
               />
             </NFormItemGi>
             <NFormItemGi
               span="24 s:12 m:8"
-              label="映射点位名称"
+              :label="$t('visualSysScreenTag.mappingPoint')"
               label-width="auto"
               path="mapping_point_name"
               class="pr-24px"
@@ -158,7 +170,7 @@ defineExpose({
               <NInput
                 v-model:value="model.mapping_point_name"
                 clearable
-                placeholder="请输入映射点位名称"
+                :placeholder="$t('visualSysScreenTag.mappingPlaceholder')"
                 @keyup.enter="search"
               />
             </NFormItemGi>

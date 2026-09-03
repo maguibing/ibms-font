@@ -42,8 +42,19 @@ async function search() {
       <NCollapseItem :title="$t('common.search')" name="space-type-search">
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="180">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="空间类型名称" label-width="auto" path="keyword" class="pr-24px">
-              <NInput v-model:value="model.keyword" clearable placeholder="请输入关键字" @keyup.enter="search" />
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('spaceType.name')"
+              label-width="auto"
+              path="keyword"
+              class="pr-24px"
+            >
+              <NInput
+                v-model:value="model.keyword"
+                clearable
+                :placeholder="$t('spaceType.keywordPlaceholder')"
+                @keyup.enter="search"
+              />
             </NFormItemGi>
             <NFormItemGi span="24 s:12 m:16" class="pr-24px">
               <NSpace class="w-full" justify="end">

@@ -62,14 +62,14 @@ const {
   columns: () => [
     {
       key: 'space_name',
-      title: '空间名称',
+      title: $t('space.name'),
       align: 'center',
       width: 160,
       ellipsis: true
     },
     {
       key: 'space_key',
-      title: '空间标识',
+      title: $t('space.key'),
       align: 'center',
       minWidth: 150,
       ellipsis: {
@@ -79,7 +79,7 @@ const {
     },
     {
       key: 'space_type_id',
-      title: '空间类型',
+      title: $t('space.type'),
       align: 'center',
       minWidth: 120,
       ellipsis: true,
@@ -87,7 +87,7 @@ const {
     },
     {
       key: 'desc',
-      title: '描述',
+      title: $t('space.description'),
       align: 'center',
       minWidth: 180,
       ellipsis: {
@@ -194,7 +194,7 @@ function addInRow(row: Api.Space.Space) {
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <SpaceSearch v-model:model="searchParams" @search="getData" />
-    <NCard title="空间管理" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('space.management')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"
@@ -210,13 +210,13 @@ function addInRow(row: Api.Space.Space) {
               <template #icon>
                 <icon-quill-expand />
               </template>
-              展开全部
+              {{ $t('space.expandAll') }}
             </NButton>
             <NButton v-if="isCollapse" :disabled="!data.length" size="small" @click="collapseAll">
               <template #icon>
                 <icon-quill-collapse />
               </template>
-              折叠全部
+              {{ $t('space.collapseAll') }}
             </NButton>
           </template>
         </TableHeaderOperation>

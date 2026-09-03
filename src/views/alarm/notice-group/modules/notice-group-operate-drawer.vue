@@ -36,10 +36,12 @@ const visible = defineModel<boolean>('visible', {
 type Model = Api.Alarm.NoticeGroupOperateParams;
 type SelectedUser = Pick<Api.System.User, 'user_id' | 'username' | 'phone'>;
 
-const noticeTypeOptions: CommonType.Option<Api.Alarm.NoticeGroupNoticeType>[] = [{ label: '成员', value: 1 }];
+const noticeTypeOptions: CommonType.Option<Api.Alarm.NoticeGroupNoticeType>[] = [
+  { label: $t('alarmNoticeGroup.member'), value: 1 }
+];
 
 const noticeWayOptions: CommonType.Option<Api.Alarm.NoticeWay>[] = [
-  { label: '站内通知', value: 2 }
+  { label: $t('alarmNoticeGroup.inApp'), value: 2 }
   // { label: '短信', value: 1 },
   // { label: 'App 通知', value: 3 }
 ];
@@ -58,8 +60,8 @@ const { loading, startLoading, endLoading } = useLoading();
 
 const title = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增通知组',
-    edit: '编辑通知组'
+    add: $t('alarmNoticeGroup.add'),
+    edit: $t('alarmNoticeGroup.edit')
   };
 
   return titles[props.operateType];
@@ -69,10 +71,10 @@ const model = ref<Model>(createDefaultModel());
 const selectedUsers = shallowRef<SelectedUser[]>([]);
 
 const rules: Record<string, App.Global.FormRule> = {
-  name: createRequiredRule('请输入通知组名称'),
-  'notice.notice_type': createRequiredRule('请选择通知类型'),
-  'notice.user.user_id_list': createRequiredRule('请选择接收人'),
-  'notice.user.notice_way_list': createRequiredRule('请选择通知方式')
+  name: createRequiredRule($t('alarmNoticeGroup.namePlaceholder')),
+  'notice.notice_type': createRequiredRule($t('alarmNoticeGroup.typePlaceholder')),
+  'notice.user.user_id_list': createRequiredRule($t('alarmNoticeGroup.receiverPlaceholder')),
+  'notice.user.notice_way_list': createRequiredRule($t('alarmNoticeGroup.wayPlaceholder'))
 };
 
 function createDefaultNotice(): Api.Alarm.NoticeGroupNotice {
@@ -199,10 +201,15 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" display-directive="show" :width="560" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
-        <NFormItem label="通知组名称" path="name">
-          <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入通知组名称" />
+        <NFormItem :label="$t('alarmNoticeGroup.name')" path="name">
+          <NInput
+            v-model:value="model.name"
+            maxlength="30"
+            show-count
+            :placeholder="$t('alarmNoticeGroup.namePlaceholder')"
+          />
         </NFormItem>
-        <NFormItem label="通知类型" path="notice.notice_type">
+        <NFormItem :label="$t('alarmNoticeGroup.type')" path="notice.notice_type">
           <NRadioGroup :value="model.notice.notice_type" @update:value="syncNoticeType">
             <NSpace>
               <NRadio v-for="item in noticeTypeOptions" :key="item.value" :value="item.value">
@@ -211,7 +218,7 @@ watch(visible, () => {
             </NSpace>
           </NRadioGroup>
         </NFormItem>
-        <NFormItem label="接收人" path="notice.user.user_id_list">
+        <NFormItem :label="$t('alarmNoticeGroup.receiver')" path="notice.user.user_id_list">
           <RemoteSearchSelect
             v-model:value="model.notice.user.user_id_list"
             :request="fetchUserList"
@@ -222,10 +229,10 @@ watch(visible, () => {
             value-field="user_id"
             multiple
             clearable
-            placeholder="请选择接收人"
+            :placeholder="$t('alarmNoticeGroup.receiverPlaceholder')"
           />
         </NFormItem>
-        <NFormItem label="通知方式" path="notice.user.notice_way_list">
+        <NFormItem :label="$t('alarmNoticeGroup.way')" path="notice.user.notice_way_list">
           <NCheckboxGroup v-model:value="model.notice.user.notice_way_list">
             <NSpace>
               <NCheckbox v-for="item in noticeWayOptions" :key="item.value" :value="item.value">
@@ -234,14 +241,14 @@ watch(visible, () => {
             </NSpace>
           </NCheckboxGroup>
         </NFormItem>
-        <NFormItem label="描述" path="desc">
+        <NFormItem :label="$t('alarmNoticeGroup.description')" path="desc">
           <NInput
             v-model:value="model.desc"
             type="textarea"
             maxlength="200"
             show-count
             :rows="4"
-            placeholder="请输入描述"
+            :placeholder="$t('alarmNoticeGroup.descriptionPlaceholder')"
           />
         </NFormItem>
       </NForm>

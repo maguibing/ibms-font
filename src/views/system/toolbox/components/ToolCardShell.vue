@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ToolTone } from './shared';
+import { $t } from '@/locales';
 
 interface Props {
   badge: string;
@@ -51,7 +52,7 @@ defineSlots<{
       <header
         class="min-h-48px shrink-0 flex items-center justify-between border-b border-[var(--n-border-color)] border-b-solid bg-[var(--n-color-embedded)] px-16px"
       >
-        <span class="text-14px text-[var(--n-title-text-color)] font-600">测试结果</span>
+        <span class="text-14px text-[var(--n-title-text-color)] font-600">{{ $t('toolbox.result') }}</span>
       </header>
       <div class="min-h-0 flex flex-1 flex-col overflow-auto p-16px">
         <slot name="result" />

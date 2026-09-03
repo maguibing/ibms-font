@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { $t } from '@/locales';
 import type { DataTableColumns } from 'naive-ui';
 import { formatLatency } from './shared';
 
@@ -12,20 +13,20 @@ defineProps<Props>();
 const columns: DataTableColumns<Api.System.DiscoverNetworkHost> = [
   {
     key: 'index',
-    title: '序号',
+    title: $t('common.index'),
     align: 'center',
     width: '33.33%',
     render: (_, index) => index + 1
   },
   {
     key: 'ip',
-    title: 'IP 地址',
+    title: $t('toolbox.common.ip'),
     width: '33.33%',
     align: 'center'
   },
   {
     key: 'latency_ms',
-    title: '延迟',
+    title: $t('toolbox.common.latency'),
     align: 'center',
     width: '33.33%',
     render: row => formatLatency(row.latency_ms, 3)
@@ -36,9 +37,9 @@ const columns: DataTableColumns<Api.System.DiscoverNetworkHost> = [
 <template>
   <section class="h-full min-h-0 flex flex-1 flex-col gap-12px" aria-live="polite">
     <div class="flex flex-wrap gap-8px">
-      <NTag size="small" type="info">已扫描 {{ data.completed_count }}</NTag>
-      <NTag size="small" type="success">发现 {{ data.hosts.length }}</NTag>
-      <NTag v-if="elapsed !== undefined" size="small">耗时 {{ elapsed }} ms</NTag>
+      <NTag size="small" type="info">{{ $t('toolbox.discovery.scanned', { value: data.completed_count }) }}</NTag>
+      <NTag size="small" type="success">{{ $t('toolbox.discovery.found', { value: data.hosts.length }) }}</NTag>
+      <NTag v-if="elapsed !== undefined" size="small">{{ $t('toolbox.common.elapsed', { value: elapsed }) }}</NTag>
     </div>
 
     <div class="min-h-240px flex-1 overflow-hidden">

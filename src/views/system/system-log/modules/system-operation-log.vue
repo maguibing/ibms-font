@@ -34,14 +34,14 @@ const { columns, data, getDataByPage, loading, mobilePagination, scrollX, extraD
     },
     {
       key: 'created_at',
-      title: '操作时间',
+      title: $t('systemLog.fields.time'),
       align: 'center',
       minWidth: 180,
       render: row => formatDateTime(row.created_at)
     },
     {
       key: 'user_id',
-      title: '操作人',
+      title: $t('systemLog.fields.operator'),
       align: 'center',
       minWidth: 140,
       ellipsis: {
@@ -51,7 +51,7 @@ const { columns, data, getDataByPage, loading, mobilePagination, scrollX, extraD
     },
     {
       key: 'operate_type',
-      title: '操作类型',
+      title: $t('systemLog.fields.operateType'),
       align: 'center',
       minWidth: 120,
       render: row =>
@@ -63,7 +63,7 @@ const { columns, data, getDataByPage, loading, mobilePagination, scrollX, extraD
     },
     {
       key: 'operate_module',
-      title: '操作模块',
+      title: $t('systemLog.fields.operateModule'),
       align: 'center',
       minWidth: 120,
       render: row =>
@@ -85,7 +85,7 @@ const { columns, data, getDataByPage, loading, mobilePagination, scrollX, extraD
     },
     {
       key: 'desc',
-      title: '操作详情',
+      title: $t('systemLog.fields.detail'),
       align: 'center',
       minWidth: 200,
       ellipsis: {
@@ -159,7 +159,7 @@ function getOperatorName(userId?: CommonType.IdType) {
 <template>
   <div class="system-log-content flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <SystemOperationLogSearch v-model:model="searchParams" @search="getDataByPage" />
-    <NCard title="系统日志" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('systemLog.title')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <DataTable
         :columns="columns"
         :data="data"

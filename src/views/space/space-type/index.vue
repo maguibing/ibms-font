@@ -65,7 +65,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '空间类型名称',
+        title: $t('spaceType.name'),
         align: 'center',
         minWidth: 140,
         ellipsis: {
@@ -74,7 +74,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'desc',
-        title: '描述',
+        title: $t('spaceType.description'),
         align: 'center',
         minWidth: 180,
         ellipsis: {
@@ -84,7 +84,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'created_at',
-        title: '创建时间',
+        title: $t('spaceType.createdAt'),
         align: 'center',
         minWidth: 180,
         render: row => formatDateTime(row.created_at)
@@ -164,7 +164,7 @@ function edit(id: CommonType.IdType) {
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <SpaceTypeSearch v-model:model="searchParams" @search="getDataByPage" />
-    <NCard title="空间类型管理" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('spaceType.management')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

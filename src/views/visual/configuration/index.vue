@@ -41,7 +41,7 @@ const LOCAL_FUXA_BASE_URL = 'http://localhost:4200/#/';
 
 const ROOT_CATEGORY: Api.Visual.ConfigurationCategory = {
   id: 0,
-  name: '全部',
+  name: $t('visualConfiguration.all'),
   parent_id: 0
 };
 
@@ -108,7 +108,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'thumb_url',
-        title: '缩略图',
+        title: $t('visualConfiguration.thumbnail'),
         align: 'center',
         minWidth: 140,
         render: row => {
@@ -122,7 +122,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'name',
-        title: '组态名称',
+        title: $t('visualConfiguration.name'),
         align: 'center',
         minWidth: 180,
         ellipsis: {
@@ -131,7 +131,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'key',
-        title: '组态标识',
+        title: $t('visualConfiguration.key'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -141,7 +141,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'last_save_user_id',
-        title: '最后保存人',
+        title: $t('visualConfiguration.lastSaveUser'),
         align: 'center',
         minWidth: 140,
         ellipsis: {
@@ -151,7 +151,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'last_publish_user_id',
-        title: '最后发布人',
+        title: $t('visualConfiguration.lastPublishUser'),
         align: 'center',
         minWidth: 140,
         ellipsis: {
@@ -161,14 +161,14 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'publish_status',
-        title: '发布状态',
+        title: $t('visualConfiguration.publishStatus'),
         align: 'center',
         minWidth: 100,
-        render: row => <NTag type={row.publish_at ? 'success' : 'error'}>{row.publish_at ? '已发布' : '未发布'}</NTag>
+        render: row => <NTag type={row.publish_at ? 'success' : 'error'}>{row.publish_at ? $t('visualConfiguration.published') : $t('visualConfiguration.unpublished')}</NTag>
       },
       {
         key: 'updated_at',
-        title: '更新时间',
+        title: $t('visualConfiguration.updatedAt'),
         align: 'center',
         minWidth: 180,
         render: row => (row.updated_at ? formatDateTime(row.updated_at) : '-')
@@ -195,7 +195,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               text
               type="primary"
               icon="material-symbols:design-services-outline"
-              tooltipContent="设计"
+              tooltipContent={$t('visualConfiguration.design')}
               onClick={() => handleOpenDesign(row)}
             />
           );
@@ -205,7 +205,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               text
               type="primary"
               icon="material-symbols:visibility-outline"
-              tooltipContent="预览"
+              tooltipContent={$t('visualConfiguration.preview')}
               onClick={() => handleOpenPreview(row)}
             />
           );
@@ -215,7 +215,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               text
               type="primary"
               icon="material-symbols:content-copy-outline"
-              tooltipContent="克隆"
+              tooltipContent={$t('visualConfiguration.clone')}
               onClick={() => handleCloneConfiguration(row)}
             />
           );
@@ -410,7 +410,7 @@ function handleOpenDesign(row: Api.Visual.Configuration) {
 
 function handleOpenPreview(row: Api.Visual.Configuration) {
   if (!row.publish_at) {
-    window.$message?.warning('组态未发布,无法预览');
+    window.$message?.warning($t('visualConfiguration.notPublished'));
     return;
   }
 
@@ -547,7 +547,7 @@ getCategoryData();
 </script>
 
 <template>
-  <TableSiderLayout sider-title="组态分类" default-expanded>
+  <TableSiderLayout :sider-title="$t('visualConfiguration.category')" default-expanded>
     <template #header-extra>
       <ButtonIcon
         v-if="props.configurationType !== 2 || hasAuth('visual:fuxa:category:add')"
@@ -587,7 +587,7 @@ getCategoryData();
           @update:selected-keys="handleClickTree"
         >
           <template #empty>
-            <NEmpty description="暂无属性分类" class="h-full min-h-200px justify-center" />
+            <NEmpty :description="$t('visualConfiguration.emptyCategory')" class="h-full min-h-200px justify-center" />
           </template>
         </NTree>
       </NSpin>
@@ -595,7 +595,7 @@ getCategoryData();
     <div class="h-full flex-col-stretch gap-12px overflow-hidden lt-sm:overflow-auto">
       <ConfigurationSearch v-model:model="searchParams" @search="handleSearch" />
       <NCard
-        :title="`组态列表 - ${selectedCategoryName}`"
+        :title="`${$t('visualConfiguration.list')} - ${selectedCategoryName}`"
         :bordered="false"
         size="small"
         class="card-wrapper sm:flex-1-hidden"

@@ -38,7 +38,7 @@ const { loading, startLoading, endLoading } = useLoading();
 const model = ref<Model>(createDefaultModel());
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  name: createRequiredRule('请输入大屏名称')
+  name: createRequiredRule($t('visualCustomScreen.namePlaceholder'))
 };
 
 function createDefaultModel(): Model {
@@ -86,19 +86,24 @@ watch(visible, () => {
 </script>
 
 <template>
-  <NModal v-model:show="visible" preset="card" title="克隆自定义大屏" class="w-520px max-w-90%">
+  <NModal v-model:show="visible" preset="card" :title="$t('visualCustomScreen.cloneTitle')" class="w-520px max-w-90%">
     <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
-      <NFormItem label="大屏名称" path="name">
-        <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入大屏名称" />
+      <NFormItem :label="$t('visualCustomScreen.name')" path="name">
+        <NInput
+          v-model:value="model.name"
+          maxlength="30"
+          show-count
+          :placeholder="$t('visualCustomScreen.namePlaceholder')"
+        />
       </NFormItem>
-      <NFormItem label="大屏描述">
+      <NFormItem :label="$t('visualCustomScreen.description')">
         <NInput
           v-model:value="model.desc"
           type="textarea"
           :rows="3"
           maxlength="200"
           show-count
-          placeholder="请输入大屏描述"
+          :placeholder="$t('visualCustomScreen.descriptionPlaceholder')"
         />
       </NFormItem>
     </NForm>

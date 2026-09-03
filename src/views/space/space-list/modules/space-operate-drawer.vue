@@ -45,15 +45,15 @@ const model = ref<Model>(createDefaultModel());
 
 const title = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增空间',
-    edit: '编辑空间'
+    add: $t('space.add'),
+    edit: $t('space.edit')
   };
   return titles[props.operateType];
 });
 
 const rules: Record<string, App.Global.FormRule> = {
-  name: createRequiredRule('请输入空间名称'),
-  space_key: createRequiredRule('请输入空间标识')
+  name: createRequiredRule($t('space.namePlaceholder')),
+  space_key: createRequiredRule($t('space.keyPlaceholder'))
 };
 
 function getRowSpaceId(row = props.rowData): CommonType.IdType | undefined {
@@ -157,7 +157,7 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="700" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
-        <NFormItem label="上级空间" path="parent_id">
+        <NFormItem :label="$t('space.parent')" path="parent_id">
           <NTreeSelect
             v-model:value="model.parent_id"
             v-model:expanded-keys="expandedKeys"
@@ -167,16 +167,16 @@ watch(visible, () => {
             :options="spaceData"
             label-field="space_name"
             key-field="space_id"
-            placeholder="请选择上级空间"
+            :placeholder="$t('space.selectParent')"
           />
         </NFormItem>
-        <NFormItem label="空间名称" path="name">
-          <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入空间名称" />
+        <NFormItem :label="$t('space.name')" path="name">
+          <NInput v-model:value="model.name" maxlength="30" show-count :placeholder="$t('space.namePlaceholder')" />
         </NFormItem>
-        <NFormItem label="空间标识" path="key">
-          <NInput v-model:value="model.key" maxlength="48" show-count placeholder="请输入空间标识" />
+        <NFormItem :label="$t('space.key')" path="key">
+          <NInput v-model:value="model.key" maxlength="48" show-count :placeholder="$t('space.keyPlaceholder')" />
         </NFormItem>
-        <NFormItem label="空间类型" path="space_type_id">
+        <NFormItem :label="$t('space.type')" path="space_type_id">
           <ApiSelect
             v-model:value="model.space_type_id"
             :request="fetchGetSpaceTypeList"
@@ -184,17 +184,17 @@ watch(visible, () => {
             clearable
             label-field="name"
             value-field="id"
-            placeholder="请选择空间类型"
+            :placeholder="$t('space.selectType')"
           />
         </NFormItem>
-        <NFormItem label="描述" path="desc">
+        <NFormItem :label="$t('space.description')" path="desc">
           <NInput
             v-model:value="model.desc"
             type="textarea"
             maxlength="200"
             show-count
             :rows="4"
-            placeholder="请输入描述"
+            :placeholder="$t('space.descriptionPlaceholder')"
           />
         </NFormItem>
       </NForm>

@@ -58,7 +58,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'thumb_url',
-        title: '缩略图',
+        title: $t('visualCustomScreen.thumbnail'),
         align: 'center',
         minWidth: 140,
         render: row => {
@@ -73,7 +73,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'name',
-        title: '大屏名称',
+        title: $t('visualCustomScreen.name'),
         align: 'center',
         minWidth: 180,
         ellipsis: {
@@ -82,7 +82,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'key',
-        title: '大屏标识',
+        title: $t('visualCustomScreen.key'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -92,7 +92,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'last_save_user_id',
-        title: '最后保存人',
+        title: $t('visualCustomScreen.lastSaveUser'),
         align: 'center',
         minWidth: 140,
         ellipsis: {
@@ -102,7 +102,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'last_publish_user_id',
-        title: '最后发布人',
+        title: $t('visualCustomScreen.lastPublishUser'),
         align: 'center',
         minWidth: 140,
         ellipsis: {
@@ -112,14 +112,14 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'publish_status',
-        title: '发布状态',
+        title: $t('visualCustomScreen.publishStatus'),
         align: 'center',
         minWidth: 100,
-        render: row => <NTag type={row.publish_at ? 'success' : 'error'}>{row.publish_at ? '已发布' : '未发布'}</NTag>
+        render: row => <NTag type={row.publish_at ? 'success' : 'error'}>{row.publish_at ? $t('visualCustomScreen.published') : $t('visualCustomScreen.unpublished')}</NTag>
       },
       {
         key: 'updated_at',
-        title: '更新时间',
+        title: $t('visualCustomScreen.updatedAt'),
         align: 'center',
         minWidth: 180,
         render: row => (row.updated_at ? formatDateTime(row.updated_at) : '-')
@@ -146,7 +146,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               text
               type="primary"
               icon="material-symbols:design-services-outline"
-              tooltipContent="设计"
+              tooltipContent={$t('visualCustomScreen.design')}
               onClick={() => handleOpenDesign(row)}
             />
           );
@@ -156,7 +156,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               text
               type="primary"
               icon="material-symbols:visibility-outline"
-              tooltipContent="预览"
+              tooltipContent={$t('visualCustomScreen.preview')}
               onClick={() => handleOpenPreview(row)}
             />
           );
@@ -166,7 +166,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               text
               type="primary"
               icon="material-symbols:content-copy-outline"
-              tooltipContent="克隆"
+              tooltipContent={$t('visualCustomScreen.clone')}
               onClick={() => handleClone(row)}
             />
           );
@@ -251,7 +251,7 @@ function handleEdit(row: Api.Visual.CustomScreen) {
 
 function handleOpenDesign(row: Api.Visual.CustomScreen) {
   if (!row.key) {
-    window.$message?.warning('当前自定义大屏缺少唯一标识，暂时无法进入设计页');
+    window.$message?.warning($t('visualCustomScreen.missingKeyDesign'));
     return;
   }
 
@@ -260,7 +260,7 @@ function handleOpenDesign(row: Api.Visual.CustomScreen) {
 
 function handleOpenPreview(row: Api.Visual.CustomScreen) {
   if (!row.key) {
-    window.$message?.warning('当前自定义大屏缺少唯一标识，暂时无法进入预览页');
+    window.$message?.warning($t('visualCustomScreen.missingKeyPreview'));
     return;
   }
 
@@ -304,7 +304,7 @@ function handleSubmit() {
 <template>
   <div class="h-full flex-col-stretch gap-12px overflow-hidden lt-sm:overflow-auto">
     <CustomScreenSearch v-model:model="searchParams" @search="handleSearch" />
-    <NCard title="自定义大屏列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('visualCustomScreen.list')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

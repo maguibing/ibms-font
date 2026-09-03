@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { shallowRef } from 'vue';
+import { $t } from '@/locales';
 import NetworkDiscoveryCard from './components/NetworkDiscoveryCard.vue';
 import PingTestCard from './components/PingTestCard.vue';
 import TelnetTestCard from './components/TelnetTestCard.vue';
@@ -21,8 +22,8 @@ const activeTab = shallowRef<ToolTab>('discovery');
     <NCard :bordered="false" size="small" class="card-wrapper" content-class="!py-14px">
       <div class="flex items-center justify-between gap-16px lt-sm:flex-col lt-sm:items-stretch">
         <div class="min-w-0">
-          <h2 class="m-0 text-18px text-primary font-600">系统工具箱</h2>
-          <p class="mb-0 mt-8px text-13px text-gray-500">网络发现、Ping 测试、Telnet 端口连通性测试</p>
+          <h2 class="m-0 text-18px text-primary font-600">{{ $t('toolbox.title') }}</h2>
+          <p class="mb-0 mt-8px text-13px text-gray-500">{{ $t('toolbox.description') }}</p>
         </div>
         <NPopover placement="bottom-end" trigger="hover">
           <template #trigger>
@@ -37,12 +38,12 @@ const activeTab = shallowRef<ToolTab>('discovery');
               <template #icon>
                 <SvgIcon icon="material-symbols:download-rounded" />
               </template>
-              下载安卓包
+              {{ $t('toolbox.downloadApp') }}
             </NButton>
           </template>
           <div class="flex-col-center gap-8px">
             <NQrCode :value="APP_DOWNLOAD_URL" :size="176" type="svg" />
-            <span class="text-12px text-gray-500">扫码下载安装包</span>
+            <span class="text-12px text-gray-500">{{ $t('toolbox.scanDownload') }}</span>
           </div>
         </NPopover>
       </div>
@@ -61,13 +62,13 @@ const activeTab = shallowRef<ToolTab>('discovery');
         size="small"
         animated
       >
-        <NTabPane name="discovery" tab="网络发现" display-directive="show:lazy">
+        <NTabPane name="discovery" :tab="$t('toolbox.tabs.discovery')" display-directive="show:lazy">
           <NetworkDiscoveryCard />
         </NTabPane>
-        <NTabPane name="ping" tab="Ping 测试" display-directive="show:lazy">
+        <NTabPane name="ping" :tab="$t('toolbox.tabs.ping')" display-directive="show:lazy">
           <PingTestCard />
         </NTabPane>
-        <NTabPane name="telnet" tab="Telnet 测试" display-directive="show:lazy">
+        <NTabPane name="telnet" :tab="$t('toolbox.tabs.telnet')" display-directive="show:lazy">
           <TelnetTestCard />
         </NTabPane>
       </NTabs>

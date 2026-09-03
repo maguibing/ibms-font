@@ -23,10 +23,10 @@ const { formRef, validate, restoreValidation } = useNaiveForm();
 const { loading: spaceLoading, startLoading: startSpaceLoading, endLoading: endSpaceLoading } = useLoading();
 
 const AGGREGATION_TYPE_OPTIONS = [
-  { label: '小时', value: 1 },
-  { label: '日', value: 2 },
-  { label: '月', value: 3 },
-  { label: '年', value: 4 }
+  { label: $t('energy.hour'), value: 1 },
+  { label: $t('energy.day'), value: 2 },
+  { label: $t('energy.month'), value: 3 },
+  { label: $t('energy.year'), value: 4 }
 ];
 
 const energyTypeOptions = ENERGY_TYPE_OPTIONS.filter(option => {
@@ -120,14 +120,14 @@ onMounted(getSpaceData);
       <NCollapseItem :title="$t('common.search')" name="energy-list-search">
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="聚合类型" path="aggregation_type" class="pr-24px">
+            <NFormItemGi span="24 s:12 m:8" :label="$t('energy.aggregation')" path="aggregation_type" class="pr-24px">
               <NSelect
                 v-model:value="model.aggregation_type"
                 :options="AGGREGATION_TYPE_OPTIONS"
-                placeholder="请选择聚合类型"
+                :placeholder="$t('energy.selectAggregation')"
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="时间范围" path="dateRange" class="pr-24px">
+            <NFormItemGi span="24 s:12 m:8" :label="$t('energy.range')" path="dateRange" class="pr-24px">
               <NDatePicker
                 :key="datePickerType"
                 v-model:formatted-value="dateRangeValue"
@@ -138,16 +138,16 @@ onMounted(getSpaceData);
                 :default-time="['00:00:00', '23:59:59']"
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="能源类型" path="energy_types" class="pr-24px">
+            <NFormItemGi span="24 s:12 m:8" :label="$t('energy.energyType')" path="energy_types" class="pr-24px">
               <NSelect
                 v-model:value="model.energy_types"
                 :options="energyTypeOptions"
                 multiple
                 clearable
-                placeholder="请选择能源类型"
+                :placeholder="$t('energy.selectEnergyType')"
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="所属空间" path="space_id" class="pr-24px">
+            <NFormItemGi span="24 s:12 m:8" :label="$t('energy.space')" path="space_id" class="pr-24px">
               <NTreeSelect
                 v-model:value="model.space_id"
                 v-model:expanded-keys="expandedSpaceKeys"
@@ -157,17 +157,17 @@ onMounted(getSpaceData);
                 filterable
                 label-field="space_name"
                 key-field="space_id"
-                placeholder="请选择所属空间"
+                :placeholder="$t('energy.selectSpace')"
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="设备名称" path="device_ids" class="pr-24px">
+            <NFormItemGi span="24 s:12 m:8" :label="$t('energy.device')" path="device_ids" class="pr-24px">
               <RemoteSearchSelect
                 v-model:value="model.device_ids"
                 :request="fetchDeviceList"
                 :search-type="2"
                 label-field="name"
                 value-field="id"
-                placeholder="请选择设备"
+                :placeholder="$t('energy.selectDevice')"
                 multiple
                 clearable
               />

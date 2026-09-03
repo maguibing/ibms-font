@@ -103,20 +103,26 @@ async function search() {
       <NCollapseItem :title="$t('common.search')" name="device-operation-log-search">
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="设备名称" label-width="auto" path="device_id" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('systemLog.fields.device')"
+              label-width="auto"
+              path="device_id"
+              class="pr-24px"
+            >
               <RemoteSearchSelect
                 v-model:value="model.device_id"
                 :request="fetchDeviceList"
                 :search-type="2"
                 label-field="name"
                 value-field="id"
-                placeholder="请选择设备"
+                :placeholder="$t('systemLog.placeholders.device')"
                 clearable
               />
             </NFormItemGi>
             <NFormItemGi
               span="24 s:12 m:8"
-              label="点位名称"
+              :label="$t('systemLog.fields.point')"
               label-width="auto"
               path="physical_point_id"
               class="pr-24px"
@@ -128,22 +134,34 @@ async function search() {
                 :search-type="7"
                 label-field="name"
                 value-field="id"
-                placeholder="请选择点位"
+                :placeholder="$t('systemLog.placeholders.point')"
                 clearable
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="操作人" label-width="auto" path="operator_id" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('systemLog.fields.operator')"
+              label-width="auto"
+              path="operator_id"
+              class="pr-24px"
+            >
               <RemoteSearchSelect
                 v-model:value="model.operator_id"
                 :request="fetchOperatorList"
                 :search-type="4"
                 label-field="username"
                 value-field="user_id"
-                placeholder="请选择操作人"
+                :placeholder="$t('systemLog.placeholders.operator')"
                 clearable
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="操作时间" label-width="auto" path="dateRange" class="pr-24px">
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('systemLog.fields.time')"
+              label-width="auto"
+              path="dateRange"
+              class="pr-24px"
+            >
               <NDatePicker
                 v-model:formatted-value="dateRangeCreateTime"
                 type="datetimerange"

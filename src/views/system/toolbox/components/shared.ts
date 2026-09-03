@@ -1,3 +1,5 @@
+import { $t } from '@/locales';
+
 export type TestStatus = 'idle' | 'running' | 'success' | 'error';
 export type AlertType = 'default' | 'error' | 'info' | 'success' | 'warning';
 export type ToolTone = 'primary' | 'success' | 'warning';
@@ -5,10 +7,10 @@ export type ToolTone = 'primary' | 'success' | 'warning';
 export const APP_DOWNLOAD_URL = 'https://autodriver-ibms.oss-cn-beijing.aliyuncs.com/dev/system/app/android.apk.zip';
 
 const STATUS_TEXT: Record<TestStatus, string> = {
-  idle: '等待执行',
-  running: '执行中',
-  success: '执行成功',
-  error: '执行失败'
+  idle: $t('toolbox.status.idle'),
+  running: $t('toolbox.status.running'),
+  success: $t('toolbox.status.success'),
+  error: $t('toolbox.status.error')
 };
 
 const STATUS_TYPE: Record<TestStatus, AlertType> = {
@@ -19,11 +21,11 @@ const STATUS_TYPE: Record<TestStatus, AlertType> = {
 };
 
 const TELNET_STATUS_TEXT: Record<number, string> = {
-  1: '连接成功',
-  2: '连接被拒绝',
-  3: '连接超时',
-  4: '网络不可达',
-  5: 'DNS 解析失败'
+  1: $t('toolbox.status.connected'),
+  2: $t('toolbox.status.refused'),
+  3: $t('toolbox.status.timedOut'),
+  4: $t('toolbox.status.unreachable'),
+  5: $t('toolbox.status.dnsFailed')
 };
 
 export function formatLatency(value?: number, digits = 2) {
@@ -44,14 +46,16 @@ export function getErrorMessage(error: unknown) {
   if (typeof error === 'object' && error !== null && 'message' in error) {
     const { message } = error as { message?: unknown };
 
-    return message === undefined || message === null || message === '' ? '请求失败' : String(message);
+    return message === undefined || message === null || message === ''
+      ? $t('toolbox.status.requestFailed')
+      : String(message);
   }
 
-  return '请求失败';
+  return $t('toolbox.status.requestFailed');
 }
 
 export function getTelnetStatusText(status?: number) {
-  return status === undefined ? '-' : (TELNET_STATUS_TEXT[status] ?? '未知状态');
+  return status === undefined ? '-' : (TELNET_STATUS_TEXT[status] ?? $t('toolbox.status.unknown'));
 }
 
 export function getTelnetStatusType(status?: number): AlertType {

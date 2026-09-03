@@ -36,13 +36,13 @@ const { formRef, validate, restoreValidation } = useNaiveForm();
 const { createRequiredRule } = useFormRules();
 const { loading, startLoading, endLoading } = useLoading();
 
-const title = computed(() => '编辑大屏');
+const title = computed(() => $t('visualSysScreen.edit'));
 
 const model = ref<Model>(createDefaultModel());
 
 const rules: Partial<Record<keyof Model, App.Global.FormRule>> = {
-  title: createRequiredRule('请输入大屏标题'),
-  name: createRequiredRule('请输入大屏名称')
+  title: createRequiredRule($t('visualSysScreen.titlePlaceholder')),
+  name: createRequiredRule($t('visualSysScreen.namePlaceholder'))
 };
 
 function createDefaultModel(): Model {
@@ -107,13 +107,13 @@ watch(visible, async value => {
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top" :label-width="100">
         <NGrid responsive="screen" item-responsive>
-          <NFormItemGi span="24" label="大屏标题" path="title">
-            <NInput v-model:value="model.title" placeholder="请输入大屏标题" />
+          <NFormItemGi span="24" :label="$t('visualSysScreen.screenTitle')" path="title">
+            <NInput v-model:value="model.title" :placeholder="$t('visualSysScreen.titlePlaceholder')" />
           </NFormItemGi>
-          <NFormItemGi span="24" label="大屏名称" path="name">
-            <NInput v-model:value="model.name" placeholder="请输入大屏名称" />
+          <NFormItemGi span="24" :label="$t('visualSysScreen.name')" path="name">
+            <NInput v-model:value="model.name" :placeholder="$t('visualSysScreen.namePlaceholder')" />
           </NFormItemGi>
-          <NFormItemGi span="24" label="大屏封面" path="coverUrl">
+          <NFormItemGi span="24" :label="$t('visualSysScreen.cover')" path="coverUrl">
             <NImage v-if="model.coverUrl" :src="model.coverUrl" width="400" height="225" object-fit="cover" />
             <span v-else>-</span>
           </NFormItemGi>

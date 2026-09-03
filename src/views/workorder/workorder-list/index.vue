@@ -41,28 +41,32 @@ const operateDrawerVisible = ref(false);
 const operateType = ref<Api.Workorder.WorkorderOperateType>('add_workorder');
 const operateRowData = ref<Api.Workorder.Workorder | null>(null);
 
-const workorderModeOptions = [
-  { label: '报修工单', value: 'repair' },
-  { label: '处理工单', value: 'deal' }
-];
+const workorderModeOptions = computed(() => {
+  return [
+    { label: $t('workorder.repair'), value: 'repair' },
+    { label: $t('workorder.deal'), value: 'deal' }
+  ];
+});
 const workorderStatuses: Api.Workorder.WorkorderDealStatus[] = [1, 2, 3, 4];
 const currentUserId = computed(() => authStore.userInfo.user?.user_id ?? null);
 const fixedDeviceId = computed(() => props.defaultDevice?.id ?? props.fixedDeviceId ?? null);
 
-const statusMap: Record<
-  Api.Workorder.WorkorderDealStatus,
-  { label: string; type: NonNullable<TagProps['type']>; icon: string; colorClass: string }
-> = {
-  1: { label: '待处理', type: 'error', icon: 'material-symbols:alarm-outline-rounded', colorClass: 'text-error' },
-  2: { label: '处理中', type: 'warning', icon: 'material-symbols:progress-activity', colorClass: 'text-warning' },
-  3: { label: '已完成', type: 'success', icon: 'material-symbols:check-circle-outline', colorClass: 'text-success' },
-  4: { label: '已取消', type: 'default', icon: 'material-symbols:cancel-outline', colorClass: 'text-gray' }
-};
+const statusMap = computed(() => {
+  return {
+  1: { label: $t('workorder.pending'), type: 'error', icon: 'material-symbols:alarm-outline-rounded', colorClass: 'text-error' },
+  2: { label: $t('workorder.processing'), type: 'warning', icon: 'material-symbols:progress-activity', colorClass: 'text-warning' },
+  3: { label: $t('workorder.completed'), type: 'success', icon: 'material-symbols:check-circle-outline', colorClass: 'text-success' },
+  4: { label: $t('workorder.cancelled'), type: 'default', icon: 'material-symbols:cancel-outline', colorClass: 'text-gray' }
+  } satisfies Record<
+    Api.Workorder.WorkorderDealStatus,
+    { label: string; type: NonNullable<TagProps['type']>; icon: string; colorClass: string }
+  >;
+});
 
 const statusCards = computed(() =>
   workorderStatuses.map(status => ({
     status,
-    ...statusMap[status],
+    ...statusMap.value[status],
     count: workorderStat.value[status] ?? 0
   }))
 );
@@ -93,14 +97,14 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       { type: 'selection', align: 'center', width: 48 },
       {
         key: 'order_no',
-        title: '工单编号',
+        title: $t('workorder.orderNo'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true }
       },
       {
         key: 'device_id',
-        title: '故障设备',
+        title: $t('workorder.device'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true },
@@ -108,42 +112,42 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'repairman_uid',
-        title: '报修人',
+        title: $t('workorder.repairman'),
         align: 'center',
         minWidth: 130,
-        render: row => getUserName(row.repairman_uid, '系统自动生成')
+        render: row => getUserName(row.repairman_uid, $t('workorder.system'))
       },
       {
         key: 'repairman_phone',
-        title: '报修人电话',
+        title: $t('workorder.repairPhone'),
         align: 'center',
         minWidth: 180,
         render: row => renderPhone(row.repairman_uid, row.repairman_phone)
       },
       {
         key: 'dealer_uid',
-        title: '处理人',
+        title: $t('workorder.dealer'),
         align: 'center',
         minWidth: 130,
         render: row => getUserName(row.dealer_uid)
       },
       {
         key: 'dealer_phone',
-        title: '处理人电话',
+        title: $t('workorder.dealerPhone'),
         align: 'center',
         minWidth: 180,
         render: row => renderPhone(row.dealer_uid, row.dealer_phone)
       },
       {
         key: 'created_at',
-        title: '创建时间',
+        title: $t('workorder.createdAt'),
         align: 'center',
         minWidth: 180,
         render: row => formatUnixDateTime(row.created_at)
       },
       {
         key: 'deal_status',
-        title: '状态',
+        title: $t('workorder.status'),
         align: 'center',
         minWidth: 110,
         render: row => renderStatus(row.deal_status)
@@ -163,7 +167,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 text
                 type="primary"
                 icon="material-symbols:assignment-ind-outline"
-                tooltipContent="分配"
+                tooltipContent={$t('workorder.assign')}
                 onClick={() => showWorkorderOperateDrawer('allocation_workorder', row)}
               />
             );
@@ -175,7 +179,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 text
                 type="warning"
                 icon="material-symbols:edit-outline"
-                tooltipContent="处理"
+                tooltipContent={$t('workorder.handle')}
                 onClick={() => showWorkorderOperateDrawer('deal_workorder', row)}
               />
             );
@@ -187,7 +191,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
                 text
                 type="success"
                 icon="material-symbols:visibility-outline"
-                tooltipContent="详情"
+                tooltipContent={$t('workorder.detail')}
                 onClick={() => showWorkorderOperateDrawer('watch_workorder', row)}
               />
             );
@@ -252,7 +256,7 @@ function renderPhone(userId?: CommonType.IdType, rowPhone?: string) {
 }
 
 function renderStatus(status: Api.Workorder.WorkorderDealStatus) {
-  const config = statusMap[status];
+  const config = statusMap.value[status];
   return config ? <NTag type={config.type}>{config.label}</NTag> : status;
 }
 
@@ -362,7 +366,7 @@ onMounted(() => {
 
     <WorkorderSearch v-model:model="searchParams" :bordered="embedded" :mode="workorderMode" @search="handleSearch" />
 
-    <NCard title="工单列表" :bordered="embedded" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('workorder.list')" :bordered="embedded" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <NSpace align="center">
           <NTabs v-model:value="workorderMode" type="segment" animated class="w-200px" @update:value="handleModeChange">

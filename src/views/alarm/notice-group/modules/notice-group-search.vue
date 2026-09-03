@@ -37,8 +37,19 @@ function reset() {
       <NCollapseItem :title="$t('common.search')" name="notice-group-search">
         <NForm :model="model" label-placement="left" :label-width="90">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="通知组名称" path="name" class="pr-24px" label-width="auto">
-              <NInput v-model:value="model.name" clearable placeholder="请输入通知组名称" @keyup.enter="search" />
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('alarmNoticeGroup.name')"
+              path="name"
+              class="pr-24px"
+              label-width="auto"
+            >
+              <NInput
+                v-model:value="model.name"
+                clearable
+                placeholder="alarmNoticeGroup.namePlaceholder"
+                @keyup.enter="search"
+              />
             </NFormItemGi>
             <NFormItemGi :show-feedback="false" span="24 s:12 m:16" class="pr-24px">
               <NSpace class="w-full" justify="end">

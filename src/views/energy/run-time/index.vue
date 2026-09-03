@@ -145,14 +145,14 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'stat_at',
-        title: '统计日期',
+        title: $t('energy.date'),
         align: 'center',
         minWidth: 120,
         render: row => formatStatDate(row.stat_at)
       },
       {
         key: 'device_id',
-        title: '设备名称',
+        title: $t('energy.device'),
         align: 'center',
         minWidth: 160,
         ellipsis: { tooltip: true },
@@ -160,7 +160,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'logic_point_name',
-        title: '点位名称',
+        title: $t('energy.point'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true },
@@ -168,7 +168,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'value',
-        title: '运行时间(h)',
+        title: $t('energy.runtimeHour'),
         align: 'center',
         minWidth: 120,
         render: row => getRunTimeValue(row)
@@ -223,7 +223,7 @@ function handleReset() {
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <RunTimeSearch v-model:model="searchParams" @reset="handleReset" @search="handleSearch" />
 
-    <NCard title="运行时间" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('energy.runTime')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

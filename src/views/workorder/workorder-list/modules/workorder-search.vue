@@ -32,10 +32,10 @@ const userOptions = shallowRef<SelectOption[]>([]);
 const searchItemSpan = '24 s:12 m:6';
 
 const statusOptions = [
-  { label: '待处理', value: 1 },
-  { label: '处理中', value: 2 },
-  { label: '已完成', value: 3 },
-  { label: '已取消', value: 4 }
+  { label: $t('workorder.pending'), value: 1 },
+  { label: $t('workorder.processing'), value: 2 },
+  { label: $t('workorder.completed'), value: 3 },
+  { label: $t('workorder.cancelled'), value: 4 }
 ];
 async function fetchUserOptions() {
   userLoading.value = true;
@@ -51,7 +51,7 @@ async function fetchUserOptions() {
   if (error) return;
 
   userOptions.value = [
-    { label: '系统自动生成', value: 0 },
+    { label: $t('workorder.system'), value: 0 },
     ...(data?.list ?? []).map(user => ({ label: user.username, value: user.user_id }))
   ];
 }
@@ -85,7 +85,7 @@ onMounted(fetchUserOptions);
             <NFormItemGi
               v-if="mode === 'repair'"
               :span="searchItemSpan"
-              label="报修人"
+              :label="$t('workorder.repairman')"
               path="repairman_uid"
               class="pr-24px"
             >
@@ -95,28 +95,34 @@ onMounted(fetchUserOptions);
                 :loading="userLoading"
                 filterable
                 clearable
-                placeholder="请选择报修人"
+                :placeholder="$t('workorder.selectRepairman')"
               />
             </NFormItemGi>
-            <NFormItemGi v-else :span="searchItemSpan" label="处理人" path="dealer_uid" class="pr-24px">
+            <NFormItemGi
+              v-else
+              :span="searchItemSpan"
+              :label="$t('workorder.dealer')"
+              path="dealer_uid"
+              class="pr-24px"
+            >
               <NSelect
                 v-model:value="model.dealer_uid"
                 :options="userOptions"
                 :loading="userLoading"
                 filterable
                 clearable
-                placeholder="请选择处理人"
+                :placeholder="$t('workorder.selectDealer')"
               />
             </NFormItemGi>
-            <NFormItemGi :span="searchItemSpan" label="工单状态" path="deal_status" class="pr-24px">
+            <NFormItemGi :span="searchItemSpan" :label="$t('workorder.status')" path="deal_status" class="pr-24px">
               <NSelect
                 v-model:value="model.deal_status"
                 :options="statusOptions"
                 clearable
-                placeholder="请选择工单状态"
+                :placeholder="$t('workorder.selectStatus')"
               />
             </NFormItemGi>
-            <NFormItemGi :span="searchItemSpan" label="创建时间" path="dateRange" class="pr-24px">
+            <NFormItemGi :span="searchItemSpan" :label="$t('workorder.createdAt')" path="dateRange" class="pr-24px">
               <NDatePicker
                 v-model:formatted-value="dateRange"
                 type="datetimerange"

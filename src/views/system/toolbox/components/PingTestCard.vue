@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive, shallowRef, useTemplateRef } from 'vue';
+import { $t } from '@/locales';
 import type { FormInst, FormRules } from 'naive-ui';
 import { fetchPing } from '@/service/api/system';
 import PingResultPanel from './PingResultPanel.vue';
@@ -21,29 +22,33 @@ const errorText = shallowRef('');
 const elapsed = shallowRef<number>();
 
 const rules: FormRules = {
-  host: [{ required: true, whitespace: true, message: '请输入目标主机', trigger: ['input', 'blur'] }],
-  count: [{ required: true, type: 'number', min: 1, message: '请求次数不能小于 1', trigger: ['blur', 'change'] }],
-  timeout_ms: [{ required: true, type: 'number', min: 1, message: '超时时间不能小于 1ms', trigger: ['blur', 'change'] }]
+  host: [{ required: true, whitespace: true, message: $t('toolbox.validation.host'), trigger: ['input', 'blur'] }],
+  count: [
+    { required: true, type: 'number', min: 1, message: $t('toolbox.validation.count'), trigger: ['blur', 'change'] }
+  ],
+  timeout_ms: [
+    { required: true, type: 'number', min: 1, message: $t('toolbox.validation.timeout'), trigger: ['blur', 'change'] }
+  ]
 };
 
 const resultStats = computed(() => [
-  { label: '请求次数', value: String(form.count) },
-  { label: '超时时间', value: `${form.timeout_ms} ms` }
+  { label: $t('toolbox.common.count'), value: String(form.count) },
+  { label: $t('toolbox.common.timeout'), value: `${form.timeout_ms} ms` }
 ]);
 
 const pingSteps = [
-  { key: 'resolve', label: '解析目标' },
-  { key: 'send', label: '发送请求' },
-  { key: 'latency', label: '统计延迟' },
-  { key: 'summary', label: '汇总结果' }
+  { key: 'resolve', label: $t('toolbox.ping.steps.resolve') },
+  { key: 'send', label: $t('toolbox.ping.steps.send') },
+  { key: 'latency', label: $t('toolbox.ping.steps.latency') },
+  { key: 'summary', label: $t('toolbox.ping.steps.summary') }
 ] as const;
 
 const pingPanelTitle = computed(() => {
-  if (status.value === 'running') return '正在发送 Ping 请求';
-  if (status.value === 'error') return 'Ping 测试失败';
-  if (form.host) return '参数已就绪';
+  if (status.value === 'running') return $t('toolbox.ping.sending');
+  if (status.value === 'error') return $t('toolbox.ping.failed');
+  if (form.host) return $t('toolbox.ping.ready');
 
-  return '等待输入参数';
+  return $t('toolbox.ping.waiting');
 });
 
 async function handleTest() {
@@ -83,22 +88,22 @@ async function handleTest() {
 <template>
   <ToolCardShell
     badge="ICMP"
-    description="检测主机连通性和响应延迟"
+    :description="$t('toolbox.ping.description')"
     icon="material-symbols:network-ping-rounded"
-    title="Ping 测试"
+    :title="$t('toolbox.tabs.ping')"
     tone="primary"
   >
     <template #form>
       <NForm ref="formRef" :model="form" :rules="rules" label-placement="top" :show-require-mark="false">
-        <NFormItem label="目标主机" path="host">
-          <NInput v-model:value="form.host" clearable placeholder="请输入域名或 IP 地址" />
+        <NFormItem :label="$t('toolbox.common.host')" path="host">
+          <NInput v-model:value="form.host" clearable :placeholder="$t('toolbox.common.hostPlaceholder')" />
         </NFormItem>
 
         <NGrid :x-gap="12" cols="2">
-          <NFormItemGi label="请求次数" path="count">
+          <NFormItemGi :label="$t('toolbox.common.count')" path="count">
             <NInputNumber v-model:value="form.count" class="w-full" :min="1" />
           </NFormItemGi>
-          <NFormItemGi label="超时时间(ms)" path="timeout_ms">
+          <NFormItemGi :label="$t('toolbox.common.timeout') + '(ms)'" path="timeout_ms">
             <NInputNumber v-model:value="form.timeout_ms" class="w-full" :min="1" />
           </NFormItemGi>
         </NGrid>
@@ -107,7 +112,7 @@ async function handleTest() {
           <div
             class="min-w-0 rounded-6px border border-[var(--n-border-color)] border-solid bg-[var(--n-color-embedded)] p-10px"
           >
-            <span class="mb-4px block text-12px text-[var(--n-text-color-3)]">请求次数</span>
+            <span class="mb-4px block text-12px text-[var(--n-text-color-3)]">{{ $t('toolbox.common.count') }}</span>
             <strong
               class="block overflow-hidden text-14px text-[var(--n-text-color-1)] text-ellipsis whitespace-nowrap"
             >
@@ -117,7 +122,7 @@ async function handleTest() {
           <div
             class="min-w-0 rounded-6px border border-[var(--n-border-color)] border-solid bg-[var(--n-color-embedded)] p-10px"
           >
-            <span class="mb-4px block text-12px text-[var(--n-text-color-3)]">超时时间</span>
+            <span class="mb-4px block text-12px text-[var(--n-text-color-3)]">{{ $t('toolbox.common.timeout') }}</span>
             <strong
               class="block overflow-hidden text-14px text-[var(--n-text-color-1)] text-ellipsis whitespace-nowrap"
             >
@@ -126,7 +131,9 @@ async function handleTest() {
           </div>
         </div>
 
-        <NButton block :loading="loading" type="primary" @click="handleTest">开始测试</NButton>
+        <NButton block :loading="loading" type="primary" @click="handleTest">
+          {{ $t('toolbox.common.startTest') }}
+        </NButton>
       </NForm>
     </template>
 
@@ -137,10 +144,10 @@ async function handleTest() {
           v-else
           :elapsed="elapsed"
           icon="material-symbols:network-ping-rounded"
-          idle-text="请输入参数后开始测试"
+          :idle-text="$t('toolbox.ping.idle')"
           :items="resultStats"
           :result="status === 'error' ? errorText : undefined"
-          running-text="正在发送 ICMP 请求，请稍候"
+          :running-text="$t('toolbox.ping.running')"
           :status="status"
           :steps="pingSteps"
           :title="pingPanelTitle"

@@ -58,7 +58,9 @@ const deviceMap = ref<Record<string, MapItem>>({});
 const logicPointMap = ref<Record<string, MapItem>>({});
 
 const isEdit = computed(() => props.operateType === 'edit');
-const drawerTitle = computed(() => (isEdit.value ? '编辑映射点位' : '新增映射点位'));
+const drawerTitle = computed(() =>
+  isEdit.value ? $t('visualSysScreenTag.editPoint') : $t('visualSysScreenTag.addPoint')
+);
 
 const selectedDevice = computed(() => {
   if (!model.value.device_id) return null;
@@ -86,9 +88,9 @@ const logicPointRequestParams = computed<CommonType.CommonListQueryParams>(() =>
 });
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  device_id: createRequiredRule('请选择设备名称'),
-  logic_point_id: createRequiredRule('请选择点位名称'),
-  mapping_point_name: createRequiredRule('请输入映射点位名称')
+  device_id: createRequiredRule($t('visualSysScreenTag.selectDevice')),
+  logic_point_id: createRequiredRule($t('visualSysScreenTag.selectPoint')),
+  mapping_point_name: createRequiredRule($t('visualSysScreenTag.mappingPlaceholder'))
 };
 
 function createDefaultModel(): Model {
@@ -191,7 +193,7 @@ async function handleSubmit() {
   if (loading.value) return;
 
   if (!model.value.project_sys_screen_id || !model.value.project_sys_screen_tag_id) {
-    window.$message?.warning('请选择左侧标签');
+    window.$message?.warning($t('visualSysScreenTag.selectTag'));
     return;
   }
 
@@ -223,7 +225,7 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" display-directive="show" :width="520" class="max-w-90%">
     <NDrawerContent :title="drawerTitle" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
-        <NFormItem label="设备名称" path="device_id">
+        <NFormItem :label="$t('visualSysScreenTag.device')" path="device_id">
           <RemoteSearchSelect
             v-model:value="model.device_id"
             :request="fetchDeviceList"
@@ -231,12 +233,12 @@ watch(visible, () => {
             :selected-options="selectedDevice"
             label-field="name"
             value-field="id"
-            placeholder="请选择设备"
+            :placeholder="$t('visualSysScreenTag.selectDevice')"
             clearable
             @selected-change="handleDeviceSelectedChange"
           />
         </NFormItem>
-        <NFormItem label="点位名称" path="logic_point_id">
+        <NFormItem :label="$t('visualSysScreenTag.point')" path="logic_point_id">
           <RemoteSearchSelect
             v-model:value="model.logic_point_id"
             :request="fetchLogicPointList"
@@ -245,12 +247,17 @@ watch(visible, () => {
             :selected-options="selectedLogicPoint"
             label-field="name"
             value-field="id"
-            placeholder="请选择点位"
+            :placeholder="$t('visualSysScreenTag.selectPoint')"
             clearable
           />
         </NFormItem>
-        <NFormItem label="映射点位名称" path="mapping_point_name">
-          <NInput v-model:value="model.mapping_point_name" maxlength="50" show-count placeholder="请输入映射点位名称" />
+        <NFormItem :label="$t('visualSysScreenTag.mappingPoint')" path="mapping_point_name">
+          <NInput
+            v-model:value="model.mapping_point_name"
+            maxlength="50"
+            show-count
+            :placeholder="$t('visualSysScreenTag.mappingPlaceholder')"
+          />
         </NFormItem>
       </NForm>
       <template #footer>

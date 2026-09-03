@@ -190,14 +190,14 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'stat_at',
-        title: '统计时间',
+        title: $t('energy.time'),
         align: 'center',
         minWidth: 140,
         render: row => formatStatAt(row.stat_at)
       },
       {
         key: 'device_id',
-        title: '设备名称',
+        title: $t('energy.device'),
         align: 'center',
         minWidth: 160,
         ellipsis: { tooltip: true },
@@ -294,12 +294,12 @@ function handleSearch() {
 async function handleExport() {
   const connectionId = getWebSocketConnectionId();
   if (!connectionId) {
-    window.$message?.warning('WebSocket 尚未连接，请稍后重试');
+    window.$message?.warning($t('energy.wsWarning'));
     return;
   }
 
   const requestParams = transformSearchParamsToRequest(searchParams.value);
-  startExport('能耗列表');
+  startExport($t('energy.exportName'));
 
   const { error } = await fetchExportTask({
     file_type: ExportFileType.Excel,
@@ -319,7 +319,7 @@ async function handleExport() {
     return;
   }
 
-  window.$message?.success('导出任务已提交');
+  window.$message?.success($t('energy.exportSubmitted'));
 }
 
 watch(
@@ -334,7 +334,7 @@ watch(
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <EnergyListSearch v-model:model="searchParams" @search="handleSearch" />
 
-    <NCard title="能耗列表" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('energy.list')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

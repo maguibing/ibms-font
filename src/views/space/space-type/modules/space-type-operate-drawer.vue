@@ -32,8 +32,8 @@ const { createRequiredRule } = useFormRules();
 
 const title = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增空间类型',
-    edit: '编辑空间类型'
+    add: $t('spaceType.add'),
+    edit: $t('spaceType.edit')
   };
   return titles[props.operateType];
 });
@@ -41,7 +41,7 @@ const title = computed(() => {
 const model = ref<Model>(createDefaultModel());
 
 const rules: Record<string, App.Global.FormRule> = {
-  name: createRequiredRule('请输入空间类型名称')
+  name: createRequiredRule($t('spaceType.namePlaceholder'))
 };
 
 function createDefaultModel(): Model {
@@ -99,17 +99,17 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" display-directive="show" :width="520" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
-        <NFormItem label="空间类型名称" path="name">
-          <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入空间类型名称" />
+        <NFormItem :label="$t('spaceType.name')" path="name">
+          <NInput v-model:value="model.name" maxlength="30" show-count :placeholder="$t('spaceType.namePlaceholder')" />
         </NFormItem>
-        <NFormItem label="描述" path="desc">
+        <NFormItem :label="$t('spaceType.description')" path="desc">
           <NInput
             v-model:value="model.desc"
             type="textarea"
             maxlength="200"
             show-count
             :rows="4"
-            placeholder="请输入描述"
+            :placeholder="$t('spaceType.descriptionPlaceholder')"
           />
         </NFormItem>
       </NForm>

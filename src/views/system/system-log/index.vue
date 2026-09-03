@@ -3,6 +3,7 @@ import { computed, shallowRef } from 'vue';
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import DeviceOperationLog from './modules/device-operation-log.vue';
 import SystemOperationLog from './modules/system-operation-log.vue';
+import { $t } from '@/locales/index.js';
 
 defineOptions({
   name: 'SystemLog'
@@ -21,23 +22,18 @@ const activeLogType = shallowRef<LogType>('system');
 const breakpoints = useBreakpoints(breakpointsTailwind);
 const isCompact = breakpoints.smaller('lg');
 
-const logTitleMap: Record<LogType, string> = {
-  system: '系统日志',
-  device: '设备操作日志'
-};
-
-const logMenuOptions: LogTab[] = [
+const logMenuOptions = computed<LogTab[]>(() => [
   {
-    label: logTitleMap.system,
+    label: $t('systemLog.title'),
     key: 'system',
     icon: 'lucide:file-text'
   },
   {
-    label: logTitleMap.device,
+    label: $t('systemLog.deviceTitle'),
     key: 'device',
     icon: 'material-symbols:devices-outline-rounded'
   }
-];
+]);
 
 const tabPlacement = computed<'left' | 'top'>(() => (isCompact.value ? 'top' : 'left'));
 const activeLogComponent = computed(() => (activeLogType.value === 'system' ? SystemOperationLog : DeviceOperationLog));

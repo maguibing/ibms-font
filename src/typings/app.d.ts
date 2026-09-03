@@ -335,6 +335,320 @@ declare namespace App {
         updateConfirm: string;
         updateCancel: string;
       };
+      systemLog: {
+        title: string;
+        deviceTitle: string;
+        fields: {
+          device: string;
+          point: string;
+          operator: string;
+          time: string;
+          operateType: string;
+          operateModule: string;
+          ip: string;
+          detail: string;
+          executeResult: string;
+          failReason: string;
+        };
+        placeholders: {
+          device: string;
+          point: string;
+          operator: string;
+          operateType: string;
+          operateModule: string;
+          ip: string;
+        };
+        result: { success: string; failure: string };
+        defaultOperator: string;
+        operateTypeOptions: Record<string, string>;
+        operateModuleOptions: Record<string, string>;
+      };
+      toolbox: {
+        title: string;
+        description: string;
+        downloadApp: string;
+        scanDownload: string;
+        tabs: { discovery: string; ping: string; telnet: string };
+        result: string;
+        common: {
+          host: string;
+          hostPlaceholder: string;
+          count: string;
+          timeout: string;
+          port: string;
+          startTest: string;
+          startConnect: string;
+          elapsed: string;
+          ip: string;
+          latency: string;
+          success: string;
+          failure: string;
+        };
+        ping: {
+          description: string;
+          targetIp: string;
+          minLatency: string;
+          avgLatency: string;
+          maxLatency: string;
+          status: string;
+          steps: { resolve: string; send: string; latency: string; summary: string };
+          sending: string;
+          failed: string;
+          ready: string;
+          waiting: string;
+          idle: string;
+          running: string;
+        };
+        telnet: {
+          description: string;
+          steps: { resolve: string; connect: string; wait: string; status: string };
+          connecting: string;
+          failed: string;
+          ready: string;
+          waiting: string;
+          idle: string;
+          running: string;
+        };
+        discovery: {
+          description: string;
+          interface: string;
+          interfacePlaceholder: string;
+          steps: { interface: string; segment: string; probe: string; collect: string };
+          scanning: string;
+          failed: string;
+          ready: string;
+          waiting: string;
+          startWaiting: string;
+          targetWaiting: string;
+          localAddress: string;
+          segment: string;
+          broadcast: string;
+          target: string;
+          address: string;
+          system: string;
+          empty: string;
+          scanningShort: string;
+          start: string;
+          running: string;
+          scanned: string;
+          found: string;
+        };
+        validation: { host: string; count: string; timeout: string; port: string };
+        status: {
+          idle: string;
+          running: string;
+          success: string;
+          error: string;
+          requestFailed: string;
+          unknown: string;
+          connected: string;
+          refused: string;
+          timedOut: string;
+          unreachable: string;
+          dnsFailed: string;
+        };
+      };
+      visualCustomScreen: {
+        list: string;
+        thumbnail: string;
+        name: string;
+        key: string;
+        lastSaveUser: string;
+        lastPublishUser: string;
+        publishStatus: string;
+        published: string;
+        unpublished: string;
+        updatedAt: string;
+        design: string;
+        preview: string;
+        clone: string;
+        cloneTitle: string;
+        addTitle: string;
+        editTitle: string;
+        description: string;
+        namePlaceholder: string;
+        descriptionPlaceholder: string;
+        missingKeyDesign: string;
+        missingKeyPreview: string;
+      };
+      visualConfiguration: {
+        all: string;
+        list: string;
+        category: string;
+        emptyCategory: string;
+        categoryName: string;
+        name: string;
+        key: string;
+        description: string;
+        namePlaceholder: string;
+        descriptionPlaceholder: string;
+        categoryPlaceholder: string;
+        parentCategory: string;
+        categoryNamePlaceholder: string;
+        addCategory: string;
+        editCategory: string;
+        add: string;
+        edit: string;
+        clone: string;
+        cloneTitle: string;
+        design: string;
+        preview: string;
+        thumbnail: string;
+        lastSaveUser: string;
+        lastPublishUser: string;
+        publishStatus: string;
+        published: string;
+        unpublished: string;
+        updatedAt: string;
+        notPublished: string;
+      };
+      visualSysScreen: {
+        title: string;
+        screenTitle: string;
+        systemName: string;
+        cover: string;
+        status: string;
+        createdAt: string;
+        tagManagement: string;
+        edit: string;
+        name: string;
+        namePlaceholder: string;
+        titlePlaceholder: string;
+      };
+      visualSysScreenTag: Record<string, string>;
+      energy: {
+        list: string;
+        runTime: string;
+        device: string;
+        point: string;
+        date: string;
+        time: string;
+        aggregation: string;
+        range: string;
+        energyType: string;
+        space: string;
+        selectDevice: string;
+        selectAggregation: string;
+        selectEnergyType: string;
+        selectSpace: string;
+        hour: string;
+        day: string;
+        month: string;
+        year: string;
+        runtimeHour: string;
+        exportName: string;
+        wsWarning: string;
+        exportSubmitted: string;
+      };
+      workorder: {
+        list: string;
+        repair: string;
+        deal: string;
+        pending: string;
+        processing: string;
+        completed: string;
+        cancelled: string;
+        system: string;
+        orderNo: string;
+        device: string;
+        repairman: string;
+        repairPhone: string;
+        dealer: string;
+        dealerPhone: string;
+        createdAt: string;
+        status: string;
+        assign: string;
+        cancelAssign: string;
+        handle: string;
+        detail: string;
+        add: string;
+        allocation: string;
+        dealTitle: string;
+        detailTitle: string;
+        selectRepairman: string;
+        selectDealer: string;
+        selectStatus: string;
+        selectSpace: string;
+        selectDevice: string;
+        selectPoint: string;
+        description: string;
+        descriptionPlaceholder: string;
+        handlingDescription: string;
+        handlingPlaceholder: string;
+        images: string;
+        handlingImages: string;
+        noImages: string;
+        allocationSuccess: string;
+        cancelAllocationSuccess: string;
+        dealSuccess: string;
+        uploadPending: string;
+        uploadBreakImage: string;
+        uploadDealImage: string;
+      };
+      space: {
+        management: string;
+        name: string;
+        key: string;
+        type: string;
+        description: string;
+        expandAll: string;
+        collapseAll: string;
+        add: string;
+        edit: string;
+        parent: string;
+        selectParent: string;
+        selectType: string;
+        namePlaceholder: string;
+        keyPlaceholder: string;
+        descriptionPlaceholder: string;
+        searchName: string;
+      };
+      spaceType: {
+        management: string;
+        name: string;
+        description: string;
+        createdAt: string;
+        add: string;
+        edit: string;
+        namePlaceholder: string;
+        descriptionPlaceholder: string;
+        keywordPlaceholder: string;
+        config: string;
+        configDescription: string;
+        save: string;
+        export: string;
+        dataConfig: string;
+        selected: string;
+        sheet: string;
+        cell: string;
+        selection: string;
+        content: string;
+        contentPlaceholder: string;
+        applyTo: string;
+        hint: string;
+        unsaved: string;
+        unsavedChanges: string;
+      };
+      alarmNoticeGroup: {
+        management: string;
+        name: string;
+        type: string;
+        member: string;
+        receiver: string;
+        way: string;
+        sms: string;
+        inApp: string;
+        app: string;
+        description: string;
+        createdAt: string;
+        add: string;
+        edit: string;
+        namePlaceholder: string;
+        typePlaceholder: string;
+        receiverPlaceholder: string;
+        wayPlaceholder: string;
+        descriptionPlaceholder: string;
+      };
       common: {
         rootDirectory: string;
         action: string;
@@ -439,17 +753,17 @@ declare namespace App {
             apply: string;
             applySuccess: string;
             [key: string]:
-            | {
-              name: string;
-              desc: string;
-            }
-            | string;
+              | {
+                  name: string;
+                  desc: string;
+                }
+              | string;
           };
         };
         layout: {
           layoutMode: { title: string } & Record<UnionKey.ThemeLayoutMode, string> & {
-            [K in `${UnionKey.ThemeLayoutMode}_detail`]: string;
-          };
+              [K in `${UnionKey.ThemeLayoutMode}_detail`]: string;
+            };
           tab: {
             title: string;
             visible: string;
@@ -1602,8 +1916,8 @@ declare namespace App {
 
     type GetI18nKey<T extends Record<string, unknown>, K extends keyof T = keyof T> = K extends string
       ? T[K] extends Record<string, unknown>
-      ? `${K}.${GetI18nKey<T[K]>}`
-      : K
+        ? `${K}.${GetI18nKey<T[K]>}`
+        : K
       : never;
 
     type I18nKey = GetI18nKey<Schema>;

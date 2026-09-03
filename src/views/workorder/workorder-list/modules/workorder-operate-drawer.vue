@@ -73,10 +73,10 @@ const isWatchMode = computed(() => props.operateType === 'watch_workorder');
 
 const title = computed(() => {
   const titleMap: Record<Api.Workorder.WorkorderOperateType, string> = {
-    add_workorder: '新增工单',
-    allocation_workorder: '分配工单',
-    deal_workorder: '处理工单',
-    watch_workorder: '工单详情'
+    add_workorder: $t('workorder.add'),
+    allocation_workorder: $t('workorder.allocation'),
+    deal_workorder: $t('workorder.dealTitle'),
+    watch_workorder: $t('workorder.detailTitle')
   };
 
   return titleMap[props.operateType];
@@ -117,26 +117,26 @@ const rules = computed<Record<string, App.Global.FormRule | App.Global.FormRule[
   const nextRules: Record<string, App.Global.FormRule | App.Global.FormRule[]> = {};
 
   if (isAddMode.value) {
-    nextRules.device_id = createRequiredRule('请选择故障设备');
+    nextRules.device_id = createRequiredRule($t('workorder.selectDevice'));
     nextRules.break_img_list = {
       required: true,
       trigger: ['change', 'blur'],
-      validator: () => validateImageFileList(breakImageFileList.value, '请上传故障图片')
+      validator: () => validateImageFileList(breakImageFileList.value, $t('workorder.uploadBreakImage'))
     };
     return nextRules;
   }
 
   if (isAllocationMode.value) {
-    nextRules.dealer_uid = createRequiredRule('请选择处理人');
+    nextRules.dealer_uid = createRequiredRule($t('workorder.selectDealer'));
     return nextRules;
   }
 
   if (isDealMode.value) {
-    nextRules.logic_point_id_list = createRequiredRule('请选择故障点位');
+    nextRules.logic_point_id_list = createRequiredRule($t('workorder.selectPoint'));
     nextRules.deal_img_list = {
       required: true,
       trigger: ['change', 'blur'],
-      validator: () => validateImageFileList(dealImageFileList.value, '请上传处理图片')
+      validator: () => validateImageFileList(dealImageFileList.value, $t('workorder.uploadDealImage'))
     };
     return nextRules;
   }
@@ -214,7 +214,7 @@ async function getSpaceData() {
 
 function validateImageFileList(fileList: UploadFileInfo[], message: string) {
   if (fileList.some(file => file.status === 'uploading')) {
-    return new Error('请等待图片上传完成');
+    return new Error($t('workorder.uploadPending'));
   }
 
   if (!fileList.some(file => file.status === 'finished' && file.id)) {
@@ -376,19 +376,19 @@ async function handleSubmit(action: SubmitAction) {
     if (action === 'allocation') {
       const result = await fetchUpdateWorkorder(buildAllocationSubmitData());
       error = result.error;
-      message = '分配成功';
+      message = $t('workorder.allocationSuccess');
     }
 
     if (action === 'cancelAllocation') {
       const result = await fetchUpdateWorkorder(buildCancelAllocationSubmitData());
       error = result.error;
-      message = '取消分配成功';
+      message = $t('workorder.cancelAllocationSuccess');
     }
 
     if (action === 'deal') {
       const result = await fetchUpdateWorkorder(buildDealSubmitData());
       error = result.error;
-      message = '处理成功';
+      message = $t('workorder.dealSuccess');
     }
   } finally {
     endLoading();
@@ -417,7 +417,7 @@ watch(visible, async () => {
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NSpin :show="loading">
         <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
-          <NFormItem label="所属空间" path="space_id">
+          <NFormItem :label="$t('energy.space')" path="space_id">
             <NTreeSelect
               v-model:value="model.space_id"
               v-model:expanded-keys="expandedSpaceKeys"
@@ -427,12 +427,12 @@ watch(visible, async () => {
               filterable
               label-field="space_name"
               key-field="space_id"
-              placeholder="请选择所属空间"
+              :placeholder="$t('energy.selectSpace')"
               :disabled="!isAddMode"
               @update:value="handleSpaceChange"
             />
           </NFormItem>
-          <NFormItem label="故障设备" path="device_id" :show-require-mark="isAddMode">
+          <NFormItem :label="$t('workorder.device')" path="device_id" :show-require-mark="isAddMode">
             <NInput v-if="!isAddMode" :value="selectedDeviceName" readonly />
             <RemoteSearchSelect
               v-else
@@ -443,12 +443,12 @@ watch(visible, async () => {
               :selected-options="selectedDevice"
               label-field="name"
               value-field="id"
-              placeholder="可搜索"
+              :placeholder="$t('common.keywordSearch')"
               clearable
               @selected-change="handleDeviceSelectedChange"
             />
           </NFormItem>
-          <NFormItem label="故障点位" path="logic_point_id_list" :show-require-mark="isDealMode">
+          <NFormItem :label="$t('workorder.selectPoint')" path="logic_point_id_list" :show-require-mark="isDealMode">
             <NInput v-if="isAllocationMode || isWatchMode" :value="selectedLogicPointNames" readonly />
             <RemoteSearchSelect
               v-else
@@ -459,14 +459,14 @@ watch(visible, async () => {
               :selected-options="selectedLogicPoints"
               label-field="name"
               value-field="id"
-              placeholder="请选择故障点位"
+              :placeholder="$t('workorder.selectPoint')"
               multiple
               clearable
               :disabled="!model.device_id"
               @selected-change="handleLogicPointSelectedChange"
             />
           </NFormItem>
-          <NFormItem label="故障描述" path="break_desc">
+          <NFormItem :label="$t('workorder.description')" path="break_desc">
             <NInput
               v-model:value="model.break_desc"
               type="textarea"
@@ -474,10 +474,10 @@ watch(visible, async () => {
               show-count
               :rows="3"
               :disabled="!isAddMode"
-              placeholder="请输入故障描述"
+              :placeholder="$t('workorder.descriptionPlaceholder')"
             />
           </NFormItem>
-          <NFormItem label="故障图片" path="break_img_list" :show-require-mark="isAddMode">
+          <NFormItem :label="$t('workorder.images')" path="break_img_list" :show-require-mark="isAddMode">
             <FileUpload
               v-if="isAddMode"
               v-model:value="model.break_img_list"
@@ -500,11 +500,11 @@ watch(visible, async () => {
                 />
               </div>
             </NImageGroup>
-            <NEmpty v-else description="暂无图片" :show-icon="false" />
+            <NEmpty v-else :description="$t('workorder.noImages')" :show-icon="false" />
           </NFormItem>
 
           <template v-if="showDealerSection">
-            <NFormItem label="处理人" path="dealer_uid">
+            <NFormItem :label="$t('workorder.dealer')" path="dealer_uid">
               <RemoteSearchSelect
                 v-model:value="model.dealer_uid"
                 :request="fetchDealerUserList"
@@ -513,7 +513,7 @@ watch(visible, async () => {
                 :selected-options="selectedDealer"
                 label-field="label"
                 value-field="user_id"
-                placeholder="请选择处理人"
+                :placeholder="$t('workorder.selectDealer')"
                 clearable
                 :disabled="!isAllocationMode"
                 @selected-change="handleDealerSelectedChange"
@@ -522,7 +522,7 @@ watch(visible, async () => {
           </template>
 
           <template v-if="showDealSection">
-            <NFormItem label="处理图片" path="deal_img_list" :show-require-mark="isDealMode">
+            <NFormItem :label="$t('workorder.handlingImages')" path="deal_img_list" :show-require-mark="isDealMode">
               <FileUpload
                 v-if="isDealMode"
                 v-model:value="model.deal_img_list"
@@ -545,9 +545,9 @@ watch(visible, async () => {
                   />
                 </div>
               </NImageGroup>
-              <NEmpty v-else description="暂无图片" :show-icon="false" />
+              <NEmpty v-else :description="$t('workorder.noImages')" :show-icon="false" />
             </NFormItem>
-            <NFormItem label="处理说明" path="deal_desc">
+            <NFormItem :label="$t('workorder.handlingDescription')" path="deal_desc">
               <NInput
                 v-model:value="model.deal_desc"
                 type="textarea"
@@ -555,7 +555,7 @@ watch(visible, async () => {
                 show-count
                 :rows="3"
                 :disabled="!isDealMode"
-                placeholder="请输入处理说明"
+                :placeholder="$t('workorder.handlingPlaceholder')"
               />
             </NFormItem>
           </template>
@@ -570,14 +570,20 @@ watch(visible, async () => {
             </NButton>
           </template>
           <template v-else-if="isAllocationMode">
-            <NButton type="primary" :loading="loading" @click="handleSubmit('allocation')">分配</NButton>
-            <NButton :loading="loading" @click="handleSubmit('cancelAllocation')">取消分配</NButton>
+            <NButton type="primary" :loading="loading" @click="handleSubmit('allocation')">
+              {{ $t('workorder.assign') }}
+            </NButton>
+            <NButton :loading="loading" @click="handleSubmit('cancelAllocation')">
+              {{ $t('workorder.cancelAssign') }}
+            </NButton>
           </template>
           <template v-else-if="isDealMode">
             <NButton @click="closeDrawer">{{ $t('common.cancel') }}</NButton>
-            <NButton type="primary" :loading="loading" @click="handleSubmit('deal')">处理</NButton>
+            <NButton type="primary" :loading="loading" @click="handleSubmit('deal')">
+              {{ $t('workorder.handle') }}
+            </NButton>
           </template>
-          <NButton v-else @click="closeDrawer">关闭</NButton>
+          <NButton v-else @click="closeDrawer">{{ $t('common.close') }}</NButton>
         </NSpace>
       </template>
     </NDrawerContent>

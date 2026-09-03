@@ -67,7 +67,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'title',
-        title: '大屏标题',
+        title: $t('visualSysScreen.screenTitle'),
         align: 'center',
         minWidth: 180,
         ellipsis: {
@@ -76,7 +76,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'name',
-        title: '系统名称',
+        title: $t('visualSysScreen.systemName'),
         align: 'center',
         minWidth: 180,
         ellipsis: {
@@ -85,7 +85,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'cover',
-        title: '封面',
+        title: $t('visualSysScreen.cover'),
         align: 'center',
         minWidth: 160,
         render: row => {
@@ -104,14 +104,14 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'status',
-        title: '状态',
+        title: $t('visualSysScreen.status'),
         align: 'center',
         minWidth: 100,
         render: row => <StatusTag value={row.status} />
       },
       {
         key: 'created_at',
-        title: '创建时间',
+        title: $t('visualSysScreen.createdAt'),
         align: 'center',
         minWidth: 180,
         render: row => (row.created_at ? formatDateTime(row.created_at) : '-')
@@ -137,7 +137,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               text
               type="primary"
               icon="material-symbols:bookmark-manager-outline"
-              tooltipContent="标签管理"
+              tooltipContent={$t('visualSysScreen.tagManagement')}
               onClick={() => handleTagManagement(row)}
             />
           );
@@ -195,7 +195,7 @@ function handleSearch() {
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <ProjectSysScreenSearch v-model:model="searchParams" @search="handleSearch" />
-    <NCard title="可视化大屏" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('visualSysScreen.title')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

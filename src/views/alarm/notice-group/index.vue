@@ -16,13 +16,13 @@ defineOptions({
 });
 
 const NOTICE_TYPE_LABELS: Record<Api.Alarm.NoticeGroupNoticeType, string> = {
-  1: '成员'
+  1: $t('alarmNoticeGroup.member')
 };
 
 const NOTICE_WAY_LABELS: Record<Api.Alarm.NoticeWay, string> = {
-  1: '短信',
-  2: '站内通知',
-  3: 'App 通知'
+  1: $t('alarmNoticeGroup.sms'),
+  2: $t('alarmNoticeGroup.inApp'),
+  3: $t('alarmNoticeGroup.app')
 };
 
 const appStore = useAppStore();
@@ -76,7 +76,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'name',
-        title: '通知组名称',
+        title: $t('alarmNoticeGroup.name'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -85,7 +85,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'notice_type',
-        title: '通知类型',
+        title: $t('alarmNoticeGroup.type'),
         align: 'center',
         minWidth: 120,
         render: row => {
@@ -96,21 +96,21 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'user_id_list',
-        title: '接收人',
+        title: $t('alarmNoticeGroup.receiver'),
         align: 'center',
         minWidth: 180,
         render: row => renderUserTags(row.notice?.user?.user_id_list ?? [])
       },
       {
         key: 'notice_way_list',
-        title: '通知方式',
+        title: $t('alarmNoticeGroup.way'),
         align: 'center',
         minWidth: 160,
         render: row => formatNoticeWays(row.notice?.user?.notice_way_list ?? [])
       },
       {
         key: 'desc',
-        title: '描述',
+        title: $t('alarmNoticeGroup.description'),
         align: 'center',
         minWidth: 180,
         ellipsis: {
@@ -120,7 +120,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'created_at',
-        title: '创建时间',
+        title: $t('alarmNoticeGroup.createdAt'),
         align: 'center',
         minWidth: 180,
         render: row => (row.created_at ? formatDateTime(row.created_at) : '-')
@@ -233,7 +233,12 @@ function edit(id: CommonType.IdType) {
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <NoticeGroupSearch v-model:model="searchParams" @search="handleSearch" />
     <TableRowCheckAlert v-model:checked-row-keys="checkedRowKeys" />
-    <NCard title="通知组管理" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard
+      :title="$t('alarmNoticeGroup.management')"
+      :bordered="false"
+      size="small"
+      class="card-wrapper sm:flex-1-hidden"
+    >
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

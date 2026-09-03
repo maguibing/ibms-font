@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { $t } from '@/locales';
 import { getStatusText, getStatusType, type TestStatus, type ToolTone } from './shared';
 
 type PanelItem = {
@@ -28,10 +29,10 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   elapsed: undefined,
   icon: 'material-symbols:play-circle-rounded',
-  idleText: '填写参数后开始测试',
+  idleText: undefined,
   items: () => [],
   result: undefined,
-  runningText: '请求执行中，请稍候',
+  runningText: undefined,
   steps: () => [],
   title: '',
   tone: 'primary'
@@ -39,10 +40,10 @@ const props = withDefaults(defineProps<Props>(), {
 
 const displayTitle = computed(() => {
   if (props.title) return props.title;
-  if (props.status === 'running') return '正在执行';
-  if (props.status === 'error') return '执行失败';
+  if (props.status === 'running') return $t('toolbox.status.running');
+  if (props.status === 'error') return $t('toolbox.status.error');
 
-  return '等待执行';
+  return $t('toolbox.status.idle');
 });
 
 const resultText = computed(() => {
@@ -50,7 +51,7 @@ const resultText = computed(() => {
   if (props.status === 'running') return props.runningText;
   if (props.result) return props.result;
 
-  return props.status === 'success' ? '执行成功' : '请求失败';
+  return props.status === 'success' ? $t('toolbox.status.success') : $t('toolbox.status.requestFailed');
 });
 </script>
 
@@ -107,7 +108,7 @@ const resultText = computed(() => {
     </div>
 
     <div v-if="elapsed !== undefined && status !== 'running'" class="text-12px text-[var(--n-text-color-3)]">
-      耗时 {{ elapsed }} ms
+      {{ $t('toolbox.common.elapsed', { value: elapsed }) }}
     </div>
   </section>
 </template>

@@ -48,12 +48,12 @@ const { loading, startLoading, endLoading } = useLoading();
 const model = ref<Model>(createDefaultModel());
 
 const isEdit = computed(() => props.operateType === 'edit');
-const drawerTitle = computed(() => (isEdit.value ? '编辑大屏标签' : '新增大屏标签'));
+const drawerTitle = computed(() => (isEdit.value ? $t('visualSysScreenTag.editTag') : $t('visualSysScreenTag.addTag')));
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  name: createRequiredRule('请输入标签名称'),
-  key: createRequiredRule('请输入标签标识'),
-  scope: createRequiredRule('请选择标签范围')
+  name: createRequiredRule($t('visualSysScreenTag.tagNamePlaceholder')),
+  key: createRequiredRule($t('visualSysScreenTag.tagKeyPlaceholder')),
+  scope: createRequiredRule($t('visualSysScreenTag.scopePlaceholder'))
 };
 
 function createDefaultModel(): Model {
@@ -101,7 +101,7 @@ function buildSubmitParams(): Api.Visual.ProjectSysScreenTagOperateParams {
 
 async function handleSubmit() {
   if (model.value.project_sys_screen_id === null || model.value.project_sys_screen_id === undefined) {
-    window.$message?.warning('缺少大屏ID');
+    window.$message?.warning($t('visualSysScreenTag.missingScreen'));
     return;
   }
 
@@ -129,14 +129,28 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" display-directive="show" :width="520" class="max-w-90%">
     <NDrawerContent :title="drawerTitle" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
-        <NFormItem label="标签名称" path="name">
-          <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入标签名称" />
+        <NFormItem :label="$t('visualSysScreenTag.tagName')" path="name">
+          <NInput
+            v-model:value="model.name"
+            maxlength="30"
+            show-count
+            :placeholder="$t('visualSysScreenTag.tagNamePlaceholder')"
+          />
         </NFormItem>
-        <NFormItem label="标签标识" path="key">
-          <NInput v-model:value="model.key" maxlength="48" show-count placeholder="请输入标签标识，如：CHWP" />
+        <NFormItem :label="$t('visualSysScreenTag.tagKey')" path="key">
+          <NInput
+            v-model:value="model.key"
+            maxlength="48"
+            show-count
+            :placeholder="$t('visualSysScreenTag.tagKeyPlaceholder')"
+          />
         </NFormItem>
-        <NFormItem label="标签范围" path="scope">
-          <NSelect v-model:value="model.scope" :options="scopeOptions" placeholder="请选择标签范围" />
+        <NFormItem :label="$t('visualSysScreenTag.scope')" path="scope">
+          <NSelect
+            v-model:value="model.scope"
+            :options="scopeOptions"
+            :placeholder="$t('visualSysScreenTag.scopePlaceholder')"
+          />
         </NFormItem>
       </NForm>
       <template #footer>

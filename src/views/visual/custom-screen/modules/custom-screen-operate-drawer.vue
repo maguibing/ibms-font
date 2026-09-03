@@ -39,10 +39,12 @@ const { loading, startLoading, endLoading } = useLoading();
 const model = ref<Model>(createDefaultModel());
 
 const isEdit = computed(() => props.operateType === 'edit');
-const drawerTitle = computed(() => (isEdit.value ? '编辑自定义大屏' : '新增自定义大屏'));
+const drawerTitle = computed(() =>
+  isEdit.value ? $t('visualCustomScreen.editTitle') : $t('visualCustomScreen.addTitle')
+);
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  name: createRequiredRule('请输入大屏名称')
+  name: createRequiredRule($t('visualCustomScreen.namePlaceholder'))
 };
 
 function createDefaultModel(): Model {
@@ -107,17 +109,22 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" display-directive="show" :width="520" class="max-w-90%">
     <NDrawerContent :title="drawerTitle" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
-        <NFormItem label="大屏名称" path="name">
-          <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入大屏名称" />
+        <NFormItem :label="$t('visualCustomScreen.name')" path="name">
+          <NInput
+            v-model:value="model.name"
+            maxlength="30"
+            show-count
+            :placeholder="$t('visualCustomScreen.namePlaceholder')"
+          />
         </NFormItem>
-        <NFormItem label="大屏描述">
+        <NFormItem :label="$t('visualCustomScreen.description')">
           <NInput
             v-model:value="model.desc"
             type="textarea"
             :rows="3"
             maxlength="200"
             show-count
-            placeholder="请输入大屏描述"
+            :placeholder="$t('visualCustomScreen.descriptionPlaceholder')"
           />
         </NFormItem>
       </NForm>

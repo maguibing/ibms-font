@@ -43,7 +43,9 @@ const model = ref<Model>(createDefaultModel());
 const expandedKeys = ref<CommonType.IdType[]>([0]);
 
 const isEdit = computed(() => props.operateType === 'edit');
-const drawerTitle = computed(() => (isEdit.value ? '编辑属性分类' : '新增属性分类'));
+const drawerTitle = computed(() =>
+  isEdit.value ? $t('visualConfiguration.editCategory') : $t('visualConfiguration.addCategory')
+);
 const parentOptions = computed(() => {
   if (!isEdit.value || !props.rowData) return props.categories;
 
@@ -51,8 +53,8 @@ const parentOptions = computed(() => {
 });
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  name: createRequiredRule('请输入分类名称'),
-  parent_id: createRequiredRule('请选择上级分类')
+  name: createRequiredRule($t('visualConfiguration.categoryNamePlaceholder')),
+  parent_id: createRequiredRule($t('visualConfiguration.parentCategory'))
 };
 
 function createDefaultModel(): Model {
@@ -136,7 +138,7 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" display-directive="show" :width="520" class="max-w-90%">
     <NDrawerContent :title="drawerTitle" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
-        <NFormItem label="上级分类" path="parent_id">
+        <NFormItem :label="$t('visualConfiguration.parentCategory')" path="parent_id">
           <NTreeSelect
             v-model:value="model.parent_id"
             v-model:expanded-keys="expandedKeys"
@@ -144,11 +146,16 @@ watch(visible, () => {
             :options="parentOptions"
             label-field="name"
             key-field="id"
-            placeholder="请选择上级分类"
+            :placeholder="$t('visualConfiguration.parentCategory')"
           />
         </NFormItem>
-        <NFormItem label="分类名称" path="name">
-          <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入分类名称" />
+        <NFormItem :label="$t('visualConfiguration.categoryName')" path="name">
+          <NInput
+            v-model:value="model.name"
+            maxlength="30"
+            show-count
+            :placeholder="$t('visualConfiguration.categoryNamePlaceholder')"
+          />
         </NFormItem>
       </NForm>
       <template #footer>
