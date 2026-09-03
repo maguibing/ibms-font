@@ -3,6 +3,18 @@ export type TaskScheduleTimeNode = {
   value: number | null;
 };
 
+export type TaskScheduleTimeRange = {
+  _key: string;
+  start_at: number | null;
+  end_at: number | null;
+};
+
+export type TaskScheduleCalendarDateGroup = {
+  _key: string;
+  execution_date_list: number[];
+  time_ranges: TaskScheduleTimeRange[];
+};
+
 export type TaskScheduleEditorModel = {
   type: Api.Task.TaskScheduleType;
   once: {
@@ -21,6 +33,11 @@ export type TaskScheduleEditorModel = {
     execution_date_list: number[];
     execution_at_list: TaskScheduleTimeNode[];
   };
+  calendar: {
+    date_groups: TaskScheduleCalendarDateGroup[];
+    poll_interval_seconds: number;
+    max_continuous_fail: number;
+  };
 };
 
 let scheduleTimeKeySeed = 0;
@@ -31,6 +48,23 @@ export function createTaskScheduleTimeNode(value: number | null = null): TaskSch
   return {
     _key: `schedule-time-${scheduleTimeKeySeed}`,
     value
+  };
+}
+
+function createCalendarKey(prefix: string) {
+  scheduleTimeKeySeed += 1;
+  return `${prefix}-${scheduleTimeKeySeed}`;
+}
+
+export function createTaskScheduleTimeRange(): TaskScheduleTimeRange {
+  return { _key: createCalendarKey('schedule-range'), start_at: null, end_at: null };
+}
+
+export function createTaskScheduleCalendarDateGroup(): TaskScheduleCalendarDateGroup {
+  return {
+    _key: createCalendarKey('schedule-date-group'),
+    execution_date_list: [],
+    time_ranges: [createTaskScheduleTimeRange()]
   };
 }
 
@@ -52,6 +86,11 @@ export function createDefaultTaskScheduleModel(): TaskScheduleEditorModel {
     custom: {
       execution_date_list: [],
       execution_at_list: [createTaskScheduleTimeNode()]
+    },
+    calendar: {
+      date_groups: [createTaskScheduleCalendarDateGroup()],
+      poll_interval_seconds: 300,
+      max_continuous_fail: 3
     }
   };
 }
@@ -85,6 +124,26 @@ export function normalizeTaskScheduleModel(sched?: Api.Task.TaskLogSchedule | nu
     model.custom.execution_at_list = normalizeTimeNodes(sched.custom.execution_at_list);
   }
 
+  if (sched.calendar) {
+    model.calendar.poll_interval_seconds = sched.calendar.poll_interval_seconds ?? 300;
+    model.calendar.max_continuous_fail = sched.calendar.max_continuous_fail ?? 3;
+    model.calendar.date_groups = sched.calendar.date_groups?.length
+      ? sched.calendar.date_groups.map(group => ({
+          _key: createCalendarKey('schedule-date-group'),
+          execution_date_list: [...new Set((group.execution_date_list ?? []).map(toLocalDayMilliseconds))].sort(
+            (a, b) => a - b
+          ),
+          time_ranges: group.time_ranges?.length
+            ? group.time_ranges.map(range => ({
+                _key: createCalendarKey('schedule-range'),
+                start_at: range.start_at === undefined ? null : toMilliseconds(range.start_at),
+                end_at: range.end_at === undefined ? null : toMilliseconds(range.end_at)
+              }))
+            : [createTaskScheduleTimeRange()]
+        }))
+      : [createTaskScheduleCalendarDateGroup()];
+  }
+
   return model;
 }
 
@@ -115,6 +174,23 @@ export function buildTaskScheduleSubmitModel(model: TaskScheduleEditorModel): Ap
       interval: {
         intervals: model.interval.intervals as number,
         time_type: model.interval.time_type
+      }
+    };
+  }
+
+  if (model.type === 5) {
+    return {
+      type: 5,
+      calendar: {
+        date_groups: model.calendar.date_groups.map(group => ({
+          execution_date_list: group.execution_date_list.map(toUnixSeconds),
+          time_ranges: group.time_ranges.map(range => ({
+            start_at: toUnixSeconds(range.start_at as number),
+            end_at: toUnixSeconds(range.end_at as number)
+          }))
+        })),
+        poll_interval_seconds: model.calendar.poll_interval_seconds,
+        max_continuous_fail: model.calendar.max_continuous_fail
       }
     };
   }
@@ -156,6 +232,20 @@ export function getTaskScheduleValidationMessage(model: TaskScheduleEditorModel)
     if (model.custom.execution_date_list.length === 0) return '请至少选择一个执行日期';
     const timeMessage = getTimeValidationMessage(model.custom.execution_at_list);
     if (timeMessage) return timeMessage;
+  }
+
+  if (model.type === 5) {
+    if (model.calendar.date_groups.length === 0) return '请至少添加一个日期组';
+    for (const [groupIndex, group] of model.calendar.date_groups.entries()) {
+      if (group.execution_date_list.length === 0) return `请选择日期组 ${groupIndex + 1} 的执行日期`;
+      if (group.time_ranges.length === 0) return `请至少添加日期组 ${groupIndex + 1} 的时间段`;
+      for (const [rangeIndex, range] of group.time_ranges.entries()) {
+        if (range.start_at === null || range.end_at === null)
+          return `请完善日期组 ${groupIndex + 1} 的时间段 ${rangeIndex + 1}`;
+        if (range.start_at >= range.end_at)
+          return `日期组 ${groupIndex + 1} 的时间段 ${rangeIndex + 1} 开始时间必须早于结束时间`;
+      }
+    }
   }
 
   return null;

@@ -22,6 +22,7 @@ type ActionTableRow = {
   value: string;
   delaySeconds?: number;
   continuousTimes?: number;
+  outValue?: string;
 };
 
 type ConditionTableRow = {
@@ -45,6 +46,7 @@ const detail = shallowRef<Api.Task.TaskDetailData | null>(null);
 const task = computed(() => detail.value?.task ?? null);
 const taskTypeTag = computed(() => (task.value ? taskTypeMap[task.value.task_type] : null));
 const actionList = computed(() => task.value?.action_setting.actions ?? []);
+const outActionList = computed(() => task.value?.action_setting.out_actions ?? []);
 const conditionList = computed(() => task.value?.cond_setting.conds ?? []);
 
 const targetDeviceNames = computed(() => {
@@ -53,10 +55,15 @@ const targetDeviceNames = computed(() => {
       .map(point => point.device?.id)
       .filter((deviceId): deviceId is CommonType.IdType => deviceId !== null && deviceId !== undefined)
   );
+  const outDeviceIds = outActionList.value.flatMap(action =>
+    (action.point_vals ?? [])
+      .map(point => point.device?.id)
+      .filter((deviceId): deviceId is CommonType.IdType => deviceId !== null && deviceId !== undefined)
+  );
   const conditionDeviceIds = conditionList.value
     .map(condition => condition.device_source_id)
     .filter((deviceId): deviceId is CommonType.IdType => deviceId !== null && deviceId !== undefined);
-  const deviceIds = actionDeviceIds.length ? actionDeviceIds : conditionDeviceIds;
+  const deviceIds = actionDeviceIds.length ? actionDeviceIds : outDeviceIds.length ? outDeviceIds : conditionDeviceIds;
   const names = deviceIds.map(deviceId => getDeviceName(deviceId)).filter(item => item !== '-');
   const uniqueNames = Array.from(new Set(names));
 
@@ -86,6 +93,10 @@ const scheduleItems = computed(() => {
     items.push({ label: '执行时间', value: formatUnixList(sched.custom.execution_at_list, 'HH:mm:ss') });
   }
 
+  if (sched.calendar) {
+    items.push({ label: '日期组', value: formatCalendarGroups(sched.calendar.date_groups) });
+  }
+
   if (sched.interval) {
     items.push({ label: '间隔时间', value: formatIntervalValue(sched.interval) });
   }
@@ -107,6 +118,7 @@ const actionTableData = computed<ActionTableRow[]>(() =>
     (action.point_vals ?? []).map((point, pointIndex) => {
       const pointId = point.device_type_point?.id;
 
+      const outPoint = outActionList.value[actionIndex]?.point_vals?.[pointIndex];
       return {
         id: `${point.device?.id ?? 'empty'}-${pointId ?? 'empty'}-${actionIndex}-${pointIndex}`,
         deviceName: getDeviceName(point.device?.id),
@@ -114,7 +126,8 @@ const actionTableData = computed<ActionTableRow[]>(() =>
         dataType: point.data_type,
         value: formatPointValue(point),
         delaySeconds: action.delay_seconds,
-        continuousTimes: action.continuous_times
+        continuousTimes: action.continuous_times,
+        outValue: outPoint ? formatPointValue(outPoint) : undefined
       };
     })
   )
@@ -172,6 +185,14 @@ const actionTableColumns: NaiveUI.TableColumn<ActionTableRow>[] = [
     ellipsis: { tooltip: true }
   },
   {
+    key: 'outValue',
+    title: '范围外值',
+    align: 'center',
+    minWidth: 120,
+    ellipsis: { tooltip: true },
+    render: row => displayValue(row.outValue)
+  },
+  {
     key: 'delaySeconds',
     title: '延迟秒数',
     align: 'center',
@@ -212,6 +233,26 @@ function formatIntervalValue(interval: Api.Task.TaskLogScheduleInterval) {
 
 function formatList<T>(values: T[] | undefined, formatter: (value: T) => string) {
   return values?.length ? values.map(formatter).join('、') : '-';
+}
+
+function formatCalendarGroups(groups?: Api.Task.TaskLogScheduleCalendarDateGroup[]) {
+  return groups?.length
+    ? groups
+        .map((group, index) => {
+          const dates = formatUnixList(group.execution_date_list, 'YYYY-MM-DD');
+          const ranges = group.time_ranges?.length
+            ? group.time_ranges
+                .map(range => `${formatUnixTime(range.start_at)}-${formatUnixTime(range.end_at)}`)
+                .join('、')
+            : '-';
+          return `第${index + 1}组：${dates} ${ranges}`;
+        })
+        .join('；')
+    : '-';
+}
+
+function formatUnixTime(value?: number) {
+  return value === undefined ? '-' : dayjs(value * 1000).format('HH:mm:ss');
 }
 
 function formatPointValue(point: Api.Task.TaskPointValue) {

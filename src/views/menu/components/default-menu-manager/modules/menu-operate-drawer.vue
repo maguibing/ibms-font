@@ -254,7 +254,7 @@ function buildDetail(): Api.System.MenuNodeOperateDetail {
     return {
       dir: {
         always_show: true,
-        component_path: model.value.component,
+        component_path: 'Layout',
         route_path: model.value.path
       }
     };

@@ -2,8 +2,10 @@
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import { intervalTimeTypeMap, repeatTypeMap, scheduleTypeMap, weekdayMap } from '../../../constants';
 import TaskYearDatePicker from './task-year-date-picker.vue';
+import TaskTimeRangePicker from './task-time-range-picker.vue';
 import {
   createTaskScheduleTimeNode,
+  createTaskScheduleCalendarDateGroup,
   type TaskScheduleEditorModel,
   type TaskScheduleTimeNode
 } from './use-task-schedule-editor';
@@ -41,6 +43,14 @@ function removeTime(nodes: TaskScheduleTimeNode[], index: number) {
   if (nodes.length === 0) {
     nodes.push(createTaskScheduleTimeNode());
   }
+}
+
+function addCalendarGroup() {
+  model.value.calendar.date_groups.push(createTaskScheduleCalendarDateGroup());
+}
+function removeCalendarGroup(index: number) {
+  model.value.calendar.date_groups.splice(index, 1);
+  if (!model.value.calendar.date_groups.length) addCalendarGroup();
 }
 </script>
 
@@ -127,7 +137,7 @@ function removeTime(nodes: TaskScheduleTimeNode[], index: number) {
           </NFormItemGi>
         </NGrid>
 
-        <template v-else>
+        <template v-else-if="model.type === 4">
           <NFormItem label="执行日期">
             <TaskYearDatePicker v-model="model.custom.execution_date_list" />
           </NFormItem>
@@ -153,6 +163,61 @@ function removeTime(nodes: TaskScheduleTimeNode[], index: number) {
               </div>
             </div>
           </NFormItem>
+        </template>
+
+        <template v-else>
+          <div class="mb-12px flex items-center justify-between">
+            <span>日期组</span>
+            <NButton size="small" text type="primary" @click="addCalendarGroup">新增日期组</NButton>
+          </div>
+          <div class="flex flex-col gap-12px">
+            <div
+              v-for="(group, groupIndex) in model.calendar.date_groups"
+              :key="group._key"
+              class="rounded-6px border border-#e5e7eb border-solid p-12px dark:border-#2f3338"
+            >
+              <div class="mb-8px flex items-center justify-between font-500">
+                <span>日期组 {{ groupIndex + 1 }}</span>
+                <ButtonIcon
+                  size="small"
+                  type="error"
+                  icon="material-symbols:delete-outline"
+                  tooltip-content="删除日期组"
+                  @click="removeCalendarGroup(groupIndex)"
+                />
+              </div>
+              <TaskYearDatePicker v-model="group.execution_date_list" />
+              <TaskTimeRangePicker v-model="group.time_ranges" class="mt-12px" />
+            </div>
+          </div>
+          <NGrid class="mt-12px" responsive="screen" item-responsive :x-gap="16">
+            <NFormItemGi span="24 m:12" label="轮询间隔">
+              <NInputNumber
+                v-model:value="model.calendar.poll_interval_seconds"
+                :min="30"
+                :max="3600"
+                :precision="0"
+                button-placement="right"
+                class="w-full"
+                placeholder="请输入轮询间隔"
+              >
+                <template #suffix>秒</template>
+              </NInputNumber>
+            </NFormItemGi>
+            <NFormItemGi span="24 m:12" label="连续失败上限">
+              <NInputNumber
+                v-model:value="model.calendar.max_continuous_fail"
+                :min="1"
+                :max="10"
+                :precision="0"
+                button-placement="right"
+                class="w-full"
+                placeholder="请输入连续失败上限"
+              >
+                <template #suffix>次</template>
+              </NInputNumber>
+            </NFormItemGi>
+          </NGrid>
         </template>
       </NForm>
     </section>

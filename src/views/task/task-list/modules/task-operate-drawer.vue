@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useLoading } from '@sa/hooks';
 import { fetchCreateTask, fetchGetTask, fetchUpdateTask } from '@/service/api/task';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
@@ -7,10 +7,13 @@ import { $t } from '@/locales';
 import { taskTypeOptions } from '../../constants';
 import TaskPointRuleEditor from './task-point-rule-editor/task-point-rule-editor.vue';
 import TaskScheduleEditor from './task-schedule-editor/task-schedule-editor.vue';
+import TaskCalendarActionEditor, { type TaskCalendarActionEditorModel } from './task-calendar-action-editor.vue';
 import {
   buildTaskActionSubmitModel,
   buildTaskConditionSubmitModel,
   createDefaultTaskActionModel,
+  createDefaultAction,
+  createDefaultActionPoint,
   createDefaultTaskConditionModel,
   getTaskActionValidationMessage,
   getTaskConditionValidationMessage,
@@ -60,6 +63,8 @@ const model = ref<Model>(createDefaultModel());
 const conditionModel = ref<TaskConditionEditorModel>(createDefaultTaskConditionModel());
 const scheduleModel = ref<TaskScheduleEditorModel>(createDefaultTaskScheduleModel());
 const actionModel = ref<TaskActionEditorModel>(createDefaultTaskActionModel());
+const calendarActionModel = ref<TaskCalendarActionEditorModel>(createDefaultCalendarActionModel());
+const calendarActionEditorRef = useTemplateRef<InstanceType<typeof TaskCalendarActionEditor>>('calendarActionEditor');
 
 const isEdit = computed(() => props.operateType === 'edit');
 const title = computed(() => (isEdit.value ? '编辑任务' : '新增任务'));
@@ -95,6 +100,7 @@ function resetModel() {
   conditionModel.value = createDefaultTaskConditionModel();
   scheduleModel.value = createDefaultTaskScheduleModel();
   actionModel.value = createDefaultTaskActionModel();
+  calendarActionModel.value = createDefaultCalendarActionModel();
 }
 
 async function handleUpdateModel() {
@@ -120,6 +126,7 @@ async function handleUpdateModel() {
     scheduleModel.value = normalizeTaskScheduleModel(data.task.cond_setting.sched);
   }
   actionModel.value = normalizeTaskActionModel(data.task.action_setting, maps);
+  calendarActionModel.value = normalizeCalendarActionModel(data.task.action_setting, maps);
 }
 
 function closeDrawer() {
@@ -132,13 +139,30 @@ function buildSubmitParams(): Api.Task.TaskOperateParams {
       ? buildTaskConditionSubmitModel(conditionModel.value)
       : buildScheduledTaskConditionSetting(scheduleModel.value);
 
+  const isCalendar = model.value.task_type === 2 && scheduleModel.value.type === 5;
+  const actionSetting: Api.Task.TaskActionSetting = isCalendar
+    ? {
+        actions: buildTaskActionSubmitModel(calendarActionModel.value.actions).actions,
+        out_actions: buildTaskActionSubmitModel(calendarActionModel.value.outActions).actions
+      }
+    : buildTaskActionSubmitModel(actionModel.value);
+  if (isCalendar) {
+    actionSetting.actions?.forEach(action => {
+      action.delay_seconds = 0;
+      action.continuous_times = 1;
+    });
+    actionSetting.out_actions?.forEach(action => {
+      action.delay_seconds = 0;
+      action.continuous_times = 1;
+    });
+  }
   return {
     name: model.value.name,
     desc: model.value.desc,
     task_type: model.value.task_type,
     status: model.value.status,
     cond_setting: condSetting,
-    action_setting: buildTaskActionSubmitModel(actionModel.value)
+    action_setting: actionSetting
   };
 }
 
@@ -172,10 +196,14 @@ async function handleSubmit() {
 }
 
 function validateTaskRuleModels() {
+  const isCalendar = model.value.task_type === 2 && scheduleModel.value.type === 5;
   const message =
     (model.value.task_type === 1
       ? getTaskConditionValidationMessage(conditionModel.value)
-      : getTaskScheduleValidationMessage(scheduleModel.value)) || getTaskActionValidationMessage(actionModel.value);
+      : getTaskScheduleValidationMessage(scheduleModel.value)) ||
+    (isCalendar
+      ? calendarActionEditorRef.value?.getValidationMessage()
+      : getTaskActionValidationMessage(actionModel.value));
 
   if (message) {
     window.$message?.warning(message);
@@ -183,6 +211,41 @@ function validateTaskRuleModels() {
   }
 
   return true;
+}
+
+function createDefaultCalendarActionModel(): TaskCalendarActionEditorModel {
+  return {
+    actions: createDefaultTaskActionModel(),
+    outActions: createDefaultTaskActionModel()
+  };
+}
+
+function normalizeCalendarActionModel(
+  actionSetting: Api.Task.TaskActionSetting,
+  maps: { deviceMap: CommonType.IdNameMap; deviceTypePointMap: Record<string, Api.Task.TaskDeviceTypePointMapItem> }
+): TaskCalendarActionEditorModel {
+  const actions = normalizeTaskActionModel(actionSetting, maps);
+  const outActions = normalizeTaskActionModel({ actions: actionSetting.out_actions }, maps);
+
+  outActions.actions = actions.actions.map((action, actionIndex) => {
+    const outAction = outActions.actions[actionIndex] ?? createDefaultAction();
+    outAction.device_id = action.device_id;
+    outAction.selected_device = action.selected_device;
+    outAction.delay_seconds = 0;
+    outAction.continuous_times = 1;
+    outAction.point_vals = action.point_vals.map(point => {
+      const existingPoint = outAction.point_vals.find(item => item.device_type_point_id === point.device_type_point_id);
+      const nextPoint = existingPoint ?? createDefaultActionPoint();
+      nextPoint.device_type_point_id = point.device_type_point_id;
+      nextPoint.data_type = point.data_type;
+      nextPoint.setting = point.setting;
+      nextPoint.selected_device_type_point = point.selected_device_type_point;
+      return nextPoint;
+    });
+    return outAction;
+  });
+
+  return { actions, outActions };
 }
 
 watch(visible, () => {
@@ -237,7 +300,12 @@ watch(visible, () => {
 
           <NDivider class="!my-0" />
 
-          <TaskPointRuleEditor v-model:model="actionModel" mode="action" />
+          <TaskCalendarActionEditor
+            v-if="model.task_type === 2 && scheduleModel.type === 5"
+            ref="calendarActionEditor"
+            v-model:model="calendarActionModel"
+          />
+          <TaskPointRuleEditor v-else v-model:model="actionModel" mode="action" />
         </div>
       </NSpin>
 

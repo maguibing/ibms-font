@@ -90,6 +90,7 @@ declare namespace Api {
 
     type TaskActionSetting = {
       actions?: TaskAction[];
+      out_actions?: TaskAction[];
     };
 
     type Task = Api.Common.CommonRecord<{
@@ -150,7 +151,7 @@ declare namespace Api {
       continuous_times?: number;
     };
 
-    type TaskScheduleType = 1 | 2 | 3 | 4;
+    type TaskScheduleType = 1 | 2 | 3 | 4 | 5;
 
     type TaskScheduleRepeatType = 1 | 2;
 
@@ -176,12 +177,29 @@ declare namespace Api {
       intervals?: number;
     };
 
+    type TaskLogScheduleTimeRange = {
+      start_at?: number;
+      end_at?: number;
+    };
+
+    type TaskLogScheduleCalendarDateGroup = {
+      execution_date_list?: number[];
+      time_ranges?: TaskLogScheduleTimeRange[];
+    };
+
+    type TaskLogScheduleCalendar = {
+      date_groups?: TaskLogScheduleCalendarDateGroup[];
+      poll_interval_seconds?: number;
+      max_continuous_fail?: number;
+    };
+
     type TaskLogSchedule = {
       type: TaskScheduleType;
       once?: TaskLogScheduleOnce;
       custom?: TaskLogScheduleCustom;
       daily?: TaskLogScheduleDaily;
       interval?: TaskLogScheduleInterval;
+      calendar?: TaskLogScheduleCalendar;
     };
 
     type TaskLogConditionDetail = {

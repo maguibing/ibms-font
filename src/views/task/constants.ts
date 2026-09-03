@@ -14,7 +14,8 @@ export const scheduleTypeMap: Record<number, string> = {
   1: '一次执行',
   2: '按周期执行',
   3: '间隔时间重复执行',
-  4: '按日程执行'
+  4: '按日程执行',
+  5: '万年历执行'
 };
 
 export const weekdayMap: Record<number, string> = {

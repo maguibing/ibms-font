@@ -276,6 +276,8 @@ const local: App.I18n.Schema = {
     'iframe-page': '外链页面',
     home: '首页',
     // 运营平台菜单
+    datahub: '数据中台',
+    datahub_rule: '规则管理',
     menu: '菜单配置',
     menu_platform: '运营菜单管理',
     'menu_platform-menu': '运营菜单管理',

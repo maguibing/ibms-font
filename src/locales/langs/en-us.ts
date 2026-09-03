@@ -280,6 +280,8 @@ const local: App.I18n.Schema = {
     'iframe-page': 'Iframe',
     home: 'Home',
     // 运营平台菜单
+    datahub: 'Data Hub',
+    datahub_rule: 'Rule Management',
     menu: 'Menu Management',
     menu_platform: 'Operation Menu Management',
     'menu_platform-menu': 'Operation Menu Management',
