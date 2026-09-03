@@ -28,6 +28,7 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   "corp_corp-detail": () => import("@/views/corp/corp-detail/index.vue"),
   "corp_corp-list": () => import("@/views/corp/corp-list/index.vue"),
   corp_version: () => import("@/views/corp/version/index.vue"),
+  datahub_rule: () => import("@/views/datahub/rule/index.vue"),
   "device_device-detail": () => import("@/views/device/device-detail/index.vue"),
   "device_device-group": () => import("@/views/device/device-group/index.vue"),
   "device_device-list": () => import("@/views/device/device-list/index.vue"),

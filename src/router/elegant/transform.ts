@@ -179,6 +179,8 @@ const routeMap: RouteMap = {
   "corp_corp-detail": "/corp/corp-detail",
   "corp_corp-list": "/corp/corp-list",
   "corp_version": "/corp/version",
+  "datahub": "/datahub",
+  "datahub_rule": "/datahub/rule",
   "device": "/device",
   "device_device-detail": "/device/device-detail",
   "device_device-group": "/device/device-group",

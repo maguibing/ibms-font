@@ -127,6 +127,26 @@ export const generatedRoutes: GeneratedRoute[] = [
     ]
   },
   {
+    name: 'datahub',
+    path: '/datahub',
+    component: 'layout.base',
+    meta: {
+      title: 'datahub',
+      i18nKey: 'route.datahub'
+    },
+    children: [
+      {
+        name: 'datahub_rule',
+        path: '/datahub/rule',
+        component: 'view.datahub_rule',
+        meta: {
+          title: 'datahub_rule',
+          i18nKey: 'route.datahub_rule'
+        }
+      }
+    ]
+  },
+  {
     name: 'device',
     path: '/device',
     component: 'layout.base',
