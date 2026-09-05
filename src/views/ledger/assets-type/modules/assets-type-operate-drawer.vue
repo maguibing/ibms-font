@@ -34,8 +34,8 @@ const { loading, startLoading, endLoading } = useLoading();
 
 const title = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增资产类型',
-    edit: '编辑资产类型'
+    add: $t('ledger.addAssetsType'),
+    edit: $t('ledger.editAssetsType')
   };
   return titles[props.operateType];
 });
@@ -43,8 +43,8 @@ const title = computed(() => {
 const model = ref<Model>(createDefaultModel());
 
 const rules: Record<string, App.Global.FormRule> = {
-  name: createRequiredRule('请输入资产类型名称'),
-  status: createRequiredRule('请选择状态')
+  name: createRequiredRule($t('ledger.typeName')),
+  status: createRequiredRule($t('ledger.selectStatus'))
 };
 
 function createDefaultModel(): Model {
@@ -107,25 +107,25 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" display-directive="show" :width="520" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
-        <NFormItem label="资产类型名称" path="name">
-          <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入资产类型名称" />
+        <NFormItem :label="$t('ledger.assetsTypeName')" path="name">
+          <NInput v-model:value="model.name" maxlength="30" show-count :placeholder="$t('ledger.typeName')" />
         </NFormItem>
-        <NFormItem label="状态" path="status">
+        <NFormItem :label="$t('ledger.status')" path="status">
           <NRadioGroup v-model:value="model.status">
             <NSpace>
-              <NRadio :value="1">启用</NRadio>
-              <NRadio :value="2">停用</NRadio>
+              <NRadio :value="1">{{ $t('ledger.enabled') }}</NRadio>
+              <NRadio :value="2">{{ $t('ledger.disabled') }}</NRadio>
             </NSpace>
           </NRadioGroup>
         </NFormItem>
-        <NFormItem label="描述" path="desc">
+        <NFormItem :label="$t('ledger.desc')" path="desc">
           <NInput
             v-model:value="model.desc"
             type="textarea"
             maxlength="200"
             show-count
             :rows="4"
-            placeholder="请输入描述"
+            :placeholder="$t('ledger.inputDesc')"
           />
         </NFormItem>
       </NForm>

@@ -3,6 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch 
 import { javascript } from '@codemirror/lang-javascript';
 import { basicSetup, EditorView } from 'codemirror';
 import { useThemeStore } from '@/store/modules/theme';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'JsCodeEditor'
@@ -47,7 +48,7 @@ const showToolbar = computed(() => Boolean(props.label) || showFormatButton.valu
 const canFormat = computed(() => showFormatButton.value && Boolean(value.value.trim()));
 
 const formatErrorMessage = computed(() => {
-  return props.formatParser === 'json' ? '格式化失败，请检查 JSON 语法' : '脚本格式化失败，请检查 JS 语法';
+  return props.formatParser === 'json' ? $t('messageRule.formatJsonError') : $t('messageRule.formatScriptError');
 });
 
 function createEditor() {
@@ -237,7 +238,7 @@ onBeforeUnmount(() => {
           :disabled="!canFormat"
           @click="handleFormat"
         >
-          格式化
+          {{ $t('messageRule.format') }}
         </NButton>
         <slot name="toolbar-actions" />
       </div>

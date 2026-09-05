@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, toRaw, watch } from 'vue';
 import { useLoading } from '@sa/hooks';
 import { jsonClone } from '@sa/utils';
-import { aggregationTypeOptions, ENERGY_TYPE_OPTIONS } from '@/constants/business';
+import { ENERGY_TYPE_OPTIONS, STAT_TYPE_OPTIONS } from '@/constants/business';
 import { fetchGetDeviceList } from '@/service/api/device';
 import { fetchGetSpaceTrees } from '@/service/api/space';
 import { useNaiveForm } from '@/hooks/common/form';
@@ -118,7 +118,7 @@ onMounted(getSpaceData);
             <NFormItemGi span="24 s:12 m:8" :label="$t('energy.aggregation')" path="aggregation_type" class="pr-24px">
               <NSelect
                 v-model:value="model.aggregation_type"
-                :options="aggregationTypeOptions"
+                :options="STAT_TYPE_OPTIONS"
                 :placeholder="$t('energy.selectAggregation')"
               />
             </NFormItemGi>

@@ -69,7 +69,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '资产类型名称',
+        title: $t('ledger.assetsTypeName'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -78,20 +78,20 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'status',
-        title: '状态',
+        title: $t('ledger.status'),
         align: 'center',
         minWidth: 100,
         render: row => {
           if (Number(row.status) === 1) {
-            return <NTag type="success">启用</NTag>;
+            return <NTag type="success">{$t('ledger.enabled')}</NTag>;
           }
 
-          return <NTag type="default">停用</NTag>;
+          return <NTag type="default">{$t('ledger.disabled')}</NTag>;
         }
       },
       {
         key: 'desc',
-        title: '描述',
+        title: $t('ledger.desc'),
         align: 'center',
         minWidth: 180,
         ellipsis: {
@@ -101,7 +101,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'created_at',
-        title: '创建时间',
+        title: $t('ledger.createdAt'),
         align: 'center',
         minWidth: 180,
         render: row => (row.created_at ? formatDateTime(row.created_at) : '-')
@@ -177,7 +177,12 @@ function edit(id: CommonType.IdType) {
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <AssetsTypeSearch v-model:model="searchParams" @search="getDataByPage" />
-    <NCard title="资产类型管理" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard
+      :title="$t('ledger.assetsTypeManagement')"
+      :bordered="false"
+      size="small"
+      class="card-wrapper sm:flex-1-hidden"
+    >
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

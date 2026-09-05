@@ -87,7 +87,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'sn',
-        title: '资产编号',
+        title: $t('ledger.assetsNo'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -96,7 +96,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '资产名称',
+        title: $t('ledger.assetsName'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -105,14 +105,14 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'qr_code',
-        title: '二维码',
+        title: $t('ledger.qrCode'),
         align: 'center',
         width: 100,
         render: row => renderLedgerQrCode(row)
       },
       {
         key: 'assets_type_id',
-        title: '资产类型',
+        title: $t('ledger.assetsType'),
         align: 'center',
         minWidth: 140,
         ellipsis: {
@@ -122,7 +122,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'dept_id',
-        title: '归属部门',
+        title: $t('ledger.dept'),
         align: 'center',
         minWidth: 140,
         ellipsis: {
@@ -132,21 +132,21 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'purchase_price',
-        title: '采购金额',
+        title: $t('ledger.purchasePrice'),
         align: 'center',
         minWidth: 120,
         render: row => renderPrice(row.detail?.procurement?.purchase_price)
       },
       {
         key: 'status',
-        title: '资产状态',
+        title: $t('ledger.assetsStatus'),
         align: 'center',
         minWidth: 100,
         render: row => renderAssetsStatus(row.status)
       },
       {
         key: 'created_at',
-        title: '创建时间',
+        title: $t('ledger.createdAt'),
         align: 'center',
         minWidth: 180,
         render: row => formatUnixDateTime(row.created_at)
@@ -162,7 +162,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               text
               type="primary"
               icon="material-symbols:visibility-outline"
-              tooltipContent="查看"
+              tooltipContent={$t('ledger.view')}
               onClick={() => handleView(row)}
             />
           );
@@ -248,15 +248,15 @@ function renderAssetsStatus(status?: number | string) {
   const statusValue = Number(status);
 
   if (statusValue === 1) {
-    return <NTag type="success">正常</NTag>;
+    return <NTag type="success">{$t('ledger.normal')}</NTag>;
   }
 
   if (statusValue === 2) {
-    return <NTag type="warning">维修</NTag>;
+    return <NTag type="warning">{$t('ledger.repair')}</NTag>;
   }
 
   if (statusValue === 3) {
-    return <NTag type="error">报废</NTag>;
+    return <NTag type="error">{$t('ledger.scrapped')}</NTag>;
   }
 
   return status ?? '-';
@@ -301,7 +301,7 @@ function renderLedgerQrCode(row: Api.Ledger.Assets) {
         width={56}
         height={56}
         objectFit="contain"
-        alt="资产二维码"
+        alt={$t('ledger.qrAlt')}
         imgProps={{ style: { imageRendering: 'pixelated' } }}
         previewedImgProps={{ style: { imageRendering: 'pixelated' } }}
         renderToolbar={renderLedgerQrToolbar(row)}
@@ -315,22 +315,22 @@ function handleBatchDownloadLedgerQrCodes() {
   const count = downloadLedgerQrCodes(data.value);
 
   if (!count) {
-    window.$message?.warning('当前列表暂无可下载二维码');
+    window.$message?.warning($t('ledger.noQr'));
     return;
   }
 
-  window.$message?.success(`已开始下载 ${count} 个二维码压缩包`);
+  window.$message?.success($t('ledger.downloadStarted', { count }));
 }
 
 async function handleExport() {
   const connectionId = getWebSocketConnectionId();
   if (!connectionId) {
-    window.$message?.warning('WebSocket 尚未连接，请稍后重试');
+    window.$message?.warning($t('ledger.wsWarning'));
     return;
   }
 
   const { list_option } = transformSearchParamsToRequest(searchParams.value);
-  startExport('台账资产');
+  startExport($t('ledger.exportName'));
 
   const { error } = await fetchExportTask({
     connection_id: connectionId,
@@ -344,7 +344,7 @@ async function handleExport() {
     return;
   }
 
-  window.$message?.success('导出任务已提交');
+  window.$message?.success($t('ledger.exportSubmitted'));
 }
 
 function handleImportAssets() {
@@ -386,7 +386,7 @@ async function handleDelete(id: CommonType.IdType) {
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <AssetsSearch v-model:model="searchParams" @search="getDataByPage" />
-    <NCard title="资产管理" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('ledger.assetsManagement')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"
@@ -405,13 +405,13 @@ async function handleDelete(id: CommonType.IdType) {
               <template #icon>
                 <SvgIcon icon="material-symbols:upload-rounded" class="text-icon" />
               </template>
-              导入
+              {{ $t('ledger.import') }}
             </NButton>
             <NButton size="small" ghost :disabled="data.length === 0" @click="handleBatchDownloadLedgerQrCodes">
               <template #icon>
                 <icon-material-symbols-download-rounded class="text-icon" />
               </template>
-              批量下载二维码
+              {{ $t('ledger.batchDownloadQr') }}
             </NButton>
           </template>
         </TableHeaderOperation>
@@ -439,8 +439,8 @@ async function handleDelete(id: CommonType.IdType) {
         v-model:visible="importAssetsVisible"
         :biz-type="ImportBizType.Assets"
         :template-path="ImportTemplatePath.Assets"
-        :template-file-name="`台账资产_${$t('common.importTemplate')}_${new Date().getTime()}.xlsx`"
-        task-name="台账资产"
+        :template-file-name="`${$t('ledger.qrTaskName')}_${$t('common.importTemplate')}_${new Date().getTime()}.xlsx`"
+        :task-name="$t('ledger.qrTaskName')"
         @submitted="getData"
       />
     </NCard>

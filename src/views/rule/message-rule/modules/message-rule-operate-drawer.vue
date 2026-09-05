@@ -3,6 +3,7 @@ import { computed, ref, shallowRef, watch } from 'vue';
 import { useLoading } from '@sa/hooks';
 import { fetchCreateMessageRule, fetchUpdateMessageRule, fetchValidateMessageRule } from '@/service/api/rule';
 import { fetchGetGatewayList } from '@/service/api/gateway';
+import { enableStatusOptions, messageRuleTypeOptions } from '@/constants/business';
 import JsCodeEditor from '@/components/custom/js-code-editor.vue';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
@@ -38,16 +39,6 @@ const defaultScript = `module.exports = function (report) {
   return report;
 }`;
 
-const ruleTypeOptions: CommonType.Option<Api.Rule.MessageRuleType>[] = [
-  { label: '上报', value: 1 },
-  { label: '下发', value: 2 }
-];
-
-const statusOptions: CommonType.Option<Api.Rule.MessageRuleStatus>[] = [
-  { label: '启用', value: 1 },
-  { label: '停用', value: 2 }
-];
-
 const gatewayRequestParams: CommonType.CommonListQueryParams = {
   options: [{ key: 1 }],
   list_option: {
@@ -69,20 +60,20 @@ const isView = computed(() => props.operateType === 'view');
 const isEdit = computed(() => props.operateType === 'edit');
 const title = computed(() => {
   const titles: Record<MessageRuleOperateType, string> = {
-    add: '新增消息规则',
-    edit: '编辑消息规则',
-    view: '查看消息规则'
+    add: $t('messageRule.add'),
+    edit: $t('messageRule.edit'),
+    view: $t('messageRule.view')
   };
 
   return titles[props.operateType];
 });
 
 const rules: Record<string, App.Global.FormRule> = {
-  name: createRequiredRule('请输入规则名称'),
-  gateway_id: createRequiredRule('请选择边缘设备'),
-  rule_type: createRequiredRule('请选择规则类型'),
-  status: createRequiredRule('请选择状态'),
-  'rule.content': createRequiredRule('请输入脚本内容')
+  name: createRequiredRule($t('messageRule.namePlaceholder')),
+  gateway_id: createRequiredRule($t('messageRule.gatewayPlaceholder')),
+  rule_type: createRequiredRule($t('messageRule.typePlaceholder')),
+  status: createRequiredRule($t('messageRule.statusPlaceholder')),
+  'rule.content': createRequiredRule($t('messageRule.scriptPlaceholder'))
 };
 
 function createDefaultModel(): Model {
@@ -170,7 +161,7 @@ async function handleValidate() {
   if (validateLoading.value) return;
 
   if (!model.value.rule.content.trim()) {
-    window.$message?.warning('请输入脚本内容');
+    window.$message?.warning($t('messageRule.scriptPlaceholder'));
     return;
   }
 
@@ -179,7 +170,7 @@ async function handleValidate() {
   try {
     testData = getTestDataJson();
   } catch {
-    window.$message?.warning('测试数据必须是 JSON');
+    window.$message?.warning($t('messageRule.invalidTestData'));
     return;
   }
 
@@ -229,16 +220,16 @@ watch(visible, () => {
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top" :show-require-mark="false">
         <NGrid responsive="screen" item-responsive :x-gap="18">
-          <NFormItemGi span="24 m:12" label="规则名称" path="name" show-require-mark>
+          <NFormItemGi span="24 m:12" :label="$t('messageRule.name')" path="name" show-require-mark>
             <NInput
               v-model:value="model.name"
               :disabled="isView"
               maxlength="50"
               show-count
-              placeholder="请输入规则名称"
+              :placeholder="$t('messageRule.namePlaceholder')"
             />
           </NFormItemGi>
-          <NFormItemGi span="24 m:12" label="边缘设备" path="gateway_id" show-require-mark>
+          <NFormItemGi span="24 m:12" :label="$t('messageRule.gateway')" path="gateway_id" show-require-mark>
             <RemoteSearchSelect
               v-model:value="model.gateway_id"
               :request="fetchGetGatewayList"
@@ -249,22 +240,22 @@ watch(visible, () => {
               label-field="name"
               value-field="id"
               clearable
-              placeholder="请选择边缘设备"
+              :placeholder="$t('messageRule.gatewayPlaceholder')"
             />
           </NFormItemGi>
-          <NFormItemGi span="24 m:12" label="规则类型" path="rule_type" show-require-mark>
+          <NFormItemGi span="24 m:12" :label="$t('messageRule.type')" path="rule_type" show-require-mark>
             <NRadioGroup v-model:value="model.rule_type" :disabled="isView">
               <NSpace>
-                <NRadio v-for="item in ruleTypeOptions" :key="item.value" :value="item.value">
+                <NRadio v-for="item in messageRuleTypeOptions" :key="item.value" :value="item.value">
                   {{ item.label }}
                 </NRadio>
               </NSpace>
             </NRadioGroup>
           </NFormItemGi>
-          <NFormItemGi span="24 m:12" label="状态" path="status" show-require-mark>
+          <NFormItemGi span="24 m:12" :label="$t('messageRule.status')" path="status" show-require-mark>
             <NRadioGroup v-model:value="model.status" :disabled="isView">
               <NSpace>
-                <NRadio v-for="item in statusOptions" :key="item.value" :value="item.value">
+                <NRadio v-for="item in enableStatusOptions" :key="item.value" :value="item.value">
                   {{ item.label }}
                 </NRadio>
               </NSpace>
@@ -275,7 +266,7 @@ watch(visible, () => {
         <NFormItem path="rule.content" show-require-mark>
           <JsCodeEditor
             v-model:value="model.rule.content"
-            label="预处理函数 (JavaScript):"
+            :label="$t('messageRule.scriptLabel')"
             :readonly="isView"
             :height="240"
           />
@@ -283,17 +274,22 @@ watch(visible, () => {
       </NForm>
 
       <div v-if="!isView" class="flex-col gap-12px">
-        <JsCodeEditor v-model:value="testDataJson" label="测试数据 JSON:" format-parser="json" :height="160">
+        <JsCodeEditor
+          v-model:value="testDataJson"
+          :label="$t('messageRule.testDataLabel')"
+          format-parser="json"
+          :height="160"
+        >
           <template #toolbar-actions>
             <NButton type="primary" size="tiny" ghost :loading="validateLoading" @click="handleValidate">
-              验证脚本
+              {{ $t('messageRule.validateScript') }}
             </NButton>
           </template>
         </JsCodeEditor>
         <JsCodeEditor
           v-if="validateResult"
           v-model:value="validateResult"
-          label="验证结果:"
+          :label="$t('messageRule.validateResultLabel')"
           readonly
           :show-format="false"
           :height="180"

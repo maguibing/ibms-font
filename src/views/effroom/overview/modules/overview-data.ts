@@ -1,3 +1,4 @@
+import { $t } from '@/locales';
 export const OVERVIEW_POINT_KEYS = ['SYS_TOTAL_ENRG', 'SYS_TOTAL_COOL'] as const;
 
 type NumericPoint = {
@@ -36,14 +37,14 @@ export type OverviewChartData = {
 const SUMMARY_CONFIG = [
   {
     key: 'SYS_TOTAL_ENRG',
-    label: '总能耗',
+    label: $t('effroom.totalEnergy'),
     unit: 'kWh',
     color: '#2080f0',
     icon: 'material-symbols:electric-bolt-outline-rounded'
   },
   {
     key: 'SYS_TOTAL_COOL',
-    label: '总冷量',
+    label: $t('effroom.totalCooling'),
     unit: 'kWh',
     color: '#18a058',
     icon: 'material-symbols:ac-unit-rounded'
@@ -84,7 +85,7 @@ export function buildOverviewStats(pointValues: NumericPoint[], locale = 'zh-CN'
     })),
     {
       key: 'TOTAL_CO2',
-      label: '碳排放量',
+      label: $t('effroom.carbonEmission'),
       value:
         energyValue === null
           ? '--'
@@ -95,13 +96,13 @@ export function buildOverviewStats(pointValues: NumericPoint[], locale = 'zh-CN'
     },
     {
       key: 'AVERAGE_COP',
-      label: '平均 COP',
+      label: $t('effroom.averageCop'),
       value:
         energyValue === null || energyValue === 0 || coolingValue === null
           ? '--'
           : new Intl.NumberFormat(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(
-              coolingValue / energyValue
-            ),
+            coolingValue / energyValue
+          ),
       unit: '',
       color: '#f0a020',
       icon: 'material-symbols:speed-outline-rounded'

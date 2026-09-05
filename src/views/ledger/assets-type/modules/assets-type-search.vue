@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toRaw } from 'vue';
-import type { SelectOption } from 'naive-ui';
 import { jsonClone } from '@sa/utils';
+import { enableStatusOptions } from '@/constants/business';
 import { useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
 
@@ -20,11 +20,6 @@ const { formRef, validate, restoreValidation } = useNaiveForm();
 const model = defineModel<Api.Ledger.AssetsTypeSearchParams>('model', { required: true });
 
 const defaultModel = jsonClone(toRaw(model.value));
-
-const statusOptions: SelectOption[] = [
-  { label: '启用', value: 1 },
-  { label: '停用', value: 2 }
-];
 
 function resetModel() {
   Object.assign(model.value, defaultModel);
@@ -48,11 +43,22 @@ async function search() {
       <NCollapseItem :title="$t('common.search')" name="assets-type-search">
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="90">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="资产类型名称" path="name" class="pr-24px" label-width="auto">
-              <NInput v-model:value="model.name" clearable placeholder="请输入资产类型名称" @keyup.enter="search" />
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('ledger.assetsTypeName')"
+              path="name"
+              class="pr-24px"
+              label-width="auto"
+            >
+              <NInput v-model:value="model.name" clearable :placeholder="$t('ledger.typeName')" @keyup.enter="search" />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="状态" path="status" class="pr-24px">
-              <NSelect v-model:value="model.status" clearable :options="statusOptions" placeholder="请选择状态" />
+            <NFormItemGi span="24 s:12 m:8" :label="$t('ledger.status')" path="status" class="pr-24px">
+              <NSelect
+                v-model:value="model.status"
+                clearable
+                :options="enableStatusOptions"
+                :placeholder="$t('ledger.selectStatus')"
+              />
             </NFormItemGi>
             <NFormItemGi :show-feedback="false" span="24 s:12 m:8" class="pr-24px">
               <NSpace class="w-full" justify="end">

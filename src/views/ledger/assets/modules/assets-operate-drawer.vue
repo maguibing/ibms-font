@@ -7,6 +7,7 @@ import { fetchCreateAssets, fetchGetAssets, fetchGetAssetsTypeList, fetchUpdateA
 import { useDateDisabled } from '@/hooks/common/date';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
+import { assetsStatusOptions } from '@/constants/business';
 import DeptTreeSelect from '@/components/custom/dept-tree-select.vue';
 import { toDateValue, toNumberValue } from '@/utils/common-methods';
 
@@ -48,18 +49,12 @@ const deviceMap = ref<Record<string, Api.Ledger.AssetsMapItem>>({});
 const isEdit = computed(() => props.operateType === 'edit');
 const title = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增台账',
-    edit: '编辑台账'
+    add: $t('ledger.addAssets'),
+    edit: $t('ledger.editAssets')
   };
 
   return titles[props.operateType];
 });
-
-const statusOptions = [
-  { label: '正常', value: 1 },
-  { label: '维修', value: 2 },
-  { label: '报废', value: 3 }
-];
 
 const selectedAssetsType = computed(() => {
   if (!model.value.assets_type_id) return null;
@@ -74,11 +69,11 @@ const selectedDevices = computed(() => {
 });
 
 const rules: Record<string, App.Global.FormRule> = {
-  sn: createRequiredRule('请输入资产编号'),
-  name: createRequiredRule('请输入资产名称'),
-  assets_type_id: createRequiredRule('请选择资产类型'),
-  status: createRequiredRule('请选择状态'),
-  'attribution.dept_id': createRequiredRule('请选择归属部门')
+  sn: createRequiredRule($t('ledger.searchAssetsNo')),
+  name: createRequiredRule($t('ledger.searchAssetsName')),
+  assets_type_id: createRequiredRule($t('ledger.selectAssetsType')),
+  status: createRequiredRule($t('ledger.selectStatus')),
+  'attribution.dept_id': createRequiredRule($t('ledger.selectDept'))
 };
 
 function createDefaultModel(): Model {
@@ -254,15 +249,20 @@ watch(visible, () => {
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NSpin :show="detailLoading">
         <NForm ref="formRef" :model="model" :rules="rules" label-placement="top" :show-require-mark="false">
-          <NDivider title-placement="left">基本信息</NDivider>
+          <NDivider title-placement="left">{{ $t('ledger.basicInfo') }}</NDivider>
           <NGrid responsive="screen" item-responsive :x-gap="18">
-            <NFormItemGi span="24 m:12" label="资产编号" path="sn" show-require-mark>
-              <NInput v-model:value="model.sn" maxlength="48" show-count placeholder="请输入资产编号" />
+            <NFormItemGi span="24 m:12" :label="$t('ledger.assetsNo')" path="sn" show-require-mark>
+              <NInput v-model:value="model.sn" maxlength="48" show-count :placeholder="$t('ledger.searchAssetsNo')" />
             </NFormItemGi>
-            <NFormItemGi span="24 m:12" label="资产名称" path="name" show-require-mark>
-              <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入资产名称" />
+            <NFormItemGi span="24 m:12" :label="$t('ledger.assetsName')" path="name" show-require-mark>
+              <NInput
+                v-model:value="model.name"
+                maxlength="30"
+                show-count
+                :placeholder="$t('ledger.searchAssetsName')"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 m:12" label="资产类型" path="assets_type_id" show-require-mark>
+            <NFormItemGi span="24 m:12" :label="$t('ledger.assetsType')" path="assets_type_id" show-require-mark>
               <RemoteSearchSelect
                 v-model:value="model.assets_type_id"
                 :request="fetchAssetsTypeList"
@@ -271,13 +271,13 @@ watch(visible, () => {
                 label-field="name"
                 value-field="id"
                 clearable
-                placeholder="请选择资产类型"
+                :placeholder="$t('ledger.selectAssetsType')"
               />
             </NFormItemGi>
-            <NFormItemGi span="24 m:12" label="状态" path="status" show-require-mark>
+            <NFormItemGi span="24 m:12" :label="$t('ledger.status')" path="status" show-require-mark>
               <NRadioGroup v-model:value="model.status">
                 <NSpace>
-                  <NRadio v-for="item in statusOptions" :key="item.value" :value="item.value">
+                  <NRadio v-for="item in assetsStatusOptions" :key="item.value" :value="item.value">
                     {{ item.label }}
                   </NRadio>
                 </NSpace>
@@ -285,8 +285,8 @@ watch(visible, () => {
             </NFormItemGi>
           </NGrid>
 
-          <NDivider title-placement="left">归属设备</NDivider>
-          <NFormItem label="归属设备">
+          <NDivider title-placement="left">{{ $t('ledger.belongDevice') }}</NDivider>
+          <NFormItem :label="$t('ledger.belongDevice')">
             <RemoteSearchSelect
               v-model:value="model.device_id_list"
               :request="fetchDeviceList"
@@ -296,31 +296,40 @@ watch(visible, () => {
               value-field="id"
               multiple
               clearable
-              placeholder="请选择归属设备"
+              :placeholder="$t('ledger.selectDevice')"
             />
           </NFormItem>
 
-          <NDivider title-placement="left">归属信息</NDivider>
+          <NDivider title-placement="left">{{ $t('ledger.attribution') }}</NDivider>
           <NGrid responsive="screen" item-responsive :x-gap="18">
-            <NFormItemGi span="24 m:12" label="归属部门" path="attribution.dept_id" show-require-mark>
-              <DeptTreeSelect v-model:value="model.attribution.dept_id" clearable placeholder="请选择归属部门" />
+            <NFormItemGi span="24 m:12" :label="$t('ledger.dept')" path="attribution.dept_id" show-require-mark>
+              <DeptTreeSelect
+                v-model:value="model.attribution.dept_id"
+                clearable
+                :placeholder="$t('ledger.selectDept')"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 m:12" label="存放位置">
+            <NFormItemGi span="24 m:12" :label="$t('ledger.location')">
               <NInput
                 v-model:value="model.attribution.location"
                 maxlength="30"
                 show-count
-                placeholder="请输入存放位置"
+                :placeholder="$t('ledger.inputLocation')"
               />
             </NFormItemGi>
-            <NFormItemGi span="24 m:12" label="责任人">
-              <NInput v-model:value="model.attribution.owner" maxlength="30" show-count placeholder="请输入责任人" />
+            <NFormItemGi span="24 m:12" :label="$t('ledger.owner')">
+              <NInput
+                v-model:value="model.attribution.owner"
+                maxlength="30"
+                show-count
+                :placeholder="$t('ledger.inputOwner')"
+              />
             </NFormItemGi>
           </NGrid>
 
-          <NDivider title-placement="left">采购信息</NDivider>
+          <NDivider title-placement="left">{{ $t('ledger.procurement') }}</NDivider>
           <NGrid responsive="screen" item-responsive :x-gap="18">
-            <NFormItemGi span="24 m:12" label="采购日期">
+            <NFormItemGi span="24 m:12" :label="$t('ledger.purchaseAt')">
               <NDatePicker
                 v-model:formatted-value="purchaseAt"
                 type="date"
@@ -331,19 +340,24 @@ watch(visible, () => {
                 @update:formatted-value="value => updateDateField('purchase_at', value)"
               />
             </NFormItemGi>
-            <NFormItemGi span="24 m:12" label="采购金额">
+            <NFormItemGi span="24 m:12" :label="$t('ledger.purchasePrice')">
               <NInputNumber
                 v-model:value="model.procurement.purchase_price"
                 class="w-full"
                 :min="0"
                 :precision="2"
-                placeholder="请输入采购金额"
+                :placeholder="$t('ledger.inputPrice')"
               />
             </NFormItemGi>
-            <NFormItemGi span="24 m:12" label="供应商">
-              <NInput v-model:value="model.procurement.supplier" maxlength="30" show-count placeholder="请输入供应商" />
+            <NFormItemGi span="24 m:12" :label="$t('ledger.supplier')">
+              <NInput
+                v-model:value="model.procurement.supplier"
+                maxlength="30"
+                show-count
+                :placeholder="$t('ledger.inputSupplier')"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 m:12" label="到期时间">
+            <NFormItemGi span="24 m:12" :label="$t('ledger.expireAt')">
               <NDatePicker
                 v-model:formatted-value="expireAt"
                 type="date"
@@ -354,27 +368,27 @@ watch(visible, () => {
                 @update:formatted-value="value => updateDateField('expire_at', value)"
               />
             </NFormItemGi>
-            <NFormItemGi span="24 m:12" label="到期提前通知">
+            <NFormItemGi span="24 m:12" :label="$t('ledger.expireNotice')">
               <NInputNumber
                 v-model:value="model.procurement.expire_notice_days"
                 class="w-full"
                 :min="1"
                 :max="30"
                 :precision="0"
-                placeholder="请输入通知天数"
+                :placeholder="$t('ledger.inputNotice')"
               />
             </NFormItemGi>
           </NGrid>
 
-          <NDivider title-placement="left">备注</NDivider>
-          <NFormItem label="备注">
+          <NDivider title-placement="left">{{ $t('ledger.remark') }}</NDivider>
+          <NFormItem :label="$t('ledger.remark')">
             <NInput
               v-model:value="model.desc"
               type="textarea"
               maxlength="200"
               show-count
               :rows="4"
-              placeholder="请输入备注"
+              :placeholder="$t('ledger.inputRemark')"
             />
           </NFormItem>
         </NForm>

@@ -50,9 +50,9 @@ const deviceNames = computed(() => {
 const statusTag = computed(() => {
   const statusValue = Number(assets.value?.status);
 
-  if (statusValue === 1) return { label: '正常', type: 'success' as const };
-  if (statusValue === 2) return { label: '维修', type: 'warning' as const };
-  if (statusValue === 3) return { label: '报废', type: 'error' as const };
+  if (statusValue === 1) return { label: $t('ledger.normal'), type: 'success' as const };
+  if (statusValue === 2) return { label: $t('ledger.repair'), type: 'warning' as const };
+  if (statusValue === 3) return { label: $t('ledger.scrapped'), type: 'error' as const };
 
   return null;
 });
@@ -86,30 +86,36 @@ watch(visible, () => {
 
 <template>
   <NDrawer v-model:show="visible" display-directive="show" :width="760" class="max-w-90%">
-    <NDrawerContent title="查看台账" :native-scrollbar="false" closable>
+    <NDrawerContent :title="$t('ledger.viewAssets')" :native-scrollbar="false" closable>
       <NSpin :show="loading">
         <div v-if="assets" class="flex-col gap-18px">
           <div>
-            <div class="mb-10px text-15px font-600">基本信息</div>
+            <div class="mb-10px text-15px font-600">{{ $t('ledger.basicInfo') }}</div>
             <NDescriptions label-placement="left" bordered size="small" :column="2">
-              <NDescriptionsItem label="资产ID">{{ displayValue(assets.id) }}</NDescriptionsItem>
-              <NDescriptionsItem label="项目ID">{{ displayValue(assets.project_id) }}</NDescriptionsItem>
-              <NDescriptionsItem label="资产编号">{{ displayValue(assets.sn) }}</NDescriptionsItem>
-              <NDescriptionsItem label="资产名称">{{ displayValue(assets.name) }}</NDescriptionsItem>
-              <NDescriptionsItem label="资产类型">{{ assetsTypeName }}</NDescriptionsItem>
-              <NDescriptionsItem label="资产状态">
+              <NDescriptionsItem :label="$t('ledger.assetsId')">{{ displayValue(assets.id) }}</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('ledger.projectId')">
+                {{ displayValue(assets.project_id) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('ledger.assetsNo')">{{ displayValue(assets.sn) }}</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('ledger.assetsName')">{{ displayValue(assets.name) }}</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('ledger.assetsType')">{{ assetsTypeName }}</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('ledger.assetsStatus')">
                 <NTag v-if="statusTag" :type="statusTag.type">{{ statusTag.label }}</NTag>
                 <span v-else>{{ displayValue(assets.status) }}</span>
               </NDescriptionsItem>
-              <NDescriptionsItem label="创建时间">{{ formatUnixDateTime(assets.created_at) }}</NDescriptionsItem>
-              <NDescriptionsItem label="更新时间">{{ formatUnixDateTime(assets.updated_at) }}</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('ledger.createdAt')">
+                {{ formatUnixDateTime(assets.created_at) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('ledger.updatedAt')">
+                {{ formatUnixDateTime(assets.updated_at) }}
+              </NDescriptionsItem>
             </NDescriptions>
           </div>
 
           <div>
-            <div class="mb-10px text-15px font-600">归属设备</div>
+            <div class="mb-10px text-15px font-600">{{ $t('ledger.belongDevice') }}</div>
             <NDescriptions label-placement="left" bordered size="small" :column="1">
-              <NDescriptionsItem label="归属设备">
+              <NDescriptionsItem :label="$t('ledger.belongDevice')">
                 <NSpace v-if="deviceNames.length" :size="[8, 8]">
                   <NTag v-for="item in deviceNames" :key="item" type="info">{{ item }}</NTag>
                 </NSpace>
@@ -119,36 +125,46 @@ watch(visible, () => {
           </div>
 
           <div>
-            <div class="mb-10px text-15px font-600">归属信息</div>
+            <div class="mb-10px text-15px font-600">{{ $t('ledger.attribution') }}</div>
             <NDescriptions label-placement="left" bordered size="small" :column="2">
-              <NDescriptionsItem label="归属部门">{{ deptName }}</NDescriptionsItem>
-              <NDescriptionsItem label="存放位置">{{ displayValue(attribution.location) }}</NDescriptionsItem>
-              <NDescriptionsItem label="责任人">{{ displayValue(attribution.owner) }}</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('ledger.dept')">{{ deptName }}</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('ledger.location')">
+                {{ displayValue(attribution.location) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('ledger.owner')">{{ displayValue(attribution.owner) }}</NDescriptionsItem>
             </NDescriptions>
           </div>
 
           <div>
-            <div class="mb-10px text-15px font-600">采购信息</div>
+            <div class="mb-10px text-15px font-600">{{ $t('ledger.procurement') }}</div>
             <NDescriptions label-placement="left" bordered size="small" :column="2">
-              <NDescriptionsItem label="采购日期">{{ formatUnixDateTime(procurement.purchase_at) }}</NDescriptionsItem>
-              <NDescriptionsItem label="采购金额">{{ formatPrice(procurement.purchase_price) }}</NDescriptionsItem>
-              <NDescriptionsItem label="供应商">{{ displayValue(procurement.supplier) }}</NDescriptionsItem>
-              <NDescriptionsItem label="到期时间">{{ formatUnixDateTime(procurement.expire_at) }}</NDescriptionsItem>
-              <NDescriptionsItem label="到期提前通知">
+              <NDescriptionsItem :label="$t('ledger.purchaseAt')">
+                {{ formatUnixDateTime(procurement.purchase_at) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('ledger.purchasePrice')">
+                {{ formatPrice(procurement.purchase_price) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('ledger.supplier')">
+                {{ displayValue(procurement.supplier) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('ledger.expireAt')">
+                {{ formatUnixDateTime(procurement.expire_at) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('ledger.expireNotice')">
                 {{ displayValue(procurement.expire_notice_days) }}
               </NDescriptionsItem>
             </NDescriptions>
           </div>
 
           <div>
-            <div class="mb-10px text-15px font-600">备注</div>
+            <div class="mb-10px text-15px font-600">{{ $t('ledger.remark') }}</div>
             <NDescriptions label-placement="left" bordered size="small" :column="1">
-              <NDescriptionsItem label="备注">{{ displayValue(assets.desc) }}</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('ledger.remark')">{{ displayValue(assets.desc) }}</NDescriptionsItem>
             </NDescriptions>
           </div>
         </div>
 
-        <NEmpty v-else-if="!loading" description="暂无资产数据" />
+        <NEmpty v-else-if="!loading" :description="$t('ledger.noAssets')" />
       </NSpin>
 
       <template #footer>

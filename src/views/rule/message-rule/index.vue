@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { ref, shallowRef } from 'vue';
+import { computed, ref, shallowRef } from 'vue';
 import { NDivider } from 'naive-ui';
 import StatusTag, { type StatusTagMap } from '@/components/custom/status-tag.vue';
 import { defaultTransform, useNaivePaginatedTable, useTableOperate } from '@/hooks/common/table';
@@ -18,16 +18,16 @@ defineOptions({
 const appStore = useAppStore();
 const { hasAuth } = useAuth();
 
-const RULE_TYPE_STATUS_MAP: StatusTagMap = {
+const ruleTypeStatusMap = computed<StatusTagMap>(() => ({
   '1': {
-    label: '上报',
+    label: $t('messageRule.report'),
     type: 'info'
   },
   '2': {
-    label: '下发',
+    label: $t('messageRule.command'),
     type: 'warning'
   }
-};
+}));
 
 const searchParams = ref<Api.Rule.MessageRuleSearchParams>({
   pageNum: 1,
@@ -76,7 +76,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '规则名称',
+        title: $t('messageRule.name'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -85,14 +85,14 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'rule_type',
-        title: '规则类型',
+        title: $t('messageRule.type'),
         align: 'center',
         minWidth: 100,
-        render: row => <StatusTag value={row.rule_type} statusMap={RULE_TYPE_STATUS_MAP} />
+        render: row => <StatusTag value={row.rule_type} statusMap={ruleTypeStatusMap.value} />
       },
       {
         key: 'status',
-        title: '状态',
+        title: $t('messageRule.status'),
         align: 'center',
         minWidth: 100,
         render: row => <StatusTag value={row.status} />
@@ -109,7 +109,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               text
               type="primary"
               icon="material-symbols:visibility-outline"
-              tooltipContent="查看"
+              tooltipContent={$t('messageRule.view')}
               onClick={() => handleView(row)}
             />
           );
@@ -207,7 +207,7 @@ async function handleBatchDelete() {
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <MessageRuleSearch v-model:model="searchParams" @search="handleSearch" />
     <TableRowCheckAlert v-model:checked-row-keys="checkedRowKeys" />
-    <NCard title="消息规则管理" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('messageRule.management')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

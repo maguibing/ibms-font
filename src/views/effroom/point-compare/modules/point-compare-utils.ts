@@ -1,3 +1,5 @@
+import { $t } from '@/locales';
+
 export type PointTreeOption = {
   key: string;
   label: string;
@@ -101,7 +103,7 @@ export function normalizeTrendList(trendList: Api.Device.DevicePointHistoryTrend
     }
 
     return {
-      name: item.logic_point?.name?.trim() || `点位 ${index + 1}`,
+      name: item.logic_point?.name?.trim() || `${$t('effroom.value')} ${index + 1}`,
       unit,
       values
     };

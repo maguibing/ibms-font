@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, toRaw } from 'vue';
 import { NDatePicker } from 'naive-ui';
-import type { SelectOption } from 'naive-ui';
 import { jsonClone } from '@sa/utils';
+import { assetsStatusOptions } from '@/constants/business';
 import { useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
 
@@ -23,12 +23,6 @@ const dateRangeCreateTime = ref<[string, string] | null>(null);
 const model = defineModel<Api.Ledger.AssetsSearchParams>('model', { required: true });
 
 const defaultModel = jsonClone(toRaw(model.value));
-
-const statusOptions: SelectOption[] = [
-  { label: '正常', value: 1 },
-  { label: '维修', value: 2 },
-  { label: '报废', value: 3 }
-];
 
 const defaultTime: [string, string] = ['00:00:00', '23:59:59'];
 
@@ -72,16 +66,49 @@ async function search() {
       <NCollapseItem :title="$t('common.search')" name="assets-search">
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="90">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="资产编号" path="sn" class="pr-24px" label-width="auto">
-              <NInput v-model:value="model.sn" clearable placeholder="请输入资产编号" @keyup.enter="search" />
+            <NFormItemGi span="24 s:12 m:8" :label="$t('ledger.assetsNo')" path="sn" class="pr-24px" label-width="auto">
+              <NInput
+                v-model:value="model.sn"
+                clearable
+                :placeholder="$t('ledger.searchAssetsNo')"
+                @keyup.enter="search"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="资产名称" path="name" class="pr-24px" label-width="auto">
-              <NInput v-model:value="model.name" clearable placeholder="请输入资产名称" @keyup.enter="search" />
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('ledger.assetsName')"
+              path="name"
+              class="pr-24px"
+              label-width="auto"
+            >
+              <NInput
+                v-model:value="model.name"
+                clearable
+                :placeholder="$t('ledger.searchAssetsName')"
+                @keyup.enter="search"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="资产状态" path="status" class="pr-24px" label-width="auto">
-              <NSelect v-model:value="model.status" clearable :options="statusOptions" placeholder="请选择资产状态" />
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('ledger.assetsStatus')"
+              path="status"
+              class="pr-24px"
+              label-width="auto"
+            >
+              <NSelect
+                v-model:value="model.status"
+                clearable
+                :options="assetsStatusOptions"
+                :placeholder="$t('ledger.selectStatus')"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="创建时间" path="dateRange" class="pr-24px" label-width="auto">
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('ledger.createdAt')"
+              path="dateRange"
+              class="pr-24px"
+              label-width="auto"
+            >
               <NDatePicker
                 v-model:formatted-value="dateRangeCreateTime"
                 type="datetimerange"

@@ -31,7 +31,7 @@ const handleUpdateValue = (val: Api.Common.EnableStatus) => {
   value.value = val === '1' ? '2' : '1';
   window.$dialog?.warning({
     title: '系统提示',
-    content: `确定要${enableStatusRecord[val]} ${props.info} 吗？`,
+    content: `确定要${enableStatusRecord.value[val]} ${props.info} 吗？`,
     positiveText: '确定',
     negativeText: '取消',
     onPositiveClick: () => {

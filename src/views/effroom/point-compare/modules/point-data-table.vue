@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, h } from 'vue';
 import type { DataTableColumns } from 'naive-ui';
+import { $t } from '@/locales';
 import { buildComparisonTable } from './point-compare-utils';
 import type { ComparisonRow } from './point-compare-utils';
 
@@ -16,7 +17,7 @@ const table = computed(() => buildComparisonTable(props.trendList));
 const columns = computed<DataTableColumns<ComparisonRow>>(() => [
   {
     key: 'formattedTime',
-    title: '时间',
+    title: $t('effroom.time'),
     width: 190,
     fixed: 'left',
     align: 'center'

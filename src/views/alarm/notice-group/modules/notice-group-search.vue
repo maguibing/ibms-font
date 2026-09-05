@@ -35,7 +35,7 @@ function reset() {
   <NCard :bordered="false" size="small" class="card-wrapper">
     <NCollapse>
       <NCollapseItem :title="$t('common.search')" name="notice-group-search">
-        <NForm :model="model" label-placement="left" :label-width="90">
+        <NForm :model="model" label-placement="left">
           <NGrid responsive="screen" item-responsive>
             <NFormItemGi
               span="24 s:12 m:8"
@@ -47,7 +47,7 @@ function reset() {
               <NInput
                 v-model:value="model.name"
                 clearable
-                placeholder="alarmNoticeGroup.namePlaceholder"
+                :placeholder="$t('alarmNoticeGroup.namePlaceholder')"
                 @keyup.enter="search"
               />
             </NFormItemGi>

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, shallowRef } from 'vue';
 import dayjs from 'dayjs';
-import type { DatePickerProps, SelectOption } from 'naive-ui';
+import type { DatePickerProps } from 'naive-ui';
 import { AggType, StatType } from '@/enum/business';
+import { AGG_TYPE_OPTIONS, STAT_TYPE_OPTIONS } from '@/constants/business';
 import { fetchGetDevicePointHistoryStat, fetchGetDevicePointHistoryTrend } from '@/service/api/device';
 import { buildOverviewStats, buildTrendChartData, OVERVIEW_POINT_KEYS } from './modules/overview-data';
 import OverviewSummary from './modules/overview-summary.vue';
@@ -29,19 +30,6 @@ const STAT_TYPE_CONFIG: Record<
   [StatType.Month]: { unit: 'month', pickerType: 'monthrange', pickerFormat: 'yyyy-MM', trendFormat: 'YYYY-MM' },
   [StatType.Year]: { unit: 'year', pickerType: 'yearrange', pickerFormat: 'yyyy', trendFormat: 'YYYY' }
 };
-
-const STAT_TYPE_OPTIONS: SelectOption[] = [
-  { label: '小时', value: StatType.Hour },
-  { label: '日', value: StatType.Day },
-  { label: '月', value: StatType.Month },
-  { label: '年', value: StatType.Year }
-];
-const AGG_TYPE_OPTIONS: SelectOption[] = [
-  { label: '末值', value: AggType.Last },
-  { label: '平均值', value: AggType.Average },
-  { label: '差值', value: AggType.Difference },
-  { label: '首值', value: AggType.First }
-];
 
 const statType = shallowRef(StatType.Hour);
 const aggType = shallowRef(AggType.Average);
@@ -140,7 +128,7 @@ onMounted(() => {
   <div class="min-h-500px flex-col-stretch gap-16px overflow-auto">
     <div class="flex items-center gap-10px">
       <span class="h-22px w-4px rounded-full bg-[rgb(var(--primary-color))]"></span>
-      <h2 class="m-0 text-20px text-[var(--n-text-color)] font-600">数据概览</h2>
+      <h2 class="m-0 text-20px text-[var(--n-text-color)] font-600">{{ $t('effroom.overview') }}</h2>
     </div>
 
     <OverviewSummary :items="summaryItems" :loading="summaryLoading" />
@@ -162,14 +150,14 @@ onMounted(() => {
 
     <div class="grid grid-cols-2 gap-16px lt-lg:grid-cols-1">
       <OverviewTrendChart
-        title="总能耗"
+        :title="$t('effroom.totalEnergy')"
         icon="material-symbols:electric-bolt-outline-rounded"
         color="#2080f0"
         :data="chartData.electricity"
         :loading="trendLoading"
       />
       <OverviewTrendChart
-        title="总冷量"
+        :title="$t('effroom.totalCooling')"
         icon="material-symbols:ac-unit-rounded"
         color="#18a058"
         :data="chartData.cooling"

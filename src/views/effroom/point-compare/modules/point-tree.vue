@@ -2,6 +2,7 @@
 import { computed, h, onMounted, shallowRef } from 'vue';
 import { NEllipsis, NTag } from 'naive-ui';
 import type { TreeOption } from 'naive-ui';
+import { $t } from '@/locales';
 import { fetchGetLogicPointTree } from '@/service/api/device';
 import { transformPointTree } from './point-compare-utils';
 import type { PointTreeOption } from './point-compare-utils';
@@ -50,7 +51,9 @@ function renderLabel({ option }: { option: TreeOption }) {
 
   return h('div', { class: 'min-w-0 flex flex-1 items-center gap-8px' }, [
     h(NEllipsis, { class: 'min-w-0 flex-1' }, { default: () => point.name }),
-    point.nodeType === 3 ? h(NTag, { size: 'small', type: 'info', bordered: false }, { default: () => '数值' }) : null
+    point.nodeType === 3
+      ? h(NTag, { size: 'small', type: 'info', bordered: false }, { default: () => $t('effroom.value') })
+      : null
   ]);
 }
 
@@ -59,7 +62,7 @@ function handleCheckedKeys(keys: Array<string | number>) {
   const nextKeys = selectableKeys.slice(0, MAX_POINTS);
 
   if (selectableKeys.length > MAX_POINTS) {
-    window.$message?.warning(`最多选择 ${MAX_POINTS} 个点位`);
+    window.$message?.warning($t('effroom.maxPoints', { count: MAX_POINTS }));
   }
 
   checkedKeys.value = nextKeys;
@@ -90,7 +93,7 @@ onMounted(getTreeData);
 
 <template>
   <div class="h-full min-h-0 flex-col-stretch gap-12px overflow-hidden">
-    <NInput v-model:value="keyword" clearable placeholder="搜索点位名称或标识">
+    <NInput v-model:value="keyword" clearable :placeholder="$t('effroom.pointSearchPlaceholder')">
       <template #prefix>
         <SvgIcon icon="material-symbols:search-rounded" />
       </template>
@@ -113,13 +116,13 @@ onMounted(getTreeData);
         @update:checked-keys="handleCheckedKeys"
       >
         <template #empty>
-          <NEmpty description="暂无可选点位" class="h-full justify-center" />
+          <NEmpty :description="$t('effroom.noSelectablePoints')" class="h-full justify-center" />
         </template>
       </NTree>
     </NSpin>
 
     <div class="shrink-0 text-12px text-[var(--n-text-color-3)]">
-      已选 {{ selectedPoints.length }} / {{ MAX_POINTS }}
+      {{ $t('effroom.selectedPoints') }} {{ selectedPoints.length }} / {{ MAX_POINTS }}
     </div>
   </div>
 </template>

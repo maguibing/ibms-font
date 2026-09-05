@@ -56,7 +56,7 @@ function createOptions(): ECOption {
 
   return {
     title: {
-      text: '单位：kWh',
+      text: 'kWh',
       top: 8,
       left: 8,
       textStyle: {
@@ -152,14 +152,14 @@ watch(
               </template>
             </NButton>
           </template>
-          全屏
+          {{ $t('effroom.fullscreen') }}
         </NTooltip>
       </template>
 
       <NSpin :show="loading">
         <div ref="domRef" class="h-330px w-full overflow-hidden"></div>
         <div v-if="!loading && !hasData" class="absolute inset-0 flex-center bg-[var(--n-card-color)]">
-          <NEmpty description="暂无数据" />
+          <NEmpty :description="$t('effroom.noData')" />
         </div>
       </NSpin>
     </NCard>

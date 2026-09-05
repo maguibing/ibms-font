@@ -7,6 +7,7 @@ import { useAppStore } from '@/store/modules/app';
 import { useAuth } from '@/hooks/business/auth';
 import { fetchDeleteNoticeGroup, fetchGetNoticeGroupList } from '@/service/api/alarm';
 import { $t } from '@/locales';
+import { noticeTypeOptions, noticeWayOptions } from '@/constants/business';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import NoticeGroupOperateDrawer from './modules/notice-group-operate-drawer.vue';
 import NoticeGroupSearch from './modules/notice-group-search.vue';
@@ -15,15 +16,8 @@ defineOptions({
   name: 'AlarmNoticeGroup'
 });
 
-const NOTICE_TYPE_LABELS: Record<Api.Alarm.NoticeGroupNoticeType, string> = {
-  1: $t('alarmNoticeGroup.member')
-};
-
-const NOTICE_WAY_LABELS: Record<Api.Alarm.NoticeWay, string> = {
-  1: $t('alarmNoticeGroup.sms'),
-  2: $t('alarmNoticeGroup.inApp'),
-  3: $t('alarmNoticeGroup.app')
-};
+const noticeTypeLabels = computed(() => Object.fromEntries(noticeTypeOptions.value.map(item => [item.value, item.label])));
+const noticeWayLabels = computed(() => Object.fromEntries(noticeWayOptions.value.map(item => [item.value, item.label])));
 
 const appStore = useAppStore();
 const { hasAuth } = useAuth();
@@ -91,7 +85,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
         render: row => {
           const noticeType = row.notice?.notice_type ?? row.notice_type;
 
-          return <NTag type="info">{NOTICE_TYPE_LABELS[noticeType] ?? noticeType}</NTag>;
+          return <NTag type="info">{noticeTypeLabels.value[noticeType] ?? noticeType}</NTag>;
         }
       },
       {
@@ -201,7 +195,7 @@ function renderUserTags(userIdList: CommonType.IdType[]) {
 function formatNoticeWays(noticeWayList: Api.Alarm.NoticeWay[]) {
   if (!noticeWayList.length) return '-';
 
-  return noticeWayList.map(item => NOTICE_WAY_LABELS[item]).join('、');
+  return noticeWayList.map(item => noticeWayLabels.value[item]).join('、');
 }
 
 function handleSearch() {

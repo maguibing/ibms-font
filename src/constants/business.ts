@@ -2,14 +2,22 @@ import { transformRecordToOption, transformRecordToNumberOption } from '@/utils/
 import { computed } from 'vue';
 import type { SelectOption } from 'naive-ui';
 import { $t } from '@/locales';
+import { AggType, StatType } from '@/enum/business';
 
 /** enable status */
-export const enableStatusRecord: Record<Api.Common.EnableStatus, string> = {
-  '1': '启用',
-  '2': '停用'
-};
+export const enableStatusRecord = computed<Record<Api.Common.EnableStatus, string>>(() => ({
+  '1': $t('common.enabled'),
+  '2': $t('common.disabled')
+}));
 
-export const enableStatusOptions = transformRecordToNumberOption(enableStatusRecord);
+export const enableStatusOptions = computed(() => transformRecordToNumberOption(enableStatusRecord.value));
+
+/** ledger asset status options */
+export const assetsStatusOptions = computed<CommonType.Option<number>[]>(() => [
+  { label: $t('ledger.normal'), value: 1 },
+  { label: $t('ledger.repair'), value: 2 },
+  { label: $t('ledger.scrapped'), value: 3 }
+]);
 
 /** yes or no status */
 export const yesOrNoStatusRecord: Record<Api.Common.YesOrNoStatus, string> = {
@@ -114,12 +122,36 @@ export const energyTypeRecord = computed<Record<number, string>>(() => ({
 /** energy type options */
 export const ENERGY_TYPE_OPTIONS = computed(() => transformRecordToNumberOption(energyTypeRecord.value));
 
-/** aggregation type options */
-export const aggregationTypeOptions = computed(() => [
-  { label: $t('energy.hour'), value: 1 },
-  { label: $t('energy.day'), value: 2 },
-  { label: $t('energy.month'), value: 3 },
-  { label: $t('energy.year'), value: 4 }
+/** statistic granularity options */
+export const STAT_TYPE_OPTIONS = computed<CommonType.Option<StatType>[]>(() => [
+  { label: $t('energy.hour'), value: StatType.Hour },
+  { label: $t('energy.day'), value: StatType.Day },
+  { label: $t('energy.month'), value: StatType.Month },
+  { label: $t('energy.year'), value: StatType.Year }
+]);
+
+export const AGG_TYPE_OPTIONS = computed<CommonType.Option<AggType>[]>(() => [
+  { label: $t('effroom.last'), value: AggType.Last },
+  { label: $t('effroom.average'), value: AggType.Average },
+  { label: $t('effroom.difference'), value: AggType.Difference },
+  { label: $t('effroom.first'), value: AggType.First }
+]);
+
+export const messageRuleTypeOptions = computed<CommonType.Option<Api.Rule.MessageRuleType>[]>(() => [
+  { label: $t('messageRule.report'), value: 1 },
+  { label: $t('messageRule.command'), value: 2 }
+]);
+
+/** notice type options */
+export const noticeTypeOptions = computed<CommonType.Option<Api.Alarm.NoticeGroupNoticeType>[]>(() => [
+  { label: $t('alarmNoticeGroup.member'), value: 1 }
+]);
+
+/** notice way options */
+export const noticeWayOptions = computed<CommonType.Option<Api.Alarm.NoticeWay>[]>(() => [
+  { label: $t('alarmNoticeGroup.sms'), value: 1 },
+  { label: $t('alarmNoticeGroup.inApp'), value: 2 },
+  { label: $t('alarmNoticeGroup.app'), value: 3 }
 ]);
 
 /** unit groups */

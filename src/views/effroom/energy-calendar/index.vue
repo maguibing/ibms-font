@@ -8,6 +8,7 @@ import { fetchExportTask } from '@/service/api/common';
 import { fetchGetEnergyCalendar } from '@/service/api/energy';
 import { displayValue } from '@/utils/common-methods';
 import { getWebSocketConnectionId } from '@/utils/websocket';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'EffroomEnergyCalendar'
@@ -186,11 +187,11 @@ async function getData(value = panelMonth.value) {
 async function handleExport() {
   const connectionId = getWebSocketConnectionId();
   if (!connectionId) {
-    window.$message?.warning('WebSocket 尚未连接，请稍后重试');
+    window.$message?.warning($t('effroom.websocketWarning'));
     return;
   }
 
-  startExport('能效日历');
+  startExport($t('effroom.calendar'));
 
   const { error } = await fetchExportTask({
     energy_calendar: {
@@ -208,7 +209,7 @@ async function handleExport() {
     return;
   }
 
-  window.$message?.success('导出任务已提交');
+  window.$message?.success($t('effroom.exportSubmitted'));
 }
 
 onMounted(getData);
@@ -216,7 +217,7 @@ onMounted(getData);
 
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
-    <NCard title="能效日历" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('effroom.calendar')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <NSpin :show="loading">
         <NCalendar
           :key="calendarKey"
@@ -240,7 +241,7 @@ onMounted(getData);
                 />
                 <NButton v-if="hasAuth('effroom:energy-calendar:export')" size="small" @click="handleExport">
                   <template #icon><SvgIcon icon="material-symbols:download-rounded" /></template>
-                  导出
+                  {{ $t('effroom.export') }}
                 </NButton>
               </div>
               <div class="flex shrink-0 flex-wrap items-center justify-end gap-x-12px gap-y-6px text-12px">
@@ -250,11 +251,11 @@ onMounted(getData);
                 </span>
                 <span class="inline-flex items-center gap-5px text-[var(--n-text-color-3)]">
                   <span class="h-7px w-7px rounded-full bg-[var(--n-text-color)]"></span>
-                  能耗(kWh)
+                  {{ $t('effroom.energy') }} (kWh)
                 </span>
                 <span class="inline-flex items-center gap-5px text-[var(--n-text-color-3)]">
                   <span class="h-7px w-7px rounded-full bg-[#18a058]"></span>
-                  冷量(kWh)
+                  {{ $t('effroom.cooling') }} (kWh)
                 </span>
               </div>
             </div>
@@ -293,7 +294,9 @@ onMounted(getData);
                     >
                       <SvgIcon icon="material-symbols:electric-bolt-outline-rounded" class="text-13px" />
                     </span>
-                    <span class="shrink-0 text-11px text-[var(--n-text-color-3)] font-500">能耗</span>
+                    <span class="shrink-0 text-11px text-[var(--n-text-color-3)] font-500">
+                      {{ $t('effroom.energy') }}
+                    </span>
                     <span class="min-w-0 truncate text-14px text-[var(--n-text-color)] font-700">
                       {{ formatCalendarValue(getCalendarItem(year, month, date)?.energy) }}
                     </span>
@@ -306,7 +309,9 @@ onMounted(getData);
                     >
                       <SvgIcon icon="material-symbols:ac-unit-rounded" class="text-13px" />
                     </span>
-                    <span class="shrink-0 text-11px text-[var(--n-text-color-3)] font-500">冷量</span>
+                    <span class="shrink-0 text-11px text-[var(--n-text-color-3)] font-500">
+                      {{ $t('effroom.cooling') }}
+                    </span>
                     <span class="min-w-0 truncate text-14px text-[#18a058] font-700">
                       {{ formatCalendarValue(getCalendarItem(year, month, date)?.cooling) }}
                     </span>

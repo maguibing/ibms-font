@@ -4,6 +4,7 @@ import { useLoading } from '@sa/hooks';
 import { jsonClone } from '@sa/utils';
 import { fetchCreateNoticeGroup, fetchUpdateNoticeGroup } from '@/service/api/alarm';
 import { fetchGetUserList } from '@/service/api/system/user';
+import { noticeTypeOptions, noticeWayOptions } from '@/constants/business';
 import RemoteSearchSelect from '@/components/custom/remote-search-select.vue';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
@@ -35,16 +36,6 @@ const visible = defineModel<boolean>('visible', {
 
 type Model = Api.Alarm.NoticeGroupOperateParams;
 type SelectedUser = Pick<Api.System.User, 'user_id' | 'username' | 'phone'>;
-
-const noticeTypeOptions: CommonType.Option<Api.Alarm.NoticeGroupNoticeType>[] = [
-  { label: $t('alarmNoticeGroup.member'), value: 1 }
-];
-
-const noticeWayOptions: CommonType.Option<Api.Alarm.NoticeWay>[] = [
-  { label: $t('alarmNoticeGroup.inApp'), value: 2 }
-  // { label: '短信', value: 1 },
-  // { label: 'App 通知', value: 3 }
-];
 
 const userRequestParams: CommonType.CommonListQueryParams = {
   list_option: {
@@ -235,7 +226,11 @@ watch(visible, () => {
         <NFormItem :label="$t('alarmNoticeGroup.way')" path="notice.user.notice_way_list">
           <NCheckboxGroup v-model:value="model.notice.user.notice_way_list">
             <NSpace>
-              <NCheckbox v-for="item in noticeWayOptions" :key="item.value" :value="item.value">
+              <NCheckbox
+                v-for="item in noticeWayOptions.filter(option => option.value === 2)"
+                :key="item.value"
+                :value="item.value"
+              >
                 {{ item.label }}
               </NCheckbox>
             </NSpace>

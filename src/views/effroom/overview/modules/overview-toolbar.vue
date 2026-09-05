@@ -28,7 +28,7 @@ const emit = defineEmits<{
   <NCard :bordered="false" size="small" class="card-wrapper">
     <div class="flex flex-wrap items-center gap-16px p-4px">
       <div class="flex items-center gap-10px">
-        <span class="shrink-0 text-14px text-[var(--n-text-color-2)]">统计粒度</span>
+        <span class="shrink-0 text-14px text-[var(--n-text-color-2)]">{{ $t('effroom.statisticGranularity') }}</span>
         <NRadioGroup :value="statType" size="small" @update:value="value => emit('updateStatType', Number(value))">
           <NRadioButton v-for="option in statTypeOptions" :key="String(option.value)" :value="option.value">
             {{ option.label }}
@@ -48,7 +48,7 @@ const emit = defineEmits<{
       />
 
       <div class="flex items-center gap-10px">
-        <span class="shrink-0 text-14px text-[var(--n-text-color-2)]">统计方式</span>
+        <span class="shrink-0 text-14px text-[var(--n-text-color-2)]">{{ $t('effroom.statisticMethod') }}</span>
         <NSelect
           :value="aggType"
           :options="aggTypeOptions"
@@ -61,7 +61,7 @@ const emit = defineEmits<{
         <template #icon>
           <SvgIcon icon="material-symbols:search-rounded" />
         </template>
-        查询
+        {{ $t('effroom.query') }}
       </NButton>
     </div>
   </NCard>

@@ -2,6 +2,7 @@
 import { computed, shallowRef, watch } from 'vue';
 import dayjs from 'dayjs';
 import { AggType, ExportBizType, ExportFileType, StatType } from '@/enum/business';
+import { $t } from '@/locales';
 import { useExportProgress } from '@/hooks/business/export-progress';
 import { fetchExportTask } from '@/service/api/common';
 import { fetchGetDevicePointHistoryTrend } from '@/service/api/device';
@@ -88,8 +89,9 @@ async function getTrendData() {
     trendData.value = error ? null : data;
     currentStatType.value = data?.stat_type ?? requestParams.stat_type;
 
-    if (error) window.$message?.error('点位趋势数据获取失败');
-    else if (!data?.trend_list?.some(item => item.point_trends?.length)) window.$message?.warning('当前条件下暂无数据');
+    if (error) window.$message?.error($t('effroom.trendFetchFailed'));
+    else if (!data?.trend_list?.some(item => item.point_trends?.length))
+      window.$message?.warning($t('effroom.noDataForCondition'));
   } finally {
     if (sequence === requestSequence) loading.value = false;
   }
@@ -115,11 +117,11 @@ function handleRefresh() {
 async function handleExport() {
   const connectionId = getWebSocketConnectionId();
   if (!connectionId) {
-    window.$message?.warning('WebSocket 尚未连接，请稍后重试');
+    window.$message?.warning($t('effroom.websocketWarning'));
     return;
   }
 
-  startExport('点位对比');
+  startExport($t('effroom.pointCompare'));
 
   const { error } = await fetchExportTask({
     connection_id: connectionId,
@@ -134,13 +136,13 @@ async function handleExport() {
     return;
   }
 
-  window.$message?.success('导出任务已提交');
+  window.$message?.success($t('effroom.exportSubmitted'));
 }
 
 function handleDrill(timestamp: number) {
   const nextStatType = DRILL_DOWN_MAP[currentStatType.value];
   if (nextStatType === null || nextStatType === undefined) {
-    window.$message?.info('已是最细时间粒度');
+    window.$message?.info($t('effroom.finestGranularity'));
     return;
   }
 
@@ -190,7 +192,7 @@ watch(
 </script>
 
 <template>
-  <TableSiderLayout sider-title="点位选择" default-expanded class="point-compare-page">
+  <TableSiderLayout :sider-title="$t('effroom.pointSelection')" default-expanded class="point-compare-page">
     <template #sider>
       <PointTree v-model:selected-points="selectedPoints" />
     </template>
@@ -221,10 +223,14 @@ watch(
       <div class="mt-16px min-h-0 flex-1 overflow-hidden">
         <NEmpty
           v-if="selectedPoints.length === 0"
-          description="请从左侧选择需要对比的数值点位"
+          :description="$t('effroom.selectPointsHint')"
           class="h-full justify-center"
         />
-        <NEmpty v-else-if="!hasTrendData && !loading" description="当前条件下暂无数据" class="h-full justify-center" />
+        <NEmpty
+          v-else-if="!hasTrendData && !loading"
+          :description="$t('effroom.noDataForCondition')"
+          class="h-full justify-center"
+        />
         <PointTrendChart
           v-else-if="viewMode === 'chart'"
           :trend-list="trendList"
