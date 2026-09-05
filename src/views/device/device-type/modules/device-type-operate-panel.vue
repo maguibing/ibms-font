@@ -29,9 +29,9 @@ const { loading, startLoading, endLoading } = useLoading();
 const model = ref<Model>(createDefaultModel());
 
 const rules: Record<string, App.Global.FormRule> = {
-  name: createRequiredRule('请输入设备类型名称'),
-  key: createRequiredRule('请输入设备类型标识'),
-  status: createRequiredRule('请选择状态')
+  name: createRequiredRule($t('deviceType.namePlaceholder')),
+  key: createRequiredRule($t('deviceType.identifierPlaceholder')),
+  status: createRequiredRule($t('deviceType.statusPlaceholder'))
 };
 
 function createDefaultModel(): Model {
@@ -115,13 +115,18 @@ defineExpose({
 <template>
   <NSpin :show="loading">
     <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
-      <NFormItem label="设备类型名称" path="name">
-        <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入设备类型名称" />
+      <NFormItem :label="$t('deviceType.name')" path="name">
+        <NInput v-model:value="model.name" maxlength="30" show-count :placeholder="$t('deviceType.namePlaceholder')" />
       </NFormItem>
-      <NFormItem label="设备类型标识" path="key">
-        <NInput v-model:value="model.key" maxlength="48" show-count placeholder="请输入设备类型标识" />
+      <NFormItem :label="$t('deviceType.identifier')" path="key">
+        <NInput
+          v-model:value="model.key"
+          maxlength="48"
+          show-count
+          :placeholder="$t('deviceType.identifierPlaceholder')"
+        />
       </NFormItem>
-      <NFormItem label="图标" path="icon">
+      <NFormItem :label="$t('deviceType.icon')" path="icon">
         <FileUpload
           v-model:value="model.icon"
           module-name="device-type"
@@ -131,20 +136,20 @@ defineExpose({
           :show-tip="false"
         />
       </NFormItem>
-      <NFormItem label="状态" path="status">
+      <NFormItem :label="$t('deviceType.status')" path="status">
         <NSwitch v-model:value="model.status" :checked-value="1" :unchecked-value="2">
-          <template #checked>启用</template>
-          <template #unchecked>禁用</template>
+          <template #checked>{{ $t('deviceType.enabled') }}</template>
+          <template #unchecked>{{ $t('deviceType.disabled') }}</template>
         </NSwitch>
       </NFormItem>
-      <NFormItem label="描述" path="desc">
+      <NFormItem :label="$t('deviceType.description')" path="desc">
         <NInput
           v-model:value="model.desc"
           type="textarea"
           maxlength="200"
           show-count
           :rows="5"
-          placeholder="请输入描述"
+          :placeholder="$t('deviceType.descriptionPlaceholder')"
         />
       </NFormItem>
     </NForm>

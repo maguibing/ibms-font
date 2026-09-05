@@ -5,6 +5,7 @@ import { useLoading } from '@sa/hooks';
 import { fetchDevicePointCmd, fetchGetLogicPoint, fetchGetPhysicalPoint } from '@/service/api/device';
 import EnumTag from '@/components/custom/enum-tag.vue';
 import { displayValue } from '@/utils/common-methods';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'DevicePointCommandModal'
@@ -44,7 +45,9 @@ const commandValue = shallowRef<string | number | null>(null);
 const { loading: submitLoading, startLoading, endLoading } = useLoading();
 
 const isLogicPoint = computed(() => source.value === 'logic');
-const pointLabel = computed(() => (isLogicPoint.value ? '逻辑点位' : '物理点位'));
+const pointLabel = computed(() =>
+  isLogicPoint.value ? $t('devicePointManage.logicPoints') : $t('devicePointManage.physicalPoints')
+);
 const dataType = computed(() => detail.value?.dataType);
 const commandUnsupported = computed(() => !isLogicPoint.value && (dataType.value === 2 || dataType.value === 4));
 const scale = computed(() => detail.value?.scale);
@@ -71,14 +74,14 @@ function getCommandOptions(pointDataType: CommonType.DataType, setting?: Api.Dev
 
     return [
       {
-        label: trueValue?.alias || '开启',
+        label: trueValue?.alias || $t('devicePointManage.on'),
         value: trueValue?.value ?? '1',
-        alias: trueValue?.alias || '开启'
+        alias: trueValue?.alias || $t('devicePointManage.on')
       },
       {
-        label: falseValue?.alias || '关闭',
+        label: falseValue?.alias || $t('devicePointManage.off'),
         value: falseValue?.value ?? '0',
-        alias: falseValue?.alias || '关闭'
+        alias: falseValue?.alias || $t('devicePointManage.off')
       }
     ];
   }
@@ -164,7 +167,11 @@ async function open(context: CommandContext) {
 
 function validateCommandValue() {
   if (commandValue.value === null || commandValue.value === undefined || commandValue.value === '') {
-    window.$message?.warning(dataType.value === 1 || dataType.value === 3 ? '请输入下发值' : '请选择下发值');
+    window.$message?.warning(
+      dataType.value === 1 || dataType.value === 3
+        ? $t('devicePointManage.commandValueInput')
+        : $t('devicePointManage.commandValueSelect')
+    );
     return false;
   }
 
@@ -215,7 +222,7 @@ async function handleSubmit() {
 
   if (error) return;
 
-  window.$message?.success('下发成功');
+  window.$message?.success($t('devicePointManage.commandSuccess'));
   closeModal();
 }
 
@@ -225,26 +232,26 @@ defineExpose({
 </script>
 
 <template>
-  <NModal v-model:show="visible" preset="card" title="点位下发" class="w-520px max-w-90%">
+  <NModal v-model:show="visible" preset="card" :title="$t('devicePointManage.commandTitle')" class="w-520px max-w-90%">
     <NSpin :show="detailLoading">
       <NForm label-placement="top" label-width="110">
         <NFormItem :label="pointLabel">
           <NInput :value="displayValue(detail?.point.name)" disabled />
         </NFormItem>
-        <NFormItem :label="`${pointLabel}标识`">
+        <NFormItem :label="`${pointLabel}${$t('devicePointManage.identifierSuffix')}`">
           <NInput :value="displayValue(detail?.point.key)" disabled />
         </NFormItem>
-        <NFormItem label="数据类型">
+        <NFormItem :label="$t('devicePointManage.dataType')">
           <EnumTag :value="dataType" />
         </NFormItem>
-        <NFormItem label="下发值" required>
+        <NFormItem :label="$t('devicePointManage.commandValue')" required>
           <NInputGroup v-if="dataType === 1">
             <NInputNumber
               v-model:value="numberCommandValue"
               :precision="precision"
               button-placement="right"
               class="w-full"
-              placeholder="请输入下发值"
+              :placeholder="$t('devicePointManage.commandValueInput')"
             />
             <NInputGroupLabel v-if="unit">{{ unit }}</NInputGroupLabel>
           </NInputGroup>
@@ -253,29 +260,33 @@ defineExpose({
             v-model:value="commandValue"
             :options="commandOptions"
             :disabled="commandUnsupported || commandOptions.length === 0"
-            :placeholder="commandUnsupported ? '暂无可下发选项' : '请选择下发值'"
+            :placeholder="
+              commandUnsupported
+                ? $t('devicePointManage.commandUnsupported')
+                : $t('devicePointManage.commandValueSelect')
+            "
           />
           <NInput
             v-else-if="dataType === 3"
             v-model:value="textCommandValue"
             maxlength="100"
-            placeholder="请输入下发值"
+            :placeholder="$t('devicePointManage.commandValueInput')"
           />
-          <NInput v-else disabled placeholder="暂不支持该数据类型" />
+          <NInput v-else disabled :placeholder="$t('devicePointManage.commandUnsupportedType')" />
         </NFormItem>
       </NForm>
     </NSpin>
 
     <template #footer>
       <NSpace :size="16" justify="end">
-        <NButton @click="closeModal">取消</NButton>
+        <NButton @click="closeModal">{{ $t('common.cancel') }}</NButton>
         <NButton
           type="primary"
           :loading="submitLoading"
           :disabled="detailLoading || !detail || !dataType || commandUnsupported"
           @click="handleSubmit"
         >
-          确认下发
+          {{ $t('devicePointManage.confirmCommand') }}
         </NButton>
       </NSpace>
     </template>

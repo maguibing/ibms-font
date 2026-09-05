@@ -2,6 +2,7 @@
 import SectionHeader from '@/components/custom/section-header.vue';
 import type { PhysicalPointProtocolModel } from './physical-point-operate-types';
 import { opcUaDataTypeOptions } from './physical-point-shared';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'PhysicalPointOpcUaConfig'
@@ -19,17 +20,22 @@ const protocol = defineModel<PhysicalPointProtocolModel>('protocol', {
 <template>
   <NCard size="small" class="mb-18px">
     <template #header>
-      <SectionHeader title="OPC UA 参数" type="info" />
+      <SectionHeader :title="$t('devicePointManage.opcUaParameters')" type="info" />
     </template>
 
-    <NFormItem label="节点 ID" path="protocol.opcua.node_id">
-      <NInput v-model:value="protocol.opcua.node_id" maxlength="50" show-count placeholder="请输入节点 ID" />
+    <NFormItem :label="$t('devicePointManage.nodeId')" path="protocol.opcua.node_id">
+      <NInput
+        v-model:value="protocol.opcua.node_id"
+        maxlength="50"
+        show-count
+        :placeholder="$t('devicePointManage.nodeIdPlaceholder')"
+      />
     </NFormItem>
-    <NFormItem label="数据类型" path="protocol.opcua.data_type">
+    <NFormItem :label="$t('devicePointManage.dataType')" path="protocol.opcua.data_type">
       <NSelect
         v-model:value="protocol.opcua.data_type"
         :options="opcUaDataTypeOptions"
-        placeholder="请选择数据类型"
+        :placeholder="$t('devicePointManage.dataTypePlaceholder')"
         @update:value="emit('dataTypeChange', $event)"
       />
     </NFormItem>

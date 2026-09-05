@@ -42,14 +42,14 @@ const model = ref<Model>(createDefaultModel());
 
 const title = computed(() => {
   const titles: Record<NaiveUI.TableOperateType, string> = {
-    add: '新增设备分组',
-    edit: '编辑设备分组'
+    add: $t('deviceGroup.add'),
+    edit: $t('deviceGroup.edit')
   };
   return titles[props.operateType];
 });
 
 const rules: Record<string, App.Global.FormRule> = {
-  name: createRequiredRule('请输入分组名称')
+  name: createRequiredRule($t('deviceGroup.namePlaceholder'))
 };
 
 function getRowGroupId(row = props.rowData): CommonType.IdType | undefined {
@@ -145,7 +145,7 @@ watch(visible, () => {
   <NDrawer v-model:show="visible" :title="title" display-directive="show" :width="700" class="max-w-90%">
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
-        <NFormItem label="上级分组" path="parent_id">
+        <NFormItem :label="$t('deviceGroup.parent')" path="parent_id">
           <NTreeSelect
             v-model:value="model.parent_id"
             v-model:expanded-keys="expandedKeys"
@@ -155,20 +155,25 @@ watch(visible, () => {
             :options="groupData"
             label-field="group_name"
             key-field="group_id"
-            placeholder="请选择上级分组"
+            :placeholder="$t('deviceGroup.parentPlaceholder')"
           />
         </NFormItem>
-        <NFormItem label="分组名称" path="name">
-          <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入分组名称" />
+        <NFormItem :label="$t('deviceGroup.name')" path="name">
+          <NInput
+            v-model:value="model.name"
+            maxlength="30"
+            show-count
+            :placeholder="$t('deviceGroup.namePlaceholder')"
+          />
         </NFormItem>
-        <NFormItem label="描述" path="desc">
+        <NFormItem :label="$t('deviceGroup.description')" path="desc">
           <NInput
             v-model:value="model.desc"
             type="textarea"
             maxlength="200"
             show-count
             :rows="4"
-            placeholder="请输入描述"
+            :placeholder="$t('deviceGroup.descriptionPlaceholder')"
           />
         </NFormItem>
       </NForm>

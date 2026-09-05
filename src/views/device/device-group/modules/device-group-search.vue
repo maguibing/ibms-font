@@ -42,8 +42,19 @@ async function search() {
       <NCollapseItem :title="$t('common.search')" name="device-group-search">
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="分组名称" label-width="auto" path="group_name" class="pr-24px">
-              <NInput v-model:value="model.group_name" clearable placeholder="请输入分组名称" @keyup.enter="search" />
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('deviceGroup.name')"
+              label-width="auto"
+              path="group_name"
+              class="pr-24px"
+            >
+              <NInput
+                v-model:value="model.group_name"
+                clearable
+                :placeholder="$t('deviceGroup.namePlaceholder')"
+                @keyup.enter="search"
+              />
             </NFormItemGi>
             <NFormItemGi :show-feedback="false" span="24 s:12 m:16" class="pr-24px">
               <NSpace class="w-full" justify="end">

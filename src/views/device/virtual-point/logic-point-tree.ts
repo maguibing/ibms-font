@@ -6,7 +6,7 @@ let cachedTree: Api.Device.LogicPointTreeNode[] = [];
 let cacheExpiresAt = 0;
 let pendingRequest: Promise<Api.Device.LogicPointTreeNode[]> | null = null;
 
-/** 递归提取设备树中的数字点位节点。 */
+/** Recursively extract numeric point nodes from the device tree. */
 export function collectVirtualPointLogicPointNodes(
   nodes: Api.Device.LogicPointTreeNode[]
 ): Api.Device.LogicPointTreeNode[] {
@@ -16,7 +16,7 @@ export function collectVirtualPointLogicPointNodes(
   });
 }
 
-/** 复用虚点配置中的数字点位树请求，避免快速切换模式时重复提交。 */
+/** Reuse the numeric point tree request to avoid duplicate requests when switching modes quickly. */
 export function getVirtualPointLogicPointTree() {
   if (Date.now() < cacheExpiresAt) return Promise.resolve(cachedTree);
   if (pendingRequest) return pendingRequest;

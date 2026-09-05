@@ -53,7 +53,7 @@ const {
 } = usePointOperateForm();
 
 const isEdit = computed(() => props.operateType === 'edit');
-const drawerTitle = computed(() => (isEdit.value ? '编辑点位' : '新增点位'));
+const drawerTitle = computed(() => (isEdit.value ? $t('deviceTypeDetail.editPoint') : $t('deviceTypeDetail.addPoint')));
 
 function closeDrawer() {
   visible.value = false;
@@ -85,12 +85,12 @@ function buildSubmitParams(): Api.Device.DeviceTypePointOperateParams {
 
 async function handleSubmit() {
   if (!props.deviceTypeId) {
-    window.$message?.warning('缺少设备类型ID');
+    window.$message?.warning($t('deviceTypeDetail.missingDeviceTypeId'));
     return;
   }
 
   if (isEdit.value && (props.rowId === null || props.rowId === undefined)) {
-    window.$message?.warning('缺少点位ID');
+    window.$message?.warning($t('deviceTypeDetail.missingPointId'));
     return;
   }
 

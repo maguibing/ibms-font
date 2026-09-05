@@ -44,15 +44,15 @@ const emit = defineEmits<{
 
     <NEllipsis class="block text-16px text-[var(--n-text-color)] font-600">{{ gateway.name || '-' }}</NEllipsis>
     <div class="mt-9px min-w-0 flex items-center gap-8px text-13px text-[var(--n-text-color-2)]">
-      <span class="shrink-0">标识</span>
+      <span class="shrink-0">{{ $t('gatewayList.identifierLabel') }}</span>
       <CopyableValue class="min-w-0 flex-1" :value="gateway.key" @click.stop />
     </div>
     <div class="mt-7px flex items-center gap-8px text-13px text-[var(--n-text-color-2)]">
-      <span class="shrink-0">协议</span>
+      <span class="shrink-0">{{ $t('gatewayList.protocol') }}</span>
       <NEllipsis>{{ getGatewayProtocolLabel(gateway.protocol_type) }}</NEllipsis>
     </div>
     <div class="mt-7px flex flex-wrap items-center gap-8px text-13px text-[var(--n-text-color-2)]">
-      <span class="shrink-0">状态</span>
+      <span class="shrink-0">{{ $t('gatewayList.status') }}</span>
       <StatusTag
         :value="gateway.status"
         :unknown="GATEWAY_UNKNOWN_STATUS"
@@ -65,7 +65,7 @@ const emit = defineEmits<{
         text
         type="primary"
         icon="material-symbols:visibility-outline"
-        tooltip-content="查看"
+        :tooltip-content="$t('gatewayList.view')"
         @click="emit('view')"
       />
       <ButtonIcon

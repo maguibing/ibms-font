@@ -8,6 +8,7 @@ import {
   fetchUpdateVirtualPoint,
   fetchValidateVirtualPointFormula
 } from '@/service/api/device';
+import { $t } from '@/locales';
 import RemoteSearchSelect from '@/components/custom/remote-search-select.vue';
 import HourRangeSelector from '@/views/alarm/rule/modules/hour-range-selector.vue';
 import type { TaskRuleEditorOptionMaps } from '@/views/task/task-list/modules/task-point-rule-editor/use-task-point-rule-editor';
@@ -44,7 +45,7 @@ const props = withDefaults(defineProps<Props>(), { rowId: null });
 const emit = defineEmits<{ submitted: [] }>();
 const visible = defineModel<boolean>('visible', { default: false });
 
-// 父组件只调用各模式面板暴露的 validateAndBuild，具体配置构建留在子面板内部。
+// The parent only calls validateAndBuild on each mode panel. The concrete setting assembly stays inside the child panel.
 const formRef = useTemplateRef<FormInst>('formRef');
 const thresholdAssignPanelRef = useTemplateRef<{ validateAndBuild: () => Api.Device.VirtualPointSetting | null }>(
   'thresholdAssignPanelRef'
@@ -69,22 +70,27 @@ const thresholdOptionMaps = ref<TaskRuleEditorOptionMaps>({});
 const settingText = ref('');
 const selectedDevice = ref<Pick<Api.Device.Device, 'id' | 'name' | 'key'> | null>(null);
 
-// 抽屉标题和提交接口只依赖操作类型。
+// The drawer title and submit API only depend on the operate type.
 const isEdit = computed(() => props.operateType === 'edit');
-const title = computed(() => (isEdit.value ? '编辑虚拟点' : '创建虚拟点'));
+const title = computed(() => (isEdit.value ? $t('virtualPoint.drawer.edit') : $t('virtualPoint.drawer.create')));
 const rules: FormRules = {
-  name: { required: true, message: '请输入虚拟点名称', trigger: ['input', 'blur'] },
-  key: { required: true, message: '请输入虚拟点标识', trigger: ['input', 'blur'] },
-  belong_device_id: { required: true, type: 'number', message: '请选择所属设备', trigger: ['change', 'blur'] }
+  name: { required: true, message: $t('virtualPoint.validation.name'), trigger: ['input', 'blur'] },
+  key: { required: true, message: $t('virtualPoint.validation.key'), trigger: ['input', 'blur'] },
+  belong_device_id: {
+    required: true,
+    type: 'number',
+    message: $t('virtualPoint.validation.belongDevice'),
+    trigger: ['change', 'blur']
+  }
 };
 
-/** 展示兜底 JSON 时只保留当前计算模式配置。 */
+/** Keep only the current compute-mode setting when showing fallback JSON. */
 function formatSetting(setting: Api.Device.VirtualPointSetting) {
   const { point: _point, valid_time_ranges: _validTimeRanges, ...modeSetting } = setting;
   return JSON.stringify(modeSetting, null, 2);
 }
 
-/** 每次打开抽屉先恢复创建态，编辑态再由详情覆盖。 */
+/** Reset to create mode on every open, then let edit mode overwrite it with details. */
 function reset() {
   model.value = createDefaultVirtualPointForm();
   validTimeRanges.value = normalizeValidTimeRanges();
@@ -101,7 +107,7 @@ function reset() {
   formRef.value?.restoreValidation();
 }
 
-/** 详情里的名称优先取逻辑点，缺失时回退物理点。 */
+/** Prefer the logic point name in details; fall back to the physical point if needed. */
 function getDetailName(data: Api.Device.VirtualPointDetailResponse) {
   const virtualPoint = data.virtual_point;
   const logicPoint = data.logic_point_map?.[String(virtualPoint.logic_point_id ?? '')];
@@ -109,13 +115,13 @@ function getDetailName(data: Api.Device.VirtualPointDetailResponse) {
   return logicPoint?.name ?? physicalPoint?.name ?? '';
 }
 
-/** 虚拟点标识来自逻辑点映射。 */
+/** The virtual point identifier comes from the logic point map. */
 function getDetailKey(data: Api.Device.VirtualPointDetailResponse) {
   const virtualPoint = data.virtual_point;
   return data.logic_point_map?.[String(virtualPoint.logic_point_id ?? '')]?.key ?? '';
 }
 
-/** 加载编辑详情并按各模式拆分回填到对应子面板。 */
+/** Load edit details and split them into the matching child panel by mode. */
 async function loadDetail() {
   if (!props.rowId) return;
 
@@ -161,7 +167,7 @@ async function loadDetail() {
   }
 }
 
-/** 切换计算模式时重置对应模式配置，避免提交旧模式残留字段。 */
+/** Reset the matching setting when switching compute modes so stale fields are not submitted. */
 function handleComputeModeChange(value: number) {
   model.value.compute_mode = value as VirtualPointComputeMode;
   pointSetting.value = normalizeVirtualPointPointSetting(pointSetting.value, value);
@@ -180,25 +186,25 @@ function handleComputeModeChange(value: number) {
   settingText.value = formatSetting(createDefaultVirtualPointSetting(value));
 }
 
-/** 校验有效时段，后端只接收 0-23 点范围。 */
+/** Validate valid time ranges. The backend only accepts hours from 0 to 23. */
 function validateValidTimeRanges() {
   if (!validTimeRanges.value.length) {
-    window.$message?.warning('请至少添加一个有效时段');
+    window.$message?.warning($t('virtualPoint.validation.validTimeRangeRequired'));
     return false;
   }
 
   const invalid = validTimeRanges.value.some(
     item => item.start_at < 0 || item.end_at > 23 || item.start_at > item.end_at
   );
-  if (invalid) window.$message?.warning('有效时段必须在 0-23 点之间，且开始时间不能晚于结束时间');
+  if (invalid) window.$message?.warning($t('virtualPoint.validation.validTimeRangeInvalid'));
   return !invalid;
 }
 
-/** 按当前计算模式获取可提交的 setting 片段。 */
+/** Get the submit-ready setting fragment for the current compute mode. */
 function getParsedSetting() {
   if (model.value.compute_mode === VirtualPointComputeMode.Formula) {
     if (!formulaExpression.value.trim()) {
-      window.$message?.warning('请先编辑公式表达式');
+      window.$message?.warning($t('virtualPoint.validation.formulaRequired'));
       return null;
     }
 
@@ -224,11 +230,11 @@ function getParsedSetting() {
   }
 
   const setting = parseVirtualPointSetting(settingText.value);
-  if (!setting) window.$message?.warning('计算配置必须是有效的 JSON 对象');
+  if (!setting) window.$message?.warning($t('virtualPoint.validation.settingJsonInvalid'));
   return setting;
 }
 
-/** 调用后端公式校验，保存时静默失败，手动校验时展示成功结果。 */
+/** Call the backend formula validator. Save flow fails silently; manual validation shows success. */
 async function validateFormulaRemotely(showSuccess: boolean) {
   const expression = formulaExpression.value.trim();
 
@@ -237,23 +243,25 @@ async function validateFormulaRemotely(showSuccess: boolean) {
     const { data, error } = await fetchValidateVirtualPointFormula({ expression });
     if (error) return false;
     if (data?.is_valid === false) {
-      window.$message?.error(data.err_msg || data.msg || data.detail || '公式校验失败');
+      window.$message?.error(data.err_msg || data.msg || data.detail || $t('virtualPoint.validation.formulaFailed'));
       return false;
     }
-    if (showSuccess) window.$message?.success(`公式校验通过，结果：${data?.result ?? '-'}`);
+    if (showSuccess) {
+      window.$message?.success($t('virtualPoint.formula.validateSuccessWithResult', { result: data?.result ?? '-' }));
+    }
     return true;
   } finally {
     validatingFormula.value = false;
   }
 }
 
-/** 手动校验前先复用本地公式结构校验。 */
+/** Reuse local formula structure validation before manual remote validation. */
 async function handleValidateFormula() {
   if (!getParsedSetting()) return;
   await validateFormulaRemotely(true);
 }
 
-/** 表单校验、模式配置构建和创建/更新提交入口。 */
+/** Validate the form, build the mode setting, and submit create/update requests. */
 async function handleSubmit() {
   const valid = await formRef.value
     ?.validate()
@@ -286,7 +294,7 @@ async function handleSubmit() {
     const { error } = isEdit.value ? await fetchUpdateVirtualPoint(params) : await fetchCreateVirtualPoint(params);
     if (error) return;
 
-    window.$message?.success(isEdit.value ? '修改成功' : '创建成功');
+    window.$message?.success(isEdit.value ? $t('common.updateSuccess') : $t('common.saveSuccess'));
     visible.value = false;
     emit('submitted');
   } finally {
@@ -294,7 +302,7 @@ async function handleSubmit() {
   }
 }
 
-// 抽屉显示时统一初始化；编辑场景再加载详情覆盖默认值。
+// Initialize when the drawer opens; edit mode then loads details on top of the defaults.
 watch(visible, show => {
   if (!show) return;
   reset();
@@ -308,15 +316,15 @@ watch(visible, show => {
       <NSpin :show="loading">
         <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
           <div class="grid grid-cols-2 gap-x-16px lt-sm:grid-cols-1">
-            <NFormItem label="虚拟点名称" path="name">
+            <NFormItem :label="$t('virtualPoint.drawer.name')" path="name">
               <NInput v-model:value="model.name" maxlength="64" show-count clearable />
             </NFormItem>
-            <NFormItem label="虚拟点标识" path="key">
+            <NFormItem :label="$t('virtualPoint.drawer.key')" path="key">
               <NInput v-model:value="model.key" maxlength="64" show-count clearable />
             </NFormItem>
           </div>
 
-          <NFormItem label="所属设备" path="belong_device_id">
+          <NFormItem :label="$t('virtualPoint.drawer.belongDevice')" path="belong_device_id">
             <RemoteSearchSelect
               v-model:value="model.belong_device_id"
               :request="fetchGetDeviceList"
@@ -326,28 +334,28 @@ watch(visible, show => {
               value-field="id"
               filterable
               clearable
-              placeholder="请选择所属设备"
+              :placeholder="$t('virtualPoint.drawer.belongDevicePlaceholder')"
             />
           </NFormItem>
 
           <div class="grid grid-cols-2 gap-x-16px">
-            <NFormItem label="启用状态">
+            <NFormItem :label="$t('virtualPoint.drawer.status')">
               <NSwitch
                 v-model:value="model.status"
                 :checked-value="VirtualPointStatus.Enabled"
                 :unchecked-value="VirtualPointStatus.Disabled"
               />
             </NFormItem>
-            <NFormItem label="存储历史数据">
+            <NFormItem :label="$t('virtualPoint.drawer.storageHistory')">
               <NSwitch v-model:value="model.is_storage" />
             </NFormItem>
           </div>
 
-          <NFormItem label="有效时段">
+          <NFormItem :label="$t('virtualPoint.drawer.validTimeRange')">
             <HourRangeSelector v-model="validTimeRanges" class="w-full" />
           </NFormItem>
 
-          <NFormItem label="计算模式">
+          <NFormItem :label="$t('virtualPoint.drawer.computeMode')">
             <NRadioGroup :value="model.compute_mode" @update:value="handleComputeModeChange">
               <NRadioButton
                 v-for="item in virtualPointComputeModeOptions"
@@ -360,7 +368,7 @@ watch(visible, show => {
 
           <VirtualPointSettingPanel v-model="pointSetting" :compute-mode="model.compute_mode" class="mb-18px" />
 
-          <NFormItem label="计算配置">
+          <NFormItem :label="$t('virtualPoint.drawer.configuration')">
             <div class="w-full">
               <FormulaComputePanel
                 v-if="model.compute_mode === VirtualPointComputeMode.Formula"
@@ -393,7 +401,7 @@ watch(visible, show => {
                 type="textarea"
                 :autosize="{ minRows: 16, maxRows: 28 }"
                 class="font-mono"
-                placeholder="请输入虚拟点 setting JSON"
+                :placeholder="$t('virtualPoint.drawer.settingJsonPlaceholder')"
               />
             </div>
           </NFormItem>
@@ -402,8 +410,8 @@ watch(visible, show => {
 
       <template #footer>
         <NSpace :size="16">
-          <NButton @click="visible = false">取消</NButton>
-          <NButton type="primary" :loading="submitLoading" @click="handleSubmit">保存</NButton>
+          <NButton @click="visible = false">{{ $t('common.cancel') }}</NButton>
+          <NButton type="primary" :loading="submitLoading" @click="handleSubmit">{{ $t('common.save') }}</NButton>
         </NSpace>
       </template>
     </NDrawerContent>

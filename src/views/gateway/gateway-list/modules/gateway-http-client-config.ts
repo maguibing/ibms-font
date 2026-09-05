@@ -1,19 +1,22 @@
+import { computed } from 'vue';
+import { $t } from '@/locales';
+
 export const httpMethodOptions = ['POST', 'GET', 'PUT', 'DELETE', 'PATCH'];
 
-/** HTTP 请求内容类型选项。 */
+/** HTTP request content type options. */
 export const contentTypeOptions: CommonType.Option<string, string>[] = [
   { label: 'application/json', value: 'application/json' },
   { label: 'application/x-www-form-urlencoded', value: 'application/x-www-form-urlencoded' },
   { label: 'multipart/form-data', value: 'multipart/form-data' }
 ];
 
-export const tokenPlacementOptions: CommonType.Option<Api.Gateway.TokenPlacement, string>[] = [
-  { label: '标准认证头（Bearer Token）', value: 1 },
-  { label: '标准认证头（Raw Token）', value: 2 },
-  { label: '自定义请求头（Header）', value: 3 },
-  { label: 'URL 查询参数（Query）', value: 4 },
-  { label: '请求体参数（Body）', value: 5 }
-];
+export const tokenPlacementOptions = computed<CommonType.Option<Api.Gateway.TokenPlacement, string>[]>(() => [
+  { label: $t('gatewayList.bearerToken'), value: 1 },
+  { label: $t('gatewayList.rawToken'), value: 2 },
+  { label: $t('gatewayList.headerToken'), value: 3 },
+  { label: $t('gatewayList.queryToken'), value: 4 },
+  { label: $t('gatewayList.bodyToken'), value: 5 }
+]);
 
 const tokenKeyFixedByPlacement: Partial<Record<Api.Gateway.TokenPlacement, string>> = {
   1: 'Authorization Bearer',
@@ -25,19 +28,19 @@ export const httpMethodSelectOptions = httpMethodOptions.map(method => ({
   value: method
 }));
 
-/** 规范化认证令牌位置，异常值回退到标准认证头。 */
+/** Normalize token placement and fall back to the standard auth header for invalid values. */
 export function normalizeTokenPlacement(placement: unknown): Api.Gateway.TokenPlacement {
   const numericPlacement = Number(placement);
 
   return [1, 2, 3, 4, 5].includes(numericPlacement) ? (numericPlacement as Api.Gateway.TokenPlacement) : 1;
 }
 
-/** 获取认证位置对应的固定令牌字段名。 */
+/** Get the fixed token key for the auth placement. */
 export function getFixedTokenKey(placement: Api.Gateway.TokenPlacement) {
   return tokenKeyFixedByPlacement[placement] || '';
 }
 
-/** 创建动态键值输入行。 */
+/** Create a dynamic key-value row. */
 export function createGatewayHttpClientKeyValueRow(): Api.Gateway.GatewayHttpClientKeyValueRow {
   return {
     key: '',
@@ -45,17 +48,17 @@ export function createGatewayHttpClientKeyValueRow(): Api.Gateway.GatewayHttpCli
   };
 }
 
-/** 判断令牌字段是否由认证位置自动决定。 */
+/** Check whether the token key is controlled by the auth placement. */
 export function isTokenKeyReadonly(placement: Api.Gateway.TokenPlacement) {
   return [1, 2].includes(placement);
 }
 
-/** 判断认证位置是否为默认值。 */
+/** Check whether the auth placement is the default value. */
 export function isNilTokenPlacement(placement: Api.Gateway.TokenPlacement | null | undefined) {
   return !placement || placement === 1;
 }
 
-/** 判断动态键值行是否只填写了一侧。 */
+/** Check whether a dynamic key-value row is only partially filled. */
 export function isIncompleteGatewayHttpClientKeyValueRow(row: Api.Gateway.GatewayHttpClientKeyValueRow) {
   const key = row.key.trim();
   const value = row.value.trim();
@@ -63,7 +66,7 @@ export function isIncompleteGatewayHttpClientKeyValueRow(row: Api.Gateway.Gatewa
   return Boolean((key && !value) || (!key && value));
 }
 
-/** 计算路由是否完整，以及是否被用户部分填写。 */
+/** Check whether a route is complete and whether the user has partially filled it. */
 export function getGatewayHttpClientRouteState(route: Api.Gateway.GatewayHttpClientRouteModel) {
   const method = route.method.trim();
   const hasNonDefaultMethod = Boolean(method) && method !== 'POST';
@@ -83,7 +86,7 @@ export function getGatewayHttpClientRouteState(route: Api.Gateway.GatewayHttpCli
   };
 }
 
-/** 根据认证开关和位置同步令牌字段。 */
+/** Sync the token key with the auth toggle and placement. */
 export function syncGatewayHttpClientRouteTokenPlacement(route: Api.Gateway.GatewayHttpClientRouteModel) {
   route.token_placement = normalizeTokenPlacement(route.token_placement);
 
@@ -100,7 +103,7 @@ export function syncGatewayHttpClientRouteTokenPlacement(route: Api.Gateway.Gate
   }
 }
 
-/** 创建 HTTP Client 路由的默认表单模型。 */
+/** Create the default HTTP Client route model. */
 export function createGatewayHttpClientRouteModel(): Api.Gateway.GatewayHttpClientRouteModel {
   return {
     body: [],
@@ -114,7 +117,7 @@ export function createGatewayHttpClientRouteModel(): Api.Gateway.GatewayHttpClie
   };
 }
 
-/** 创建 HTTP Client 配置的默认表单模型。 */
+/** Create the default HTTP Client config model. */
 export function createGatewayHttpClientModel(): Api.Gateway.GatewayHttpClientModel {
   return {
     is_support_send: true,
@@ -137,7 +140,7 @@ export function createGatewayHttpClientModel(): Api.Gateway.GatewayHttpClientMod
   };
 }
 
-/** 将动态键值行转换为接口使用的对象。 */
+/** Convert dynamic key-value rows into the payload shape used by the API. */
 export function gatewayHttpClientKeyValueRowsToMap(rows: Api.Gateway.GatewayHttpClientKeyValueRow[]) {
   return rows.reduce<Record<string, string>>((acc, row) => {
     const key = row.key.trim();
@@ -151,7 +154,7 @@ export function gatewayHttpClientKeyValueRowsToMap(rows: Api.Gateway.GatewayHttp
   }, {});
 }
 
-/** 生成路由提交参数，可按需省略请求体。 */
+/** Build route submit params and optionally omit the request body. */
 export function createGatewayHttpClientRouteParams(
   route: Api.Gateway.GatewayHttpClientRouteModel,
   options: { includeBody?: boolean } = {}

@@ -47,7 +47,9 @@ const spaceName = computed(() => {
 });
 
 const protocolTitle = computed(() => {
-  return protocolType.value ? `${getGatewayProtocolLabel(protocolType.value)} 配置` : '协议配置';
+  return protocolType.value
+    ? `${getGatewayProtocolLabel(protocolType.value)} ${$t('gatewayList.config')}`
+    : $t('gatewayList.protocolConfig');
 });
 
 const isMqtt = computed(() => protocolType.value === 1);
@@ -73,8 +75,8 @@ const mqttExamples = computed(() => {
     xunrao: {
       devs: [
         {
-          d: [{ dq: 192, m: '示例点', ts: timestamp, v: 0 }],
-          dev: '示例设备'
+          d: [{ dq: 192, m: $t('gatewayList.examplePoint'), ts: timestamp, v: 0 }],
+          dev: $t('gatewayList.exampleDevice')
         }
       ],
       pKey: gateway.value?.p_key || 'pkey_P0XiEV',
@@ -83,7 +85,7 @@ const mqttExamples = computed(() => {
       ver: '2.0.0'
     },
     standard: {
-      device_points: [{ key: '示例点', value: '值' }]
+      device_points: [{ key: $t('gatewayList.examplePoint'), value: $t('gatewayList.exampleValue') }]
     }
   };
 });
@@ -94,7 +96,7 @@ function closeDrawer() {
 }
 
 function formatBoolean(value?: boolean | null) {
-  return value ? '是' : '否';
+  return value ? $t('gatewayList.yes') : $t('gatewayList.no');
 }
 
 function formatRecord(record?: Record<string, string> | null) {
@@ -108,7 +110,7 @@ function recordEntries(record?: Record<string, string> | null) {
 }
 
 function getOptionLabel<T extends string | number>(options: CommonType.Option<T, string>[], value?: T | null) {
-  if (value === null || value === undefined) return '标准格式';
+  if (value === null || value === undefined) return '-';
   return options.find(item => item.value === value)?.label ?? displayValue(value);
 }
 
@@ -116,46 +118,48 @@ async function copyMqttBasicInfo() {
   const currentGateway = gateway.value;
   const mqtt = protocol.value?.mqtt;
   const values = [
-    ['主机域名', mqtt?.domain],
-    ['端口', mqtt?.port],
-    ['主题', currentGateway?.p_key],
-    ['标识', currentGateway?.key],
-    ['用户名', currentGateway?.username],
-    ['密码', currentGateway?.password]
+    [$t('gatewayList.host'), mqtt?.domain],
+    [$t('gatewayList.port'), mqtt?.port],
+    [$t('gatewayList.topic'), currentGateway?.p_key],
+    [$t('gatewayList.identifierLabel'), currentGateway?.key],
+    [$t('gatewayList.username'), currentGateway?.username],
+    [$t('gatewayList.password'), currentGateway?.password]
   ] satisfies [string, string | number | null | undefined][];
 
   if (values.every(([, value]) => !String(value ?? '').trim())) {
-    window.$message?.warning('暂无可复制的 MQTT 信息');
+    window.$message?.warning($t('gatewayList.noMqttInfo'));
     return;
   }
 
   if (!isClipboardSupported()) {
-    window.$message?.error('当前浏览器不支持复制');
+    window.$message?.error($t('gatewayList.clipboardUnsupported'));
     return;
   }
 
   const copied = await copyText(values.map(([label, value]) => `${label}: ${String(value ?? '').trim()}`).join('\n'));
   if (copied) {
-    window.$message?.success('复制成功');
+    window.$message?.success($t('gatewayList.copySuccess'));
     return;
   }
 
-  window.$message?.error('复制失败，请手动复制');
+  window.$message?.error($t('gatewayList.copyFailed'));
 }
 
 async function copyMqttValue(value: string, label: string) {
   if (!value) {
-    window.$message?.warning(`暂无可复制的${label}`);
+    window.$message?.warning($t('gatewayList.noCopyValue', { label }));
     return;
   }
 
   if (!isClipboardSupported()) {
-    window.$message?.error('当前浏览器不支持复制');
+    window.$message?.error($t('gatewayList.clipboardUnsupported'));
     return;
   }
 
   const copied = await copyText(value);
-  window.$message?.[copied ? 'success' : 'error'](copied ? '复制成功' : '复制失败，请手动复制');
+  window.$message?.[copied ? 'success' : 'error'](
+    copied ? $t('gatewayList.copySuccess') : $t('gatewayList.copyFailed')
+  );
 }
 
 async function getGatewayDetail(id: CommonType.IdType) {
@@ -163,7 +167,7 @@ async function getGatewayDetail(id: CommonType.IdType) {
   const { data, error } = await fetchGetGateway({ id, options: [{ key: 1 }, { key: 2 }] }).finally(endLoading);
 
   if (error) {
-    window.$message?.error('边缘设备详情获取失败');
+    window.$message?.error($t('gatewayList.detailFetchFailed'));
     return;
   }
 
@@ -179,8 +183,14 @@ watch(visible, () => {
 </script>
 
 <template>
-  <NDrawer v-model:show="visible" title="查看边缘设备" display-directive="show" :width="760" class="max-w-90%">
-    <NDrawerContent title="查看边缘设备" :native-scrollbar="false" closable>
+  <NDrawer
+    v-model:show="visible"
+    :title="$t('gatewayList.viewGateway')"
+    display-directive="show"
+    :width="760"
+    class="max-w-90%"
+  >
+    <NDrawerContent :title="$t('gatewayList.viewGateway')" :native-scrollbar="false" closable>
       <NSpin :show="loading">
         <div v-if="gateway" class="flex-col gap-18px">
           <div>
@@ -190,31 +200,33 @@ watch(visible, () => {
                   <template #icon>
                     <SvgIcon icon="ep:copy-document" />
                   </template>
-                  一键复制
+                  {{ $t('gatewayList.copyAll') }}
                 </NButton>
               </template>
             </SectionHeader>
             <NDescriptions label-placement="left" bordered size="small" :column="2" label-class="w-100px">
-              <NDescriptionsItem label="名称">{{ displayValue(gateway.name) }}</NDescriptionsItem>
-              <NDescriptionsItem label="协议">{{ getGatewayProtocolLabel(gateway.protocol_type) }}</NDescriptionsItem>
-              <NDescriptionsItem label="主题">
+              <NDescriptionsItem :label="$t('gatewayList.name')">{{ displayValue(gateway.name) }}</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('gatewayList.protocol')">
+                {{ getGatewayProtocolLabel(gateway.protocol_type) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('gatewayList.topic')">
                 <CopyableValue :value="gateway.p_key" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="标识">
+              <NDescriptionsItem :label="$t('gatewayList.identifierLabel')">
                 <CopyableValue :value="gateway.key" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="用户名">
+              <NDescriptionsItem :label="$t('gatewayList.username')">
                 <CopyableValue :value="gateway.username" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="密码">
+              <NDescriptionsItem :label="$t('gatewayList.password')">
                 <CopyableValue :value="gateway.password" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="状态">
+              <NDescriptionsItem :label="$t('gatewayList.status')">
                 <StatusTag :value="gateway.status" :unknown="GATEWAY_UNKNOWN_STATUS" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="所属空间">{{ spaceName }}</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('gatewayList.space')">{{ spaceName }}</NDescriptionsItem>
 
-              <NDescriptionsItem label="描述" :span="2">
+              <NDescriptionsItem :label="$t('gatewayList.description')" :span="2">
                 <span class="whitespace-pre-line">{{ displayValue(gateway.desc) }}</span>
               </NDescriptionsItem>
             </NDescriptions>
@@ -224,54 +236,62 @@ watch(visible, () => {
             <SectionHeader :title="protocolTitle" extra-class="mb-10px" />
 
             <template v-if="isMqtt">
-              <NCard title="MQTT 上报配置" size="small" segmented>
+              <NCard :title="$t('gatewayList.mqttConfig')" size="small" segmented>
                 <NDescriptions label-placement="left" bordered size="small" :column="2" label-class="w-120px">
-                  <NDescriptionsItem label="主机域名">
+                  <NDescriptionsItem :label="$t('gatewayList.host')">
                     <CopyableValue :value="protocol.mqtt?.domain" />
                   </NDescriptionsItem>
-                  <NDescriptionsItem label="端口">
+                  <NDescriptionsItem :label="$t('gatewayList.port')">
                     <CopyableValue :value="protocol.mqtt?.port" />
                   </NDescriptionsItem>
-                  <NDescriptionsItem label="上报地址" :span="2">
+                  <NDescriptionsItem :label="$t('gatewayList.reportAddress')" :span="2">
                     <CopyableValue :value="mqttReportAddress" />
                   </NDescriptionsItem>
                 </NDescriptions>
 
                 <NTabs v-model:value="mqttExampleTab" animated class="mt-12px">
-                  <NTabPane name="standard" tab="标准格式">
+                  <NTabPane name="standard" :tab="$t('gatewayList.standard')">
                     <JsCodeEditor
                       :value="mqttExampleCode"
-                      label="数据示例 JSON"
+                      :label="$t('gatewayList.dataExampleJson')"
                       readonly
                       :show-format="false"
                       format-parser="json"
                       :height="220"
                     >
                       <template #toolbar-actions>
-                        <NButton size="tiny" secondary @click="copyMqttValue(mqttExampleCode, '数据示例')">
+                        <NButton
+                          size="tiny"
+                          secondary
+                          @click="copyMqttValue(mqttExampleCode, $t('gatewayList.exampleData'))"
+                        >
                           <template #icon>
                             <SvgIcon icon="ep:copy-document" />
                           </template>
-                          复制示例
+                          {{ $t('gatewayList.copyExample') }}
                         </NButton>
                       </template>
                     </JsCodeEditor>
                   </NTabPane>
-                  <NTabPane name="xunrao" tab="讯饶格式">
+                  <NTabPane name="xunrao" :tab="$t('gatewayList.xunrao')">
                     <JsCodeEditor
                       :value="mqttExampleCode"
-                      label="数据示例 JSON"
+                      :label="$t('gatewayList.dataExampleJson')"
                       readonly
                       :show-format="false"
                       format-parser="json"
                       :height="300"
                     >
                       <template #toolbar-actions>
-                        <NButton size="tiny" secondary @click="copyMqttValue(mqttExampleCode, '数据示例')">
+                        <NButton
+                          size="tiny"
+                          secondary
+                          @click="copyMqttValue(mqttExampleCode, $t('gatewayList.exampleData'))"
+                        >
                           <template #icon>
                             <SvgIcon icon="ep:copy-document" />
                           </template>
-                          复制示例
+                          {{ $t('gatewayList.copyExample') }}
                         </NButton>
                       </template>
                     </JsCodeEditor>
@@ -288,10 +308,10 @@ watch(visible, () => {
               :column="2"
               label-class="w-120px"
             >
-              <NDescriptionsItem label="地址">
+              <NDescriptionsItem :label="$t('gatewayList.address')">
                 <CopyableValue :value="protocol.http_server?.addr" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="路径">
+              <NDescriptionsItem :label="$t('gatewayList.path')">
                 <CopyableValue :value="protocol.http_server?.path" />
               </NDescriptionsItem>
             </NDescriptions>
@@ -304,37 +324,37 @@ watch(visible, () => {
               :column="2"
               label-class="w-120px"
             >
-              <NDescriptionsItem label="服务地址">
+              <NDescriptionsItem :label="$t('gatewayList.serverAddress')">
                 <CopyableValue :value="protocol.http_client?.server" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="请求超时">
-                {{ displayValue(protocol.http_client?.timeout) }} 秒
+              <NDescriptionsItem :label="$t('gatewayList.requestTimeout')">
+                {{ displayValue(protocol.http_client?.timeout) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="轮询间隔">
-                {{ displayValue(protocol.http_client?.poll_interval) }} 秒
+              <NDescriptionsItem :label="$t('gatewayList.pollIntervalSeconds')">
+                {{ displayValue(protocol.http_client?.poll_interval) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="令牌鉴权">
+              <NDescriptionsItem :label="$t('gatewayList.tokenAuth')">
                 {{ formatBoolean(protocol.http_client?.token?.is_enable) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="令牌请求方法">
+              <NDescriptionsItem :label="$t('gatewayList.tokenRequestMethod')">
                 {{ displayValue(protocol.http_client?.token?.method) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="令牌请求路径" :span="2">
+              <NDescriptionsItem :label="$t('gatewayList.tokenRequestPath')" :span="2">
                 <CopyableValue :value="protocol.http_client?.token?.path" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="令牌字段">
+              <NDescriptionsItem :label="$t('gatewayList.tokenFieldName')">
                 {{ displayValue(protocol.http_client?.token?.token_field) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="过期字段">
+              <NDescriptionsItem :label="$t('gatewayList.expireFieldName')">
                 {{ displayValue(protocol.http_client?.token?.expire_field) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="过期秒数">
-                {{ displayValue(protocol.http_client?.token?.expire_seconds) }} 秒
+              <NDescriptionsItem :label="$t('gatewayList.expireSeconds')">
+                {{ displayValue(protocol.http_client?.token?.expire_seconds) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="请求头" :span="2">
+              <NDescriptionsItem :label="$t('gatewayList.requestHeaders')" :span="2">
                 {{ formatRecord(protocol.http_client?.token?.headers) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="请求体" :span="2">
+              <NDescriptionsItem :label="$t('gatewayList.requestBody')" :span="2">
                 <div v-if="httpClientBodyEntries.length" class="flex-col gap-6px">
                   <div
                     v-for="[key, value] in httpClientBodyEntries"
@@ -347,34 +367,34 @@ watch(visible, () => {
                 </div>
                 <span v-else>-</span>
               </NDescriptionsItem>
-              <NDescriptionsItem label="轮询请求方法">
+              <NDescriptionsItem :label="$t('gatewayList.pollRequestMethod')">
                 {{ displayValue(protocol.http_client?.poll_route?.method) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="轮询请求路径" :span="2">
+              <NDescriptionsItem :label="$t('gatewayList.pollRequestPath')" :span="2">
                 <CopyableValue :value="protocol.http_client?.poll_route?.path" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="轮询认证">
+              <NDescriptionsItem :label="$t('gatewayList.pollAuth')">
                 {{ formatBoolean(protocol.http_client?.poll_route?.with_auth) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="轮询令牌位置">
+              <NDescriptionsItem :label="$t('gatewayList.pollTokenPlacement')">
                 {{ getOptionLabel(tokenPlacementOptions, protocol.http_client?.poll_route?.token_placement) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="轮询令牌字段">
+              <NDescriptionsItem :label="$t('gatewayList.pollTokenField')">
                 {{ displayValue(protocol.http_client?.poll_route?.token_key) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="下发请求方法">
+              <NDescriptionsItem :label="$t('gatewayList.sendRequestMethod')">
                 {{ displayValue(protocol.http_client?.send_route?.method) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="下发请求路径" :span="2">
+              <NDescriptionsItem :label="$t('gatewayList.sendRequestPath')" :span="2">
                 <CopyableValue :value="protocol.http_client?.send_route?.path" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="下发认证">
+              <NDescriptionsItem :label="$t('gatewayList.sendAuth')">
                 {{ formatBoolean(protocol.http_client?.send_route?.with_auth) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="下发令牌位置">
+              <NDescriptionsItem :label="$t('gatewayList.sendTokenPlacement')">
                 {{ getOptionLabel(tokenPlacementOptions, protocol.http_client?.send_route?.token_placement) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="下发令牌字段">
+              <NDescriptionsItem :label="$t('gatewayList.sendTokenField')">
                 {{ displayValue(protocol.http_client?.send_route?.token_key) }}
               </NDescriptionsItem>
             </NDescriptions>
@@ -387,12 +407,18 @@ watch(visible, () => {
               :column="2"
               label-class="w-120px"
             >
-              <NDescriptionsItem label="主机">{{ displayValue(protocol.modbus?.tcp?.host) }}</NDescriptionsItem>
-              <NDescriptionsItem label="端口">{{ displayValue(protocol.modbus?.tcp?.port) }}</NDescriptionsItem>
-              <NDescriptionsItem label="轮询间隔">
-                {{ displayValue(protocol.modbus?.poll_interval) }} 秒
+              <NDescriptionsItem :label="$t('gatewayList.host')">
+                {{ displayValue(protocol.modbus?.tcp?.host) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="超时时间">{{ displayValue(protocol.modbus?.timeout) }} 秒</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('gatewayList.port')">
+                {{ displayValue(protocol.modbus?.tcp?.port) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('gatewayList.pollIntervalSeconds')">
+                {{ displayValue(protocol.modbus?.poll_interval) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('gatewayList.timeoutSeconds')">
+                {{ displayValue(protocol.modbus?.timeout) }}
+              </NDescriptionsItem>
             </NDescriptions>
 
             <NDescriptions
@@ -403,19 +429,21 @@ watch(visible, () => {
               :column="2"
               label-class="w-120px"
             >
-              <NDescriptionsItem label="目标地址">
+              <NDescriptionsItem :label="$t('gatewayList.targetAddress')">
                 {{ displayValue(protocol.bacnet?.ip?.interface_name) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="本机地址">
+              <NDescriptionsItem :label="$t('gatewayList.localAddress')">
                 {{ displayValue(protocol.bacnet?.ip?.local_addr) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="目标端口">
+              <NDescriptionsItem :label="$t('gatewayList.targetPort')">
                 {{ displayValue(protocol.bacnet?.ip?.local_port) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="轮询间隔">
-                {{ displayValue(protocol.bacnet?.poll_interval) }} 秒
+              <NDescriptionsItem :label="$t('gatewayList.pollIntervalSeconds')">
+                {{ displayValue(protocol.bacnet?.poll_interval) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="超时时间">{{ displayValue(protocol.bacnet?.timeout) }} 秒</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('gatewayList.timeoutSeconds')">
+                {{ displayValue(protocol.bacnet?.timeout) }}
+              </NDescriptionsItem>
             </NDescriptions>
 
             <NDescriptions
@@ -426,43 +454,49 @@ watch(visible, () => {
               :column="2"
               label-class="w-120px"
             >
-              <NDescriptionsItem label="服务端地址">{{ displayValue(protocol.opcua?.endpoint_url) }}</NDescriptionsItem>
-              <NDescriptionsItem label="认证类型">
+              <NDescriptionsItem :label="$t('gatewayList.serverAddress')">
+                {{ displayValue(protocol.opcua?.endpoint_url) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('gatewayList.authType')">
                 {{ getOptionLabel(opcUaAuthTypeOptions, protocol.opcua?.authentication?.auth_type) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="用户名">
+              <NDescriptionsItem :label="$t('gatewayList.username')">
                 <CopyableValue :value="protocol.opcua?.authentication?.user_auth?.username" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="密码">
+              <NDescriptionsItem :label="$t('gatewayList.password')">
                 <CopyableValue :value="protocol.opcua?.authentication?.user_auth?.password" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="安全模式">
+              <NDescriptionsItem :label="$t('gatewayList.securityMode')">
                 {{ getOptionLabel(opcUaSecurityModeOptions, protocol.opcua?.security_policy?.mode) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="安全策略URI" :span="2">
+              <NDescriptionsItem :label="$t('gatewayList.securityPolicyUri')" :span="2">
                 {{ displayValue(protocol.opcua?.security_policy?.policy_uri) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="自动发现">
+              <NDescriptionsItem :label="$t('gatewayList.autoDiscovery')">
                 {{ formatBoolean(protocol.opcua?.is_auto_discovery) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="订阅">{{ formatBoolean(protocol.opcua?.is_subscription) }}</NDescriptionsItem>
-              <NDescriptionsItem label="轮询间隔">
-                {{ displayValue(protocol.opcua?.poll_interval) }} 秒
+              <NDescriptionsItem :label="$t('gatewayList.subscription')">
+                {{ formatBoolean(protocol.opcua?.is_subscription) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="请求超时">
-                {{ displayValue(protocol.opcua?.request_timeout) }} 秒
+              <NDescriptionsItem :label="$t('gatewayList.pollIntervalSeconds')">
+                {{ displayValue(protocol.opcua?.poll_interval) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="会话超时">
-                {{ displayValue(protocol.opcua?.session_timeout) }} 秒
+              <NDescriptionsItem :label="$t('gatewayList.requestTimeout')">
+                {{ displayValue(protocol.opcua?.request_timeout) }}
               </NDescriptionsItem>
-              <NDescriptionsItem label="连接超时">{{ displayValue(protocol.opcua?.timeout) }} 秒</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('gatewayList.sessionTimeoutSeconds')">
+                {{ displayValue(protocol.opcua?.session_timeout) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('gatewayList.connectionTimeoutSeconds')">
+                {{ displayValue(protocol.opcua?.timeout) }}
+              </NDescriptionsItem>
             </NDescriptions>
 
-            <NEmpty v-else description="暂无协议配置" />
+            <NEmpty v-else :description="$t('gatewayList.protocolConfigEmpty')" />
           </div>
         </div>
 
-        <NEmpty v-else-if="!loading" description="暂无边缘设备详情" />
+        <NEmpty v-else-if="!loading" :description="$t('gatewayList.gatewayDetailEmpty')" />
       </NSpin>
 
       <template #footer>

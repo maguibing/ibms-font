@@ -115,7 +115,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'name',
-        title: '设备名称',
+        title: $t('deviceList.name'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -124,7 +124,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'key',
-        title: '设备标识',
+        title: $t('deviceList.identifier'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -134,7 +134,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'device_type_id',
-        title: '设备类型',
+        title: $t('deviceList.type'),
         align: 'center',
         minWidth: 140,
         ellipsis: {
@@ -144,7 +144,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'device_group_id',
-        title: '设备组',
+        title: $t('deviceList.group'),
         align: 'center',
         minWidth: 140,
         ellipsis: {
@@ -154,14 +154,14 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'status',
-        title: '状态',
+        title: $t('deviceList.status'),
         align: 'center',
         minWidth: 100,
         render: row => <StatusTag value={row.status} />
       },
       {
         key: 'updated_at',
-        title: '更新时间',
+        title: $t('deviceList.updatedAt'),
         align: 'center',
         minWidth: 180,
         render: row => (row.updated_at ? formatDateTime(row.updated_at) : '-')
@@ -178,7 +178,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               text
               type="primary"
               icon="material-symbols:visibility-outline"
-              tooltipContent="查看"
+              tooltipContent={$t('deviceList.view')}
               onClick={() => handleView(row.id)}
             />
           );
@@ -306,7 +306,7 @@ function handleSearch() {
       @search="handleSearch"
     />
     <NCard
-      title="设备列表"
+      :title="$t('deviceList.list')"
       size="small"
       class="card-wrapper sm:flex-1-hidden"
       content-class="min-h-0 flex-col-stretch overflow-hidden"
@@ -354,7 +354,7 @@ function handleSearch() {
         :pagination="mobilePagination"
         :row-key="row => row.id"
         selectable
-        empty-description="暂无设备"
+        :empty-description="$t('deviceList.noData')"
         class="min-h-0 flex-1 overflow-hidden sm:h-full"
       >
         <template #default="{ item, checked, toggleChecked }">

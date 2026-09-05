@@ -124,7 +124,7 @@ onMounted(() => {
         @update:selected-keys="handleUpdateSelectedKeys"
       >
         <template #empty>
-          <NEmpty description="暂无逻辑点位树" class="h-full min-h-200px justify-center" />
+          <NEmpty :description="$t('devicePointManage.noLogicPointTree')" class="h-full min-h-200px justify-center" />
         </template>
       </NTree>
     </NSpin>

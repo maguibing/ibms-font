@@ -2,6 +2,7 @@
 import { computed, shallowRef, watch } from 'vue';
 import type { DataTableColumns } from 'naive-ui';
 import { fetchGetDevicePointHistoryTrend } from '@/service/api/device';
+import { $t } from '@/locales';
 import { displayValue, formatUnixDateTime } from '@/utils/common-methods';
 import { virtualPointComputeModeMap } from '../virtual-point';
 import CopyableValue from '@/components/custom/copyable-value.vue';
@@ -33,7 +34,7 @@ const dateRange = shallowRef<[number, number]>(createDefaultDateRange());
 const trend = shallowRef<Api.Device.DevicePointHistoryTrend | null>(null);
 let requestSequence = 0;
 
-const computeModeLabel = computed(() => virtualPointComputeModeMap[props.row?.compute_mode ?? 0] ?? '-');
+const computeModeLabel = computed(() => virtualPointComputeModeMap.value[props.row?.compute_mode ?? 0] ?? '-');
 const isStored = computed(() => Boolean(props.physicalPoint?.is_storage));
 const canQuery = computed(() => Boolean(props.physicalPoint?.key && dateRange.value.length === 2));
 const dateRangeFormattedValue = computed<[string, string]>(() => [
@@ -50,31 +51,31 @@ const tableData = computed<HistoryTableRow[]>(() =>
 const columns: DataTableColumns<HistoryTableRow> = [
   {
     key: 'time',
-    title: '时间',
+    title: $t('virtualPoint.history.time'),
     align: 'center',
     width: 180
   },
   {
     key: 'value',
-    title: '上报值',
+    title: $t('virtualPoint.history.reportedValue'),
     align: 'center',
     ellipsis: { tooltip: true }
   }
 ];
 
-/** 默认查询最近一小时历史记录。 */
+/** Query the latest hour by default. */
 function createDefaultDateRange(): [number, number] {
   return createRecentDateRange(HOUR_SECONDS);
 }
 
-/** 生成最近一段时间的秒级时间范围。 */
+/** Build a recent second-level time range. */
 function createRecentDateRange(seconds: number): [number, number] {
   const endAt = Math.floor(Date.now() / SECOND_MILLISECONDS);
 
   return [endAt - seconds, endAt];
 }
 
-/** 兼容不同数据类型的历史值展示。 */
+/** Format history values across different data types. */
 function formatTrendValue(value: Api.Device.DevicePointHistoryValue) {
   const pointValue =
     value.num_val?.value ??
@@ -89,13 +90,13 @@ function formatTrendValue(value: Api.Device.DevicePointHistoryValue) {
   return unit && text !== '-' ? `${text} ${unit}` : text;
 }
 
-/** 重置时间和历史数据，避免打开不同点位时显示旧数据。 */
+/** Reset time and history data so stale values are not shown when switching points. */
 function reset() {
   dateRange.value = createDefaultDateRange();
   trend.value = null;
 }
 
-/** 选择时间范围后立即按新范围请求历史数据。 */
+/** Reload history data immediately after the time range changes. */
 function handleDateRangeUpdate(value: [string, string] | null) {
   if (!value) return;
 
@@ -103,17 +104,17 @@ function handleDateRangeUpdate(value: [string, string] | null) {
   getHistoryData();
 }
 
-/** 刷新最新一小时历史数据。 */
+/** Refresh the latest hour of history data. */
 function handleRefresh() {
   dateRange.value = createDefaultDateRange();
   getHistoryData();
 }
 
-/** 根据当前物理点标识和时间范围获取历史趋势。 */
+/** Fetch the history trend by physical point key and current time range. */
 async function getHistoryData() {
   const physicalPointKey = props.physicalPoint?.key;
   if (!physicalPointKey) {
-    window.$message?.warning('缺少物理点标识，无法获取历史数据');
+    window.$message?.warning($t('virtualPoint.history.missingPhysicalPointKey'));
     return;
   }
 
@@ -131,7 +132,7 @@ async function getHistoryData() {
     if (sequence !== requestSequence) return;
 
     trend.value = error ? null : (data?.trend_list?.[0] ?? null);
-    if (error) window.$message?.error('历史数据获取失败');
+    if (error) window.$message?.error($t('virtualPoint.history.fetchFailed'));
   } finally {
     if (sequence === requestSequence) loading.value = false;
   }
@@ -145,27 +146,27 @@ watch(visible, show => {
 </script>
 
 <template>
-  <NModal v-model:show="visible" preset="card" title="历史记录" class="w-920px max-w-95%">
+  <NModal v-model:show="visible" preset="card" :title="$t('virtualPoint.history.title')" class="w-920px max-w-95%">
     <div class="flex flex-col gap-16px">
       <NDescriptions label-placement="left" bordered :column="2" size="small">
-        <NDescriptionsItem label="逻辑点名称">
+        <NDescriptionsItem :label="$t('virtualPoint.history.logicPointName')">
           {{ displayValue(logicPoint?.name) }}
         </NDescriptionsItem>
-        <NDescriptionsItem label="逻辑点标识">
+        <NDescriptionsItem :label="$t('virtualPoint.history.logicPointKey')">
           <CopyableValue :value="logicPoint?.key" />
         </NDescriptionsItem>
-        <NDescriptionsItem label="是否存储">
+        <NDescriptionsItem :label="$t('virtualPoint.history.stored')">
           <NTag :type="isStored ? 'success' : 'default'" :bordered="false">
-            {{ isStored ? '是' : '否' }}
+            {{ isStored ? $t('dict.sys_yes_no.yes') : $t('dict.sys_yes_no.no') }}
           </NTag>
         </NDescriptionsItem>
-        <NDescriptionsItem label="计算方式">
+        <NDescriptionsItem :label="$t('virtualPoint.history.computeMode')">
           <NTag type="info" :bordered="false">{{ computeModeLabel }}</NTag>
         </NDescriptionsItem>
       </NDescriptions>
 
       <div class="flex flex-wrap items-center gap-12px">
-        <span class="shrink-0 text-14px text-[var(--n-text-color-2)]">时间范围</span>
+        <span class="shrink-0 text-14px text-[var(--n-text-color-2)]">{{ $t('virtualPoint.history.timeRange') }}</span>
         <NDatePicker
           :formatted-value="dateRangeFormattedValue"
           type="datetimerange"
@@ -175,7 +176,9 @@ watch(visible, show => {
           class="min-w-300px flex-1 lt-sm:w-full"
           @update:formatted-value="value => handleDateRangeUpdate(value as [string, string] | null)"
         />
-        <NButton type="primary" :loading="loading" :disabled="!canQuery" @click="handleRefresh">刷新</NButton>
+        <NButton type="primary" :loading="loading" :disabled="!canQuery" @click="handleRefresh">
+          {{ $t('common.refresh') }}
+        </NButton>
       </div>
 
       <NDataTable

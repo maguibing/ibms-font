@@ -8,6 +8,7 @@ import CopyableValue from '@/components/custom/copyable-value.vue';
 import { useRouterPush } from '@/hooks/common/router';
 import { useAppStore } from '@/store/modules/app';
 import { displayValue, formatTime } from '@/utils/common-methods';
+import { $t } from '@/locales';
 import AlarmRulePanel from '@/views/alarm/rule/modules/alarm-rule-panel.vue';
 import TaskList from '@/views/task/task-list/index.vue';
 import WorkorderList from '@/views/workorder/workorder-list/index.vue';
@@ -63,9 +64,9 @@ onMounted(() => {
 <template>
   <div class="h-full min-h-500px flex-col-stretch gap-16px overflow-auto">
     <NCard :bordered="false" size="small" class="card-wrapper">
-      <NPageHeader title="设备详情" @back="routerBack">
+      <NPageHeader :title="$t('deviceDetail.title')" @back="routerBack">
         <NSpin :show="loading">
-          <NEmpty v-if="!device && !loading" description="暂无设备详情" class="py-48px" />
+          <NEmpty v-if="!device && !loading" :description="$t('deviceDetail.noData')" class="py-48px" />
           <div v-else-if="device" class="mt-16px grid grid-cols-[128px_minmax(0,1fr)] items-stretch lt-sm:grid-cols-1">
             <div
               class="flex min-h-full items-center justify-center rounded-l-8px border border-r-0 border-[var(--n-border-color)] lt-sm:min-h-104px lt-sm:rounded-b-0 lt-sm:rounded-t-8px lt-sm:border-b-0 lt-sm:border-r"
@@ -82,18 +83,22 @@ onMounted(() => {
               label-class="min-w-88px"
               class="min-w-0 [&_.n-descriptions-table-wrapper]:rounded-bl-0 [&_.n-descriptions-table-wrapper]:rounded-tl-0 lt-sm:[&_.n-descriptions-table-wrapper]:rounded-bl-8px lt-sm:[&_.n-descriptions-table-wrapper]:rounded-t-0"
             >
-              <NDescriptionsItem label="名称">{{ displayValue(device.name) }}</NDescriptionsItem>
-              <NDescriptionsItem label="标识">
+              <NDescriptionsItem :label="$t('deviceDetail.name')">{{ displayValue(device.name) }}</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('deviceDetail.identifier')">
                 <CopyableValue :value="device.key" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="设备类型">
+              <NDescriptionsItem :label="$t('deviceDetail.deviceType')">
                 <NButton text type="primary" @click="handleDeviceTypeClick">{{ deviceTypeName }}</NButton>
               </NDescriptionsItem>
-              <NDescriptionsItem label="状态">
+              <NDescriptionsItem :label="$t('deviceDetail.status')">
                 <StatusTag :value="device.status" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="创建时间">{{ formatTime(device.created_at) }}</NDescriptionsItem>
-              <NDescriptionsItem label="更新时间">{{ formatTime(device.updated_at) }}</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('deviceDetail.createdAt')">
+                {{ formatTime(device.created_at) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('deviceDetail.updatedAt')">
+                {{ formatTime(device.updated_at) }}
+              </NDescriptionsItem>
             </NDescriptions>
           </div>
         </NSpin>
@@ -108,16 +113,16 @@ onMounted(() => {
       content-class="h-full min-h-0 flex-col-stretch"
     >
       <NTabs v-model:value="activeModule" type="line" animated class="h-full min-h-0">
-        <NTabPane name="logic-points" tab="逻辑点位">
+        <NTabPane name="logic-points" :tab="$t('deviceDetail.logicPoints')">
           <DeviceLogicPointPanel :device-id="deviceId" />
         </NTabPane>
-        <NTabPane name="alarms" tab="报警">
+        <NTabPane name="alarms" :tab="$t('deviceDetail.alarms')">
           <AlarmRulePanel :fixed-device-id="deviceId" />
         </NTabPane>
-        <NTabPane name="work-orders" tab="工单">
+        <NTabPane name="work-orders" :tab="$t('deviceDetail.workOrders')">
           <WorkorderList embedded :default-device="device" />
         </NTabPane>
-        <NTabPane name="tasks" tab="任务">
+        <NTabPane name="tasks" :tab="$t('deviceDetail.tasks')">
           <TaskList embedded :fixed-device-id="deviceId" />
         </NTabPane>
       </NTabs>

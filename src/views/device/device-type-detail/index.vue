@@ -8,6 +8,7 @@ import CopyableValue from '@/components/custom/copyable-value.vue';
 import { useRouterPush } from '@/hooks/common/router';
 import { useAppStore } from '@/store/modules/app';
 import { displayValue, formatTime, getOssUrl } from '@/utils/common-methods';
+import { $t } from '@/locales';
 import AlarmRulePanel from '@/views/alarm/rule/modules/alarm-rule-panel.vue';
 import DeviceListPanel from '../device-list/modules/device-list-panel.vue';
 import DeviceTypePointPanel from './modules/device-type-point-panel.vue';
@@ -40,9 +41,9 @@ onMounted(() => {
 <template>
   <div class="h-full min-h-500px flex-col-stretch gap-16px overflow-auto">
     <NCard :bordered="false" size="small" class="card-wrapper">
-      <NPageHeader title="设备类型详情" @back="routerBack">
+      <NPageHeader :title="$t('deviceTypeDetail.title')" @back="routerBack">
         <NSpin :show="loading">
-          <NEmpty v-if="!deviceType && !loading" description="暂无设备类型详情" class="py-48px" />
+          <NEmpty v-if="!deviceType && !loading" :description="$t('deviceTypeDetail.noData')" class="py-48px" />
           <div
             v-else-if="deviceType"
             class="mt-16px grid grid-cols-[128px_minmax(0,1fr)] items-stretch lt-sm:grid-cols-1"
@@ -69,16 +70,22 @@ onMounted(() => {
               label-class="min-w-88px"
               class="min-w-0 [&_.n-descriptions-table-wrapper]:rounded-bl-0 [&_.n-descriptions-table-wrapper]:rounded-tl-0 lt-sm:[&_.n-descriptions-table-wrapper]:rounded-bl-8px lt-sm:[&_.n-descriptions-table-wrapper]:rounded-t-0"
             >
-              <NDescriptionsItem label="名称">{{ displayValue(deviceType.name) }}</NDescriptionsItem>
-              <NDescriptionsItem label="标识">
+              <NDescriptionsItem :label="$t('deviceTypeDetail.name')">
+                {{ displayValue(deviceType.name) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('deviceTypeDetail.identifier')">
                 <CopyableValue :value="deviceType.key" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="状态">
+              <NDescriptionsItem :label="$t('deviceTypeDetail.status')">
                 <StatusTag :value="deviceType.status" />
               </NDescriptionsItem>
-              <NDescriptionsItem label="创建时间">{{ formatTime(deviceType.created_at) }}</NDescriptionsItem>
-              <NDescriptionsItem label="更新时间">{{ formatTime(deviceType.updated_at) }}</NDescriptionsItem>
-              <NDescriptionsItem label="描述" :span="appStore.isMobile ? 1 : 2">
+              <NDescriptionsItem :label="$t('deviceTypeDetail.createdAt')">
+                {{ formatTime(deviceType.created_at) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('deviceTypeDetail.updatedAt')">
+                {{ formatTime(deviceType.updated_at) }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('deviceTypeDetail.description')" :span="appStore.isMobile ? 1 : 2">
                 <span class="whitespace-pre-line">{{ displayValue(deviceType.desc) }}</span>
               </NDescriptionsItem>
             </NDescriptions>
@@ -94,7 +101,7 @@ onMounted(() => {
       content-class="h-full min-h-0 flex-col-stretch"
     >
       <NTabs v-model:value="activeModule" type="line" animated class="h-full min-h-0">
-        <NTabPane name="devices" tab="关联设备">
+        <NTabPane name="devices" :tab="$t('deviceTypeDetail.devices')">
           <DeviceListPanel
             embedded
             :fixed-device-type-id="deviceTypeId"
@@ -103,10 +110,10 @@ onMounted(() => {
             :show-device-group-search="false"
           />
         </NTabPane>
-        <NTabPane name="points" tab="点位">
+        <NTabPane name="points" :tab="$t('deviceTypeDetail.points')">
           <DeviceTypePointPanel :device-type-id="deviceTypeId" />
         </NTabPane>
-        <NTabPane name="alarms" tab="报警">
+        <NTabPane name="alarms" :tab="$t('deviceTypeDetail.alarms')">
           <AlarmRulePanel :fixed-device-type-id="deviceTypeId" />
         </NTabPane>
       </NTabs>

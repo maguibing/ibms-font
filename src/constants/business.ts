@@ -21,17 +21,17 @@ export const assetsStatusOptions = computed<CommonType.Option<number>[]>(() => [
 
 /** yes or no status */
 export const yesOrNoStatusRecord: Record<Api.Common.YesOrNoStatus, string> = {
-  Y: '是',
-  N: '否'
+  Y: $t('dict.sys_yes_no.yes'),
+  N: $t('dict.sys_yes_no.no')
 };
 
 export const yesOrNoStatusOptions = transformRecordToOption(yesOrNoStatusRecord);
 
 /** menu type */
 export const menuTypeRecord: Record<Api.System.MenuType, string> = {
-  M: '目录',
-  C: '菜单',
-  F: '按钮'
+  M: $t('dict.sys_menu_type.directory'),
+  C: $t('dict.sys_menu_type.menu'),
+  F: $t('dict.sys_menu_type.button')
 };
 
 export const menuTypeOptions = transformRecordToOption(menuTypeRecord);
@@ -45,10 +45,10 @@ export const menuNodeType = {
 } as const;
 
 export const menuNodeTypeRecord: Record<Api.System.MenuNodeType, string> = {
-  [menuNodeType.catalog]: '目录',
-  [menuNodeType.menu]: '菜单',
-  [menuNodeType.button]: '按钮',
-  [menuNodeType.extLink]: '外链'
+  [menuNodeType.catalog]: $t('dict.sys_menu_type.directory'),
+  [menuNodeType.menu]: $t('dict.sys_menu_type.menu'),
+  [menuNodeType.button]: $t('dict.sys_menu_type.button'),
+  [menuNodeType.extLink]: $t('dict.sys_menu_type.externalLink')
 };
 
 export const menuNodeTypeOptions: CommonType.Option<Api.System.MenuNodeType>[] = [
@@ -67,27 +67,27 @@ export const menuPlatformType = {
 
 /** menu is frame */
 export const menuIsFrameRecord: Record<Api.System.IsMenuFrame, string> = {
-  '0': '是',
-  '1': '否',
-  '2': 'iframe'
+  '0': $t('dict.sys_yes_no.yes'),
+  '1': $t('dict.sys_yes_no.no'),
+  '2': $t('dict.sys_menu_frame.iframe')
 };
 
 export const menuIsFrameOptions = transformRecordToOption(menuIsFrameRecord);
 
 /** menu layout */
 export const menuLayoutRecord: Record<Api.System.MenuLayout, string> = {
-  '0': '默认布局',
-  '1': '空白布局'
+  '0': $t('dict.sys_menu_layout.default'),
+  '1': $t('dict.sys_menu_layout.blank')
 };
 
 export const menuLayoutOptions = transformRecordToOption(menuLayoutRecord);
 
 /** data scope */
 export const dataScopeRecord: Record<Api.System.DataScope, string> = {
-  '1': '全部数据权限',
-  '2': '仅本人数据权限',
-  '3': '本部门数据权限',
-  '4': '本部门及自部门数据权限'
+  '1': $t('dict.sys_data_scope.all'),
+  '2': $t('dict.sys_data_scope.self'),
+  '3': $t('dict.sys_data_scope.dept'),
+  '4': $t('dict.sys_data_scope.deptAndSub')
 };
 
 export const dataScopeOptions = transformRecordToOption(dataScopeRecord);
@@ -137,6 +137,11 @@ export const AGG_TYPE_OPTIONS = computed<CommonType.Option<AggType>[]>(() => [
   { label: $t('effroom.first'), value: AggType.First }
 ]);
 
+export const DEVICE_SOURCE_TYPE_OPTIONS = computed<CommonType.Option<1 | 2>[]>(() => [
+  { label: $t('alarmRule.device'), value: 1 },
+  { label: $t('alarmRule.deviceType'), value: 2 }
+]);
+
 export const messageRuleTypeOptions = computed<CommonType.Option<Api.Rule.MessageRuleType>[]>(() => [
   { label: $t('messageRule.report'), value: 1 },
   { label: $t('messageRule.command'), value: 2 }
@@ -155,7 +160,7 @@ export const noticeWayOptions = computed<CommonType.Option<Api.Alarm.NoticeWay>[
 ]);
 
 /** unit groups */
-export const UNIT_GROUPS: SelectOption[] = [
+export const UNIT_GROUPS = computed<SelectOption[]>(() => [
   {
     label: $t('page.common.pointForm.options.unitGroups.temperature'),
     type: 'group',
@@ -369,7 +374,7 @@ export const UNIT_GROUPS: SelectOption[] = [
       { value: '-', label: $t('page.common.pointForm.options.units.unit73') }
     ]
   }
-];
+]);
 
 /** access level options */
 export const ACCESS_LEVEL_OPTIONS: SelectOption[] = [

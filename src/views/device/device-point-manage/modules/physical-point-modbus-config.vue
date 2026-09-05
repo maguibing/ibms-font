@@ -2,6 +2,7 @@
 import SectionHeader from '@/components/custom/section-header.vue';
 import type { PhysicalPointProtocolModel } from './physical-point-operate-types';
 import { byteOrderOptions, modbusRegisterTypeOptions } from './physical-point-shared';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'PhysicalPointModbusConfig'
@@ -30,47 +31,47 @@ const protocol = defineModel<PhysicalPointProtocolModel>('protocol', {
 <template>
   <NCard size="small" class="mb-18px">
     <template #header>
-      <SectionHeader title="Modbus 参数" />
+      <SectionHeader :title="$t('devicePointManage.modbusParameters')" />
     </template>
 
     <NGrid responsive="screen" item-responsive :x-gap="16">
-      <NFormItemGi span="24 s:12" label="从站地址" path="protocol.modbus.slave_id">
+      <NFormItemGi span="24 s:12" :label="$t('devicePointManage.slaveAddress')" path="protocol.modbus.slave_id">
         <NInputNumber
           v-model:value="protocol.modbus.slave_id"
           class="w-full"
           :min="1"
           :max="247"
           :precision="0"
-          placeholder="请输入从站地址"
+          :placeholder="$t('devicePointManage.slaveAddressPlaceholder')"
         />
       </NFormItemGi>
-      <NFormItemGi span="24 s:12" label="寄存器地址" path="protocol.modbus.address">
+      <NFormItemGi span="24 s:12" :label="$t('devicePointManage.registerAddress')" path="protocol.modbus.address">
         <NInputNumber
           v-model:value="protocol.modbus.address"
           class="w-full"
           :min="0"
           :precision="0"
-          placeholder="请输入寄存器地址"
+          :placeholder="$t('devicePointManage.registerAddressPlaceholder')"
         />
       </NFormItemGi>
-      <NFormItemGi span="24 s:12" label="寄存器类型" path="protocol.modbus.register_type">
+      <NFormItemGi span="24 s:12" :label="$t('devicePointManage.registerType')" path="protocol.modbus.register_type">
         <NSelect
           v-model:value="protocol.modbus.register_type"
           :options="modbusRegisterTypeOptions"
-          placeholder="请选择寄存器类型"
+          :placeholder="$t('devicePointManage.registerTypePlaceholder')"
           @update:value="emit('registerTypeChange', $event)"
         />
       </NFormItemGi>
-      <NFormItemGi span="24 s:12" label="数据类型" path="protocol.modbus.data_type">
+      <NFormItemGi span="24 s:12" :label="$t('devicePointManage.dataType')" path="protocol.modbus.data_type">
         <NSelect
           v-model:value="protocol.modbus.data_type"
           :options="modbusDataTypeOptions"
           :disabled="isDataTypeDisabled"
-          placeholder="请选择数据类型"
+          :placeholder="$t('devicePointManage.dataTypePlaceholder')"
           @update:value="emit('dataTypeChange', $event)"
         />
       </NFormItemGi>
-      <NFormItemGi span="24" label="位索引" path="protocol.modbus.bit_index">
+      <NFormItemGi span="24" :label="$t('devicePointManage.bitIndex')" path="protocol.modbus.bit_index">
         <NInputNumber
           v-model:value="protocol.modbus.bit_index"
           class="w-full"
@@ -80,8 +81,17 @@ const protocol = defineModel<PhysicalPointProtocolModel>('protocol', {
           :disabled="!canEditBitIndex"
         />
       </NFormItemGi>
-      <NFormItemGi v-if="showByteOrder" span="24" label="字节序" path="protocol.modbus.byte_order">
-        <NSelect v-model:value="protocol.modbus.byte_order" :options="byteOrderOptions" placeholder="请选择字节序" />
+      <NFormItemGi
+        v-if="showByteOrder"
+        span="24"
+        :label="$t('devicePointManage.byteOrder')"
+        path="protocol.modbus.byte_order"
+      >
+        <NSelect
+          v-model:value="protocol.modbus.byte_order"
+          :options="byteOrderOptions"
+          :placeholder="$t('devicePointManage.byteOrderPlaceholder')"
+        />
       </NFormItemGi>
     </NGrid>
   </NCard>

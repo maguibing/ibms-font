@@ -23,6 +23,7 @@ import {
   type TaskRulePointValue
 } from '@/views/task/task-list/modules/task-point-rule-editor/use-task-point-rule-editor';
 import { $t } from '@/locales';
+import { DEVICE_SOURCE_TYPE_OPTIONS } from '@/constants/business';
 import { createAlarmBaseOptions, createAlarmLevelOptions } from '../../shared';
 import AlarmRuleValidHourEditor from './alarm-rule-valid-hour-editor.vue';
 import { buildRangesFromHours, parseHoursFromRanges } from './hour-range-selector';
@@ -81,11 +82,6 @@ const alarmLevelOptions = computed(createAlarmLevelOptions);
 
 const triggerTypeOptions = computed<CommonType.Option<Api.Alarm.AlarmRuleTriggerType>[]>(() => [
   { label: $t('alarmRule.triggerTypeDevicePointChange'), value: 1 }
-]);
-
-const deviceSourceTypeOptions = computed<CommonType.Option<Api.Alarm.AlarmRuleDeviceSourceType>[]>(() => [
-  { label: $t('alarmRule.device'), value: 1 },
-  { label: $t('alarmRule.deviceType'), value: 2 }
 ]);
 
 const noticeGroupRequestParams: CommonType.CommonListQueryParams = {
@@ -409,7 +405,7 @@ watch(visible, () => {
               <NFormItemGi span="24 m:12" :label="$t('alarmRule.deviceSourceType')" path="device_source_type">
                 <NSelect
                   v-model:value="model.device_source_type"
-                  :options="deviceSourceTypeOptions"
+                  :options="DEVICE_SOURCE_TYPE_OPTIONS"
                   @update:value="handleDeviceSourceTypeChange"
                 />
               </NFormItemGi>

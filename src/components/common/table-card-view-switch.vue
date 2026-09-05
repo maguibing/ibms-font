@@ -12,7 +12,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  tablePageSize: 10,
+  tablePageSize: 15,
   cardPageSize: 15
 });
 

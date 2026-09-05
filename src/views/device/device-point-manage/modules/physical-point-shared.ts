@@ -1,42 +1,45 @@
-export const modbusRegisterTypeOptions: CommonType.Option<number, string>[] = [
-  { label: '1-线圈寄存器', value: 1 },
-  { label: '2-离散寄存器', value: 2 },
-  { label: '3-保持寄存器', value: 3 },
-  { label: '4-输入寄存器', value: 4 }
-];
+import { computed } from 'vue';
+import { $t } from '@/locales';
 
-export const modbusDataTypeBaseOptions: CommonType.Option<number, string>[] = [
-  { label: '无符号16位整数', value: 1 },
-  { label: '有符号16位整数', value: 2 },
-  { label: '无符号32位整数', value: 3 },
-  { label: '有符号32位整数', value: 4 },
-  { label: '32位浮点数', value: 5 },
-  { label: '布尔值', value: 6 }
-];
+export const modbusRegisterTypeOptions = computed<CommonType.Option<number, string>[]>(() => [
+  { label: $t('devicePointManage.modbusCoil'), value: 1 },
+  { label: $t('devicePointManage.modbusDiscrete'), value: 2 },
+  { label: $t('devicePointManage.modbusHolding'), value: 3 },
+  { label: $t('devicePointManage.modbusInput'), value: 4 }
+]);
 
-export const byteOrderOptions: CommonType.Option<number, string>[] = [
-  { label: '大端', value: 1 },
-  { label: '小端', value: 2 },
-  { label: '大端字节交换', value: 3 },
-  { label: '小端字节交换', value: 4 }
-];
+export const modbusDataTypeBaseOptions = computed<CommonType.Option<number, string>[]>(() => [
+  { label: $t('devicePointManage.uint16'), value: 1 },
+  { label: $t('devicePointManage.int16'), value: 2 },
+  { label: $t('devicePointManage.uint32'), value: 3 },
+  { label: $t('devicePointManage.int32'), value: 4 },
+  { label: $t('devicePointManage.float32'), value: 5 },
+  { label: $t('devicePointManage.boolean'), value: 6 }
+]);
 
-export const objectTypeOptions: CommonType.Option<number, string>[] = [
+export const byteOrderOptions = computed<CommonType.Option<number, string>[]>(() => [
+  { label: $t('devicePointManage.bigEndian'), value: 1 },
+  { label: $t('devicePointManage.littleEndian'), value: 2 },
+  { label: $t('devicePointManage.bigEndianSwap'), value: 3 },
+  { label: $t('devicePointManage.littleEndianSwap'), value: 4 }
+]);
+
+export const objectTypeOptions = computed<CommonType.Option<number, string>[]>(() => [
   { label: 'AI', value: 1 },
   { label: 'AO', value: 2 },
   { label: 'AV', value: 3 },
   { label: 'BI', value: 4 },
   { label: 'BO', value: 5 },
   { label: 'BV', value: 6 }
-];
+]);
 
-export const opcUaDataTypeOptions: CommonType.Option<number, string>[] = [
-  { label: '开关量', value: 1 },
-  { label: '有符号整数', value: 2 },
-  { label: '无符号整数', value: 3 },
-  { label: '浮点数', value: 4 },
-  { label: '字符串', value: 5 }
-];
+export const opcUaDataTypeOptions = computed<CommonType.Option<number, string>[]>(() => [
+  { label: $t('devicePointManage.switchValue'), value: 1 },
+  { label: $t('devicePointManage.signedInteger'), value: 2 },
+  { label: $t('devicePointManage.unsignedInteger'), value: 3 },
+  { label: $t('devicePointManage.floatingPoint'), value: 4 },
+  { label: $t('devicePointManage.stringValue'), value: 5 }
+]);
 
 export function resolveProtocolType(protocol: unknown): Api.Gateway.ProtocolType | null {
   const protocolType = Number(protocol);

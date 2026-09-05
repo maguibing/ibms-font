@@ -75,12 +75,12 @@ const defaultDeviceTypeName = computed(() => props.defaultDeviceType?.name ?? ''
 
 const isEdit = computed(() => props.operateType === 'edit');
 
-const title = computed(() => (isEdit.value ? '编辑设备' : '创建设备'));
+const title = computed(() => (isEdit.value ? $t('deviceList.edit') : $t('deviceList.add')));
 
 const rules = computed<Record<string, App.Global.FormRule | App.Global.FormRule[]>>(() => {
   const baseRules: Record<string, App.Global.FormRule | App.Global.FormRule[]> = {
-    device_type_id: createRequiredRule('请选择设备类型'),
-    status: createRequiredRule('请选择状态')
+    device_type_id: createRequiredRule($t('deviceList.typePlaceholder')),
+    status: createRequiredRule($t('deviceList.statusPlaceholder'))
   };
 
   if (isEdit.value) return baseRules;
@@ -89,14 +89,14 @@ const rules = computed<Record<string, App.Global.FormRule | App.Global.FormRule[
     return {
       ...baseRules,
       add_num: [
-        createRequiredRule('请输入新增数量'),
+        createRequiredRule($t('deviceList.addCountPlaceholder')),
         {
           trigger: ['input', 'blur'],
           validator: (_rule: unknown, value: number | null) => {
             if (value === null || value === undefined) return true;
 
             if (!Number.isInteger(value) || Number(value) < 1) {
-              return new Error('新增数量必须大于 0');
+              return new Error($t('deviceList.addCountInvalid'));
             }
 
             return true;
@@ -104,7 +104,7 @@ const rules = computed<Record<string, App.Global.FormRule | App.Global.FormRule[
         }
       ],
       add_key_start: [
-        createRequiredRule('请输入编号起始值'),
+        createRequiredRule($t('deviceList.keyStartPlaceholder')),
         {
           trigger: ['input', 'blur'],
           validator: (_rule: unknown, value: string | null) => {
@@ -115,7 +115,7 @@ const rules = computed<Record<string, App.Global.FormRule | App.Global.FormRule[
             const start = inputValue.trim();
 
             if (!start || !/^\d+$/.test(start)) {
-              return new Error('编号起始值只能输入数字');
+              return new Error($t('deviceList.keyStartInvalid'));
             }
 
             return true;
@@ -127,8 +127,8 @@ const rules = computed<Record<string, App.Global.FormRule | App.Global.FormRule[
 
   return {
     ...baseRules,
-    name: createRequiredRule('请输入设备名称'),
-    key: createRequiredRule('请输入自定义标识')
+    name: createRequiredRule($t('deviceList.namePlaceholder')),
+    key: createRequiredRule($t('deviceList.customIdentifierPlaceholder'))
   };
 });
 
@@ -362,7 +362,7 @@ watch(
     <NDrawerContent :title="title" :native-scrollbar="false" closable>
       <NSpin :show="loading">
         <NForm ref="formRef" :model="model" :rules="rules" label-placement="top" class="flex flex-col gap-6px">
-          <NFormItem label="所属空间" path="space_id">
+          <NFormItem :label="$t('deviceList.space')" path="space_id">
             <NTreeSelect
               v-model:value="model.space_id"
               v-model:expanded-keys="expandedSpaceKeys"
@@ -372,16 +372,16 @@ watch(
               filterable
               label-field="space_name"
               key-field="space_id"
-              placeholder="请选择所属空间"
+              :placeholder="$t('deviceList.spacePlaceholder')"
             />
           </NFormItem>
 
-          <NFormItem label="设备类型" path="device_type_id">
+          <NFormItem :label="$t('deviceList.type')" path="device_type_id">
             <NInput
               v-if="props.lockDeviceType || isEdit"
               :value="defaultDeviceTypeName"
               disabled
-              placeholder="当前设备类型"
+              :placeholder="$t('deviceList.currentTypePlaceholder')"
             />
             <RemoteSearchSelect
               v-else
@@ -393,7 +393,7 @@ watch(
               label-field="name"
               value-field="id"
               clearable
-              placeholder="请选择设备类型"
+              :placeholder="$t('deviceList.typePlaceholder')"
               @selected-change="handleDeviceTypeChange"
             />
           </NFormItem>
@@ -405,11 +405,11 @@ watch(
             <div class="mb-8px flex items-center justify-between gap-8px lt-sm:flex-col lt-sm:items-start">
               <div class="inline-flex items-center gap-4px text-13px text-primary font-600 leading-18px">
                 <icon-ic-round-settings class="text-14px" />
-                <span>创建设置</span>
+                <span>{{ $t('deviceList.createSettings') }}</span>
               </div>
               <NRadioGroup v-model:value="createMode" name="device-create-mode" size="small">
-                <NRadioButton value="batch">批量新增</NRadioButton>
-                <NRadioButton value="custom">自定义新增</NRadioButton>
+                <NRadioButton value="batch">{{ $t('deviceList.batchAdd') }}</NRadioButton>
+                <NRadioButton value="custom">{{ $t('deviceList.customAdd') }}</NRadioButton>
               </NRadioGroup>
             </div>
 
@@ -417,7 +417,7 @@ watch(
               <NGrid responsive="screen" item-responsive class="setting-grid">
                 <NFormItemGi
                   span="24 m:12"
-                  label="新增数量"
+                  :label="$t('deviceList.addCount')"
                   path="add_num"
                   class="pr-16px"
                   feedback-class="whitespace-nowrap"
@@ -427,15 +427,26 @@ watch(
                     class="w-full"
                     :min="1"
                     :precision="0"
-                    placeholder="请输入新增数量"
+                    :placeholder="$t('deviceList.addCountPlaceholder')"
                   />
                 </NFormItemGi>
-                <NFormItemGi span="24 m:12" label="编号起始值" path="add_key_start" feedback-class="whitespace-nowrap">
-                  <NInput v-model:value="model.add_key_start" maxlength="12" placeholder="请输入编号起始值" />
+                <NFormItemGi
+                  span="24 m:12"
+                  :label="$t('deviceList.keyStart')"
+                  path="add_key_start"
+                  feedback-class="whitespace-nowrap"
+                >
+                  <NInput
+                    v-model:value="model.add_key_start"
+                    maxlength="12"
+                    :placeholder="$t('deviceList.keyStartPlaceholder')"
+                  />
                 </NFormItemGi>
                 <NGridItem v-if="selectedDeviceTypeKey" span="24" class="mb-4px mt--12px">
                   <div class="min-w-0 flex items-center gap-8px">
-                    <span class="shrink-0 text-13px text-primary font-500 leading-34px">标识预览</span>
+                    <span class="shrink-0 text-13px text-primary font-500 leading-34px">
+                      {{ $t('deviceList.identifierPreview') }}
+                    </span>
                     <div
                       v-if="previewItems.length"
                       class="min-w-0 flex flex-nowrap items-center gap-6px overflow-hidden"
@@ -463,7 +474,7 @@ watch(
                         {{ lastPreviewItem }}
                       </span>
                     </div>
-                    <NText v-else depth="3">请完善编号起始值和新增数量</NText>
+                    <NText v-else depth="3">{{ $t('deviceList.previewHint') }}</NText>
                   </div>
                 </NGridItem>
               </NGrid>
@@ -471,17 +482,27 @@ watch(
 
             <template v-else>
               <NGrid responsive="screen" item-responsive class="setting-grid">
-                <NFormItemGi span="24 m:12" label="设备名称" path="name" class="pr-16px">
-                  <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入设备名称" />
+                <NFormItemGi span="24 m:12" :label="$t('deviceList.name')" path="name" class="pr-16px">
+                  <NInput
+                    v-model:value="model.name"
+                    maxlength="30"
+                    show-count
+                    :placeholder="$t('deviceList.namePlaceholder')"
+                  />
                 </NFormItemGi>
-                <NFormItemGi span="24 m:12" label="自定义标识" path="key">
-                  <NInput v-model:value="model.key" maxlength="48" show-count placeholder="请输入自定义标识" />
+                <NFormItemGi span="24 m:12" :label="$t('deviceList.customIdentifier')" path="key">
+                  <NInput
+                    v-model:value="model.key"
+                    maxlength="48"
+                    show-count
+                    :placeholder="$t('deviceList.customIdentifierPlaceholder')"
+                  />
                 </NFormItemGi>
               </NGrid>
             </template>
           </div>
 
-          <NFormItem label="所属设备组" path="device_group_id">
+          <NFormItem :label="$t('deviceList.group')" path="device_group_id">
             <NTreeSelect
               v-model:value="model.device_group_id"
               v-model:expanded-keys="expandedKeys"
@@ -491,25 +512,25 @@ watch(
               filterable
               label-field="group_name"
               key-field="group_id"
-              placeholder="请选择所属设备组"
+              :placeholder="$t('deviceList.groupPlaceholder')"
             />
           </NFormItem>
 
-          <NFormItem label="状态" path="status">
+          <NFormItem :label="$t('deviceList.status')" path="status">
             <NSwitch v-model:value="model.status" :checked-value="1" :unchecked-value="2">
-              <template #checked>启用</template>
-              <template #unchecked>禁用</template>
+              <template #checked>{{ $t('deviceList.enabled') }}</template>
+              <template #unchecked>{{ $t('deviceList.disabled') }}</template>
             </NSwitch>
           </NFormItem>
 
-          <NFormItem label="设备描述" path="desc">
+          <NFormItem :label="$t('deviceList.description')" path="desc">
             <NInput
               v-model:value="model.desc"
               type="textarea"
               maxlength="200"
               show-count
               :rows="5"
-              placeholder="请输入描述"
+              :placeholder="$t('deviceList.descriptionPlaceholder')"
             />
           </NFormItem>
         </NForm>

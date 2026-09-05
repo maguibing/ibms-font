@@ -82,7 +82,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '设备类型名称',
+        title: $t('deviceType.name'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -91,7 +91,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'key',
-        title: '设备类型标识',
+        title: $t('deviceType.identifier'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -101,7 +101,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'icon',
-        title: '图标',
+        title: $t('deviceType.icon'),
         align: 'center',
         minWidth: 120,
         render: row =>
@@ -115,14 +115,14 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'status',
-        title: '状态',
+        title: $t('deviceType.status'),
         align: 'center',
         minWidth: 100,
         render: row => <StatusTag value={row.status} />
       },
       {
         key: 'created_at',
-        title: '创建时间',
+        title: $t('deviceType.createdAt'),
         align: 'center',
         minWidth: 180,
         render: row => (row.created_at ? formatDateTime(row.created_at) : '-')
@@ -138,7 +138,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               text
               type="primary"
               icon="material-symbols:visibility-outline"
-              tooltipContent="查看"
+              tooltipContent={$t('deviceType.view')}
               onClick={() => handleView(row.id)}
             />
           );
@@ -225,7 +225,7 @@ async function handleDelete(id: CommonType.IdType) {
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <DeviceTypeSearch v-model:model="searchParams" @search="getDataByPage" />
     <NCard
-      title="设备类型管理"
+      :title="$t('deviceType.management')"
       :bordered="false"
       size="small"
       class="card-wrapper sm:flex-1-hidden"
@@ -274,7 +274,7 @@ async function handleDelete(id: CommonType.IdType) {
         :pagination="mobilePagination"
         :row-key="row => row.id"
         selectable
-        empty-description="暂无设备类型"
+        :empty-description="$t('deviceType.noData')"
         class="min-h-0 flex-1 overflow-hidden sm:h-full"
       >
         <template #default="{ item, checked, toggleChecked }">

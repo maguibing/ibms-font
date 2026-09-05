@@ -116,7 +116,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'gateway_id',
-        title: '所属边缘设备',
+        title: $t('devicePointManage.gateway'),
         align: 'center',
         minWidth: 150,
         ellipsis: {
@@ -126,14 +126,14 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'protocol_type',
-        title: '协议',
+        title: $t('devicePointManage.protocol'),
         align: 'center',
         minWidth: 120,
         render: row => h(EnumTag, { variant: 'protocol', value: getPhysicalPointProtocolType(row) })
       },
       {
         key: 'name',
-        title: '名称',
+        title: $t('devicePointManage.name'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true },
@@ -141,7 +141,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'key',
-        title: '标识',
+        title: $t('devicePointManage.identifier'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true },
@@ -149,14 +149,14 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'report_at',
-        title: '最新更新时间',
+        title: $t('devicePointManage.latestUpdatedAt'),
         align: 'center',
         width: 240,
         render: row => formatReportAt(row)
       },
       {
         key: 'current_value',
-        title: '最新值',
+        title: $t('devicePointManage.latestValue'),
         align: 'center',
         minWidth: 140,
         ellipsis: { tooltip: true },
@@ -164,26 +164,26 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'data_type',
-        title: '数据类型',
+        title: $t('devicePointManage.dataType'),
         align: 'center',
         minWidth: 120,
         render: row => h(EnumTag, { value: getDisplayDataType(row) })
       },
       {
         key: 'access_level',
-        title: '访问级别',
+        title: $t('devicePointManage.accessLevel'),
         align: 'center',
         minWidth: 100,
         render: row => h(EnumTag, { variant: 'accessLevel', value: row.protocol?.access_level })
       },
       {
         key: 'logic_point_id',
-        title: '逻辑点位',
+        title: $t('devicePointManage.logicPoint'),
         align: 'center',
         minWidth: 160,
         render: row => {
           const logicPoint = getLogicPoint(row.logic_point_id);
-          if (!logicPoint?.key) return logicPoint?.name ?? '暂未绑定';
+          if (!logicPoint?.key) return logicPoint?.name ?? $t('devicePointManage.notBound');
 
           return renderPointLink(logicPoint.name, () => emit('jumpToLogicPoint', logicPoint.key!));
         }
@@ -226,9 +226,9 @@ const selectedGateway = computed(() => {
   return gatewayByIdMap.value[String(gatewayId)] ?? null;
 });
 
-const selectedGatewayName = computed(() => selectedGateway.value?.name ?? '全部设备');
+const selectedGatewayName = computed(() => selectedGateway.value?.name ?? $t('devicePointManage.allDevices'));
 
-const physicalPointTitle = computed(() => `物理点位 - ${selectedGatewayName.value}`);
+const physicalPointTitle = computed(() => `${$t('devicePointManage.physicalPoints')} - ${selectedGatewayName.value}`);
 
 function getGatewayName(gatewayId: CommonType.IdType) {
   return (
@@ -348,12 +348,12 @@ function handleImportPhysicalPoint() {
 async function handleExport() {
   const connectionId = getWebSocketConnectionId();
   if (!connectionId) {
-    window.$message?.warning('WebSocket 尚未连接，请稍后重试');
+    window.$message?.warning($t('devicePointManage.websocketWarning'));
     return;
   }
 
   const { list_option } = transformSearchParamsToRequest(searchParams.value);
-  startExport('物理点位');
+  startExport($t('devicePointManage.physicalPoints'));
 
   const { error } = await fetchExportTask({
     connection_id: connectionId,
@@ -370,7 +370,7 @@ async function handleExport() {
     return;
   }
 
-  window.$message?.success('导出任务已提交');
+  window.$message?.success($t('devicePointManage.exportSubmitted'));
 }
 
 function handlePhysicalPointSubmitted() {
@@ -387,7 +387,7 @@ function renderOperate(row: Api.Device.PhysicalPoint) {
         text: true,
         type: 'primary',
         icon: 'material-symbols:visibility-outline',
-        tooltipContent: '查看',
+        tooltipContent: $t('devicePointManage.view'),
         onClick: () => handleView(row)
       })
     );
@@ -398,7 +398,7 @@ function renderOperate(row: Api.Device.PhysicalPoint) {
         text: true,
         type: 'primary',
         icon: 'material-symbols:edit-outline-rounded',
-        tooltipContent: '编辑',
+        tooltipContent: $t('common.edit'),
         onClick: () => handleEdit(row)
       })
     );
@@ -409,7 +409,7 @@ function renderOperate(row: Api.Device.PhysicalPoint) {
         text: true,
         type: 'primary',
         icon: 'material-symbols:send-rounded',
-        tooltipContent: '下发',
+        tooltipContent: $t('devicePointManage.command'),
         disabled: isReadOnly,
         onClick: () => handleCommand(row)
       })
@@ -421,7 +421,7 @@ function renderOperate(row: Api.Device.PhysicalPoint) {
         text: true,
         type: 'error',
         icon: 'material-symbols:delete-outline-rounded',
-        tooltipContent: '删除',
+        tooltipContent: $t('common.delete'),
         popconfirmContent: $t('common.confirmDelete'),
         onPositiveClick: () => handleDelete(row.id)
       })
@@ -481,28 +481,43 @@ watch(
         <NCollapseItem :title="$t('common.search')" name="physical-point-search">
           <NForm label-placement="left" :label-width="90">
             <NGrid responsive="screen" item-responsive>
-              <NFormItemGi span="24 s:12 m:8 xl:6" label="点位名称" label-width="auto" class="pr-24px">
+              <NFormItemGi
+                span="24 s:12 m:8 xl:6"
+                :label="$t('devicePointManage.pointName')"
+                label-width="auto"
+                class="pr-24px"
+              >
                 <NInput
                   v-model:value="searchParams.name"
                   clearable
-                  placeholder="请输入点位名称"
+                  :placeholder="$t('devicePointManage.pointNamePlaceholder')"
                   @keyup.enter="handleSearch"
                 />
               </NFormItemGi>
-              <NFormItemGi span="24 s:12 m:8 xl:6" label="点位标识" label-width="auto" class="pr-24px">
+              <NFormItemGi
+                span="24 s:12 m:8 xl:6"
+                :label="$t('devicePointManage.pointIdentifier')"
+                label-width="auto"
+                class="pr-24px"
+              >
                 <NInput
                   v-model:value="searchParams.key"
                   clearable
-                  placeholder="请输入点位标识"
+                  :placeholder="$t('devicePointManage.pointIdentifierPlaceholder')"
                   @keyup.enter="handleSearch"
                 />
               </NFormItemGi>
-              <NFormItemGi span="24 s:12 m:8 xl:5" label="数据类型" label-width="auto" class="pr-24px">
+              <NFormItemGi
+                span="24 s:12 m:8 xl:5"
+                :label="$t('devicePointManage.dataType')"
+                label-width="auto"
+                class="pr-24px"
+              >
                 <NSelect
                   v-model:value="searchParams.data_type"
                   clearable
                   :options="DATA_TYPE_OPTIONS"
-                  placeholder="请选择数据类型"
+                  :placeholder="$t('devicePointManage.dataTypePlaceholder')"
                 />
               </NFormItemGi>
               <NFormItemGi span="24 s:24 m:24 xl:7">
@@ -552,7 +567,7 @@ watch(
                 <template #icon>
                   <SvgIcon icon="material-symbols:upload-rounded" class="text-icon" />
                 </template>
-                导入
+                {{ $t('devicePointManage.import') }}
               </NButton>
               <NButton
                 v-if="hasAuth('device:device-point-manage:physical-point:scan')"
@@ -564,7 +579,7 @@ watch(
                 <template #icon>
                   <SvgIcon icon="material-symbols:radar" class="text-icon" />
                 </template>
-                扫描点位
+                {{ $t('devicePointManage.scanPoints') }}
               </NButton>
             </template>
           </TableHeaderOperation>
@@ -599,8 +614,8 @@ watch(
       v-model:visible="importPhysicalPointVisible"
       :biz-type="ImportBizType.PhysicalPoint"
       :template-path="ImportTemplatePath.PhysicalPoint"
-      :template-file-name="`物理点位_${$t('common.importTemplate')}_${new Date().getTime()}.xlsx`"
-      task-name="物理点位"
+      :template-file-name="`${$t('devicePointManage.physicalPoints')}_${$t('common.importTemplate')}_${new Date().getTime()}.xlsx`"
+      :task-name="$t('devicePointManage.physicalPoints')"
       @submitted="getData"
     />
   </div>

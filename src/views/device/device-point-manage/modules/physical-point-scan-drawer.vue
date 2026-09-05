@@ -10,6 +10,7 @@ import { ExportBizType, ExportFileType, PhysicalPointType } from '@/enum/busines
 import { ACCESS_LEVEL_OPTIONS } from '@/constants/business';
 import { getGatewayProtocolLabel } from '@/views/gateway/gateway-list/shared';
 import { getWebSocketConnectionId } from '@/utils/websocket';
+import { $t } from '@/locales';
 import PhysicalPointScanDeviceDetail from './physical-point-scan-device-detail.vue';
 import PhysicalPointScanDeviceList from './physical-point-scan-device-list.vue';
 import type {
@@ -118,18 +119,18 @@ const scanButtonDisabled = computed(
 
 const rules = computed<Record<string, App.Global.FormRule | App.Global.FormRule[]>>(() => {
   const formRules: Record<string, App.Global.FormRule | App.Global.FormRule[]> = {
-    gateway_id: createRequiredRule('请选择边缘设备')
+    gateway_id: createRequiredRule($t('devicePointManage.gatewayPlaceholder'))
   };
 
   if (isModbusProtocol.value) {
-    formRules['modbus.start_slave_id'] = createRequiredRule('请输入起始从站地址');
-    formRules['modbus.end_slave_id'] = createRequiredRule('请输入结束从站地址');
-    formRules['modbus.register_type'] = createRequiredRule('请选择寄存器类型');
+    formRules['modbus.start_slave_id'] = createRequiredRule($t('devicePointManage.startSlaveAddressPlaceholder'));
+    formRules['modbus.end_slave_id'] = createRequiredRule($t('devicePointManage.endSlaveAddressPlaceholder'));
+    formRules['modbus.register_type'] = createRequiredRule($t('devicePointManage.registerTypePlaceholder'));
   }
 
   if (isOpcUaProtocol.value) {
-    formRules['opcua.max_depth'] = createRequiredRule('请输入最大深度');
-    formRules['opcua.max_devices'] = createRequiredRule('请输入最大设备数');
+    formRules['opcua.max_depth'] = createRequiredRule($t('devicePointManage.maxDepthPlaceholder'));
+    formRules['opcua.max_devices'] = createRequiredRule($t('devicePointManage.maxDevicesPlaceholder'));
   }
 
   return formRules;
@@ -155,9 +156,9 @@ const activeDevicePointLoading = computed(() =>
 
 const totalDeviceCount = computed(() => scanResultList.value.length);
 const activeDevicePointCountText = computed(() => {
-  if (!activeDevice.value?.pointScanned) return '未扫描';
+  if (!activeDevice.value?.pointScanned) return $t('devicePointManage.notScanned');
 
-  return `${activeDevice.value.pointList.length} 个点位`;
+  return $t('devicePointManage.pointCount', { count: activeDevice.value.pointList.length });
 });
 
 const selectedProtocolLabel = computed(() => getGatewayProtocolLabel(selectedProtocolType.value));
@@ -175,7 +176,7 @@ const accessLevelLabelMap = computed(() => {
 const objectTypeLabelMap = computed(() => {
   const map = new Map<number, string>();
 
-  objectTypeOptions.forEach(item => map.set(Number(item.value), item.label));
+  objectTypeOptions.value.forEach(item => map.set(Number(item.value), item.label));
 
   return map;
 });
@@ -183,7 +184,7 @@ const objectTypeLabelMap = computed(() => {
 const opcUaDataTypeLabelMap = computed(() => {
   const map = new Map<number, string>();
 
-  opcUaDataTypeOptions.forEach(item => map.set(Number(item.value), item.label));
+  opcUaDataTypeOptions.value.forEach(item => map.set(Number(item.value), item.label));
 
   return map;
 });
@@ -199,7 +200,7 @@ const pointColumns = computed<NaiveUI.TableColumn<ScannedPhysicalPoint>[]>(() =>
   const columns: NaiveUI.TableColumn<ScannedPhysicalPoint>[] = [
     {
       key: 'name',
-      title: '点位名称',
+      title: $t('devicePointManage.pointName'),
       align: 'center',
       fixed: 'left',
       minWidth: 180,
@@ -208,7 +209,7 @@ const pointColumns = computed<NaiveUI.TableColumn<ScannedPhysicalPoint>[]>(() =>
     },
     {
       key: 'key',
-      title: '点位标识',
+      title: $t('devicePointManage.pointIdentifier'),
       align: 'center',
       minWidth: 180,
       ellipsis: { tooltip: true },
@@ -220,21 +221,21 @@ const pointColumns = computed<NaiveUI.TableColumn<ScannedPhysicalPoint>[]>(() =>
     columns.push(
       {
         key: 'accessLevel',
-        title: '访问级别',
+        title: $t('devicePointManage.accessLevel'),
         align: 'center',
         width: 110,
         render: row => getAccessLevelLabel(row.accessLevel)
       },
       {
         key: 'objectType',
-        title: '对象类型',
+        title: $t('devicePointManage.objectType'),
         align: 'center',
         width: 110,
         render: row => getObjectTypeLabel(row.objectType)
       },
       {
         key: 'objectInstance',
-        title: '对象实例',
+        title: $t('devicePointManage.objectInstance'),
         align: 'center',
         width: 110,
         render: row => row.objectInstance
@@ -246,28 +247,28 @@ const pointColumns = computed<NaiveUI.TableColumn<ScannedPhysicalPoint>[]>(() =>
     columns.push(
       {
         key: 'modbusSlaveId',
-        title: '从站地址',
+        title: $t('devicePointManage.slaveAddress'),
         align: 'center',
         width: 110,
         render: row => row.modbusSlaveId
       },
       {
         key: 'modbusRegisterType',
-        title: '寄存器类型',
+        title: $t('devicePointManage.registerType'),
         align: 'center',
         width: 130,
         render: row => getRegisterTypeLabel(row.modbusRegisterType)
       },
       {
         key: 'modbusRegisterAddress',
-        title: '寄存器地址',
+        title: $t('devicePointManage.registerAddress'),
         align: 'center',
         width: 120,
         render: row => row.modbusRegisterAddress
       },
       {
         key: 'accessLevel',
-        title: '访问级别',
+        title: $t('devicePointManage.accessLevel'),
         align: 'center',
         width: 110,
         render: row => getAccessLevelLabel(row.accessLevel)
@@ -279,14 +280,14 @@ const pointColumns = computed<NaiveUI.TableColumn<ScannedPhysicalPoint>[]>(() =>
     columns.push(
       {
         key: 'accessLevel',
-        title: '访问级别',
+        title: $t('devicePointManage.accessLevel'),
         align: 'center',
         width: 110,
         render: row => getAccessLevelLabel(row.accessLevel)
       },
       {
         key: 'opcUaNodeId',
-        title: '节点 ID',
+        title: $t('devicePointManage.nodeId'),
         align: 'center',
         minWidth: 320,
         ellipsis: { tooltip: true },
@@ -294,7 +295,7 @@ const pointColumns = computed<NaiveUI.TableColumn<ScannedPhysicalPoint>[]>(() =>
       },
       {
         key: 'opcUaDataType',
-        title: '数据类型',
+        title: $t('devicePointManage.dataType'),
         align: 'center',
         width: 150,
         render: row => getOpcUaDataTypeLabel(row.opcUaDataType)
@@ -305,7 +306,7 @@ const pointColumns = computed<NaiveUI.TableColumn<ScannedPhysicalPoint>[]>(() =>
   columns.push(
     {
       key: 'value',
-      title: '当前值',
+      title: $t('devicePointManage.currentValue'),
       align: 'center',
       width: 110,
       ellipsis: { tooltip: true },
@@ -313,7 +314,7 @@ const pointColumns = computed<NaiveUI.TableColumn<ScannedPhysicalPoint>[]>(() =>
     },
     {
       key: 'desc',
-      title: '描述',
+      title: $t('devicePointManage.description'),
       align: 'center',
       minWidth: 180,
       ellipsis: { tooltip: true },
@@ -333,7 +334,7 @@ function getObjectTypeLabel(value: number) {
 }
 
 function getRegisterTypeLabel(value: number | null) {
-  return modbusRegisterTypeOptions.find(item => Number(item.value) === Number(value))?.label || '-';
+  return modbusRegisterTypeOptions.value.find(item => Number(item.value) === Number(value))?.label || '-';
 }
 
 function getOpcUaDataTypeLabel(value: number) {
@@ -416,7 +417,7 @@ function fillModbusFromGatewayDetail(gateway: GatewayWithProtocol) {
   }
 
   const registerType = Number(modbus.register_type);
-  if (modbusRegisterTypeOptions.some(item => Number(item.value) === registerType)) {
+  if (modbusRegisterTypeOptions.value.some(item => Number(item.value) === registerType)) {
     scanForm.modbus.register_type = registerType;
     handleRegisterTypeChange(registerType);
   }
@@ -452,7 +453,7 @@ async function loadGatewayDetail(gatewayId: number) {
   });
 
   if (error) {
-    window.$message?.error('边缘设备详情获取失败');
+    window.$message?.error($t('devicePointManage.gatewayDetailFailed'));
     return;
   }
 
@@ -526,7 +527,9 @@ function normalizeScanResultList(response?: Api.Device.ScanPhysicalDeviceRespons
   if (!Array.isArray(rawList)) return [];
 
   return rawList.map((item, index) => {
-    const displayName = String(item.display_name || item.name || `设备 ${index + 1}`);
+    const displayName = String(
+      item.display_name || item.name || $t('devicePointManage.deviceWithIndex', { index: index + 1 })
+    );
     const address = String(item.address || '-');
     const protocol = item.protocol_type ?? item.protocol ?? selectedProtocolType.value ?? '';
     const deviceInstance = item.bacnet?.device_instance;
@@ -594,13 +597,13 @@ function validateModbusPointScanForm() {
 
   const startRegisterAddress = Number(scanForm.modbus_point.start_register_address);
   if (!Number.isFinite(startRegisterAddress) || startRegisterAddress < 0) {
-    window.$message?.warning('请输入正确的起始寄存器地址');
+    window.$message?.warning($t('devicePointManage.invalidStartRegisterAddress'));
     return false;
   }
 
   const count = Number(scanForm.modbus_point.count);
   if (!Number.isFinite(count) || count <= 0) {
-    window.$message?.warning('请输入正确的点位数量');
+    window.$message?.warning($t('devicePointManage.invalidPointCount'));
     return false;
   }
 
@@ -612,7 +615,7 @@ function validateOpcUaPointScanForm() {
 
   const maxPointsPerNode = Number(scanForm.opcua_point.max_points_per_node);
   if (!Number.isFinite(maxPointsPerNode) || maxPointsPerNode <= 0) {
-    window.$message?.warning('请输入正确的每节点最大点位数');
+    window.$message?.warning($t('devicePointManage.invalidMaxPointsPerNode'));
     return false;
   }
 
@@ -647,7 +650,7 @@ function buildScanPointPayload(
 
   if (isModbusProtocol.value) {
     if (!Number.isFinite(modbusSlaveId)) {
-      window.$message?.warning('缺少从站地址');
+      window.$message?.warning($t('devicePointManage.missingSlaveAddress'));
       return null;
     }
 
@@ -662,7 +665,7 @@ function buildScanPointPayload(
   if (isOpcUaProtocol.value) {
     const nodeIdList = normalizeOpcUaNodeIdList(opcUaNodeId);
     if (nodeIdList.length === 0) {
-      window.$message?.warning('缺少节点 ID');
+      window.$message?.warning($t('devicePointManage.missingNodeId'));
       return null;
     }
 
@@ -739,7 +742,7 @@ async function handleScanPoint(device: ScannedDevice) {
     device.devicePointList = [];
     device.pointList = [];
     device.pointScanned = false;
-    window.$message?.error('扫描点位失败');
+    window.$message?.error($t('devicePointManage.scanPointsFailed'));
     return;
   }
 
@@ -767,7 +770,7 @@ async function handleScanPoint(device: ScannedDevice) {
     };
   }
 
-  window.$message?.success('扫描点位成功');
+  window.$message?.success($t('devicePointManage.scanPointsSuccess'));
 }
 
 function handleDeviceSelect(device: ScannedDevice) {
@@ -784,13 +787,13 @@ async function handleScanDevice() {
   }
 
   if (!isSupportedScanProtocol.value) {
-    window.$message?.warning('当前协议不支持扫描');
+    window.$message?.warning($t('devicePointManage.protocolScanUnsupported'));
     return;
   }
 
   const payload = buildScanPayload();
   if (!payload.gateway_id || Number.isNaN(payload.gateway_id)) {
-    window.$message?.warning('请选择有效的边缘设备');
+    window.$message?.warning($t('devicePointManage.validGatewayRequired'));
     return;
   }
 
@@ -809,29 +812,29 @@ async function handleScanDevice() {
 
   scanResultList.value = normalizeScanResultList(data);
   activeDeviceKey.value = scanResultList.value[0]?.scanKey ?? '';
-  window.$message?.success('扫描设备成功');
+  window.$message?.success($t('devicePointManage.scanDevicesSuccess'));
 }
 
 async function handleExportPoint() {
   const connectionId = getWebSocketConnectionId();
   if (!connectionId) {
-    window.$message?.warning('WebSocket 尚未连接，请稍后重试');
+    window.$message?.warning($t('devicePointManage.websocketWarning'));
     return;
   }
 
   const gatewayId = Number(scanForm.gateway_id);
   if (!Number.isFinite(gatewayId) || gatewayId <= 0) {
-    window.$message?.warning('请选择有效的边缘设备');
+    window.$message?.warning($t('devicePointManage.validGatewayRequired'));
     return;
   }
 
   const devicePoints = activeDevice.value?.devicePointList ?? [];
   if (!activeDevice.value?.pointScanned || devicePoints.length === 0) {
-    window.$message?.warning('请先扫描点位');
+    window.$message?.warning($t('devicePointManage.scanPointsFirst'));
     return;
   }
 
-  startExport('扫描点位');
+  startExport($t('devicePointManage.scanPoints'));
 
   const { error } = await fetchExportTask({
     connection_id: connectionId,
@@ -852,7 +855,7 @@ async function handleExportPoint() {
     return;
   }
 
-  window.$message?.success('导出任务已提交');
+  window.$message?.success($t('devicePointManage.exportSubmitted'));
 }
 
 function handleRegisterTypeChange(value: number | null) {
@@ -887,11 +890,16 @@ watch(visible, async value => {
 
 <template>
   <NDrawer v-model:show="visible" display-directive="show" :width="1200" class="max-w-95%">
-    <NDrawerContent title="扫描点位" :native-scrollbar="false" closable body-content-class="h-full">
+    <NDrawerContent
+      :title="$t('devicePointManage.scanPoints')"
+      :native-scrollbar="false"
+      closable
+      body-content-class="h-full"
+    >
       <div class="scan-drawer h-full min-h-0 flex-col-stretch gap-12px">
         <NSpin :show="scanDeviceLoading">
           <NForm ref="formRef" :model="scanForm" :rules="rules" label-placement="top" :show-feedback="false">
-            <NFormItem label="边缘设备" path="gateway_id" show-feedback>
+            <NFormItem :label="$t('devicePointManage.gateway')" path="gateway_id" show-feedback>
               <div class="w-full flex items-center gap-12px">
                 <RemoteSearchSelect
                   v-model:value="scanForm.gateway_id"
@@ -902,7 +910,7 @@ watch(visible, async value => {
                   label-field="name"
                   value-field="id"
                   class="min-w-0 flex-1"
-                  placeholder="请选择边缘设备"
+                  :placeholder="$t('devicePointManage.gatewayPlaceholder')"
                   @selected-change="handleGatewaySelected"
                 />
                 <NButton
@@ -915,7 +923,7 @@ watch(visible, async value => {
                   <template #icon>
                     <SvgIcon icon="material-symbols:radar" class="text-icon" />
                   </template>
-                  扫描设备
+                  {{ $t('devicePointManage.scanDevices') }}
                 </NButton>
               </div>
             </NFormItem>
@@ -925,14 +933,18 @@ watch(visible, async value => {
               class="mb-12px rounded-8px border border-[var(--scan-params-border-color)] border-solid bg-[var(--scan-params-bg-color)] p-12px"
             >
               <div class="mb-12px flex items-center justify-between gap-12px">
-                <span class="text-14px font-600">扫描参数</span>
+                <span class="text-14px font-600">{{ $t('devicePointManage.scanParameters') }}</span>
                 <NTag size="small" :type="selectedProtocolTagType" :bordered="false">
                   {{ selectedProtocolLabel }}
                 </NTag>
               </div>
 
               <NGrid v-if="isModbusProtocol" responsive="screen" item-responsive :x-gap="16">
-                <NFormItemGi span="24 s:8" label="起始从站地址" path="modbus.start_slave_id">
+                <NFormItemGi
+                  span="24 s:8"
+                  :label="$t('devicePointManage.startSlaveAddress')"
+                  path="modbus.start_slave_id"
+                >
                   <NInputNumber
                     v-model:value="scanForm.modbus.start_slave_id"
                     class="w-full"
@@ -941,7 +953,7 @@ watch(visible, async value => {
                     :precision="0"
                   />
                 </NFormItemGi>
-                <NFormItemGi span="24 s:8" label="结束从站地址" path="modbus.end_slave_id">
+                <NFormItemGi span="24 s:8" :label="$t('devicePointManage.endSlaveAddress')" path="modbus.end_slave_id">
                   <NInputNumber
                     v-model:value="scanForm.modbus.end_slave_id"
                     class="w-full"
@@ -950,7 +962,7 @@ watch(visible, async value => {
                     :precision="0"
                   />
                 </NFormItemGi>
-                <NFormItemGi span="24 s:8" label="寄存器类型" path="modbus.register_type">
+                <NFormItemGi span="24 s:8" :label="$t('devicePointManage.registerType')" path="modbus.register_type">
                   <NSelect
                     v-model:value="scanForm.modbus.register_type"
                     :options="modbusRegisterTypeOptions"
@@ -960,16 +972,20 @@ watch(visible, async value => {
               </NGrid>
 
               <NGrid v-else-if="isBacnetProtocol" responsive="screen" item-responsive :x-gap="16">
-                <NFormItemGi span="24 s:12" label="本地网卡" path="bacnet.interface_name">
+                <NFormItemGi
+                  span="24 s:12"
+                  :label="$t('devicePointManage.localInterface')"
+                  path="bacnet.interface_name"
+                >
                   <NInput :value="scanForm.bacnet.interface_name" disabled />
                 </NFormItemGi>
-                <NFormItemGi span="24 s:12" label="超时时间（秒）" path="bacnet.timeout">
+                <NFormItemGi span="24 s:12" :label="$t('devicePointManage.timeoutSeconds')" path="bacnet.timeout">
                   <NInputNumber v-model:value="scanForm.bacnet.timeout" class="w-full" disabled />
                 </NFormItemGi>
               </NGrid>
 
               <NGrid v-else-if="isOpcUaProtocol" responsive="screen" item-responsive :x-gap="16">
-                <NFormItemGi span="24 s:12" label="最大深度" path="opcua.max_depth">
+                <NFormItemGi span="24 s:12" :label="$t('devicePointManage.maxDepth')" path="opcua.max_depth">
                   <NInputNumber
                     v-model:value="scanForm.opcua.max_depth"
                     class="w-full"
@@ -978,7 +994,7 @@ watch(visible, async value => {
                     :precision="0"
                   />
                 </NFormItemGi>
-                <NFormItemGi span="24 s:12" label="最大设备数" path="opcua.max_devices">
+                <NFormItemGi span="24 s:12" :label="$t('devicePointManage.maxDevices')" path="opcua.max_devices">
                   <NInputNumber
                     v-model:value="scanForm.opcua.max_devices"
                     class="w-full"
@@ -989,18 +1005,26 @@ watch(visible, async value => {
                 </NFormItemGi>
               </NGrid>
 
-              <NText v-else depth="3">当前协议暂无扫描参数</NText>
+              <NText v-else depth="3">{{ $t('devicePointManage.noScanParameters') }}</NText>
             </div>
           </NForm>
         </NSpin>
 
-        <div class="text-14px font-600">扫描结果</div>
+        <div class="text-14px font-600">{{ $t('devicePointManage.scanResults') }}</div>
 
         <div
           class="scan-result-wrapper box-border h-[clamp(460px,calc(100vh-360px),620px)] max-h-[calc(100vh-260px)] min-h-460px overflow-hidden rounded-8px"
         >
-          <NEmpty v-if="!scannedDevice" description="请选择边缘设备后开始扫描" class="h-full justify-center" />
-          <NEmpty v-else-if="scanResultList.length === 0" description="暂无扫描设备" class="h-full justify-center" />
+          <NEmpty
+            v-if="!scannedDevice"
+            :description="$t('devicePointManage.selectGatewayToScan')"
+            class="h-full justify-center"
+          />
+          <NEmpty
+            v-else-if="scanResultList.length === 0"
+            :description="$t('devicePointManage.noScannedDevices')"
+            class="h-full justify-center"
+          />
 
           <div
             v-else
@@ -1043,9 +1067,9 @@ watch(visible, async value => {
             <template #icon>
               <icon-material-symbols-download-rounded class="text-icon" />
             </template>
-            导出点位
+            {{ $t('devicePointManage.exportPoints') }}
           </NButton>
-          <NButton @click="closeDrawer">关闭</NButton>
+          <NButton @click="closeDrawer">{{ $t('common.close') }}</NButton>
         </NSpace>
       </template>
     </NDrawerContent>

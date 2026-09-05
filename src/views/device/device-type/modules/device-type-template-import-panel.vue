@@ -51,9 +51,9 @@ const checkedPointIds = ref<CommonType.IdType[]>([]);
 const model = ref<ImportModel>(createDefaultModel());
 
 const rules: Record<keyof Pick<ImportModel, 'key' | 'name' | 'status'>, App.Global.FormRule> = {
-  name: createRequiredRule('请输入设备类型名称'),
-  key: createRequiredRule('请输入设备类型标识'),
-  status: createRequiredRule('请选择状态')
+  name: createRequiredRule($t('deviceType.namePlaceholder')),
+  key: createRequiredRule($t('deviceType.identifierPlaceholder')),
+  status: createRequiredRule($t('deviceType.statusPlaceholder'))
 };
 
 const selectedPointCount = computed(() => checkedPointIds.value.length);
@@ -66,9 +66,11 @@ const categoryOptions = computed(() =>
     value: category.id
   }))
 );
-const templateEmptyDescription = computed(() => (selectedCategory.value ? '暂无设备类型模板' : '请选择模板分类'));
+const templateEmptyDescription = computed(() =>
+  selectedCategory.value ? $t('deviceType.noTemplates') : $t('deviceType.categoryPlaceholder')
+);
 const templateSummaryText = computed(() =>
-  selectedCategory.value ? `共 ${templateTotal.value} 个模板` : '未选择分类'
+  selectedCategory.value ? $t('deviceType.templateCount', { count: templateTotal.value }) : $t('deviceType.noCategory')
 );
 
 const pointColumns = computed<DataTableColumns<Api.System.DeviceTypeTemplatePoint>>(() => [
@@ -79,7 +81,7 @@ const pointColumns = computed<DataTableColumns<Api.System.DeviceTypeTemplatePoin
   },
   {
     key: 'name',
-    title: '点位名称',
+    title: $t('deviceType.pointName'),
     minWidth: 120,
     ellipsis: {
       tooltip: true
@@ -88,7 +90,7 @@ const pointColumns = computed<DataTableColumns<Api.System.DeviceTypeTemplatePoin
   },
   {
     key: 'key',
-    title: '点位标识',
+    title: $t('deviceType.pointIdentifier'),
     minWidth: 120,
     ellipsis: {
       tooltip: true
@@ -97,7 +99,7 @@ const pointColumns = computed<DataTableColumns<Api.System.DeviceTypeTemplatePoin
   },
   {
     key: 'data_type',
-    title: '数据类型',
+    title: $t('deviceType.dataType'),
     align: 'center',
     width: 110,
     render: row => h(EnumTag, { value: row.data_type })
@@ -291,12 +293,12 @@ async function submit() {
   if (submitLoading.value) return false;
 
   if (!selectedTemplate.value) {
-    window.$message?.warning('请选择设备类型模板');
+    window.$message?.warning($t('deviceType.templateRequired'));
     return false;
   }
 
   if (checkedPointIds.value.length === 0) {
-    window.$message?.warning('请选择点位');
+    window.$message?.warning($t('deviceType.pointRequired'));
     return false;
   }
 
@@ -339,7 +341,9 @@ defineExpose({
       <div
         class="min-h-66px flex items-center justify-between gap-12px border-b border-[rgba(148,163,184,0.16)] px-16px py-14px"
       >
-        <div class="text-15px text-[var(--n-text-color)] font-600 leading-22px">设备类型模板</div>
+        <div class="text-15px text-[var(--n-text-color)] font-600 leading-22px">
+          {{ $t('deviceType.templateTitle') }}
+        </div>
         <NTag size="small" :bordered="false" type="info">{{ templateSummaryText }}</NTag>
       </div>
 
@@ -350,7 +354,7 @@ defineExpose({
           :options="categoryOptions"
           clearable
           filterable
-          placeholder="请选择模板分类"
+          :placeholder="$t('deviceType.categoryPlaceholder')"
           @update:value="handleSelectCategory"
         />
         <div class="grid grid-cols-[minmax(0,1fr)_34px_34px] gap-8px">
@@ -358,7 +362,7 @@ defineExpose({
             v-model:value="templateSearchName"
             clearable
             :disabled="!selectedCategory"
-            placeholder="请输入设备类型名称"
+            :placeholder="$t('deviceType.namePlaceholder')"
             @keyup.enter="handleSearchTemplate"
           />
           <NButton type="primary" secondary circle :disabled="!selectedCategory" @click="handleSearchTemplate">
@@ -433,25 +437,37 @@ defineExpose({
       <div
         class="min-h-60px flex items-center justify-between gap-12px border-b border-[rgba(148,163,184,0.16)] px-16px py-14px"
       >
-        <div class="text-15px text-[var(--n-text-color)] font-600 leading-22px">导入内容</div>
+        <div class="text-15px text-[var(--n-text-color)] font-600 leading-22px">
+          {{ $t('deviceType.importContent') }}
+        </div>
       </div>
       <template v-if="selectedTemplate">
         <div class="min-h-0 p-14px pb-16px pl-16px pr-16px">
           <NForm ref="formRef" :model="model" :rules="rules" label-placement="top" class="pb-4px">
             <NGrid responsive="screen" item-responsive :x-gap="12">
-              <NFormItemGi span="24 m:12" label="设备类型名称" path="name">
-                <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入设备类型名称" />
+              <NFormItemGi span="24 m:12" :label="$t('deviceType.name')" path="name">
+                <NInput
+                  v-model:value="model.name"
+                  maxlength="30"
+                  show-count
+                  :placeholder="$t('deviceType.namePlaceholder')"
+                />
               </NFormItemGi>
-              <NFormItemGi span="24 m:12" label="设备类型标识" path="key">
-                <NInput v-model:value="model.key" maxlength="48" show-count placeholder="请输入设备类型标识" />
+              <NFormItemGi span="24 m:12" :label="$t('deviceType.identifier')" path="key">
+                <NInput
+                  v-model:value="model.key"
+                  maxlength="48"
+                  show-count
+                  :placeholder="$t('deviceType.identifierPlaceholder')"
+                />
               </NFormItemGi>
-              <NFormItemGi span="24 m:12" label="状态" path="status">
+              <NFormItemGi span="24 m:12" :label="$t('deviceType.status')" path="status">
                 <NSwitch v-model:value="model.status" :checked-value="1" :unchecked-value="2">
-                  <template #checked>启用</template>
-                  <template #unchecked>禁用</template>
+                  <template #checked>{{ $t('deviceType.enabled') }}</template>
+                  <template #unchecked>{{ $t('deviceType.disabled') }}</template>
                 </NSwitch>
               </NFormItemGi>
-              <NFormItemGi span="24 m:12" label="图标" path="icon">
+              <NFormItemGi span="24 m:12" :label="$t('deviceType.icon')" path="icon">
                 <FileUpload
                   v-model:value="model.icon"
                   module-name="device-type"
@@ -461,22 +477,24 @@ defineExpose({
                   :show-tip="false"
                 />
               </NFormItemGi>
-              <NFormItemGi span="24" label="描述" path="desc">
+              <NFormItemGi span="24" :label="$t('deviceType.description')" path="desc">
                 <NInput
                   v-model:value="model.desc"
                   type="textarea"
                   maxlength="200"
                   show-count
                   :rows="2"
-                  placeholder="请输入描述"
+                  :placeholder="$t('deviceType.descriptionPlaceholder')"
                 />
               </NFormItemGi>
             </NGrid>
           </NForm>
 
           <div class="mb-10px mt-4px flex items-center justify-between gap-12px font-600">
-            <span>模板点位</span>
-            <span class="text-12px text-[var(--n-text-color-3)] font-400">共 {{ points.length }} 个</span>
+            <span>{{ $t('deviceType.templatePoints') }}</span>
+            <span class="text-12px text-[var(--n-text-color-3)] font-400">
+              {{ $t('deviceType.pointCount', { count: points.length }) }}
+            </span>
           </div>
           <NDataTable
             v-model:checked-row-keys="checkedPointIds"
@@ -489,7 +507,7 @@ defineExpose({
           />
         </div>
       </template>
-      <NEmpty v-else description="请选择设备类型模板" class="justify-center py-120px" />
+      <NEmpty v-else :description="$t('deviceType.templateRequired')" class="justify-center py-120px" />
     </section>
   </div>
 </template>

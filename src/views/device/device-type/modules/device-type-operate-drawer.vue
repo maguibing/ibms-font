@@ -41,7 +41,7 @@ const createModeComponentMap = {
 
 const isEdit = computed(() => props.operateType === 'edit');
 
-const title = computed(() => (isEdit.value ? '编辑设备类型' : '创建设备类型'));
+const title = computed(() => (isEdit.value ? $t('deviceType.edit') : $t('deviceType.add')));
 
 const showCreateTabs = computed(() => !isEdit.value);
 
@@ -119,8 +119,8 @@ watch(visible, () => {
       body-content-class="h-full flex flex-col"
     >
       <NTabs v-if="showCreateTabs" v-model:value="activeCreateMode" animated class="mb-16px shrink-0">
-        <NTab name="custom" tab="自定义创建" />
-        <NTab name="template" tab="从类型库导入" />
+        <NTab name="custom" :tab="$t('deviceType.customCreate')" />
+        <NTab name="template" :tab="$t('deviceType.importFromTemplate')" />
       </NTabs>
       <div class="relative min-h-0 flex-1 overflow-hidden">
         <Transition name="device-type-panel" mode="out-in">

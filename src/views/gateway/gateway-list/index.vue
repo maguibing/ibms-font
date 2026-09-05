@@ -89,7 +89,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '边缘设备名称',
+        title: $t('gatewayList.name'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -98,7 +98,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'key',
-        title: '边缘设备标识',
+        title: $t('gatewayList.identifier'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -108,30 +108,34 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'protocol_type',
-        title: '协议类型',
+        title: $t('gatewayList.protocolType'),
         align: 'center',
         minWidth: 120,
         render: row => getGatewayProtocolLabel(row.protocol_type)
       },
       {
         key: 'status',
-        title: '状态',
+        title: $t('gatewayList.status'),
         align: 'center',
         minWidth: 100,
-        render: row => <StatusTag value={row.status} unknown={GATEWAY_UNKNOWN_STATUS} />
+        render: row => <StatusTag value={row.status} unknown={GATEWAY_UNKNOWN_STATUS.value} />
       },
       {
         key: 'link_status',
-        title: '在线状态',
+        title: $t('gatewayList.onlineStatus'),
         align: 'center',
         minWidth: 100,
         render: row => (
-          <StatusTag value={row.link_status} statusMap={GATEWAY_LINK_STATUS_MAP} unknown={GATEWAY_UNKNOWN_STATUS} />
+          <StatusTag
+            value={row.link_status}
+            statusMap={GATEWAY_LINK_STATUS_MAP.value}
+            unknown={GATEWAY_UNKNOWN_STATUS.value}
+          />
         )
       },
       {
         key: 'updated_at',
-        title: '更新时间',
+        title: $t('gatewayList.updatedAt'),
         align: 'center',
         minWidth: 180,
         render: row => (row.updated_at ? formatDateTime(row.updated_at) : '-')
@@ -148,7 +152,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
               text
               type="primary"
               icon="material-symbols:visibility-outline"
-              tooltipContent="查看"
+              tooltipContent={$t('gatewayList.view')}
               onClick={() => handleView(row.id)}
             />
           );
@@ -239,7 +243,7 @@ function handleSearch() {
   <div class="h-full flex-col-stretch gap-12px overflow-hidden lt-sm:overflow-auto">
     <GatewaySearch v-model:model="searchParams" @search="handleSearch" />
     <NCard
-      title="边缘设备列表"
+      :title="$t('gatewayList.list')"
       :bordered="false"
       size="small"
       class="card-wrapper sm:flex-1-hidden"
@@ -288,7 +292,7 @@ function handleSearch() {
         :pagination="mobilePagination"
         :row-key="row => row.id"
         selectable
-        empty-description="暂无边缘设备"
+        :empty-description="$t('gatewayList.noData')"
         class="min-h-0 flex-1 overflow-hidden sm:h-full"
       >
         <template #default="{ item, checked, toggleChecked }">

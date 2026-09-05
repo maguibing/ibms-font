@@ -1,28 +1,31 @@
-/** 虚拟点计算模式。 */
+import { computed } from 'vue';
+import { $t } from '@/locales';
+
+/** Virtual point compute modes. */
 export enum VirtualPointComputeMode {
-  /** 公式计算。 */
+  /** Formula calculation. */
   Formula = 1,
-  /** 阈值赋值。 */
+  /** Threshold assignment. */
   Threshold = 2,
-  /** 分段映射。 */
+  /** Segment mapping. */
   SegmentMapping = 3,
-  /** 统计次数。 */
+  /** Statistic count. */
   StatisticalCount = 4
 }
 
-/** 虚拟点启停状态。 */
+/** Virtual point status. */
 export enum VirtualPointStatus {
   Enabled = 1,
   Disabled = 2
 }
 
-/** 单个有效时段，单位为小时。 */
+/** A single valid time range in hours. */
 export interface ValidTimeRange {
   start_at: number;
   end_at: number;
 }
 
-/** 虚拟点基础表单数据。 */
+/** Base virtual point form model. */
 export interface VirtualPointFormModel {
   name: string;
   key: string;
@@ -32,39 +35,43 @@ export interface VirtualPointFormModel {
   is_storage: boolean;
 }
 
-export const virtualPointComputeModeOptions = [
-  { label: '公式计算', value: VirtualPointComputeMode.Formula },
-  { label: '阈值赋值', value: VirtualPointComputeMode.Threshold },
-  { label: '分段映射', value: VirtualPointComputeMode.SegmentMapping },
-  { label: '统计次数', value: VirtualPointComputeMode.StatisticalCount }
-];
+export const virtualPointComputeModeOptions = computed<CommonType.Option<VirtualPointComputeMode>[]>(() => [
+  { label: $t('virtualPoint.computeMode.formula'), value: VirtualPointComputeMode.Formula },
+  { label: $t('virtualPoint.computeMode.threshold'), value: VirtualPointComputeMode.Threshold },
+  { label: $t('virtualPoint.computeMode.segmentMapping'), value: VirtualPointComputeMode.SegmentMapping },
+  { label: $t('virtualPoint.computeMode.statisticalCount'), value: VirtualPointComputeMode.StatisticalCount }
+]);
 
-export const virtualPointComputeModeMap = Object.fromEntries(
-  virtualPointComputeModeOptions.map(item => [item.value, item.label])
-) as Record<number, string>;
+export const virtualPointComputeModeMap = computed<Record<number, string>>(
+  () =>
+    Object.fromEntries(virtualPointComputeModeOptions.value.map(item => [item.value, item.label])) as Record<
+      number,
+      string
+    >
+);
 
 /**
- * 向公式字符串末尾追加 Token。
- * @param expression 当前公式
- * @param token 待追加内容
- * @returns 追加后的公式
+ * Append a token to the end of a formula string.
+ * @param expression Current formula
+ * @param token Token to append
+ * @returns Updated formula
  */
 export function appendFormulaToken(expression: string, token: string) {
   return `${expression}${token}`;
 }
 
 /**
- * 构建公式计算配置。
- * @param expression 公式表达式
- * @returns 公式配置
+ * Build a formula calculation setting.
+ * @param expression Formula expression
+ * @returns Formula setting
  */
 export function buildFormulaSetting(expression: string) {
   return { expression };
 }
 
 /**
- * 创建虚拟点表单默认值。
- * @returns 默认表单数据
+ * Create default virtual point form values.
+ * @returns Default form model
  */
 export function createDefaultVirtualPointForm(): VirtualPointFormModel {
   return {
@@ -78,9 +85,9 @@ export function createDefaultVirtualPointForm(): VirtualPointFormModel {
 }
 
 /**
- * 规范化有效时段，空值默认为全天。
- * @param ranges 原始时段数据
- * @returns 有效时段列表
+ * Normalize valid time ranges. Empty values default to all day.
+ * @param ranges Raw time range data
+ * @returns Valid time ranges
  */
 export function normalizeValidTimeRanges(ranges?: Array<{ start_at?: unknown; end_at?: unknown }>): ValidTimeRange[] {
   const normalized = (ranges ?? []).map(item => ({
@@ -92,9 +99,9 @@ export function normalizeValidTimeRanges(ranges?: Array<{ start_at?: unknown; en
 }
 
 /**
- * 按数据类型创建虚拟点输出配置。
- * @param dataType 点位数据类型
- * @returns 默认输出配置
+ * Create a virtual point output setting by data type.
+ * @param dataType Point data type
+ * @returns Default output setting
  */
 export function createDefaultVirtualPointPointSetting(
   dataType: CommonType.DataType = 1
@@ -134,10 +141,10 @@ export function createDefaultVirtualPointPointSetting(
 }
 
 /**
- * 规范化虚拟点输出配置，公式和统计模式固定为数字类型。
- * @param setting 原始输出配置
- * @param computeMode 计算模式
- * @returns 规范化后的输出配置
+ * Normalize the virtual point output setting. Formula and statistic modes always use numeric data.
+ * @param setting Raw output setting
+ * @param computeMode Compute mode
+ * @returns Normalized output setting
  */
 export function normalizeVirtualPointPointSetting(
   setting?: Api.Device.DeviceTypePointSetting,
@@ -177,10 +184,10 @@ export function normalizeVirtualPointPointSetting(
 }
 
 /**
- * 校验可选数据类型模式下的开关和枚举配置。
- * @param setting 虚拟点输出配置
- * @param computeMode 计算模式
- * @returns 错误提示，空字符串表示通过
+ * Validate switch and enum settings for selectable data types.
+ * @param setting Virtual point output setting
+ * @param computeMode Compute mode
+ * @returns Error message, or an empty string when valid
  */
 export function validateVirtualPointPointSetting(
   setting: Api.Device.DeviceTypePointSetting,
@@ -190,23 +197,23 @@ export function validateVirtualPointPointSetting(
 
   if (setting.data_type === 2) {
     if (!setting.switch_val?.true_val?.alias?.trim() || !setting.switch_val?.false_val?.alias?.trim()) {
-      return '请完善开关映射名称';
+      return $t('virtualPoint.validation.switchMappingIncomplete');
     }
   }
 
   if (setting.data_type === 4) {
     const enumList = setting.enum_val?.enum_list ?? [];
     if (!enumList.length || enumList.some(item => !item.value.trim() || !item.alias.trim())) {
-      return '请完善枚举值和映射名称';
+      return $t('virtualPoint.validation.enumMappingIncomplete');
     }
     const values = enumList.map(item => item.value.trim());
-    if (new Set(values).size !== values.length) return '枚举值不能重复';
+    if (new Set(values).size !== values.length) return $t('virtualPoint.validation.enumValueDuplicate');
   }
 
   return '';
 }
 
-/** 创建虚拟点规则值默认值。 */
+/** Create a default rule value for virtual points. */
 export function createDefaultVirtualPointRuleValue(): Api.Task.TaskPointValueContent {
   return {
     value: null,
@@ -216,10 +223,10 @@ export function createDefaultVirtualPointRuleValue(): Api.Task.TaskPointValueCon
 }
 
 /**
- * 按当前数据类型回填规则值。
- * @param value 后端单值结构
- * @param dataType 当前输出数据类型
- * @returns 可编辑的规则值
+ * Hydrate a rule value from the backend single-value structure.
+ * @param value Backend single-value structure
+ * @param dataType Current output data type
+ * @returns Editable rule value
  */
 export function normalizeVirtualPointRuleValue(
   value: Api.Task.TaskConditionSingleValue | undefined,
@@ -239,10 +246,10 @@ export function normalizeVirtualPointRuleValue(
 }
 
 /**
- * 按当前数据类型构建后端单值结构。
- * @param dataType 当前输出数据类型
- * @param value 可编辑的规则值
- * @returns 后端单值结构
+ * Build the backend single-value structure for the current data type.
+ * @param dataType Current output data type
+ * @param value Editable rule value
+ * @returns Backend single-value structure
  */
 export function buildVirtualPointRuleValue(
   dataType: CommonType.DataType,
@@ -260,18 +267,18 @@ export function buildVirtualPointRuleValue(
 }
 
 /**
- * 判断规则值是否已填写。
- * @param value 可编辑的规则值
- * @returns 是否已填写
+ * Check whether a rule value has been filled in.
+ * @param value Editable rule value
+ * @returns Whether the value is filled in
  */
 export function isVirtualPointRuleValueFilled(value: Api.Task.TaskPointValueContent) {
   return value.value !== null && value.value !== undefined && String(value.value).trim() !== '';
 }
 
 /**
- * 按计算模式创建默认计算配置。
- * @param computeMode 计算模式
- * @returns 默认计算配置
+ * Create a default compute setting for the selected mode.
+ * @param computeMode Compute mode
+ * @returns Default compute setting
  */
 export function createDefaultVirtualPointSetting(computeMode: number): Api.Device.VirtualPointSetting {
   if (computeMode === VirtualPointComputeMode.Threshold) {
@@ -311,10 +318,10 @@ export function createDefaultVirtualPointSetting(computeMode: number): Api.Devic
 }
 
 /**
- * 构建虚拟点列表分页参数。
- * @param page 页码
- * @param pageSize 每页数量
- * @returns 列表请求参数
+ * Build paginated query params for the virtual point list.
+ * @param page Page number
+ * @param pageSize Page size
+ * @returns List request params
  */
 export function buildVirtualPointListParams(page: number, pageSize: number): CommonType.CommonListQueryParams {
   return {
@@ -328,13 +335,13 @@ export function buildVirtualPointListParams(page: number, pageSize: number): Com
 }
 
 /**
- * 合并表单、计算配置和输出配置。
- * @param model 基础表单
- * @param validTimeRanges 有效时段
- * @param setting 计算配置
- * @param pointSetting 输出点配置
- * @param id 编辑时的虚拟点 ID
- * @returns 创建或更新请求参数
+ * Merge the form, compute setting, and output setting.
+ * @param model Base form
+ * @param validTimeRanges Valid time ranges
+ * @param setting Compute setting
+ * @param pointSetting Output point setting
+ * @param id Virtual point ID when editing
+ * @returns Create or update request params
  */
 export function buildVirtualPointSubmitParams(
   model: VirtualPointFormModel,
@@ -356,9 +363,9 @@ export function buildVirtualPointSubmitParams(
 }
 
 /**
- * 解析非公式模式的 JSON 配置。
- * @param value JSON 字符串
- * @returns 计算配置，解析失败时返回 null
+ * Parse JSON settings for non-formula modes.
+ * @param value JSON string
+ * @returns Compute setting, or null if parsing fails
  */
 export function parseVirtualPointSetting(value: string): Api.Device.VirtualPointSetting | null {
   try {

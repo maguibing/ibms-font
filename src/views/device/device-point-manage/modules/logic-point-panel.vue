@@ -121,7 +121,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'device_type_id',
-        title: '设备类型',
+        title: $t('devicePointManage.deviceType'),
         align: 'center',
         minWidth: 140,
         render: row =>
@@ -131,7 +131,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'device_id',
-        title: '所属设备',
+        title: $t('devicePointManage.device'),
         align: 'center',
         minWidth: 140,
         render: row =>
@@ -139,7 +139,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'name',
-        title: '逻辑点位名称',
+        title: $t('devicePointManage.logicPointName'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true },
@@ -147,7 +147,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'key',
-        title: '逻辑点位标识',
+        title: $t('devicePointManage.logicPointIdentifier'),
         align: 'center',
         width: 180,
         ellipsis: { tooltip: true },
@@ -155,19 +155,19 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'data_type',
-        title: '数据类型',
+        title: $t('devicePointManage.dataType'),
         align: 'center',
         minWidth: 120,
         render: row => h(EnumTag, { value: getLogicPointDataType(row) })
       },
       {
         key: 'physical_point_id',
-        title: '物理点位',
+        title: $t('devicePointManage.physicalPoint'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true },
         render: row => {
-          if (!row.physical_point_id) return '暂未绑定';
+          if (!row.physical_point_id) return $t('devicePointManage.notBound');
 
           return renderPointLink(getExtraMapName('physical_point_map', row.physical_point_id), () =>
             handlePhysicalPointPanelJump(row.physical_point_id!)
@@ -176,14 +176,14 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'report_at',
-        title: '最新更新时间',
+        title: $t('devicePointManage.latestUpdatedAt'),
         align: 'center',
         minWidth: 240,
         render: row => formatReportAt(row)
       },
       {
         key: 'current_value',
-        title: '最新值',
+        title: $t('devicePointManage.latestValue'),
         align: 'center',
         minWidth: 140,
         ellipsis: { tooltip: true },
@@ -273,7 +273,7 @@ function handlePhysicalPointPanelJump(id: CommonType.IdType) {
   const key = getPhysicalPointKey(id);
 
   if (!key) {
-    window.$message?.error('物理点位不存在');
+    window.$message?.error($t('devicePointManage.physicalPointNotFound'));
     return;
   }
 
@@ -297,7 +297,7 @@ function handleDevicePointCommand(row: Api.Device.LogicPoint) {
   const physicalPoint = logicPointExtra.value.physical_point_map?.[String(row.physical_point_id)];
 
   if (!physicalPoint) {
-    window.$message?.error('物理点位不存在');
+    window.$message?.error($t('devicePointManage.physicalPointNotFound'));
     return;
   }
 
@@ -318,7 +318,7 @@ function renderOperate(row: Api.Device.LogicPoint) {
           text: true,
           type: 'primary',
           icon: 'material-symbols:add-link-rounded',
-          tooltipContent: '绑定物理点位',
+          tooltipContent: $t('devicePointManage.bindPhysicalPoint'),
           onClick: () => handleBindPhysicalPoint(row)
         })
       );
@@ -334,7 +334,7 @@ function renderOperate(row: Api.Device.LogicPoint) {
         text: true,
         type: 'primary',
         icon: 'material-symbols:visibility-outline',
-        tooltipContent: '查看物理点位',
+        tooltipContent: $t('devicePointManage.viewPhysicalPoint'),
         onClick: () => handlePhysicalPointView(row.physical_point_id!)
       })
     );
@@ -345,7 +345,7 @@ function renderOperate(row: Api.Device.LogicPoint) {
         text: true,
         type: 'primary',
         icon: 'material-symbols:send-rounded',
-        tooltipContent: '下发',
+        tooltipContent: $t('devicePointManage.command'),
         onClick: () => handleDevicePointCommand(row)
       })
     );
@@ -356,8 +356,8 @@ function renderOperate(row: Api.Device.LogicPoint) {
         text: true,
         type: 'error',
         icon: 'material-symbols:link-off-rounded',
-        tooltipContent: '解绑物理点位',
-        popconfirmContent: '确认解绑物理点位？',
+        tooltipContent: $t('devicePointManage.unbindPhysicalPoint'),
+        popconfirmContent: $t('devicePointManage.unbindConfirm'),
         onPositiveClick: () => handleUnbindPhysicalPoint(row)
       })
     );
@@ -375,7 +375,7 @@ async function handleSmartMatch() {
   const { error } = await fetchBindDevicePoint({ op_type: 3 }).finally(endLoading);
   if (error) return;
 
-  window.$message?.success('智能匹配成功');
+  window.$message?.success($t('devicePointManage.smartMatchSuccess'));
   handleRefresh();
 }
 
@@ -390,19 +390,19 @@ async function handleUnbindPhysicalPoint(row: Api.Device.LogicPoint) {
 
   if (error) return;
 
-  window.$message?.success('解绑成功');
+  window.$message?.success($t('devicePointManage.unbindSuccess'));
   getData();
 }
 
 async function handleExport() {
   const connectionId = getWebSocketConnectionId();
   if (!connectionId) {
-    window.$message?.warning('WebSocket 尚未连接，请稍后重试');
+    window.$message?.warning($t('devicePointManage.websocketWarning'));
     return;
   }
 
   const { list_option } = transformSearchParamsToRequest();
-  startExport('逻辑点位');
+  startExport($t('devicePointManage.logicPoints'));
 
   const { error } = await fetchExportTask({
     connection_id: connectionId,
@@ -416,7 +416,7 @@ async function handleExport() {
     return;
   }
 
-  window.$message?.success('导出任务已提交');
+  window.$message?.success($t('devicePointManage.exportSubmitted'));
 }
 
 function handleImportMapping() {
@@ -450,19 +450,19 @@ watch(
         <NCollapseItem :title="$t('common.search')" name="logic-point-search">
           <NForm label-placement="left">
             <NGrid responsive="screen" item-responsive>
-              <NFormItemGi span="24 s:12 m:8" label="点位名称" class="pr-24px">
+              <NFormItemGi span="24 s:12 m:8" :label="$t('devicePointManage.pointName')" class="pr-24px">
                 <NInput
                   v-model:value="searchParams.name"
                   clearable
-                  placeholder="请输入点位名称"
+                  :placeholder="$t('devicePointManage.pointNamePlaceholder')"
                   @keyup.enter="handleSearch"
                 />
               </NFormItemGi>
-              <NFormItemGi span="24 s:12 m:8" label="点位标识" class="pr-24px">
+              <NFormItemGi span="24 s:12 m:8" :label="$t('devicePointManage.pointIdentifier')" class="pr-24px">
                 <NInput
                   v-model:value="searchParams.key"
                   clearable
-                  placeholder="请输入点位标识"
+                  :placeholder="$t('devicePointManage.pointIdentifierPlaceholder')"
                   @keyup.enter="handleSearch"
                 />
               </NFormItemGi>
@@ -484,7 +484,12 @@ watch(
       </NCollapse>
     </NCard>
 
-    <NCard title="逻辑点位" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard
+      :title="$t('devicePointManage.logicPoints')"
+      :bordered="false"
+      size="small"
+      class="card-wrapper sm:flex-1-hidden"
+    >
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"
@@ -505,7 +510,7 @@ watch(
               @click="handleSmartMatch"
             >
               <template #icon><SvgIcon icon="material-symbols:wand-stars-rounded" /></template>
-              智能匹配
+              {{ $t('devicePointManage.smartMatch') }}
             </NButton>
           </template>
           <template #after>
@@ -518,7 +523,7 @@ watch(
               <template #icon>
                 <SvgIcon icon="material-symbols:upload-rounded" class="text-icon" />
               </template>
-              导入映射表
+              {{ $t('devicePointManage.importMapping') }}
             </NButton>
           </template>
         </TableHeaderOperation>
@@ -542,8 +547,8 @@ watch(
       v-model:visible="importMappingVisible"
       :biz-type="ImportBizType.DevicePointMapping"
       :template-path="ImportTemplatePath.DevicePointMapping"
-      :template-file-name="`点位映射_${$t('common.importTemplate')}_${new Date().getTime()}.xlsx`"
-      task-name="点位映射"
+      :template-file-name="`${$t('devicePointManage.mappingFilePrefix')}_${$t('common.importTemplate')}_${new Date().getTime()}.xlsx`"
+      :task-name="$t('devicePointManage.mappingTaskName')"
       @submitted="handleRefresh"
     />
   </div>

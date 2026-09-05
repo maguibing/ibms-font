@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { nextTick, ref, shallowRef, watch } from 'vue';
+import { computed, nextTick, ref, shallowRef, watch } from 'vue';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import SectionHeader from '@/components/custom/section-header.vue';
 import SvgIcon from '@/components/custom/svg-icon.vue';
+import { $t } from '@/locales';
+import { DEVICE_SOURCE_TYPE_OPTIONS } from '@/constants/business';
 import TaskPointRuleEditor from '@/views/task/task-list/modules/task-point-rule-editor/task-point-rule-editor.vue';
 import TaskPointValueInput from '@/views/task/task-list/modules/task-point-rule-editor/task-point-value-input.vue';
 import {
@@ -42,21 +44,17 @@ interface AssignRuleDraft {
 
 const props = defineProps<Props>();
 
-// 累计方式的数值必须和后端 threshold_assign.accumulate_type 保持一致。
-const accumulateTypeOptions = [
-  { label: '立即赋值', value: 1 },
-  { label: '累计次数', value: 2 },
-  { label: '持续时长', value: 3 }
-] as const;
-const deviceSourceTypeOptions: CommonType.Option<TaskRuleDeviceSourceType>[] = [
-  { label: '设备', value: 1 },
-  { label: '设备类型', value: 2 }
-];
-const timeTypeOptions: CommonType.Option<Api.Task.TaskConditionTimeType>[] = [
-  { label: '秒', value: 1 },
-  { label: '分钟', value: 2 },
-  { label: '小时', value: 3 }
-];
+// The accumulation-type values must match backend `threshold_assign.accumulate_type`.
+const accumulateTypeOptions = computed<CommonType.Option<1 | 2 | 3>[]>(() => [
+  { label: $t('virtualPoint.thresholdAssign.immediateAssign'), value: 1 },
+  { label: $t('virtualPoint.thresholdAssign.repeatTimes'), value: 2 },
+  { label: $t('virtualPoint.thresholdAssign.duration'), value: 3 }
+]);
+const timeTypeOptions = computed<CommonType.Option<Api.Task.TaskConditionTimeType>[]>(() => [
+  { label: $t('virtualPoint.thresholdAssign.seconds'), value: 1 },
+  { label: $t('virtualPoint.thresholdAssign.minutes'), value: 2 },
+  { label: $t('virtualPoint.thresholdAssign.hours'), value: 3 }
+]);
 
 const conditionModel = ref<TaskConditionEditorModel>(createDefaultTaskConditionModel());
 const deviceSourceType = shallowRef<TaskRuleDeviceSourceType>(1);
@@ -67,7 +65,7 @@ const assignRules = ref<AssignRuleDraft[]>([]);
 let ruleKeySeed = 0;
 let applyingSetting = false;
 
-/** 创建前端赋值规则草稿，编辑时按当前虚点数据类型回填 assign_value。 */
+/** Create a frontend assignment rule draft. Edit mode hydrates `assign_value` with the current data type. */
 function createRule(assignRule?: Api.Device.VirtualPointThresholdAssignRule): AssignRuleDraft {
   ruleKeySeed += 1;
   return {
@@ -79,7 +77,7 @@ function createRule(assignRule?: Api.Device.VirtualPointThresholdAssignRule): As
   };
 }
 
-/** 将后端 threshold_assign 配置回填成条件编辑器和赋值规则草稿。 */
+/** Hydrate backend `threshold_assign` data into the condition editor and assignment rule drafts. */
 function loadSetting(setting?: Api.Device.VirtualPointThresholdAssignSetting) {
   applyingSetting = true;
   accumulateType.value = setting?.accumulate_type ?? 1;
@@ -106,12 +104,12 @@ function loadSetting(setting?: Api.Device.VirtualPointThresholdAssignSetting) {
   });
 }
 
-/** 按虚点输出数据类型构建 assign_value。 */
+/** Build `assign_value` for the current virtual point output data type. */
 function buildAssignValue(value: TaskRulePointValue = createDefaultVirtualPointRuleValue()) {
   return buildVirtualPointRuleValue(props.pointSetting.data_type, value);
 }
 
-/** 构建累计窗口。 */
+/** Build the accumulation window. */
 function buildWindow(): Api.Device.VirtualPointDurationSetting {
   return {
     durations: windowDuration.value,
@@ -119,7 +117,7 @@ function buildWindow(): Api.Device.VirtualPointDurationSetting {
   };
 }
 
-/** 按累计方式构建后端规则，累计次数和持续时长字段互斥。 */
+/** Build backend rules by accumulation type. The count and duration fields are mutually exclusive. */
 function buildAssignRules(): Api.Device.VirtualPointThresholdAssignRule[] {
   return assignRules.value.map(rule => ({
     ...(accumulateType.value === 2
@@ -129,44 +127,47 @@ function buildAssignRules(): Api.Device.VirtualPointThresholdAssignRule[] {
   }));
 }
 
-/** 将不同时间单位统一成秒，用于去重和窗口边界校验。 */
+/** Normalize different time units to seconds for deduplication and window-boundary checks. */
 function normalizeDurationSeconds(duration: number, timeType: Api.Task.TaskConditionTimeType) {
   return duration * ({ 1: 1, 2: 60, 3: 3600 }[timeType] ?? 1);
 }
 
-/** 校验赋值规则，条件校验由 TaskPointRuleEditor 的工具函数负责。 */
+/** Validate assignment rules. Condition validation is handled by TaskPointRuleEditor utilities. */
 function validateAssignRules() {
   if (accumulateType.value !== 1 && (!Number.isInteger(windowDuration.value) || windowDuration.value < 1)) {
-    return '累计窗口必须为大于 0 的整数';
+    return $t('virtualPoint.thresholdAssign.validationWindow');
   }
-  if (!assignRules.value.length) return '请至少添加一条赋值规则';
+  if (!assignRules.value.length) return $t('virtualPoint.thresholdAssign.validationRulesRequired');
   if (assignRules.value.some(rule => !isVirtualPointRuleValueFilled(rule.assignValue))) {
-    return '请完善赋值内容';
+    return $t('virtualPoint.thresholdAssign.validationValue');
   }
 
   if (accumulateType.value === 2) {
     if (assignRules.value.some(rule => !Number.isInteger(rule.repeatTimes) || rule.repeatTimes < 1)) {
-      return '累计次数必须为大于 0 的整数';
+      return $t('virtualPoint.thresholdAssign.validationRepeatTimes');
     }
     if (new Set(assignRules.value.map(rule => rule.repeatTimes)).size !== assignRules.value.length) {
-      return '累计次数不能重复';
+      return $t('virtualPoint.thresholdAssign.validationRepeatTimesDuplicate');
     }
   }
 
   if (accumulateType.value === 3) {
     if (assignRules.value.some(rule => !Number.isInteger(rule.duration) || rule.duration < 0)) {
-      return '持续时长必须为不小于 0 的整数';
+      return $t('virtualPoint.thresholdAssign.validationDuration');
     }
     const durations = assignRules.value.map(rule => normalizeDurationSeconds(rule.duration, rule.durationTimeType));
-    if (new Set(durations).size !== durations.length) return '持续时长不能重复';
+    if (new Set(durations).size !== durations.length)
+      return $t('virtualPoint.thresholdAssign.validationDurationDuplicate');
     const windowSeconds = normalizeDurationSeconds(windowDuration.value, windowTimeType.value);
-    if (durations.some(duration => duration > windowSeconds)) return '持续时长不能超过累计窗口';
+    if (durations.some(duration => duration > windowSeconds)) {
+      return $t('virtualPoint.thresholdAssign.validationDurationExceedsWindow');
+    }
   }
 
   return '';
 }
 
-/** 暴露给抽屉的统一出口：校验并构建 threshold_assign setting。 */
+/** Expose a single entry for the drawer: validate and build the `threshold_assign` setting. */
 function validateAndBuild(): Api.Device.VirtualPointSetting | null {
   const conditionError = getTaskConditionValidationMessage(conditionModel.value);
   if (conditionError) {
@@ -199,29 +200,29 @@ function validateAndBuild(): Api.Device.VirtualPointSetting | null {
   return { threshold_assign: thresholdAssign };
 }
 
-/** 新增一条赋值规则。 */
+/** Add an assignment rule. */
 function addAssignRule() {
   assignRules.value.push(createRule());
 }
 
-/** 至少保留一条规则，避免提交空动作。 */
+/** Keep at least one rule so an empty action cannot be submitted. */
 function removeAssignRule(index: number) {
   if (assignRules.value.length <= 1) return;
   assignRules.value.splice(index, 1);
 }
 
-/** 设备源切换后条件选择范围变化，需要重置条件模型。 */
+/** Reset the condition model when the device source changes because the selection scope changes. */
 function handleDeviceSourceTypeChange(value: TaskRuleDeviceSourceType) {
   deviceSourceType.value = value;
   conditionModel.value = createDefaultTaskConditionModel(value);
 }
 
-// 配置或映射变化时重新回填；映射用于条件编辑器显示已选设备/点位名称。
+// Rehydrate when the config or mapping changes. The mapping is used to show the selected device/point names.
 watch([() => props.setting, () => props.optionMaps], ([setting]) => loadSetting(setting), { immediate: true });
 watch(accumulateType, () => {
   if (!applyingSetting) assignRules.value = [createRule()];
 });
-// 虚点输出数据类型变化时，旧赋值内容不再适配，需要清空。
+// When the virtual point output data type changes, old assignment values no longer fit and need to be cleared.
 watch(
   () => props.pointSetting.data_type,
   () => {
@@ -235,10 +236,10 @@ defineExpose({ validateAndBuild });
 <template>
   <div class="flex flex-col gap-18px">
     <NForm label-placement="top" :show-feedback="false" class="!mt-12px">
-      <NFormItem label="设备源类型">
+      <NFormItem :label="$t('virtualPoint.thresholdAssign.deviceSourceType')">
         <NSelect
           :value="deviceSourceType"
-          :options="deviceSourceTypeOptions"
+          :options="DEVICE_SOURCE_TYPE_OPTIONS"
           class="w-240px"
           @update:value="handleDeviceSourceTypeChange"
         />
@@ -255,10 +256,10 @@ defineExpose({ validateAndBuild });
     <section
       class="rounded-8px border border-#e2e8f0/72 border-solid bg-white p-16px shadow-[0_8px_22px_rgba(15,23,42,0.05)] dark:border-#2f3338 dark:bg-#1f2228 dark:shadow-none"
     >
-      <SectionHeader title="赋值动作" />
+      <SectionHeader :title="$t('virtualPoint.thresholdAssign.action')" />
 
       <NForm class="mt-14px" label-placement="top" :show-feedback="false">
-        <NFormItem label="累计方式" class="!mb-16px">
+        <NFormItem :label="$t('virtualPoint.thresholdAssign.accumulateType')" class="!mb-16px">
           <NRadioGroup v-model:value="accumulateType">
             <NRadioButton
               v-for="option in accumulateTypeOptions"
@@ -269,7 +270,7 @@ defineExpose({ validateAndBuild });
           </NRadioGroup>
         </NFormItem>
 
-        <NFormItem v-if="accumulateType !== 1" label="累计窗口" class="!mb-16px">
+        <NFormItem v-if="accumulateType !== 1" :label="$t('virtualPoint.thresholdAssign.window')" class="!mb-16px">
           <NInputGroup>
             <NInputNumber
               v-model:value="windowDuration"
@@ -282,7 +283,11 @@ defineExpose({ validateAndBuild });
           </NInputGroup>
         </NFormItem>
 
-        <NFormItem v-if="accumulateType === 1" label="命中后赋值" class="!mb-0">
+        <NFormItem
+          v-if="accumulateType === 1"
+          :label="$t('virtualPoint.thresholdAssign.immediateAssign')"
+          class="!mb-0"
+        >
           <TaskPointValueInput
             v-model:value="assignRules[0].assignValue"
             :data-type="pointSetting.data_type"
@@ -292,12 +297,12 @@ defineExpose({ validateAndBuild });
 
         <template v-else>
           <div class="mb-12px flex items-center justify-between">
-            <span class="text-14px font-600">赋值规则</span>
+            <span class="text-14px font-600">{{ $t('virtualPoint.thresholdAssign.assignRules') }}</span>
             <NButton secondary size="small" type="primary" @click="addAssignRule">
               <template #icon>
                 <SvgIcon icon="material-symbols:add-rounded" />
               </template>
-              新增规则
+              {{ $t('virtualPoint.thresholdAssign.addRule') }}
             </NButton>
           </div>
 
@@ -308,7 +313,11 @@ defineExpose({ validateAndBuild });
               class="rounded-6px border border-#edf1f7 border-solid bg-#f8fafc p-12px dark:border-#2f3338 dark:bg-#18181c [&_.n-form-item]:mb-0"
             >
               <NGrid responsive="screen" item-responsive :x-gap="12" :y-gap="4">
-                <NFormItemGi v-if="accumulateType === 2" span="24 m:11" label="累计次数">
+                <NFormItemGi
+                  v-if="accumulateType === 2"
+                  span="24 m:11"
+                  :label="$t('virtualPoint.thresholdAssign.repeatTimes')"
+                >
                   <NInputNumber
                     v-model:value="rule.repeatTimes"
                     :min="1"
@@ -317,7 +326,7 @@ defineExpose({ validateAndBuild });
                     class="w-full"
                   />
                 </NFormItemGi>
-                <NFormItemGi v-else span="24 m:11" label="持续时长">
+                <NFormItemGi v-else span="24 m:11" :label="$t('virtualPoint.thresholdAssign.duration')">
                   <NInputGroup>
                     <NInputNumber
                       v-model:value="rule.duration"
@@ -333,20 +342,20 @@ defineExpose({ validateAndBuild });
                     />
                   </NInputGroup>
                 </NFormItemGi>
-                <NFormItemGi span="24 m:11" label="赋值">
+                <NFormItemGi span="24 m:11" :label="$t('virtualPoint.thresholdAssign.assignValue')">
                   <TaskPointValueInput
                     v-model:value="rule.assignValue"
                     :data-type="pointSetting.data_type"
                     :setting="pointSetting"
                   />
                 </NFormItemGi>
-                <NFormItemGi span="24 m:2" label="操作">
+                <NFormItemGi span="24 m:2" :label="$t('common.operate')">
                   <ButtonIcon
                     class="w-full"
                     size="small"
                     type="error"
                     icon="material-symbols:delete-outline"
-                    tooltip-content="删除规则"
+                    :tooltip-content="$t('virtualPoint.thresholdAssign.deleteRule')"
                     :disabled="assignRules.length <= 1"
                     @click="removeAssignRule(index)"
                   />

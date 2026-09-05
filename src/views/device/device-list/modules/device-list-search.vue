@@ -98,16 +98,38 @@ onMounted(() => {
       <NCollapseItem :title="$t('common.search')" name="device-list-search">
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="100">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi :span="searchItemSpan" label="设备名称" path="name" class="pr-24px" label-width="auto">
-              <NInput v-model:value="model.name" clearable placeholder="请输入设备名称" @keyup.enter="search" />
+            <NFormItemGi
+              :span="searchItemSpan"
+              :label="$t('deviceList.name')"
+              path="name"
+              class="pr-24px"
+              label-width="auto"
+            >
+              <NInput
+                v-model:value="model.name"
+                clearable
+                :placeholder="$t('deviceList.namePlaceholder')"
+                @keyup.enter="search"
+              />
             </NFormItemGi>
-            <NFormItemGi :span="searchItemSpan" label="设备标识" path="key" class="pr-24px" label-width="auto">
-              <NInput v-model:value="model.key" clearable placeholder="请输入设备标识" @keyup.enter="search" />
+            <NFormItemGi
+              :span="searchItemSpan"
+              :label="$t('deviceList.identifier')"
+              path="key"
+              class="pr-24px"
+              label-width="auto"
+            >
+              <NInput
+                v-model:value="model.key"
+                clearable
+                :placeholder="$t('deviceList.identifierPlaceholder')"
+                @keyup.enter="search"
+              />
             </NFormItemGi>
             <NFormItemGi
               v-if="props.showDeviceType"
               :span="searchItemSpan"
-              label="设备类型"
+              :label="$t('deviceList.type')"
               path="device_type_id"
               class="pr-24px"
               label-width="auto"
@@ -120,13 +142,13 @@ onMounted(() => {
                 label-field="name"
                 value-field="id"
                 clearable
-                placeholder="请选择设备类型"
+                :placeholder="$t('deviceList.typePlaceholder')"
               />
             </NFormItemGi>
             <NFormItemGi
               v-if="props.showDeviceGroup"
               :span="searchItemSpan"
-              label="设备组"
+              :label="$t('deviceList.group')"
               path="device_group_id"
               class="pr-24px"
               label-width="auto"
@@ -140,7 +162,7 @@ onMounted(() => {
                 filterable
                 label-field="group_name"
                 key-field="group_id"
-                placeholder="请选择设备组"
+                :placeholder="$t('deviceList.groupPlaceholder')"
               />
             </NFormItemGi>
             <NFormItemGi :show-feedback="false" :span="actionItemSpan" class="pr-24px">

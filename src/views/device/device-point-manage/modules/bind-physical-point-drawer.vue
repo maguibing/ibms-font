@@ -41,7 +41,7 @@ const selectedGatewayId = shallowRef<CommonType.IdType | null>(null);
 const selectedPhysicalPointId = shallowRef<CommonType.IdType | null>(null);
 const searchParams = ref<SearchParams>(createDefaultSearchParams());
 
-const drawerTitle = computed(() => `选择物理点位 - ${logicPoint.value?.name ?? '-'}`);
+const drawerTitle = computed(() => `${$t('devicePointManage.selectPhysicalPoint')} - ${logicPoint.value?.name ?? '-'}`);
 
 function createDefaultSearchParams(): SearchParams {
   return {
@@ -74,7 +74,7 @@ const { columns, data, extraData, getDataByPage, loading, mobilePagination, pagi
     columns: (): NaiveUI.TableColumn<Api.Device.PhysicalPoint>[] => [
       {
         key: 'select',
-        title: '选择',
+        title: $t('devicePointManage.select'),
         align: 'center',
         width: 80,
         render: row =>
@@ -87,12 +87,17 @@ const { columns, data, extraData, getDataByPage, loading, mobilePagination, pagi
                 selectedPhysicalPointId.value = row.id;
               }
             },
-            { default: () => (selectedPhysicalPointId.value === row.id ? '已选择' : '选择') }
+            {
+              default: () =>
+                selectedPhysicalPointId.value === row.id
+                  ? $t('devicePointManage.selected')
+                  : $t('devicePointManage.select')
+            }
           )
       },
       {
         key: 'name',
-        title: '点位名称',
+        title: $t('devicePointManage.pointName'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true },
@@ -100,7 +105,7 @@ const { columns, data, extraData, getDataByPage, loading, mobilePagination, pagi
       },
       {
         key: 'key',
-        title: '点位标识',
+        title: $t('devicePointManage.pointIdentifier'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true },
@@ -108,7 +113,7 @@ const { columns, data, extraData, getDataByPage, loading, mobilePagination, pagi
       },
       {
         key: 'data_type',
-        title: '数据类型',
+        title: $t('devicePointManage.dataType'),
         align: 'center',
         minWidth: 120,
         render: row => h(EnumTag, { value: row.data_type })
@@ -157,7 +162,7 @@ function handleResetSearch() {
 
 async function handleSubmit() {
   if (!logicPoint.value || !selectedPhysicalPointId.value) {
-    window.$message?.warning('请选择物理点位');
+    window.$message?.warning($t('devicePointManage.physicalPointRequired'));
     return;
   }
 
@@ -174,7 +179,7 @@ async function handleSubmit() {
 
   if (error) return;
 
-  window.$message?.success('绑定成功');
+  window.$message?.success($t('devicePointManage.bindSuccess'));
   closeDrawer();
   emit('submitted');
 }
@@ -190,7 +195,7 @@ defineExpose({
       <div class="h-full min-h-0 flex-col-stretch gap-12px overflow-hidden lt-sm:overflow-auto">
         <NForm label-placement="left">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12" label="边缘设备" label-width="auto" class="pr-24px">
+            <NFormItemGi span="24 s:12" :label="$t('devicePointManage.gateway')" label-width="auto" class="pr-24px">
               <RemoteSearchSelect
                 v-model:value="selectedGatewayId"
                 :request="fetchGetGatewayList"
@@ -199,15 +204,15 @@ defineExpose({
                 label-field="name"
                 value-field="id"
                 clearable
-                placeholder="请选择边缘设备"
+                :placeholder="$t('devicePointManage.gatewayPlaceholder')"
                 @update:value="handleGatewayChange"
               />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12" label="点位名称" label-width="auto">
+            <NFormItemGi span="24 s:12" :label="$t('devicePointManage.pointName')" label-width="auto">
               <NInput
                 v-model:value="searchParams.name"
                 clearable
-                placeholder="请输入点位名称"
+                :placeholder="$t('devicePointManage.pointNamePlaceholder')"
                 @keyup.enter="handleSearch"
               />
             </NFormItemGi>

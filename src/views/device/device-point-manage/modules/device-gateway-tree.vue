@@ -7,6 +7,7 @@ import {
   GATEWAY_PROTOCOL_OPTIONS,
   GATEWAY_UNKNOWN_STATUS
 } from '@/views/gateway/gateway-list/shared';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'DeviceGatewayTree'
@@ -60,7 +61,7 @@ const gatewayLoading = computed(() => Object.values(gatewayState.loadingMap).som
 const gatewayList = computed(() => Object.values(gatewayState.listMap).flatMap(item => item ?? []));
 
 const gatewayGroups = computed<GatewayGroup[]>(() => {
-  return GATEWAY_PROTOCOL_OPTIONS.map(item => {
+  return GATEWAY_PROTOCOL_OPTIONS.value.map(item => {
     const protocolType = item.value;
     const key = getProtocolTreeKey(protocolType);
 
@@ -188,7 +189,7 @@ defineExpose({
         >
           <span class="min-w-0 flex-y-center gap-8px">
             <SvgIcon icon="lucide:layers" class="flex-none text-16px" />
-            <span class="truncate">全部设备</span>
+            <span class="truncate">{{ $t('devicePointManage.allDevices') }}</span>
           </span>
         </button>
 
@@ -236,7 +237,12 @@ defineExpose({
                 />
               </button>
             </template>
-            <NEmpty v-else-if="group.loaded" description="暂无边缘设备" size="small" class="gateway-empty" />
+            <NEmpty
+              v-else-if="group.loaded"
+              :description="$t('devicePointManage.noGateways')"
+              size="small"
+              class="gateway-empty"
+            />
           </div>
         </div>
       </div>

@@ -1,43 +1,45 @@
-import type { StatusTagMap } from '@/components/custom/status-tag.vue';
+import { computed } from 'vue';
+import type { StatusTagMap, StatusTagOption } from '@/components/custom/status-tag.vue';
+import { $t } from '@/locales';
 
-export const GATEWAY_PROTOCOL_OPTIONS: CommonType.Option<Api.Gateway.ProtocolType, string>[] = [
-  { label: 'MQTT', value: 1 },
-  { label: 'HTTP Server', value: 2 },
-  { label: 'HTTP Client', value: 3 },
-  { label: 'Modbus', value: 4 },
-  { label: 'BACnet', value: 5 },
-  { label: 'OPC UA', value: 6 }
-];
+export const GATEWAY_PROTOCOL_OPTIONS = computed<CommonType.Option<Api.Gateway.ProtocolType, string>[]>(() => [
+  { label: $t('gatewayList.mqttProtocol'), value: 1 },
+  { label: $t('gatewayList.httpServerProtocol'), value: 2 },
+  { label: $t('gatewayList.httpClientProtocol'), value: 3 },
+  { label: $t('gatewayList.modbusProtocol'), value: 4 },
+  { label: $t('gatewayList.bacnetProtocol'), value: 5 },
+  { label: $t('gatewayList.opcUaProtocol'), value: 6 }
+]);
 
-export const opcUaSecurityModeOptions: CommonType.Option<Api.Gateway.OpcUaSecurityMode, string>[] = [
-  { label: '无安全', value: 1 },
-  { label: '签名', value: 2 },
-  { label: '签名并加密', value: 3 }
-];
+export const opcUaSecurityModeOptions = computed<CommonType.Option<Api.Gateway.OpcUaSecurityMode, string>[]>(() => [
+  { label: $t('gatewayList.noSecurity'), value: 1 },
+  { label: $t('gatewayList.sign'), value: 2 },
+  { label: $t('gatewayList.signEncrypt'), value: 3 }
+]);
 
-export const opcUaAuthTypeOptions: CommonType.Option<Api.Gateway.OpcUaAuthType, string>[] = [
-  { label: '匿名', value: 1 },
-  { label: '用户名', value: 2 }
-];
+export const opcUaAuthTypeOptions = computed<CommonType.Option<Api.Gateway.OpcUaAuthType, string>[]>(() => [
+  { label: $t('gatewayList.anonymous'), value: 1 },
+  { label: $t('gatewayList.username'), value: 2 }
+]);
 
-export const dataFormatOptions: CommonType.Option<Api.Gateway.DataFormat, string>[] = [
-  { label: 'Key-Value格式', value: 1 },
-  { label: '标准格式', value: 2 },
-  { label: '讯饶格式', value: 3 },
-  { label: 'NZ格式', value: 4 }
-];
+export const dataFormatOptions = computed<CommonType.Option<Api.Gateway.DataFormat, string>[]>(() => [
+  { label: $t('gatewayList.keyValue'), value: 1 },
+  { label: $t('gatewayList.standard'), value: 2 },
+  { label: $t('gatewayList.xunrao'), value: 3 },
+  { label: $t('gatewayList.nz'), value: 4 }
+]);
 
-export const GATEWAY_LINK_STATUS_MAP: StatusTagMap = {
-  '1': { label: '未激活', type: 'warning' },
-  '2': { label: '在线', type: 'success' },
-  '3': { label: '离线', type: 'error' }
-};
+export const GATEWAY_LINK_STATUS_MAP = computed<StatusTagMap>(() => ({
+  '1': { label: $t('gatewayList.inactive'), type: 'warning' },
+  '2': { label: $t('gatewayList.online'), type: 'success' },
+  '3': { label: $t('gatewayList.offline'), type: 'error' }
+}));
 
-export const GATEWAY_UNKNOWN_STATUS = {
-  label: '未知',
+export const GATEWAY_UNKNOWN_STATUS = computed<StatusTagOption>(() => ({
+  label: $t('gatewayList.unknown'),
   type: 'default'
-} as const;
+}));
 
 export function getGatewayProtocolLabel(value: number | null | undefined) {
-  return GATEWAY_PROTOCOL_OPTIONS.find(item => item.value === value)?.label || '-';
+  return GATEWAY_PROTOCOL_OPTIONS.value.find(item => item.value === value)?.label || '-';
 }

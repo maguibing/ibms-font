@@ -46,15 +46,15 @@ const emit = defineEmits<{
 
     <NEllipsis class="block text-16px text-[var(--n-text-color)] font-600">{{ device.name || '-' }}</NEllipsis>
     <div class="mt-9px min-w-0 flex items-center gap-8px text-13px text-[var(--n-text-color-2)]">
-      <span class="shrink-0">标识</span>
+      <span class="shrink-0">{{ $t('deviceList.identifierLabel') }}</span>
       <CopyableValue :value="device.key" @click.stop />
     </div>
     <div class="mt-7px flex items-center gap-8px text-13px text-[var(--n-text-color-2)]">
-      <span class="shrink-0">设备类型</span>
+      <span class="shrink-0">{{ $t('deviceList.type') }}</span>
       <NEllipsis>{{ deviceTypeName }}</NEllipsis>
     </div>
     <div class="mt-7px flex items-center gap-8px text-13px text-[var(--n-text-color-2)]">
-      <span class="shrink-0">状态</span>
+      <span class="shrink-0">{{ $t('deviceList.status') }}</span>
       <StatusTag :value="device.status" :tag-props="{ size: 'small', bordered: false }" />
     </div>
 
@@ -64,7 +64,7 @@ const emit = defineEmits<{
         text
         type="primary"
         icon="material-symbols:visibility-outline"
-        tooltip-content="查看"
+        :tooltip-content="$t('deviceList.view')"
         @click="emit('view')"
       />
       <ButtonIcon

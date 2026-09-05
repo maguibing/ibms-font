@@ -97,7 +97,9 @@ const gatewayRequestParams: CommonType.CommonListQueryParams = {
 
 const selectedGatewayOptions = computed(() => selectedGatewayOption.value);
 const isEdit = computed(() => props.operateType === 'edit');
-const drawerTitle = computed(() => (isEdit.value ? '编辑物理点位' : '新增物理点位'));
+const drawerTitle = computed(() =>
+  isEdit.value ? $t('devicePointManage.editPhysicalPoint') : $t('devicePointManage.addPhysicalPoint')
+);
 const logicPointRequestParams = computed<CommonType.CommonListQueryParams>(() => ({
   list_option: {
     options: model.value.device_id ? [{ type: 2, value: String(model.value.device_id) }] : []
@@ -119,10 +121,10 @@ const modbusBitIndexMax = computed(() => (canEditModbusBitIndex.value ? 15 : 0))
 const showModbusByteOrder = computed(() => isModbusWordRegister.value && isModbus32BitDataType.value);
 const modbusDataTypeOptions = computed(() => {
   if (isModbusBitRegister.value) {
-    return modbusDataTypeBaseOptions.filter(item => item.value === MODBUS_BOOL_DATA_TYPE);
+    return modbusDataTypeBaseOptions.value.filter(item => item.value === MODBUS_BOOL_DATA_TYPE);
   }
 
-  return modbusDataTypeBaseOptions;
+  return modbusDataTypeBaseOptions.value;
 });
 const showLinearTransform = computed(() => {
   if (isModbus.value) return !isModbusBoolDataType.value;
@@ -132,15 +134,24 @@ const showLinearTransform = computed(() => {
 });
 
 const rules: Record<string, App.Global.FormRule | App.Global.FormRule[]> = {
-  data_type: createRequiredRule('请选择数据类型'),
-  gateway_id: createRequiredRule('请选择边缘设备'),
-  key: createRequiredRule('请输入点位标识'),
-  name: createRequiredRule('请输入点位名称'),
-  'protocol.access_level': createRequiredRule('请选择访问级别'),
-  'protocol.bacnet.object_instance': createVisibleRequiredRule('请输入对象实例', () => isBacnet.value),
-  'protocol.modbus.address': createVisibleRequiredRule('请输入寄存器地址', () => isModbus.value),
-  'protocol.modbus.slave_id': createVisibleRequiredRule('请输入从站地址', () => isModbus.value),
-  'protocol.opcua.node_id': createVisibleRequiredRule('请输入节点 ID', () => isOpcUa.value)
+  data_type: createRequiredRule($t('devicePointManage.dataTypePlaceholder')),
+  gateway_id: createRequiredRule($t('devicePointManage.gatewayPlaceholder')),
+  key: createRequiredRule($t('devicePointManage.pointIdentifierPlaceholder')),
+  name: createRequiredRule($t('devicePointManage.pointNamePlaceholder')),
+  'protocol.access_level': createRequiredRule($t('devicePointManage.accessLevelPlaceholder')),
+  'protocol.bacnet.object_instance': createVisibleRequiredRule(
+    $t('devicePointManage.objectInstancePlaceholder'),
+    () => isBacnet.value
+  ),
+  'protocol.modbus.address': createVisibleRequiredRule(
+    $t('devicePointManage.registerAddressPlaceholder'),
+    () => isModbus.value
+  ),
+  'protocol.modbus.slave_id': createVisibleRequiredRule(
+    $t('devicePointManage.slaveAddressPlaceholder'),
+    () => isModbus.value
+  ),
+  'protocol.opcua.node_id': createVisibleRequiredRule($t('devicePointManage.nodeIdPlaceholder'), () => isOpcUa.value)
 };
 
 /**
@@ -449,9 +460,9 @@ function normalizeModbusByRules() {
 
   if (
     MODBUS_32BIT_DATA_TYPES.includes(Number(modbus.data_type)) &&
-    !byteOrderOptions.some(item => item.value === modbus.byte_order)
+    !byteOrderOptions.value.some(item => item.value === modbus.byte_order)
   ) {
-    modbus.byte_order = byteOrderOptions[0].value;
+    modbus.byte_order = byteOrderOptions.value[0].value;
   }
 }
 
@@ -665,7 +676,7 @@ watch(visible, async () => {
     <NDrawerContent :title="drawerTitle" :native-scrollbar="false" closable>
       <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
         <NGrid responsive="screen" item-responsive :x-gap="16">
-          <NFormItemGi span="24" label="边缘设备" path="gateway_id">
+          <NFormItemGi span="24" :label="$t('devicePointManage.gateway')" path="gateway_id">
             <RemoteSearchSelect
               v-model:value="model.gateway_id"
               :request="fetchGetGatewayList"
@@ -675,34 +686,52 @@ watch(visible, async () => {
               label-field="name"
               value-field="id"
               :disabled="isEdit"
-              placeholder="请选择边缘设备"
+              :placeholder="$t('devicePointManage.gatewayPlaceholder')"
               @selected-change="handleGatewaySelected"
             />
           </NFormItemGi>
-          <NFormItemGi span="24" label="点位名称" path="name">
-            <NInput v-model:value="model.name" maxlength="50" show-count placeholder="请输入点位名称" />
+          <NFormItemGi span="24" :label="$t('devicePointManage.pointName')" path="name">
+            <NInput
+              v-model:value="model.name"
+              maxlength="50"
+              show-count
+              :placeholder="$t('devicePointManage.pointNamePlaceholder')"
+            />
           </NFormItemGi>
-          <NFormItemGi span="24" label="点位标识" path="key">
-            <NInput v-model:value="model.key" maxlength="48" show-count placeholder="请输入点位标识" />
+          <NFormItemGi span="24" :label="$t('devicePointManage.pointIdentifier')" path="key">
+            <NInput
+              v-model:value="model.key"
+              maxlength="48"
+              show-count
+              :placeholder="$t('devicePointManage.pointIdentifierPlaceholder')"
+            />
           </NFormItemGi>
-          <NFormItemGi span="24" label="访问级别" path="protocol.access_level">
+          <NFormItemGi span="24" :label="$t('devicePointManage.accessLevel')" path="protocol.access_level">
             <NSelect
               v-model:value="model.protocol.access_level"
               :options="ACCESS_LEVEL_OPTIONS"
-              placeholder="请选择访问级别"
+              :placeholder="$t('devicePointManage.accessLevelPlaceholder')"
             />
           </NFormItemGi>
-          <NFormItemGi v-if="isMqttOrHttp" span="24" label="数据类型" path="data_type">
-            <NSelect v-model:value="model.data_type" :options="DATA_TYPE_OPTIONS" placeholder="请选择数据类型" />
+          <NFormItemGi v-if="isMqttOrHttp" span="24" :label="$t('devicePointManage.dataType')" path="data_type">
+            <NSelect
+              v-model:value="model.data_type"
+              :options="DATA_TYPE_OPTIONS"
+              :placeholder="$t('devicePointManage.dataTypePlaceholder')"
+            />
           </NFormItemGi>
-          <NFormItemGi :span="showLinearTransform ? '24 s:12' : '24'" label="是否存储" path="is_storage">
+          <NFormItemGi
+            :span="showLinearTransform ? '24 s:12' : '24'"
+            :label="$t('devicePointManage.storage')"
+            path="is_storage"
+          >
             <NSwitch v-model:value="model.is_storage" />
           </NFormItemGi>
           <NFormItemGi v-if="showLinearTransform" span="24 s:12" path="protocol.enable_linear_transform">
             <template #label>
               <div class="flex-center">
-                <FormTip content="输入范围 85到170转换成 0到1" />
-                <span>线性转换</span>
+                <FormTip :content="$t('devicePointManage.linearTransformHint')" />
+                <span>{{ $t('devicePointManage.linearTransform') }}</span>
               </div>
             </template>
             <NSwitch
@@ -710,7 +739,7 @@ watch(visible, async () => {
               @update:value="handleEnableLinearTransformChange"
             />
           </NFormItemGi>
-          <NFormItemGi span="24" label="设备(可选)" path="device_id">
+          <NFormItemGi span="24" :label="$t('devicePointManage.optionalDevice')" path="device_id">
             <RemoteSearchSelect
               v-model:value="model.device_id"
               :request="fetchGetDeviceList"
@@ -719,11 +748,11 @@ watch(visible, async () => {
               label-field="name"
               value-field="id"
               clearable
-              placeholder="请选择设备"
+              :placeholder="$t('devicePointManage.devicePlaceholder')"
               @update:value="handleDeviceChange"
             />
           </NFormItemGi>
-          <NFormItemGi span="24" label="逻辑点位" path="logic_point_id">
+          <NFormItemGi span="24" :label="$t('devicePointManage.logicPoint')" path="logic_point_id">
             <RemoteSearchSelect
               v-model:value="model.logic_point_id"
               :request="fetchGetLogicPointList"
@@ -733,16 +762,16 @@ watch(visible, async () => {
               value-field="id"
               :disabled="!model.device_id"
               clearable
-              placeholder="请选择逻辑点位"
+              :placeholder="$t('devicePointManage.logicPointPlaceholder')"
             />
           </NFormItemGi>
         </NGrid>
 
         <NGrid v-if="showLinearTransform" responsive="screen" item-responsive :x-gap="16">
-          <NFormItemGi span="24 s:12" label="缩放系数" path="protocol.scale">
+          <NFormItemGi span="24 s:12" :label="$t('devicePointManage.scale')" path="protocol.scale">
             <NInputNumber v-model:value="model.protocol.scale" class="w-full" :min="0" />
           </NFormItemGi>
-          <NFormItemGi span="24 s:12" label="偏移量" path="protocol.offset">
+          <NFormItemGi span="24 s:12" :label="$t('devicePointManage.offset')" path="protocol.offset">
             <NInputNumber v-model:value="model.protocol.offset" class="w-full" />
           </NFormItemGi>
         </NGrid>

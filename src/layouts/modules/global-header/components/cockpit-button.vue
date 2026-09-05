@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, shallowRef } from 'vue';
+import { computed, onUnmounted, shallowRef } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/store/modules/auth';
 import { getExternalReturnUrl } from '@/utils/externalReturn';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'CockpitButton'
@@ -11,6 +12,7 @@ defineOptions({
 const authStore = useAuthStore();
 const route = useRoute();
 const isEnteringCockpit = shallowRef(false);
+let enteringResetTimer: number | null = null;
 
 const cockpitScreenList = computed(() => authStore.userInfo.role?.project_sys_screen_list ?? []);
 const cockpitReturnUrl = computed(() => {
@@ -59,8 +61,10 @@ async function enterCockpit() {
   if (isEnteringCockpit.value) return;
 
   isEnteringCockpit.value = true;
-  window.setTimeout(() => {
+  if (enteringResetTimer) window.clearTimeout(enteringResetTimer);
+  enteringResetTimer = window.setTimeout(() => {
     isEnteringCockpit.value = false;
+    enteringResetTimer = null;
   }, 3000);
 
   // 有回跳地址时，优先回到原来的大屏；否则进入当前角色可用的最新大屏。
@@ -71,12 +75,21 @@ async function enterCockpit() {
 
   const cockpitPath = await resolveLatestCockpitPath();
   if (!cockpitPath) {
-    window.$message?.warning('暂无可进入的大屏');
+    window.$message?.warning($t('cockpit.noAvailable'));
+    isEnteringCockpit.value = false;
+    if (enteringResetTimer) {
+      window.clearTimeout(enteringResetTimer);
+      enteringResetTimer = null;
+    }
     return;
   }
 
   redirectToCockpit(buildCockpitUrl(cockpitPath));
 }
+
+onUnmounted(() => {
+  if (enteringResetTimer) window.clearTimeout(enteringResetTimer);
+});
 </script>
 
 <template>
@@ -87,8 +100,9 @@ async function enterCockpit() {
     size="small"
     class="cockpit-entry mr-8px h-36px"
     :focusable="false"
+    :disabled="isEnteringCockpit"
     :aria-busy="isEnteringCockpit"
-    aria-label="驾驶舱"
+    :aria-label="$t('cockpit.title')"
     @click="enterCockpit"
   >
     <span class="cockpit-entry__content">
@@ -99,7 +113,7 @@ async function enterCockpit() {
       </span>
 
       <span class="cockpit-entry__copy lt-sm:hidden">
-        <span class="cockpit-entry__title">驾驶舱</span>
+        <span class="cockpit-entry__title">{{ $t('cockpit.title') }}</span>
         <span class="cockpit-entry__code">COCKPIT</span>
       </span>
 

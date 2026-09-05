@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { getGatewayProtocolLabel } from '@/views/gateway/gateway-list/shared';
 import type { ScannedDevice } from './physical-point-scan-types';
 import { getProtocolTagType, resolveProtocolType } from './physical-point-shared';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'PhysicalPointScanDeviceList'
@@ -40,19 +41,29 @@ function handleSelectDevice(device: ScannedDevice) {
     class="h-full min-h-0 flex flex-col overflow-hidden rounded-8px border border-[var(--scan-params-border-color,var(--n-border-color))] border-solid bg-[var(--n-color)] p-12px"
   >
     <div class="mb-10px flex items-center justify-between gap-8px">
-      <div class="text-14px text-[var(--n-text-color-1)] font-600">设备列表</div>
+      <div class="text-14px text-[var(--n-text-color-1)] font-600">{{ $t('devicePointManage.deviceList') }}</div>
       <div
         class="shrink-0 rounded-full border border-primary/24 bg-primary/8 px-10px py-2px text-12px text-primary font-600"
       >
-        {{ totalDeviceCount }} 个设备
+        {{ $t('devicePointManage.deviceCount', { count: totalDeviceCount }) }}
       </div>
     </div>
-    <NInput v-model:value="keywordModel" clearable placeholder="搜索设备名称、地址或实例" class="mx-2px mb-8px" />
+    <NInput
+      v-model:value="keywordModel"
+      clearable
+      :placeholder="$t('devicePointManage.deviceSearchPlaceholder')"
+      class="mx-2px mb-8px"
+    />
     <NScrollbar
       class="mx-2px min-h-0 flex-1 border-t border-[var(--scan-params-border-color,var(--n-border-color))] border-t-solid pt-10px"
     >
       <div class="flex flex-col gap-8px">
-        <NEmpty v-if="filteredDeviceList.length === 0" size="small" description="暂无匹配设备" class="py-24px" />
+        <NEmpty
+          v-if="filteredDeviceList.length === 0"
+          size="small"
+          :description="$t('devicePointManage.noMatchingDevices')"
+          class="py-24px"
+        />
         <template v-else>
           <div
             v-for="device in filteredDeviceList"
@@ -76,10 +87,16 @@ function handleSelectDevice(device: ScannedDevice) {
               </NTag>
             </div>
             <div class="mt-4px flex flex-col gap-3px break-all text-12px text-[var(--n-text-color-3)] leading-18px">
-              <div>地址：{{ device.address }}</div>
-              <div v-if="isBacnetProtocol">设备实例：{{ device.deviceInstance }}</div>
-              <div v-if="isModbusProtocol">从站地址：{{ device.modbus?.slave_id ?? '-' }}</div>
-              <div v-if="isOpcUaProtocol">节点 ID：{{ device.opcua?.node_id ?? '-' }}</div>
+              <div>{{ $t('devicePointManage.addressWithValue', { value: device.address }) }}</div>
+              <div v-if="isBacnetProtocol">
+                {{ $t('devicePointManage.deviceInstanceWithValue', { value: device.deviceInstance }) }}
+              </div>
+              <div v-if="isModbusProtocol">
+                {{ $t('devicePointManage.slaveAddressWithValue', { value: device.modbus?.slave_id ?? '-' }) }}
+              </div>
+              <div v-if="isOpcUaProtocol">
+                {{ $t('devicePointManage.nodeIdWithValue', { value: device.opcua?.node_id ?? '-' }) }}
+              </div>
             </div>
           </div>
         </template>

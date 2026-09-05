@@ -66,7 +66,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'name',
-        title: '点位名称',
+        title: $t('deviceDetail.logicPointName'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -76,7 +76,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'key',
-        title: '点位标识',
+        title: $t('deviceDetail.logicPointIdentifier'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -86,7 +86,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'data_type',
-        title: '数据类型',
+        title: $t('deviceDetail.dataType'),
         align: 'center',
         minWidth: 120,
         render: row => h(EnumTag, { value: getLogicPointDataType(row) })
@@ -122,19 +122,29 @@ function handleResetSearch() {
         <NCollapseItem :title="$t('common.search')" name="device-logic-point-search">
           <NForm label-placement="left" :label-width="80">
             <NGrid responsive="screen" item-responsive>
-              <NFormItemGi span="24 s:12 m:8" label="点位名称" label-width="auto" class="pr-24px">
+              <NFormItemGi
+                span="24 s:12 m:8"
+                :label="$t('deviceDetail.logicPointName')"
+                label-width="auto"
+                class="pr-24px"
+              >
                 <NInput
                   v-model:value="searchParams.name"
                   clearable
-                  placeholder="请输入点位名称"
+                  :placeholder="$t('deviceDetail.logicPointNamePlaceholder')"
                   @keyup.enter="handleSearch"
                 />
               </NFormItemGi>
-              <NFormItemGi span="24 s:12 m:8" label="点位标识" label-width="auto" class="pr-24px">
+              <NFormItemGi
+                span="24 s:12 m:8"
+                :label="$t('deviceDetail.logicPointIdentifier')"
+                label-width="auto"
+                class="pr-24px"
+              >
                 <NInput
                   v-model:value="searchParams.key"
                   clearable
-                  placeholder="请输入点位标识"
+                  :placeholder="$t('deviceDetail.logicPointIdentifierPlaceholder')"
                   @keyup.enter="handleSearch"
                 />
               </NFormItemGi>
@@ -159,7 +169,7 @@ function handleResetSearch() {
         </NCollapseItem>
       </NCollapse>
     </NCard>
-    <NCard title="逻辑点位" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('deviceDetail.logicPoints')" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

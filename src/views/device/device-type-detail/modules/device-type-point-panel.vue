@@ -85,7 +85,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'name',
-        title: '点位名称',
+        title: $t('deviceTypeDetail.pointName'),
         align: 'center',
         minWidth: 150,
         ellipsis: {
@@ -95,7 +95,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'key',
-        title: '点位标识',
+        title: $t('deviceTypeDetail.pointIdentifier'),
         align: 'center',
         minWidth: 150,
         ellipsis: {
@@ -105,14 +105,14 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'data_type',
-        title: '数据类型',
+        title: $t('deviceTypeDetail.dataType'),
         align: 'center',
         minWidth: 120,
         render: row => <EnumTag value={row.data_type} />
       },
       {
         key: 'desc',
-        title: '描述',
+        title: $t('deviceTypeDetail.description'),
         align: 'center',
         minWidth: 160,
         ellipsis: {
@@ -122,7 +122,7 @@ const { columns, columnChecks, data, getData, getDataByPage, loading, mobilePagi
       },
       {
         key: 'updated_at',
-        title: '更新时间',
+        title: $t('deviceTypeDetail.updatedAt'),
         align: 'center',
         minWidth: 180,
         render: row => (row.updated_at ? formatDateTime(row.updated_at) : '-')
@@ -228,19 +228,29 @@ async function handleBatchDelete() {
         <NCollapseItem :title="$t('common.search')" name="device-type-point-search">
           <NForm label-placement="left" :label-width="80">
             <NGrid responsive="screen" item-responsive>
-              <NFormItemGi span="24 s:12 m:8" label="点位名称" label-width="auto" class="pr-24px">
+              <NFormItemGi
+                span="24 s:12 m:8"
+                :label="$t('deviceTypeDetail.pointName')"
+                label-width="auto"
+                class="pr-24px"
+              >
                 <NInput
                   v-model:value="searchParams.name"
                   clearable
-                  placeholder="请输入点位名称"
+                  :placeholder="$t('deviceTypeDetail.pointNamePlaceholder')"
                   @keyup.enter="handleSearch"
                 />
               </NFormItemGi>
-              <NFormItemGi span="24 s:12 m:8" label="点位标识" label-width="auto" class="pr-24px">
+              <NFormItemGi
+                span="24 s:12 m:8"
+                :label="$t('deviceTypeDetail.pointIdentifier')"
+                label-width="auto"
+                class="pr-24px"
+              >
                 <NInput
                   v-model:value="searchParams.key"
                   clearable
-                  placeholder="请输入点位标识"
+                  :placeholder="$t('deviceTypeDetail.pointIdentifierPlaceholder')"
                   @keyup.enter="handleSearch"
                 />
               </NFormItemGi>
@@ -265,7 +275,7 @@ async function handleBatchDelete() {
         </NCollapseItem>
       </NCollapse>
     </NCard>
-    <NCard title="点位列表" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('deviceTypeDetail.pointList')" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"
@@ -283,7 +293,7 @@ async function handleBatchDelete() {
               <template #icon>
                 <SvgIcon icon="material-symbols:upload-rounded" class="text-icon" />
               </template>
-              导入
+              {{ $t('deviceTypeDetail.import') }}
             </NButton>
           </template>
         </TableHeaderOperation>
@@ -311,9 +321,9 @@ async function handleBatchDelete() {
         v-model:visible="importPointVisible"
         :biz-type="ImportBizType.DeviceTypePoint"
         :template-path="ImportTemplatePath.DeviceTypePoint"
-        :template-file-name="`设备类型点位_${$t('common.importTemplate')}_${new Date().getTime()}.xlsx`"
+        :template-file-name="`${$t('deviceTypeDetail.pointFilePrefix')}_${$t('common.importTemplate')}_${new Date().getTime()}.xlsx`"
         :meta="{ device_type_point: { device_type_id: Number(props.deviceTypeId) } }"
-        task-name="设备类型点位"
+        :task-name="$t('deviceTypeDetail.pointTaskName')"
         @submitted="getData"
       />
     </NCard>

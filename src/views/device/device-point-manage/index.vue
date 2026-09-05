@@ -5,6 +5,7 @@ import DeviceGatewayTree from './modules/device-gateway-tree.vue';
 import LogicPointPanel from './modules/logic-point-panel.vue';
 import LogicPointTree from './modules/logic-point-tree.vue';
 import PhysicalPointPanel from './modules/physical-point-panel.vue';
+import { $t } from '@/locales';
 
 defineOptions({
   name: 'DevicePointManage'
@@ -41,7 +42,9 @@ const activePointKind = computed<PointKind>({
   }
 });
 
-const siderTitle = computed(() => (activePointKind.value === 'physical' ? '边缘设备' : '设备类型'));
+const siderTitle = computed(() =>
+  activePointKind.value === 'physical' ? $t('devicePointManage.gateway') : $t('devicePointManage.deviceType')
+);
 
 function refreshSiderTree() {
   if (activePointKind.value === 'physical') {
@@ -98,8 +101,8 @@ async function handleJumpToLogicPoint(key: string) {
 
     <div class="h-full min-h-0 flex-col-stretch overflow-hidden lt-sm:overflow-auto">
       <NTabs v-model:value="activePointKind" type="segment" animated class="shrink-0 [&_.n-tabs-nav]:mb-0">
-        <NTabPane name="physical" tab="物理点位" />
-        <NTabPane name="logic" tab="逻辑点位" />
+        <NTabPane name="physical" :tab="$t('devicePointManage.physicalPoints')" />
+        <NTabPane name="logic" :tab="$t('devicePointManage.logicPoints')" />
       </NTabs>
 
       <div v-if="activePointKind === 'physical'" class="min-h-0 flex-col-stretch gap-12px sm:flex-1-hidden">
