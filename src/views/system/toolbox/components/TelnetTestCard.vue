@@ -43,12 +43,15 @@ const resultStats = computed(() => [
   { label: $t('toolbox.common.timeout'), value: `${form.timeout_ms} ms` }
 ]);
 
-const telnetSteps = [
-  { key: 'resolve', label: $t('toolbox.telnet.steps.resolve') },
-  { key: 'connect', label: $t('toolbox.telnet.steps.connect') },
-  { key: 'wait', label: $t('toolbox.telnet.steps.wait') },
-  { key: 'status', label: $t('toolbox.telnet.steps.status') }
-] as const;
+const telnetSteps = computed(
+  () =>
+    [
+      { key: 'resolve', label: $t('toolbox.telnet.steps.resolve') },
+      { key: 'connect', label: $t('toolbox.telnet.steps.connect') },
+      { key: 'wait', label: $t('toolbox.telnet.steps.wait') },
+      { key: 'status', label: $t('toolbox.telnet.steps.status') }
+    ] as const
+);
 
 const telnetPanelTitle = computed(() => {
   if (status.value === 'running') return $t('toolbox.telnet.connecting');

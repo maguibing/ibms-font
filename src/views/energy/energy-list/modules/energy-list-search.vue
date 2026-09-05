@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, toRaw, watch } from 'vue';
 import { useLoading } from '@sa/hooks';
 import { jsonClone } from '@sa/utils';
-import { ENERGY_TYPE_OPTIONS } from '@/constants/device-point';
+import { aggregationTypeOptions, ENERGY_TYPE_OPTIONS } from '@/constants/business';
 import { fetchGetDeviceList } from '@/service/api/device';
 import { fetchGetSpaceTrees } from '@/service/api/space';
 import { useNaiveForm } from '@/hooks/common/form';
@@ -22,18 +22,13 @@ const model = defineModel<Api.Energy.DevicePointEnergyListSearchParams>('model',
 const { formRef, validate, restoreValidation } = useNaiveForm();
 const { loading: spaceLoading, startLoading: startSpaceLoading, endLoading: endSpaceLoading } = useLoading();
 
-const AGGREGATION_TYPE_OPTIONS = [
-  { label: $t('energy.hour'), value: 1 },
-  { label: $t('energy.day'), value: 2 },
-  { label: $t('energy.month'), value: 3 },
-  { label: $t('energy.year'), value: 4 }
-];
+const energyTypeOptions = computed(() =>
+  ENERGY_TYPE_OPTIONS.value.filter(option => {
+    const value = Number(option.value);
 
-const energyTypeOptions = ENERGY_TYPE_OPTIONS.filter(option => {
-  const value = Number(option.value);
-
-  return value > 0 && value !== 6;
-});
+    return value > 0 && value !== 6;
+  })
+);
 
 const defaultModel = jsonClone(toRaw(model.value));
 const spaceData = ref<Api.Space.Space[]>([]);
@@ -123,7 +118,7 @@ onMounted(getSpaceData);
             <NFormItemGi span="24 s:12 m:8" :label="$t('energy.aggregation')" path="aggregation_type" class="pr-24px">
               <NSelect
                 v-model:value="model.aggregation_type"
-                :options="AGGREGATION_TYPE_OPTIONS"
+                :options="aggregationTypeOptions"
                 :placeholder="$t('energy.selectAggregation')"
               />
             </NFormItemGi>

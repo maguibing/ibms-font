@@ -43,15 +43,26 @@ async function search() {
       <NCollapseItem :title="$t('common.search')" name="task-log-search">
         <NForm ref="formRef" :model="model" label-placement="left" :label-width="90">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="任务名称" path="task_name" class="pr-24px" label-width="auto">
-              <NInput v-model:value="model.task_name" clearable placeholder="请输入任务名称" @keyup.enter="search" />
+            <NFormItemGi
+              span="24 s:12 m:8"
+              :label="$t('taskLog.taskName')"
+              path="task_name"
+              class="pr-24px"
+              label-width="auto"
+            >
+              <NInput
+                v-model:value="model.task_name"
+                clearable
+                :placeholder="$t('taskLog.taskNamePlaceholder')"
+                @keyup.enter="search"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="任务类型" path="task_type" class="pr-24px">
+            <NFormItemGi span="24 s:12 m:8" :label="$t('taskLog.taskType')" path="task_type" class="pr-24px">
               <NSelect
                 v-model:value="model.task_type"
                 clearable
                 :options="taskTypeOptions"
-                placeholder="请选择任务类型"
+                :placeholder="$t('taskLog.taskTypePlaceholder')"
               />
             </NFormItemGi>
             <NFormItemGi :show-feedback="false" span="24 s:12 m:8" class="pr-24px">

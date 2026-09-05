@@ -6,7 +6,7 @@ import { useLoading } from '@sa/hooks';
 import { fetchGetTaskLog } from '@/service/api/task';
 import { $t } from '@/locales';
 import { displayValue, formatUnixDateTime } from '@/utils/common-methods';
-import { repeatTypeMap, scheduleTypeMap, taskTypeMap, weekdayMap } from '../../constants';
+import { createRepeatTypeMap, createScheduleTypeMap, createTaskTypeMap, createWeekdayMap } from '../../constants';
 
 defineOptions({
   name: 'TaskLogDetailDrawer'
@@ -18,6 +18,9 @@ type TableRow = {
   deviceName: string;
   pointName: string;
   content: string;
+  execAt?: number;
+  calendarBranch?: 1 | 2;
+  timeRange?: string;
   status?: boolean | null;
   continuousTimes?: number;
 };
@@ -49,9 +52,14 @@ const taskInfo = computed(() => {
 });
 
 const taskType = computed(() => taskLog.value?.cond_detail.task_type ?? taskInfo.value?.task_type ?? null);
-const taskTypeTag = computed(() => (taskType.value ? taskTypeMap[taskType.value] : null));
+const taskTypeMap = computed(createTaskTypeMap);
+const scheduleTypeMap = computed(createScheduleTypeMap);
+const repeatTypeMap = computed(createRepeatTypeMap);
+const weekdayMap = computed(createWeekdayMap);
+const taskTypeTag = computed(() => (taskType.value ? taskTypeMap.value[taskType.value] : null));
 const conditionDevicePointList = computed(() => taskLog.value?.cond_detail.device_point_list ?? []);
 const actionDevicePointList = computed(() => taskLog.value?.action_detail.device_point_list ?? []);
+const isCalendarSchedule = computed(() => taskLog.value?.cond_detail.sched?.type === 5);
 
 const actionTableData = computed<TableRow[]>(() =>
   actionDevicePointList.value.flatMap((item, actionIndex) => {
@@ -64,6 +72,9 @@ const actionTableData = computed<TableRow[]>(() =>
       deviceName: getDeviceName(item.device_id),
       pointName: point ? getPointName(point.device_type_point_id) : '-',
       content: point?.content || '-',
+      execAt: item.exec_at,
+      calendarBranch: item.calendar_branch,
+      timeRange: formatTimeRange(item.time_range),
       status: point ? point.is_success === true : null,
       continuousTimes: item.continuous_times
     }));
@@ -73,7 +84,7 @@ const actionTableData = computed<TableRow[]>(() =>
 const conditionTableColumns: NaiveUI.TableColumn<TableRow>[] = [
   {
     key: 'deviceName',
-    title: '触发设备',
+    title: $t('taskLog.triggerDevice'),
     align: 'center',
     minWidth: 160,
     ellipsis: { tooltip: true },
@@ -81,24 +92,24 @@ const conditionTableColumns: NaiveUI.TableColumn<TableRow>[] = [
   },
   {
     key: 'pointName',
-    title: '触发点位',
+    title: $t('taskLog.triggerPoint'),
     align: 'center',
     minWidth: 180,
     ellipsis: { tooltip: true }
   },
   {
     key: 'content',
-    title: '执行内容',
+    title: $t('taskLog.executionContent'),
     align: 'left',
     minWidth: 260,
     ellipsis: { tooltip: true }
   }
 ];
 
-const actionTableColumns: NaiveUI.TableColumn<TableRow>[] = [
+const actionTableColumns = computed<NaiveUI.TableColumn<TableRow>[]>(() => [
   {
     key: 'deviceName',
-    title: '设备',
+    title: $t('taskLog.device'),
     align: 'center',
     minWidth: 140,
     ellipsis: { tooltip: true },
@@ -106,34 +117,66 @@ const actionTableColumns: NaiveUI.TableColumn<TableRow>[] = [
   },
   {
     key: 'pointName',
-    title: '点位',
+    title: $t('taskLog.point'),
     align: 'center',
     minWidth: 140,
     ellipsis: { tooltip: true }
   },
+  ...(isCalendarSchedule.value
+    ? [
+        {
+          key: 'calendarBranch',
+          title: $t('taskLog.calendarBranch'),
+          align: 'center' as const,
+          width: 100,
+          rowSpan: (row: TableRow) => row.rowSpan,
+          render: (row: TableRow) => renderCalendarBranch(row.calendarBranch)
+        },
+        {
+          key: 'timeRange',
+          title: $t('taskLog.timeRange'),
+          align: 'center' as const,
+          minWidth: 150,
+          rowSpan: (row: TableRow) => row.rowSpan,
+          render: (row: TableRow) => row.timeRange ?? '-'
+        },
+        {
+          key: 'execAt',
+          title: $t('taskLog.executionTime'),
+          align: 'center' as const,
+          minWidth: 170,
+          rowSpan: (row: TableRow) => row.rowSpan,
+          render: (row: TableRow) => formatUnixDateTime(row.execAt)
+        }
+      ]
+    : []),
   {
     key: 'content',
-    title: '执行内容',
+    title: $t('taskLog.executionContent'),
     align: 'left',
     minWidth: 180,
     ellipsis: { tooltip: true }
   },
-  {
-    key: 'continuousTimes',
-    title: '连续次数',
-    align: 'center',
-    width: 100,
-    rowSpan: row => row.rowSpan,
-    render: row => displayValue(row.continuousTimes)
-  },
+  ...(!isCalendarSchedule.value
+    ? [
+        {
+          key: 'continuousTimes',
+          title: $t('taskLog.continuousTimes'),
+          align: 'center' as const,
+          width: 100,
+          rowSpan: (row: TableRow) => row.rowSpan,
+          render: (row: TableRow) => displayValue(row.continuousTimes)
+        }
+      ]
+    : []),
   {
     key: 'status',
-    title: '状态',
+    title: $t('taskLog.status'),
     align: 'center',
     width: 90,
     render: row => renderActionStatus(row.status)
   }
-];
+]);
 
 const targetDeviceNames = computed(() => {
   const source = actionDevicePointList.value.length ? actionDevicePointList.value : conditionDevicePointList.value;
@@ -151,17 +194,43 @@ const scheduleItems = computed(() => {
   const sched = taskLog.value?.cond_detail.sched;
   if (!sched) return [];
 
-  const items = [{ label: '调度类型', value: formatMapValue(sched.type, scheduleTypeMap) }];
+  const items = [{ label: $t('taskLog.scheduleType'), value: formatMapValue(sched.type, scheduleTypeMap.value) }];
 
   if (sched.daily) {
-    items.push({ label: '重复类型', value: formatMapValue(sched.daily.repeat_type, repeatTypeMap) });
-    items.push({ label: '执行星期', value: formatMappedList(sched.daily.weekdays, weekdayMap) });
-    items.push({ label: '执行时间', value: formatUnixList(sched.daily.execution_at_list, 'HH:mm:ss') });
+    items.push({
+      label: $t('taskLog.repeatType'),
+      value: formatMapValue(sched.daily.repeat_type, repeatTypeMap.value)
+    });
+    items.push({
+      label: $t('taskLog.executionWeekday'),
+      value: formatMappedList(sched.daily.weekdays, weekdayMap.value)
+    });
+    items.push({
+      label: $t('taskLog.executionTimeList'),
+      value: formatUnixList(sched.daily.execution_at_list, 'HH:mm:ss')
+    });
   }
 
   if (sched.custom) {
-    items.push({ label: '执行日期', value: formatUnixList(sched.custom.execution_date_list, 'YYYY-MM-DD') });
-    items.push({ label: '执行时间', value: formatUnixList(sched.custom.execution_at_list, 'HH:mm:ss') });
+    items.push({
+      label: $t('taskLog.executionDate'),
+      value: formatUnixList(sched.custom.execution_date_list, 'YYYY-MM-DD')
+    });
+    items.push({
+      label: $t('taskLog.executionTimeList'),
+      value: formatUnixList(sched.custom.execution_at_list, 'HH:mm:ss')
+    });
+  }
+
+  if (sched.calendar) {
+    items.push({
+      label: $t('taskLog.dateGroup'),
+      value: formatCalendarGroups(sched.calendar.date_groups)
+    });
+    items.push({
+      label: $t('taskLog.pollingInterval'),
+      value: sched.calendar.poll_interval_seconds ? `${sched.calendar.poll_interval_seconds}s` : '-'
+    });
   }
 
   return items;
@@ -169,6 +238,27 @@ const scheduleItems = computed(() => {
 
 function formatUnixList(values: number[] | undefined, template: string) {
   return formatList(values, value => dayjs(value * 1000).format(template));
+}
+
+function formatTimeRange(range?: Api.Task.TaskLogDevicePoint['time_range']) {
+  if (range?.start_at === undefined || range.end_at === undefined) return '-';
+
+  return `${dayjs(range.start_at * 1000).format('HH:mm:ss')} - ${dayjs(range.end_at * 1000).format('HH:mm:ss')}`;
+}
+
+function formatCalendarGroups(groups?: Api.Task.TaskLogScheduleCalendarDateGroup[]) {
+  if (!groups?.length) return '-';
+
+  return groups
+    .map((group, index) => {
+      const dates = formatUnixList(group.execution_date_list, 'YYYY-MM-DD');
+      const ranges = group.time_ranges?.length
+        ? group.time_ranges.map(range => formatTimeRange(range)).join(', ')
+        : '-';
+
+      return `${$t('taskLog.dateGroup')} ${index + 1}: ${dates}; ${$t('taskLog.timeRange')}: ${ranges}`;
+    })
+    .join('\n');
 }
 
 function formatMappedList(values: number[] | undefined, map: Record<number, string>) {
@@ -184,13 +274,29 @@ function formatMapValue(value: number | undefined, map: Record<number, string>) 
 }
 
 function formatList<T>(values: T[] | undefined, formatter: (value: T) => string) {
-  return values?.length ? values.map(formatter).join('、') : '-';
+  return values?.length ? values.map(formatter).join(', ') : '-';
 }
 
 function renderActionStatus(status?: boolean | null) {
   if (status === null || status === undefined) return '-';
 
-  return h(NTag, { size: 'small', type: status ? 'success' : 'error' }, { default: () => (status ? '成功' : '失败') });
+  return h(
+    NTag,
+    { size: 'small', type: status ? 'success' : 'error' },
+    { default: () => (status ? $t('taskLog.success') : $t('taskLog.failure')) }
+  );
+}
+
+function renderCalendarBranch(branch?: 1 | 2) {
+  if (!branch) return '-';
+
+  return h(
+    NTag,
+    { size: 'small', type: branch === 1 ? 'success' : 'warning' },
+    {
+      default: () => $t(branch === 1 ? 'taskLog.inRange' : 'taskLog.outOfRange')
+    }
+  );
 }
 
 function getConditionRows(item: Api.Task.TaskLogDevicePoint): TableRow[] {
@@ -221,7 +327,7 @@ function getDeviceNameList(list: Api.Task.TaskLogDevicePoint[]) {
   const names = list.map(item => getDeviceName(item.device_id)).filter(item => item !== '-');
   const uniqueNames = Array.from(new Set(names));
 
-  return uniqueNames.length ? uniqueNames.join('、') : '-';
+  return uniqueNames.length ? uniqueNames.join(', ') : '-';
 }
 
 async function getTaskLog(id: CommonType.IdType) {
@@ -250,31 +356,33 @@ watch(visible, isVisible => {
 
 <template>
   <NDrawer v-model:show="visible" display-directive="show" :width="900" class="max-w-90%">
-    <NDrawerContent title="任务日志详情" :native-scrollbar="false" closable>
+    <NDrawerContent :title="$t('taskLog.detail')" :native-scrollbar="false" closable>
       <NSpin :show="loading">
         <div v-if="taskLog" class="flex flex-col gap-16px">
           <section class="flex flex-col gap-10px">
-            <div class="detail-section-title">基本信息</div>
+            <div class="detail-section-title">{{ $t('taskLog.basicInfo') }}</div>
             <NDescriptions label-placement="left" bordered size="small" :column="2" label-class="w-90px">
-              <NDescriptionsItem label="任务名称">{{ taskInfo?.name ?? '-' }}</NDescriptionsItem>
-              <NDescriptionsItem label="任务类型">
+              <NDescriptionsItem :label="$t('taskLog.taskName')">{{ taskInfo?.name ?? '-' }}</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('taskLog.taskType')">
                 <NTag v-if="taskTypeTag" :type="taskTypeTag.type">{{ taskTypeTag.label }}</NTag>
                 <span v-else>{{ displayValue(taskType) }}</span>
               </NDescriptionsItem>
-              <NDescriptionsItem label="目标设备" :span="2">{{ targetDeviceNames }}</NDescriptionsItem>
-              <NDescriptionsItem label="执行时间" :span="2">{{ executionTime }}</NDescriptionsItem>
+              <NDescriptionsItem :label="$t('taskLog.targetDevice')" :span="2">
+                {{ targetDeviceNames }}
+              </NDescriptionsItem>
+              <NDescriptionsItem :label="$t('taskLog.executionTime')" :span="2">{{ executionTime }}</NDescriptionsItem>
             </NDescriptions>
           </section>
 
           <section v-if="taskType === 1" class="flex flex-col gap-10px">
-            <div class="detail-section-title">触发条件</div>
+            <div class="detail-section-title">{{ $t('taskLog.triggerCondition') }}</div>
             <div v-if="conditionDevicePointList.length" class="condition-list">
               <div
                 v-for="(item, index) in conditionDevicePointList"
                 :key="`${item.device_id}-${index}`"
                 class="condition-item"
               >
-                <div class="condition-title">条件项 {{ index + 1 }}</div>
+                <div class="condition-title">{{ $t('taskLog.conditionItem', { value: index + 1 }) }}</div>
                 <NDataTable
                   v-if="item.device_type_point_list?.length"
                   :columns="conditionTableColumns"
@@ -287,24 +395,24 @@ watch(visible, isVisible => {
                   size="small"
                   class="detail-table"
                 />
-                <NEmpty v-else description="暂无触发点位" :show-icon="false" />
+                <NEmpty v-else :description="$t('taskLog.noTriggerPoints')" :show-icon="false" />
               </div>
             </div>
-            <NEmpty v-else description="暂无触发条件" />
+            <NEmpty v-else :description="$t('taskLog.noTriggerCondition')" />
           </section>
 
           <section v-else-if="taskType === 2" class="flex flex-col gap-10px">
-            <div class="detail-section-title">日程配置</div>
+            <div class="detail-section-title">{{ $t('taskLog.scheduleConfig') }}</div>
             <NDescriptions v-if="scheduleItems.length" label-placement="left" bordered size="small" :column="1">
               <NDescriptionsItem v-for="item in scheduleItems" :key="item.label" :label="item.label">
                 {{ item.value }}
               </NDescriptionsItem>
             </NDescriptions>
-            <NEmpty v-else description="暂无日程配置" />
+            <NEmpty v-else :description="$t('taskLog.noScheduleConfig')" />
           </section>
 
           <section class="flex flex-col gap-10px">
-            <div class="detail-section-title">执行动作</div>
+            <div class="detail-section-title">{{ $t('taskLog.action') }}</div>
             <NDataTable
               v-if="actionTableData.length"
               :columns="actionTableColumns"
@@ -312,16 +420,16 @@ watch(visible, isVisible => {
               :pagination="false"
               :bordered="true"
               :single-line="false"
-              :scroll-x="830"
+              :scroll-x="isCalendarSchedule ? 1300 : 830"
               :row-key="row => row.id"
               size="small"
               class="detail-table"
             />
-            <NEmpty v-else description="暂无执行动作" />
+            <NEmpty v-else :description="$t('taskLog.noAction')" />
           </section>
         </div>
 
-        <NEmpty v-else-if="!loading" description="暂无任务日志详情" />
+        <NEmpty v-else-if="!loading" :description="$t('taskLog.noDetail')" />
       </NSpin>
 
       <template #footer>

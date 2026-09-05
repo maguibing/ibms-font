@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SectionHeader from '@/components/custom/section-header.vue';
+import { $t } from '@/locales';
 import HourRangeSelector from './hour-range-selector.vue';
 import type { TimeRangeInput } from './hour-range-selector';
 
@@ -12,7 +13,7 @@ const model = defineModel<TimeRangeInput[]>('model', { required: true });
 
 <template>
   <div class="flex flex-col gap-14px p-2px">
-    <SectionHeader title="生效小时" type="success" />
+    <SectionHeader :title="$t('alarmRule.validHour')" type="success" />
 
     <HourRangeSelector v-model="model" />
   </div>

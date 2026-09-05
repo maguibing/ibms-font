@@ -37,12 +37,15 @@ const interfaceOptions = computed(() =>
 
 const selectedInterface = computed(() => networkInterfaces.value.find(item => item.name === form.interface_name));
 
-const scanSteps = [
-  { key: 'interface', label: $t('toolbox.discovery.steps.interface') },
-  { key: 'segment', label: $t('toolbox.discovery.steps.segment') },
-  { key: 'probe', label: $t('toolbox.discovery.steps.probe') },
-  { key: 'collect', label: $t('toolbox.discovery.steps.collect') }
-] as const;
+const scanSteps = computed(
+  () =>
+    [
+      { key: 'interface', label: $t('toolbox.discovery.steps.interface') },
+      { key: 'segment', label: $t('toolbox.discovery.steps.segment') },
+      { key: 'probe', label: $t('toolbox.discovery.steps.probe') },
+      { key: 'collect', label: $t('toolbox.discovery.steps.collect') }
+    ] as const
+);
 
 const scanPanelTitle = computed(() => {
   if (status.value === 'running') return $t('toolbox.discovery.scanning');

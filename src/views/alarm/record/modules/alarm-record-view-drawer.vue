@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import type { TagProps } from 'naive-ui';
 import { $t } from '@/locales';
 import { formatUnixDateTime } from '@/utils/common-methods';
-import { alarmLevelMap } from '../../shared';
+import { createAlarmLevelMap } from '../../shared';
 
 defineOptions({
   name: 'AlarmRecordViewDrawer'
@@ -21,18 +21,18 @@ const visible = defineModel<boolean>('visible', {
 });
 
 const dealStatusMap: Record<Api.Alarm.AlarmRecordDealStatus, { label: string; type: NonNullable<TagProps['type']> }> = {
-  1: { label: '待处理', type: 'error' },
-  2: { label: '已确认', type: 'primary' },
-  3: { label: '已解除', type: 'success' }
+  1: { label: $t('alarmRecord.pending'), type: 'error' },
+  2: { label: $t('alarmRecord.confirmed'), type: 'primary' },
+  3: { label: $t('alarmRecord.recovered'), type: 'success' }
 };
 
 const operateStatusMap: Record<
   Api.Alarm.AlarmRecordDealStatus,
   { label: string; type: NonNullable<TagProps['type']> }
 > = {
-  1: { label: '待处理', type: 'error' },
-  2: { label: '确认', type: 'primary' },
-  3: { label: '解除', type: 'success' }
+  1: { label: $t('alarmRecord.pending'), type: 'error' },
+  2: { label: $t('alarmRecord.confirm'), type: 'primary' },
+  3: { label: $t('alarmRecord.recover'), type: 'success' }
 };
 
 const alarmRule = computed(() => {
@@ -42,7 +42,11 @@ const alarmRule = computed(() => {
   return props.extraData.alarm_rule_map[String(alarmRuleId)] ?? null;
 });
 
-const alarmLevel = computed(() => (alarmRule.value ? alarmLevelMap[alarmRule.value.alarm_level] : null));
+const alarmLevel = computed(() => {
+  if (!alarmRule.value) return null;
+
+  return createAlarmLevelMap()[alarmRule.value.alarm_level] ?? null;
+});
 
 const dealStatus = computed(() => {
   const status = props.rowData?.status;
@@ -69,9 +73,9 @@ function getLogicPointName(logicPointId: CommonType.IdType) {
 }
 
 function getUserName(userId?: CommonType.IdType) {
-  if (!userId) return '系统';
+  if (!userId) return $t('alarmRecord.system');
 
-  return props.extraData.base_user_map[String(userId)]?.username ?? '未知操作人';
+  return props.extraData.base_user_map[String(userId)]?.username ?? $t('alarmRecord.unknownOperator');
 }
 
 function closeDrawer() {
@@ -81,30 +85,32 @@ function closeDrawer() {
 
 <template>
   <NDrawer v-model:show="visible" display-directive="show" :width="820" class="max-w-90%">
-    <NDrawerContent title="报警记录详情" :native-scrollbar="false" closable>
+    <NDrawerContent :title="$t('alarmRecord.detailTitle')" :native-scrollbar="false" closable>
       <div v-if="rowData" class="flex flex-col gap-16px">
         <section class="flex flex-col gap-10px">
           <div class="border-l-3 border-l-primary pl-8px text-15px text-[var(--n-text-color-1)] font-600 leading-18px">
-            基本信息
+            {{ $t('alarmRecord.basicInfo') }}
           </div>
           <NDescriptions label-placement="left" bordered size="small" :column="2" label-class="w-90px">
-            <NDescriptionsItem label="报警规则">{{ alarmRule?.name ?? '-' }}</NDescriptionsItem>
-            <NDescriptionsItem label="报警设备">{{ deviceName }}</NDescriptionsItem>
-            <NDescriptionsItem label="报警等级">
+            <NDescriptionsItem :label="$t('alarmRecord.alarmRule')">{{ alarmRule?.name ?? '-' }}</NDescriptionsItem>
+            <NDescriptionsItem :label="$t('alarmRecord.alarmDevice')">{{ deviceName }}</NDescriptionsItem>
+            <NDescriptionsItem :label="$t('alarmRecord.alarmLevel')">
               <NTag v-if="alarmLevel" :type="alarmLevel.type">{{ alarmLevel.label }}</NTag>
               <span v-else>-</span>
             </NDescriptionsItem>
-            <NDescriptionsItem label="状态">
+            <NDescriptionsItem :label="$t('alarmRecord.status')">
               <NTag v-if="dealStatus" :type="dealStatus.type">{{ dealStatus.label }}</NTag>
               <span v-else>-</span>
             </NDescriptionsItem>
-            <NDescriptionsItem label="报警时间" :span="2">{{ formatUnixDateTime(rowData.alarm_at) }}</NDescriptionsItem>
+            <NDescriptionsItem :label="$t('alarmRecord.alarmTime')" :span="2">
+              {{ formatUnixDateTime(rowData.alarm_at) }}
+            </NDescriptionsItem>
           </NDescriptions>
         </section>
 
         <section class="flex flex-col gap-10px">
           <div class="border-l-3 border-l-primary pl-8px text-15px text-[var(--n-text-color-1)] font-600 leading-18px">
-            报警内容
+            {{ $t('alarmRecord.content') }}
           </div>
           <div v-if="alarmPointList.length" class="step-list">
             <div v-for="(item, index) in alarmPointList" :key="`${item.logic_point_id}-${index}`" class="step-item">
@@ -114,18 +120,18 @@ function closeDrawer() {
               <div class="step-panel alarm-step-panel">
                 <div class="step-panel__header">
                   <div class="step-title">{{ getLogicPointName(item.logic_point_id) }}</div>
-                  <NTag size="small" type="warning">报警内容</NTag>
+                  <NTag size="small" type="warning">{{ $t('alarmRecord.contentTag') }}</NTag>
                 </div>
                 <div class="step-content">{{ item.content || '-' }}</div>
               </div>
             </div>
           </div>
-          <NEmpty v-else description="暂无报警内容" />
+          <NEmpty v-else :description="$t('alarmRecord.noContent')" />
         </section>
 
         <section class="flex flex-col gap-10px">
           <div class="border-l-3 border-l-primary pl-8px text-15px text-[var(--n-text-color-1)] font-600 leading-18px">
-            操作记录
+            {{ $t('alarmRecord.operationRecords') }}
           </div>
           <div v-if="operateLogList.length" class="step-list">
             <div
@@ -140,7 +146,7 @@ function closeDrawer() {
               <div class="step-panel">
                 <div class="step-panel__header">
                   <NSpace align="center" :size="8">
-                    <span class="step-title">第 {{ index + 1 }} 步</span>
+                    <span class="step-title">{{ $t('alarmRecord.step', { value: index + 1 }) }}</span>
                     <NTag v-if="operateStatusMap[item.status]" :type="operateStatusMap[item.status].type" size="small">
                       {{ operateStatusMap[item.status].label }}
                     </NTag>
@@ -149,15 +155,15 @@ function closeDrawer() {
                 </div>
                 <div class="operator-line">
                   <SvgIcon icon="material-symbols:person-outline-rounded" class="text-16px" />
-                  <span>操作人：{{ getUserName(item.operator_id) }}</span>
+                  <span>{{ $t('alarmRecord.operator', { value: getUserName(item.operator_id) }) }}</span>
                 </div>
               </div>
             </div>
           </div>
-          <NEmpty v-else description="暂无操作记录" />
+          <NEmpty v-else :description="$t('alarmRecord.noOperationRecords')" />
         </section>
       </div>
-      <NEmpty v-else description="暂无报警详情" />
+      <NEmpty v-else :description="$t('alarmRecord.noDetail')" />
 
       <template #footer>
         <NSpace :size="16">

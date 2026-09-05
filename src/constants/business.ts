@@ -1,4 +1,7 @@
 import { transformRecordToOption, transformRecordToNumberOption } from '@/utils/common';
+import { computed } from 'vue';
+import type { SelectOption } from 'naive-ui';
+import { $t } from '@/locales';
 
 /** enable status */
 export const enableStatusRecord: Record<Api.Common.EnableStatus, string> = {
@@ -80,3 +83,265 @@ export const dataScopeRecord: Record<Api.System.DataScope, string> = {
 };
 
 export const dataScopeOptions = transformRecordToOption(dataScopeRecord);
+
+/** data type options */
+export const DATA_TYPE_OPTIONS: SelectOption[] = [
+  { label: $t('dict.data_type.number'), value: 1 },
+  { label: $t('dict.data_type.switch'), value: 2 },
+  { label: $t('dict.data_type.text'), value: 3 },
+  { label: $t('dict.data_type.enum'), value: 4 }
+];
+
+/** precision options */
+export const PRECISION_OPTIONS: SelectOption[] = [
+  { label: $t('page.common.pointForm.options.precisionNone'), value: 1 },
+  { label: $t('page.common.pointForm.options.precision1'), value: 2 },
+  { label: $t('page.common.pointForm.options.precision2'), value: 3 },
+  { label: $t('page.common.pointForm.options.precision3'), value: 4 }
+];
+
+/** energy type record */
+export const energyTypeRecord = computed<Record<number, string>>(() => ({
+  0: $t('page.common.pointForm.options.energyNone'),
+  1: $t('page.common.pointForm.options.energyElectricity'),
+  2: $t('page.common.pointForm.options.energyWater'),
+  3: $t('page.common.pointForm.options.energyGas'),
+  4: $t('page.common.pointForm.options.energyCooling'),
+  5: $t('page.common.pointForm.options.energyHeating'),
+  6: $t('page.common.pointForm.options.energyRuntime')
+}));
+
+/** energy type options */
+export const ENERGY_TYPE_OPTIONS = computed(() => transformRecordToNumberOption(energyTypeRecord.value));
+
+/** aggregation type options */
+export const aggregationTypeOptions = computed(() => [
+  { label: $t('energy.hour'), value: 1 },
+  { label: $t('energy.day'), value: 2 },
+  { label: $t('energy.month'), value: 3 },
+  { label: $t('energy.year'), value: 4 }
+]);
+
+/** unit groups */
+export const UNIT_GROUPS: SelectOption[] = [
+  {
+    label: $t('page.common.pointForm.options.unitGroups.temperature'),
+    type: 'group',
+    key: 'temperature',
+    children: [
+      { value: '℃', label: $t('page.common.pointForm.options.units.celsius') },
+      { value: '℉', label: $t('page.common.pointForm.options.units.fahrenheit') },
+      { value: 'K', label: $t('page.common.pointForm.options.units.kelvin') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.humidity'),
+    type: 'group',
+    key: 'humidity',
+    children: [
+      { value: '%RH', label: $t('page.common.pointForm.options.units.relativeHumidity') },
+      { value: 'g/kg', label: $t('page.common.pointForm.options.units.humidityRatio') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.pressure'),
+    type: 'group',
+    key: 'pressure',
+    children: [
+      { value: 'Pa', label: $t('page.common.pointForm.options.units.pascal') },
+      { value: 'kPa', label: $t('page.common.pointForm.options.units.kilopascal') },
+      { value: 'bar', label: $t('page.common.pointForm.options.units.bar') },
+      { value: 'hPa', label: $t('page.common.pointForm.options.units.hectopascal') },
+      { value: 'mbar', label: $t('page.common.pointForm.options.units.millibar') },
+      { value: 'psi', label: $t('page.common.pointForm.options.units.psi') },
+      { value: 'inH₂O', label: $t('page.common.pointForm.options.units.inchWater') },
+      { value: 'mmHg', label: $t('page.common.pointForm.options.units.millimeterMercury') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.electrical'),
+    type: 'group',
+    key: 'electrical',
+    children: [
+      { value: 'V', label: $t('page.common.pointForm.options.units.unit0') },
+      { value: 'mV', label: $t('page.common.pointForm.options.units.unit1') },
+      { value: 'kV', label: $t('page.common.pointForm.options.units.unit2') },
+      { value: 'A', label: $t('page.common.pointForm.options.units.unit3') },
+      { value: 'mA', label: $t('page.common.pointForm.options.units.unit4') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.powerEnergy'),
+    type: 'group',
+    key: 'power-energy',
+    children: [
+      { value: 'W', label: $t('page.common.pointForm.options.units.unit5') },
+      { value: 'mW', label: $t('page.common.pointForm.options.units.unit6') },
+      { value: 'kW', label: $t('page.common.pointForm.options.units.unit7') },
+      { value: 'MW', label: $t('page.common.pointForm.options.units.unit8') },
+      { value: 'kWh', label: $t('page.common.pointForm.options.units.unit9') },
+      { value: 'MWh', label: $t('page.common.pointForm.options.units.unit10') },
+      { value: 'VA', label: $t('page.common.pointForm.options.units.unit11') },
+      { value: 'kVA', label: $t('page.common.pointForm.options.units.unit12') },
+      { value: 'VAR', label: $t('page.common.pointForm.options.units.unit13') },
+      { value: 'kVAR', label: $t('page.common.pointForm.options.units.unit14') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.resistance'),
+    type: 'group',
+    key: 'resistance',
+    children: [
+      { value: 'Ω', label: $t('page.common.pointForm.options.units.unit15') },
+      { value: 'mΩ', label: $t('page.common.pointForm.options.units.unit16') },
+      { value: 'kΩ', label: $t('page.common.pointForm.options.units.unit17') },
+      { value: 'MΩ', label: $t('page.common.pointForm.options.units.unit18') },
+      { value: 'PF', label: $t('page.common.pointForm.options.units.unit19') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.flow'),
+    type: 'group',
+    key: 'flow',
+    children: [
+      { value: 'm³/s', label: $t('page.common.pointForm.options.units.unit20') },
+      { value: 'm³/min', label: $t('page.common.pointForm.options.units.unit21') },
+      { value: 'm³/h', label: $t('page.common.pointForm.options.units.unit22') },
+      { value: 'L/s', label: $t('page.common.pointForm.options.units.unit23') },
+      { value: 'L/min', label: $t('page.common.pointForm.options.units.unit24') },
+      { value: 'L/h', label: $t('page.common.pointForm.options.units.unit25') },
+      { value: 'CFM', label: $t('page.common.pointForm.options.units.unit26') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.volume'),
+    type: 'group',
+    key: 'volume',
+    children: [
+      { value: 'm³', label: $t('page.common.pointForm.options.units.unit27') },
+      { value: 'L', label: $t('page.common.pointForm.options.units.unit28') },
+      { value: 'mL', label: $t('page.common.pointForm.options.units.unit29') },
+      { value: 'ft³', label: $t('page.common.pointForm.options.units.unit30') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.length'),
+    type: 'group',
+    key: 'length',
+    children: [
+      { value: 'm', label: $t('page.common.pointForm.options.units.unit31') },
+      { value: 'cm', label: $t('page.common.pointForm.options.units.unit32') },
+      { value: 'mm', label: $t('page.common.pointForm.options.units.unit33') },
+      { value: 'km', label: $t('page.common.pointForm.options.units.unit34') },
+      { value: 'ft', label: $t('page.common.pointForm.options.units.unit35') },
+      { value: 'in', label: $t('page.common.pointForm.options.units.unit36') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.velocity'),
+    type: 'group',
+    key: 'velocity',
+    children: [
+      { value: 'm/s', label: $t('page.common.pointForm.options.units.unit37') },
+      { value: 'km/h', label: $t('page.common.pointForm.options.units.unit38') },
+      { value: 'ft/min', label: $t('page.common.pointForm.options.units.unit39') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.frequency'),
+    type: 'group',
+    key: 'frequency',
+    children: [
+      { value: 'Hz', label: $t('page.common.pointForm.options.units.unit40') },
+      { value: 'kHz', label: $t('page.common.pointForm.options.units.unit41') },
+      { value: 'RPM', label: $t('page.common.pointForm.options.units.unit42') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.time'),
+    type: 'group',
+    key: 'time',
+    children: [
+      { value: 's', label: $t('page.common.pointForm.options.units.unit43') },
+      { value: 'ms', label: $t('page.common.pointForm.options.units.unit44') },
+      { value: 'min', label: $t('page.common.pointForm.options.units.unit45') },
+      { value: 'h', label: $t('page.common.pointForm.options.units.unit46') },
+      { value: 'd', label: $t('page.common.pointForm.options.units.unit47') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.mass'),
+    type: 'group',
+    key: 'mass',
+    children: [
+      { value: 'kg', label: $t('page.common.pointForm.options.units.unit48') },
+      { value: 'g', label: $t('page.common.pointForm.options.units.unit49') },
+      { value: 'mg', label: $t('page.common.pointForm.options.units.unit50') },
+      { value: 't', label: $t('page.common.pointForm.options.units.unit51') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.light'),
+    type: 'group',
+    key: 'light',
+    children: [
+      { value: 'lx', label: $t('page.common.pointForm.options.units.unit52') },
+      { value: 'lm', label: $t('page.common.pointForm.options.units.unit53') },
+      { value: 'fc', label: $t('page.common.pointForm.options.units.unit54') },
+      { value: 'cd', label: $t('page.common.pointForm.options.units.unit55') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.concentration'),
+    type: 'group',
+    key: 'concentration',
+    children: [
+      { value: 'ppm', label: $t('page.common.pointForm.options.units.unit56') },
+      { value: 'ppb', label: $t('page.common.pointForm.options.units.unit57') },
+      { value: 'mg/L', label: $t('page.common.pointForm.options.units.unit58') },
+      { value: 'mg/m³', label: $t('page.common.pointForm.options.units.unit59') },
+      { value: 'μg/m³', label: $t('page.common.pointForm.options.units.unit60') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.energy'),
+    type: 'group',
+    key: 'energy',
+    children: [
+      { value: 'J', label: $t('page.common.pointForm.options.units.unit61') },
+      { value: 'kJ', label: $t('page.common.pointForm.options.units.unit62') },
+      { value: 'MJ', label: $t('page.common.pointForm.options.units.unit63') },
+      { value: 'Wh', label: $t('page.common.pointForm.options.units.unit64') },
+      { value: 'BTU', label: $t('page.common.pointForm.options.units.unit65') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.acousticsWater'),
+    type: 'group',
+    key: 'acoustics-water',
+    children: [
+      { value: 'dB', label: $t('page.common.pointForm.options.units.unit66') },
+      { value: 'dBA', label: $t('page.common.pointForm.options.units.unit67') },
+      { value: 'pH', label: $t('page.common.pointForm.options.units.unit68') },
+      { value: 'NTU', label: $t('page.common.pointForm.options.units.unit69') }
+    ]
+  },
+  {
+    label: $t('page.common.pointForm.options.unitGroups.general'),
+    type: 'group',
+    key: 'general',
+    children: [
+      { value: '%', label: $t('page.common.pointForm.options.units.unit70') },
+      { value: '°', label: $t('page.common.pointForm.options.units.unit71') },
+      { value: 'rad', label: $t('page.common.pointForm.options.units.unit72') },
+      { value: '-', label: $t('page.common.pointForm.options.units.unit73') }
+    ]
+  }
+];
+
+/** access level options */
+export const ACCESS_LEVEL_OPTIONS: SelectOption[] = [
+  { value: 1, label: $t('dict.access_level.readOnly') },
+  { value: 2, label: $t('dict.access_level.writeOnly') },
+  { value: 3, label: $t('dict.access_level.readWrite') }
+];

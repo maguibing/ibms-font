@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/business/auth';
 import { fetchDeleteAlarmRule, fetchGetAlarmRuleList } from '@/service/api/alarm';
 import { $t } from '@/locales';
 import ButtonIcon from '@/components/custom/button-icon.vue';
-import { alarmLevelMap, formatAlarmRuleFreq } from '../../shared';
+import { createAlarmLevelMap, formatAlarmRuleFreq } from '../../shared';
 import AlarmRuleOperateDrawer from './alarm-rule-operate-drawer.vue';
 import { buildAlarmRuleListRequest } from './alarm-rule-request';
 
@@ -33,14 +33,16 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emit = defineEmits<Emits>();
 
-const triggerTypeMap: Record<Api.Alarm.AlarmRuleTriggerType, string> = {
-  1: '设备点位变化'
-};
+const triggerTypeMap = computed<Record<Api.Alarm.AlarmRuleTriggerType, string>>(() => ({
+  1: $t('alarmRule.triggerTypeDevicePointChange')
+}));
 
-const deviceSourceTypeMap: Record<Api.Alarm.AlarmRuleDeviceSourceType, string> = {
-  1: '设备',
-  2: '设备类型'
-};
+const deviceSourceTypeMap = computed<Record<Api.Alarm.AlarmRuleDeviceSourceType, string>>(() => ({
+  1: $t('alarmRule.device'),
+  2: $t('alarmRule.deviceType')
+}));
+
+const alarmLevelMap = computed(createAlarmLevelMap);
 
 const appStore = useAppStore();
 const { hasAuth } = useAuth();
@@ -81,35 +83,35 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'name',
-        title: '报警规则名称',
+        title: $t('alarmRule.name'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true }
       },
       {
         key: 'alarm_level',
-        title: '报警等级',
+        title: $t('alarmRule.alarmLevel'),
         align: 'center',
         minWidth: 110,
         render: row => renderAlarmLevel(row.alarm_level)
       },
       {
         key: 'trigger_type',
-        title: '触发类型',
+        title: $t('alarmRule.triggerType'),
         align: 'center',
         minWidth: 140,
-        render: row => triggerTypeMap[row.trigger_type] ?? '-'
+        render: row => triggerTypeMap.value[row.trigger_type] ?? '-'
       },
       {
         key: 'device_source_type',
-        title: '设备源类型',
+        title: $t('alarmRule.deviceSourceType'),
         align: 'center',
         minWidth: 120,
         render: row => renderDeviceSourceType(row.device_source_type)
       },
       {
         key: 'device_source',
-        title: '设备源',
+        title: $t('alarmRule.deviceSource'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true },
@@ -117,7 +119,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'trigger_condition',
-        title: '触发条件',
+        title: $t('alarmRule.triggerCondition'),
         align: 'center',
         minWidth: 160,
         ellipsis: { tooltip: true },
@@ -125,7 +127,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'notice_group',
-        title: '通知组',
+        title: $t('alarmRule.noticeGroup'),
         align: 'center',
         minWidth: 160,
         ellipsis: { tooltip: true },
@@ -133,7 +135,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'status',
-        title: '状态',
+        title: $t('alarmRule.status'),
         align: 'center',
         minWidth: 100,
         render: row => <StatusTag value={row.status} />
@@ -200,13 +202,13 @@ const alarmRuleExtra = computed<Api.Alarm.AlarmRuleListExtra>(() => {
 });
 
 function renderAlarmLevel(level: Api.Alarm.AlarmLevel) {
-  const config = alarmLevelMap[level];
+  const config = alarmLevelMap.value[level];
 
   return config ? <NTag type={config.type}>{config.label}</NTag> : '-';
 }
 
 function renderDeviceSourceType(type: Api.Alarm.AlarmRuleDeviceSourceType) {
-  const label = deviceSourceTypeMap[type];
+  const label = deviceSourceTypeMap.value[type];
 
   return label ? <NTag type="info">{label}</NTag> : '-';
 }
@@ -221,7 +223,7 @@ function getDeviceSourceNames(row: Api.Alarm.AlarmRule) {
     .filter(item => item !== '-');
   const uniqueNames = Array.from(new Set(names));
 
-  return uniqueNames.length ? uniqueNames.join('、') : '-';
+  return uniqueNames.length ? uniqueNames.join($t('alarmRule.listSeparator')) : '-';
 }
 
 function getDeviceSourceName(
@@ -247,7 +249,7 @@ function formatNoticeGroups(row: Api.Alarm.AlarmRule) {
     .filter(Boolean);
   const uniqueNames = Array.from(new Set(names));
 
-  return uniqueNames.length ? uniqueNames.join('、') : '-';
+  return uniqueNames.length ? uniqueNames.join($t('alarmRule.listSeparator')) : '-';
 }
 
 function handleSearch() {
@@ -285,7 +287,7 @@ function edit(id: CommonType.IdType) {
 
 <template>
   <div class="h-full min-h-0 flex-col-stretch gap-12px overflow-hidden lt-sm:overflow-auto">
-    <NCard title="报警规则" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('alarmRule.title')" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

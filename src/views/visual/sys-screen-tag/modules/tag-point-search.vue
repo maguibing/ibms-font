@@ -65,12 +65,12 @@ function fetchLogicPointList(params: Record<string, any>) {
   return fetchGetLogicPointList(withDefaultSearchOption(params, { type: 7, value: '' }));
 }
 
-function buildRequestParams(): CommonType.CommonListQueryParams {
+function buildRequestParams(tagId = props.projectSysScreenTagId): CommonType.CommonListQueryParams {
   const pageNum = model.value.pageNum || 1;
   const pageSize = model.value.pageSize || 10;
   const filterConfigs = [
     { type: 1, value: props.projectSysScreenId },
-    { type: 2, value: props.projectSysScreenTagId },
+    { type: 2, value: tagId },
     { type: 3, value: model.value.logic_point_id },
     { type: 4, value: model.value.mapping_point_name }
   ];
@@ -134,7 +134,7 @@ defineExpose({
               <RemoteSearchSelect
                 v-model:value="model.device_id"
                 :request="fetchDeviceList"
-                :search-type="2"
+                :search-type="1"
                 label-field="name"
                 value-field="id"
                 :placeholder="$t('visualSysScreenTag.selectDevice')"
@@ -153,7 +153,7 @@ defineExpose({
                 v-model:value="model.logic_point_id"
                 :request="fetchLogicPointList"
                 :request-params="logicPointRequestParams"
-                :search-type="7"
+                :search-type="6"
                 label-field="name"
                 value-field="id"
                 :placeholder="$t('visualSysScreenTag.selectPointKey')"

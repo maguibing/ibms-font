@@ -4,7 +4,7 @@ import { useLoading } from '@sa/hooks';
 import { fetchCreateTask, fetchGetTask, fetchUpdateTask } from '@/service/api/task';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
-import { taskTypeOptions } from '../../constants';
+import { createTaskTypeOptions } from '../../constants';
 import TaskPointRuleEditor from './task-point-rule-editor/task-point-rule-editor.vue';
 import TaskScheduleEditor from './task-schedule-editor/task-schedule-editor.vue';
 import TaskCalendarActionEditor, { type TaskCalendarActionEditorModel } from './task-calendar-action-editor.vue';
@@ -67,12 +67,13 @@ const calendarActionModel = ref<TaskCalendarActionEditorModel>(createDefaultCale
 const calendarActionEditorRef = useTemplateRef<InstanceType<typeof TaskCalendarActionEditor>>('calendarActionEditor');
 
 const isEdit = computed(() => props.operateType === 'edit');
-const title = computed(() => (isEdit.value ? '编辑任务' : '新增任务'));
+const title = computed(() => (isEdit.value ? $t('taskList.edit') : $t('taskList.add')));
+const taskTypeOptions = computed(createTaskTypeOptions);
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  name: createRequiredRule('请输入任务名称'),
-  task_type: createRequiredRule('请选择任务类型'),
-  status: createRequiredRule('请选择状态')
+  name: createRequiredRule($t('taskList.taskNamePlaceholder')),
+  task_type: createRequiredRule($t('taskList.taskTypePlaceholder')),
+  status: createRequiredRule($t('taskList.statusPlaceholder'))
 };
 
 function createDefaultModel(): Model {
@@ -262,10 +263,15 @@ watch(visible, () => {
         <div class="task-operate-content">
           <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
             <NGrid responsive="screen" item-responsive :x-gap="16">
-              <NFormItemGi span="24" label="任务名称" path="name">
-                <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入任务名称" />
+              <NFormItemGi span="24" :label="$t('taskList.taskName')" path="name">
+                <NInput
+                  v-model:value="model.name"
+                  maxlength="30"
+                  show-count
+                  :placeholder="$t('taskList.taskNamePlaceholder')"
+                />
               </NFormItemGi>
-              <NFormItemGi span="24 m:12" label="任务类型" path="task_type">
+              <NFormItemGi span="24 m:12" :label="$t('taskList.taskType')" path="task_type">
                 <NRadioGroup v-model:value="model.task_type" :disabled="isEdit">
                   <NSpace>
                     <NRadio v-for="item in taskTypeOptions" :key="item.value" :value="item.value">
@@ -274,20 +280,20 @@ watch(visible, () => {
                   </NSpace>
                 </NRadioGroup>
               </NFormItemGi>
-              <NFormItemGi span="24 m:12" label="状态" path="status">
+              <NFormItemGi span="24 m:12" :label="$t('taskList.status')" path="status">
                 <NSwitch v-model:value="model.status" :checked-value="1" :unchecked-value="2">
-                  <template #checked>启用</template>
-                  <template #unchecked>停用</template>
+                  <template #checked>{{ $t('taskList.enabled') }}</template>
+                  <template #unchecked>{{ $t('taskList.disabled') }}</template>
                 </NSwitch>
               </NFormItemGi>
-              <NFormItemGi span="24" label="备注" path="desc">
+              <NFormItemGi span="24" :label="$t('taskList.remark')" path="desc">
                 <NInput
                   v-model:value="model.desc"
                   type="textarea"
                   maxlength="200"
                   show-count
                   :rows="3"
-                  placeholder="请输入备注"
+                  :placeholder="$t('taskList.descriptionPlaceholder')"
                 />
               </NFormItemGi>
             </NGrid>

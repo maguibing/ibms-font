@@ -36,12 +36,15 @@ const resultStats = computed(() => [
   { label: $t('toolbox.common.timeout'), value: `${form.timeout_ms} ms` }
 ]);
 
-const pingSteps = [
-  { key: 'resolve', label: $t('toolbox.ping.steps.resolve') },
-  { key: 'send', label: $t('toolbox.ping.steps.send') },
-  { key: 'latency', label: $t('toolbox.ping.steps.latency') },
-  { key: 'summary', label: $t('toolbox.ping.steps.summary') }
-] as const;
+const pingSteps = computed(
+  () =>
+    [
+      { key: 'resolve', label: $t('toolbox.ping.steps.resolve') },
+      { key: 'send', label: $t('toolbox.ping.steps.send') },
+      { key: 'latency', label: $t('toolbox.ping.steps.latency') },
+      { key: 'summary', label: $t('toolbox.ping.steps.summary') }
+    ] as const
+);
 
 const pingPanelTitle = computed(() => {
   if (status.value === 'running') return $t('toolbox.ping.sending');

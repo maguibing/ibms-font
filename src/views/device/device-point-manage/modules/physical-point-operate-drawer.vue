@@ -11,7 +11,7 @@ import {
 import { fetchGetGatewayList } from '@/service/api/gateway';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { $t } from '@/locales';
-import { ACCESS_LEVEL_OPTIONS, DATA_TYPE_OPTIONS } from '@/constants/device-point';
+import { ACCESS_LEVEL_OPTIONS, DATA_TYPE_OPTIONS } from '@/constants/business';
 import PhysicalPointBacnetConfig from './physical-point-bacnet-config.vue';
 import PhysicalPointModbusConfig from './physical-point-modbus-config.vue';
 import PhysicalPointOpcUaConfig from './physical-point-opc-ua-config.vue';

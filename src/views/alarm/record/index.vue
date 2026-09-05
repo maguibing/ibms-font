@@ -15,9 +15,11 @@ import {
 import { $t } from '@/locales';
 import { formatUnixDateTime } from '@/utils/common-methods';
 import ButtonIcon from '@/components/custom/button-icon.vue';
-import { alarmLevelMap, createAlarmBaseOptions } from '../shared';
+import { createAlarmBaseOptions, createAlarmLevelMap } from '../shared';
 import AlarmRecordSearch from './modules/alarm-record-search.vue';
 import AlarmRecordViewDrawer from './modules/alarm-record-view-drawer.vue';
+
+const alarmLevelMap = computed(createAlarmLevelMap);
 
 defineOptions({
   name: 'AlarmRecord'
@@ -32,9 +34,9 @@ const dealStatusMap: Record<
   Api.Alarm.AlarmRecordDealStatus,
   { label: string; type: NonNullable<TagProps['type']>; icon: string; colorClass: string }
 > = {
-  1: { label: '待处理', type: 'error', icon: 'material-symbols:alarm-outline-rounded', colorClass: 'text-error' },
-  2: { label: '已确认', type: 'primary', icon: 'material-symbols:progress-activity', colorClass: 'text-primary' },
-  3: { label: '已解除', type: 'success', icon: 'material-symbols:check-circle-outline', colorClass: 'text-success' }
+  1: { label: $t('alarmRecord.pending'), type: 'error', icon: 'material-symbols:alarm-outline-rounded', colorClass: 'text-error' },
+  2: { label: $t('alarmRecord.confirmed'), type: 'primary', icon: 'material-symbols:progress-activity', colorClass: 'text-primary' },
+  3: { label: $t('alarmRecord.recovered'), type: 'success', icon: 'material-symbols:check-circle-outline', colorClass: 'text-success' }
 };
 
 const alarmRecordStat = ref<Partial<Record<Api.Alarm.AlarmRecordDealStatus, number>>>({});
@@ -113,14 +115,14 @@ const { columns, data, extraData, getData, getDataByPage, loading, mobilePaginat
       },
       {
         key: 'alarm_level',
-        title: '报警等级',
+        title: $t('alarmRecord.alarmLevel'),
         align: 'center',
         minWidth: 110,
         render: row => renderAlarmLevel(row.alarm_rule_id)
       },
       {
         key: 'alarm_rule_id',
-        title: '报警规则',
+        title: $t('alarmRecord.alarmRule'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true },
@@ -128,7 +130,7 @@ const { columns, data, extraData, getData, getDataByPage, loading, mobilePaginat
       },
       {
         key: 'device_id',
-        title: '报警设备',
+        title: $t('alarmRecord.alarmDevice'),
         align: 'center',
         minWidth: 160,
         ellipsis: { tooltip: true },
@@ -136,7 +138,7 @@ const { columns, data, extraData, getData, getDataByPage, loading, mobilePaginat
       },
       {
         key: 'content',
-        title: '报警内容',
+        title: $t('alarmRecord.alarmContent'),
         align: 'left',
         minWidth: 320,
         ellipsis: { tooltip: true },
@@ -144,14 +146,14 @@ const { columns, data, extraData, getData, getDataByPage, loading, mobilePaginat
       },
       {
         key: 'alarm_at',
-        title: '报警时间',
+        title: $t('alarmRecord.alarmTime'),
         align: 'center',
         minWidth: 180,
         render: row => formatUnixDateTime(row.alarm_at)
       },
       {
         key: 'status',
-        title: '状态',
+        title: $t('alarmRecord.status'),
         align: 'center',
         minWidth: 110,
         render: row => renderDealStatus(row.status)
@@ -171,8 +173,8 @@ const { columns, data, extraData, getData, getDataByPage, loading, mobilePaginat
                 text
                 type="primary"
                 icon="material-symbols:check-circle-outline"
-                tooltipContent="确认处理"
-                popconfirmContent="确认处理该报警记录吗？"
+                tooltipContent={$t('alarmRecord.confirmProcess')}
+                popconfirmContent={$t('alarmRecord.confirmProcessPrompt')}
                 onPositiveClick={() => handleTransfer(row, 2)}
               />
             );
@@ -184,8 +186,8 @@ const { columns, data, extraData, getData, getDataByPage, loading, mobilePaginat
                 text
                 type="success"
                 icon="material-symbols:alarm-off-outline-rounded"
-                tooltipContent="解除"
-                popconfirmContent="确认解除该报警记录吗？"
+                tooltipContent={$t('alarmRecord.recover')}
+                popconfirmContent={$t('alarmRecord.recoverPrompt')}
                 onPositiveClick={() => handleTransfer(row, 3)}
               />
             );
@@ -197,8 +199,8 @@ const { columns, data, extraData, getData, getDataByPage, loading, mobilePaginat
                 text
                 type="primary"
                 icon="material-symbols:assignment-add-outline"
-                tooltipContent="生成工单"
-                popconfirmContent="确认生成工单吗？"
+                tooltipContent={$t('alarmRecord.generateWorkorder')}
+                popconfirmContent={$t('alarmRecord.generateWorkorderPrompt')}
                 onPositiveClick={() => handleGenerateWorkorder(row)}
               />
             );
@@ -222,7 +224,7 @@ const { columns, data, extraData, getData, getDataByPage, loading, mobilePaginat
               text
               type="success"
               icon="material-symbols:visibility-outline"
-              tooltipContent="详情"
+              tooltipContent={$t('alarmRecord.detail')}
               onClick={() => handleView(row)}
             />
           );
@@ -280,7 +282,7 @@ function renderAlarmLevel(alarmRuleId: CommonType.IdType) {
   const level = alarmRecordExtra.value.alarm_rule_map[String(alarmRuleId)]?.alarm_level;
   if (!level) return '-';
 
-  const config = alarmLevelMap[level];
+  const config = alarmLevelMap.value[level];
 
   return config ? <NTag type={config.type}>{config.label}</NTag> : '-';
 }
@@ -322,7 +324,7 @@ async function handleRefresh() {
 }
 
 async function handleTransfer(row: Api.Alarm.AlarmRecord, transferStatus: Api.Alarm.AlarmRecordTransferStatus) {
-  const actionText = transferStatus === 2 ? '确认处理' : '解除';
+  const actionText = transferStatus === 2 ? $t('alarmRecord.confirmSuccess') : $t('alarmRecord.recoverSuccess');
   const { error } = await fetchTransferAlarmRecord({
     transfer_status: transferStatus,
     id_list: [row.id]
@@ -330,7 +332,7 @@ async function handleTransfer(row: Api.Alarm.AlarmRecord, transferStatus: Api.Al
 
   if (error) return;
 
-  window.$message?.success(`${actionText}成功`);
+  window.$message?.success(actionText);
   checkedRowKeys.value = checkedRowKeys.value.filter(item => item !== row.id);
   await handleRefresh();
 }
@@ -345,7 +347,7 @@ async function handleGenerateWorkorder(row: Api.Alarm.AlarmRecord) {
 
   if (error) return;
 
-  window.$message?.success('生成工单成功');
+  window.$message?.success($t('alarmRecord.generateWorkorderSuccess'));
   checkedRowKeys.value = checkedRowKeys.value.filter(item => item !== row.id);
   await handleRefresh();
 }
@@ -362,7 +364,8 @@ async function handleDelete(id: CommonType.IdType) {
 async function handleBatchTransfer(transferStatus: Api.Alarm.AlarmRecordTransferStatus) {
   if (checkedRowKeys.value.length === 0) return;
 
-  const actionText = transferStatus === 2 ? '批量确认' : '批量解除';
+  const actionText =
+    transferStatus === 2 ? $t('alarmRecord.batchConfirmSuccess') : $t('alarmRecord.batchRecoverSuccess');
   const { error } = await fetchTransferAlarmRecord({
     transfer_status: transferStatus,
     id_list: checkedRowKeys.value
@@ -370,7 +373,7 @@ async function handleBatchTransfer(transferStatus: Api.Alarm.AlarmRecordTransfer
 
   if (error) return;
 
-  window.$message?.success(`${actionText}成功`);
+  window.$message?.success(actionText);
   checkedRowKeys.value = [];
   await handleRefresh();
 }
@@ -414,7 +417,7 @@ onMounted(fetchAlarmRecordStat);
     <AlarmRecordSearch v-model:model="searchParams" @search="handleSearch" />
     <TableRowCheckAlert v-model:checked-row-keys="checkedRowKeys" />
 
-    <NCard title="报警记录" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('alarmRecord.title')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <NSpace align="center">
           <NPopconfirm v-if="hasAuth('alarm:record:confirm')" @positive-click="() => handleBatchTransfer(2)">
@@ -423,10 +426,10 @@ onMounted(fetchAlarmRecordStat);
                 <template #icon>
                   <SvgIcon icon="material-symbols:check-circle-outline" class="text-icon" />
                 </template>
-                批量确认
+                {{ $t('alarmRecord.batchConfirm') }}
               </NButton>
             </template>
-            确认处理选中的报警记录吗？
+            {{ $t('alarmRecord.batchConfirmPrompt') }}
           </NPopconfirm>
           <NPopconfirm v-if="hasAuth('alarm:record:recover')" @positive-click="() => handleBatchTransfer(3)">
             <template #trigger>
@@ -434,10 +437,10 @@ onMounted(fetchAlarmRecordStat);
                 <template #icon>
                   <SvgIcon icon="material-symbols:alarm-off-outline-rounded" class="text-icon" />
                 </template>
-                批量解除
+                {{ $t('alarmRecord.batchRecover') }}
               </NButton>
             </template>
-            确认解除选中的报警记录吗？
+            {{ $t('alarmRecord.batchRecoverPrompt') }}
           </NPopconfirm>
           <NPopconfirm v-if="hasAuth('alarm:record:delete')" @positive-click="handleBatchDelete">
             <template #trigger>

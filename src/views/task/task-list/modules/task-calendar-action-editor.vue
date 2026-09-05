@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import RemoteSearchSelect from '@/components/custom/remote-search-select.vue';
 import SvgIcon from '@/components/custom/svg-icon.vue';
+import { $t } from '@/locales';
 import { fetchGetDeviceList, fetchGetDeviceTypePointList } from '@/service/api/device';
 import TaskPointValueInput from './task-point-rule-editor/task-point-value-input.vue';
 import {
@@ -90,24 +91,28 @@ function getPointKey(action: TaskActionEditor, pointIndex: number) {
 }
 
 function getValidationMessage() {
-  if (!actionGroups.value.length) return '请至少添加一个执行设备';
+  if (!actionGroups.value.length) return $t('taskList.addCalendarDeviceValidation');
   for (const [index, action] of actionGroups.value.entries()) {
-    if (!action.device_id) return `请选择执行设备 ${index + 1} 的设备`;
+    if (!action.device_id) return $t('taskList.selectCalendarDevice', { value: index + 1 });
     const outAction = outActionGroups.value[index];
     const inKeys = action.point_vals.map((_point, pointIndex) => getPointKey(action, pointIndex));
     const outKeys = outAction.point_vals.map((_point, pointIndex) => getPointKey(outAction, pointIndex));
-    if (inKeys.some(key => key.endsWith('-'))) return `请选择执行设备 ${index + 1} 的点位`;
-    if (new Set(inKeys).size !== inKeys.length) return `执行设备 ${index + 1} 存在重复点位`;
-    if (inKeys.sort().join('|') !== outKeys.sort().join('|')) return `执行设备 ${index + 1} 的范围内外点位必须一致`;
+    if (inKeys.some(key => key.endsWith('-'))) return $t('taskList.selectCalendarPoint', { value: index + 1 });
+    if (new Set(inKeys).size !== inKeys.length) return $t('taskList.duplicateCalendarPoint', { value: index + 1 });
+    if (inKeys.sort().join('|') !== outKeys.sort().join('|')) {
+      return $t('taskList.calendarPointRangeMismatch', { value: index + 1 });
+    }
     for (const [pointIndex, point] of action.point_vals.entries()) {
-      if (!point.device_type_point_id) return `请选择执行设备 ${index + 1} 的点位 ${pointIndex + 1}`;
+      if (!point.device_type_point_id) {
+        return $t('taskList.selectCalendarPointDetail', { action: index + 1, point: pointIndex + 1 });
+      }
       if (
         !point.data_type ||
         point.point_val.value === null ||
         point.point_val.value === undefined ||
         point.point_val.value === ''
       ) {
-        return `请输入执行设备 ${index + 1} 的范围内值`;
+        return $t('taskList.inputCalendarInsideValue', { value: index + 1 });
       }
       const outPoint = outAction.point_vals[pointIndex];
       if (
@@ -116,7 +121,7 @@ function getValidationMessage() {
         outPoint.point_val.value === undefined ||
         outPoint.point_val.value === ''
       ) {
-        return `请输入执行设备 ${index + 1} 的范围外值`;
+        return $t('taskList.inputCalendarOutsideValue', { value: index + 1 });
       }
     }
   }
@@ -129,10 +134,10 @@ defineExpose({ getValidationMessage });
 <template>
   <div class="flex flex-col gap-12px">
     <div class="flex items-center justify-between text-14px font-600">
-      <span>万年历动作</span>
+      <span>{{ $t('taskList.calendarAction') }}</span>
       <NButton text type="primary" :disabled="props.disabled" @click="addAction">
         <template #icon><SvgIcon icon="material-symbols:add-rounded" /></template>
-        新增设备
+        {{ $t('taskList.addDevice') }}
       </NButton>
     </div>
     <section
@@ -141,12 +146,12 @@ defineExpose({ getValidationMessage });
       class="rounded-6px border border-#e5e7eb border-solid p-12px dark:border-#2f3338"
     >
       <div class="mb-10px flex items-center justify-between font-500">
-        <span>设备 {{ index + 1 }}</span>
+        <span>{{ $t('taskList.deviceItem', { value: index + 1 }) }}</span>
         <ButtonIcon
           size="small"
           type="error"
           icon="material-symbols:delete-outline"
-          tooltip-content="删除设备"
+          :tooltip-content="$t('taskList.deleteAction')"
           :disabled="props.disabled || actionGroups.length === 1"
           @click="removeAction(index)"
         />
@@ -159,7 +164,7 @@ defineExpose({ getValidationMessage });
         :selected-options="action.selected_device"
         label-field="name"
         value-field="id"
-        placeholder="请选择设备"
+        :placeholder="$t('taskList.devicePlaceholder')"
         clearable
         :disabled="props.disabled"
         @selected-change="handleDeviceChange(index, $event)"
@@ -168,9 +173,9 @@ defineExpose({ getValidationMessage });
         <div
           class="grid grid-cols-[minmax(130px,1fr)_minmax(130px,1fr)_minmax(130px,1fr)_auto] gap-8px text-12px text-[var(--n-text-color-3)]"
         >
-          <span>点位</span>
-          <span>范围内</span>
-          <span>范围外</span>
+          <span>{{ $t('taskLog.point') }}</span>
+          <span>{{ $t('taskList.inside') }}</span>
+          <span>{{ $t('taskList.outside') }}</span>
           <span></span>
         </div>
         <div
@@ -190,7 +195,7 @@ defineExpose({ getValidationMessage });
             :selected-options="point.selected_device_type_point"
             label-field="name"
             value-field="id"
-            placeholder="请选择点位"
+            :placeholder="$t('taskList.pointPlaceholder')"
             clearable
             @selected-change="handlePointChange(index, pointIndex, $event)"
           />
@@ -210,14 +215,14 @@ defineExpose({ getValidationMessage });
             size="small"
             type="error"
             icon="material-symbols:delete-outline"
-            tooltip-content="删除点位"
+            :tooltip-content="$t('taskList.deletePoint')"
             :disabled="props.disabled || action.point_vals.length === 1"
             @click="removePoint(index, pointIndex)"
           />
         </div>
         <NButton size="small" text type="primary" :disabled="props.disabled" @click="addPoint(index)">
           <template #icon><SvgIcon icon="material-symbols:add-rounded" /></template>
-          新增点位
+          {{ $t('taskList.addPoint') }}
         </NButton>
       </div>
     </section>

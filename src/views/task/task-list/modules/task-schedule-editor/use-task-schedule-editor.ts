@@ -1,3 +1,5 @@
+import { $t } from '@/locales';
+
 export type TaskScheduleTimeNode = {
   _key: string;
   value: number | null;
@@ -36,7 +38,6 @@ export type TaskScheduleEditorModel = {
   calendar: {
     date_groups: TaskScheduleCalendarDateGroup[];
     poll_interval_seconds: number;
-    max_continuous_fail: number;
   };
 };
 
@@ -89,8 +90,7 @@ export function createDefaultTaskScheduleModel(): TaskScheduleEditorModel {
     },
     calendar: {
       date_groups: [createTaskScheduleCalendarDateGroup()],
-      poll_interval_seconds: 300,
-      max_continuous_fail: 3
+      poll_interval_seconds: 300
     }
   };
 }
@@ -126,7 +126,6 @@ export function normalizeTaskScheduleModel(sched?: Api.Task.TaskLogSchedule | nu
 
   if (sched.calendar) {
     model.calendar.poll_interval_seconds = sched.calendar.poll_interval_seconds ?? 300;
-    model.calendar.max_continuous_fail = sched.calendar.max_continuous_fail ?? 3;
     model.calendar.date_groups = sched.calendar.date_groups?.length
       ? sched.calendar.date_groups.map(group => ({
           _key: createCalendarKey('schedule-date-group'),
@@ -189,8 +188,7 @@ export function buildTaskScheduleSubmitModel(model: TaskScheduleEditorModel): Ap
             end_at: toUnixSeconds(range.end_at as number)
           }))
         })),
-        poll_interval_seconds: model.calendar.poll_interval_seconds,
-        max_continuous_fail: model.calendar.max_continuous_fail
+        poll_interval_seconds: model.calendar.poll_interval_seconds
       }
     };
   }
@@ -213,37 +211,38 @@ export function buildScheduledTaskConditionSetting(model: TaskScheduleEditorMode
 
 export function getTaskScheduleValidationMessage(model: TaskScheduleEditorModel): string | null {
   if (model.type === 1) {
-    if (model.once.execution_at === null) return '请选择执行时间';
-    if (model.once.execution_at <= Date.now()) return '一次执行时间必须晚于当前时间';
+    if (model.once.execution_at === null) return $t('taskList.selectExecutionTime');
+    if (model.once.execution_at <= Date.now()) return $t('taskList.futureExecutionTime');
   }
 
   if (model.type === 2) {
-    if (model.daily.repeat_type === 2 && model.daily.weekdays.length === 0) return '请至少选择一个执行星期';
+    if (model.daily.repeat_type === 2 && model.daily.weekdays.length === 0) return $t('taskList.selectWeekday');
     const timeMessage = getTimeValidationMessage(model.daily.execution_at_list);
     if (timeMessage) return timeMessage;
   }
 
   if (model.type === 3) {
     const intervals = model.interval.intervals;
-    if (intervals === null || !Number.isInteger(intervals) || intervals <= 0) return '间隔时间必须为正整数';
+    if (intervals === null || !Number.isInteger(intervals) || intervals <= 0)
+      return $t('taskList.positiveIntegerInterval');
   }
 
   if (model.type === 4) {
-    if (model.custom.execution_date_list.length === 0) return '请至少选择一个执行日期';
+    if (model.custom.execution_date_list.length === 0) return $t('taskList.selectExecutionDate');
     const timeMessage = getTimeValidationMessage(model.custom.execution_at_list);
     if (timeMessage) return timeMessage;
   }
 
   if (model.type === 5) {
-    if (model.calendar.date_groups.length === 0) return '请至少添加一个日期组';
+    if (model.calendar.date_groups.length === 0) return $t('taskList.addDateGroupValidation');
     for (const [groupIndex, group] of model.calendar.date_groups.entries()) {
-      if (group.execution_date_list.length === 0) return `请选择日期组 ${groupIndex + 1} 的执行日期`;
-      if (group.time_ranges.length === 0) return `请至少添加日期组 ${groupIndex + 1} 的时间段`;
+      if (group.execution_date_list.length === 0) return $t('taskList.selectDateGroupDate', { value: groupIndex + 1 });
+      if (group.time_ranges.length === 0) return $t('taskList.completeDateGroupTime', { value: groupIndex + 1 });
       for (const [rangeIndex, range] of group.time_ranges.entries()) {
         if (range.start_at === null || range.end_at === null)
-          return `请完善日期组 ${groupIndex + 1} 的时间段 ${rangeIndex + 1}`;
+          return $t('taskList.validDateGroupTime', { group: groupIndex + 1, range: rangeIndex + 1 });
         if (range.start_at >= range.end_at)
-          return `日期组 ${groupIndex + 1} 的时间段 ${rangeIndex + 1} 开始时间必须早于结束时间`;
+          return $t('taskList.invalidDateGroupTime', { group: groupIndex + 1, range: rangeIndex + 1 });
       }
     }
   }
@@ -262,8 +261,8 @@ function buildTimeList(nodes: TaskScheduleTimeNode[]) {
 }
 
 function getTimeValidationMessage(nodes: TaskScheduleTimeNode[]) {
-  if (!nodes.some(node => node.value !== null)) return '请至少选择一个执行时间';
-  if (nodes.some(node => node.value === null)) return '请完善所有执行时间节点';
+  if (!nodes.some(node => node.value !== null)) return $t('taskList.selectExecutionNode');
+  if (nodes.some(node => node.value === null)) return $t('taskList.completeExecutionNode');
 
   return null;
 }

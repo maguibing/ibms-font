@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { SelectOption } from 'naive-ui';
-import { DATA_TYPE_OPTIONS, ENERGY_TYPE_OPTIONS, PRECISION_OPTIONS, UNIT_GROUPS } from '@/constants/device-point';
+import { DATA_TYPE_OPTIONS, ENERGY_TYPE_OPTIONS, PRECISION_OPTIONS, UNIT_GROUPS } from '@/constants/business';
 import { $t } from '@/locales';
 import type { PointOperateEnumItem, PointOperateModel } from './use-point-operate-form';
 
@@ -26,41 +25,6 @@ const props = defineProps<Props>();
 const model = defineModel<PointOperateModel>('model', {
   required: true
 });
-
-const dataTypeLabelKeys: Record<number, App.I18n.I18nKey> = {
-  1: 'dict.data_type.number',
-  2: 'dict.data_type.switch',
-  3: 'dict.data_type.text',
-  4: 'dict.data_type.enum'
-};
-
-const precisionLabelKeys: Record<number, App.I18n.I18nKey> = {
-  1: 'page.common.pointForm.options.precisionNone',
-  2: 'page.common.pointForm.options.precision1',
-  3: 'page.common.pointForm.options.precision2',
-  4: 'page.common.pointForm.options.precision3'
-};
-
-const energyTypeLabelKeys: Record<number, App.I18n.I18nKey> = {
-  0: 'page.common.pointForm.options.energyNone',
-  1: 'page.common.pointForm.options.energyElectricity',
-  2: 'page.common.pointForm.options.energyWater',
-  3: 'page.common.pointForm.options.energyGas',
-  4: 'page.common.pointForm.options.energyCooling',
-  5: 'page.common.pointForm.options.energyHeating',
-  6: 'page.common.pointForm.options.energyRuntime'
-};
-
-function translateOptions(options: SelectOption[], labelKeys: Record<number, App.I18n.I18nKey>) {
-  return options.map(option => ({
-    ...option,
-    label: $t(labelKeys[Number(option.value)])
-  }));
-}
-
-const dataTypeOptions = computed(() => translateOptions(DATA_TYPE_OPTIONS, dataTypeLabelKeys));
-const precisionOptions = computed(() => translateOptions(PRECISION_OPTIONS, precisionLabelKeys));
-const energyTypeOptions = computed(() => translateOptions(ENERGY_TYPE_OPTIONS, energyTypeLabelKeys));
 </script>
 
 <template>
@@ -83,7 +47,7 @@ const energyTypeOptions = computed(() => translateOptions(ENERGY_TYPE_OPTIONS, e
   <NFormItem :label="$t('page.common.pointForm.dataType')" path="data_type">
     <NSelect
       v-model:value="model.data_type"
-      :options="dataTypeOptions"
+      :options="DATA_TYPE_OPTIONS"
       :placeholder="$t('page.common.pointForm.form.dataType.required')"
     />
   </NFormItem>
@@ -105,14 +69,14 @@ const energyTypeOptions = computed(() => translateOptions(ENERGY_TYPE_OPTIONS, e
     <NFormItem :label="$t('page.common.pointForm.scale')" path="scale">
       <NSelect
         v-model:value="model.scale"
-        :options="precisionOptions"
+        :options="PRECISION_OPTIONS"
         :placeholder="$t('page.common.pointForm.form.scale.required')"
       />
     </NFormItem>
     <NFormItem :label="$t('page.common.pointForm.energyType')" path="energy_type">
       <NSelect
         v-model:value="model.energy_type"
-        :options="energyTypeOptions"
+        :options="ENERGY_TYPE_OPTIONS"
         :placeholder="$t('page.common.pointForm.form.energyType.required')"
       />
     </NFormItem>

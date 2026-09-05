@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { DATA_TYPE_OPTIONS, PRECISION_OPTIONS, UNIT_GROUPS } from '@/constants/device-point';
+import { DATA_TYPE_OPTIONS, PRECISION_OPTIONS, UNIT_GROUPS } from '@/constants/business';
 import { VirtualPointComputeMode, createDefaultVirtualPointPointSetting } from '../virtual-point';
 
 defineOptions({ name: 'VirtualPointSettingPanel' });

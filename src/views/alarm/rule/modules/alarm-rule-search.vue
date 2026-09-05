@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { toRaw } from 'vue';
+import { computed, toRaw } from 'vue';
 import { jsonClone } from '@sa/utils';
 import { $t } from '@/locales';
-import { alarmLevelOptions } from '../../shared';
+import { createAlarmLevelOptions } from '../../shared';
 
 defineOptions({
   name: 'AlarmRuleSearch'
@@ -17,6 +17,7 @@ const emit = defineEmits<Emits>();
 const model = defineModel<Api.Alarm.AlarmRuleSearchParams>('model', { required: true });
 
 const defaultModel = jsonClone(toRaw(model.value));
+const alarmLevelOptions = computed(createAlarmLevelOptions);
 
 function search() {
   emit('search');
@@ -34,15 +35,20 @@ function reset() {
       <NCollapseItem :title="$t('common.search')" name="alarm-rule-search">
         <NForm :model="model" label-placement="left" :label-width="80">
           <NGrid responsive="screen" item-responsive>
-            <NFormItemGi span="24 s:12 m:8" label="规则名称" path="name" class="pr-24px">
-              <NInput v-model:value="model.name" clearable placeholder="请输入报警规则名称" @keyup.enter="search" />
+            <NFormItemGi span="24 s:12 m:8" :label="$t('alarmRule.name')" path="name" class="pr-24px">
+              <NInput
+                v-model:value="model.name"
+                clearable
+                :placeholder="$t('alarmRule.namePlaceholder')"
+                @keyup.enter="search"
+              />
             </NFormItemGi>
-            <NFormItemGi span="24 s:12 m:8" label="报警等级" path="alarm_level" class="pr-24px">
+            <NFormItemGi span="24 s:12 m:8" :label="$t('alarmRule.alarmLevel')" path="alarm_level" class="pr-24px">
               <NSelect
                 v-model:value="model.alarm_level"
                 :options="alarmLevelOptions"
                 clearable
-                placeholder="请选择报警等级"
+                :placeholder="$t('alarmRule.alarmLevelPlaceholder')"
               />
             </NFormItemGi>
             <NFormItemGi :show-feedback="false" span="24 s:12 m:8" class="pr-24px">

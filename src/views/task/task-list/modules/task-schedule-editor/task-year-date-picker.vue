@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, shallowRef, useTemplateRef, watch } from 'vue';
 import ButtonIcon from '@/components/custom/button-icon.vue';
 import SvgIcon from '@/components/custom/svg-icon.vue';
+import { $t } from '@/locales';
 import { weekdayMap } from '../../../constants';
 
 defineOptions({
@@ -41,7 +42,11 @@ const weekHeaders = ([1, 2, 3, 4, 5, 6, 0] as Api.Task.TaskScheduleWeekday[]).ma
 
 const selectedDates = computed(() => new Set(model.value));
 const selectedCount = computed(() => model.value.length);
-const triggerText = computed(() => (selectedCount.value ? `已选择 ${selectedCount.value} 天` : '请选择执行日期'));
+const triggerText = computed(() =>
+  selectedCount.value
+    ? $t('taskList.selectedDays', { value: selectedCount.value })
+    : $t('taskList.executionDatePlaceholder')
+);
 const months = computed<CalendarMonth[]>(() =>
   Array.from({ length: 12 }, (_, month) => {
     const daysInMonth = new Date(year.value, month + 1, 0).getDate();
@@ -58,7 +63,9 @@ const months = computed<CalendarMonth[]>(() =>
   })
 );
 const yearDateTimestamps = computed(() => months.value.flatMap(month => month.days.map(day => day.timestamp)));
-const isAllYearSelected = computed(() => yearDateTimestamps.value.every(timestamp => selectedDates.value.has(timestamp)));
+const isAllYearSelected = computed(() =>
+  yearDateTimestamps.value.every(timestamp => selectedDates.value.has(timestamp))
+);
 
 watch(model, dates => {
   if (!dates.length) {
@@ -239,7 +246,7 @@ onBeforeUnmount(() => {
       <div ref="triggerRef" class="w-full">
         <NButton class="year-date-trigger w-full" secondary>
           <div class="w-full flex items-center justify-between gap-16px">
-            <span class="text-[var(--n-text-color-1)] font-500">{{ year }} 年</span>
+            <span class="text-[var(--n-text-color-1)] font-500">{{ $t('taskList.year', { value: year }) }}</span>
             <span class="truncate text-[var(--n-text-color-3)]">{{ triggerText }}</span>
           </div>
         </NButton>
@@ -253,27 +260,27 @@ onBeforeUnmount(() => {
         <ButtonIcon
           size="small"
           icon="material-symbols:chevron-left-rounded"
-          tooltip-content="上一年"
+          :tooltip-content="$t('taskList.previousYear')"
           @click="changeYear(-1)"
         />
-        <div class="text-15px text-[var(--n-text-color-1)] font-600">{{ year }} 年</div>
+        <div class="text-15px text-[var(--n-text-color-1)] font-600">{{ $t('taskList.year', { value: year }) }}</div>
         <div class="flex items-center gap-8px">
           <NButton size="small" quaternary :disabled="isAllYearSelected" @click="selectYearDates">
             <template #icon>
               <SvgIcon icon="material-symbols:select-all-rounded" />
             </template>
-            全选
+            {{ $t('taskList.all') }}
           </NButton>
           <NButton size="small" quaternary :disabled="selectedCount === 0" @click="clearDates">
             <template #icon>
               <SvgIcon icon="material-symbols:delete-sweep-outline-rounded" />
             </template>
-            清空
+            {{ $t('taskList.clear') }}
           </NButton>
           <ButtonIcon
             size="small"
             icon="material-symbols:chevron-right-rounded"
-            tooltip-content="下一年"
+            :tooltip-content="$t('taskList.nextYear')"
             @click="changeYear(1)"
           />
         </div>
@@ -281,7 +288,9 @@ onBeforeUnmount(() => {
 
       <div class="calendar-months">
         <section v-for="month in months" :key="month.month" class="p-8px">
-          <div class="mb-8px text-center text-13px text-[var(--n-text-color-1)] font-600">{{ month.month + 1 }} 月</div>
+          <div class="mb-8px text-center text-13px text-[var(--n-text-color-1)] font-600">
+            {{ $t('taskList.month', { value: month.month + 1 }) }}
+          </div>
           <div class="calendar-grid mb-4px">
             <span
               v-for="weekday in weekHeaders"

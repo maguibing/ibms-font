@@ -96,7 +96,7 @@ const {
   mobilePagination,
   scrollX
 } = useNaivePaginatedTable({
-  api: () => fetchGetProjectSysScreenTagPointList(tagPointSearchRef.value?.buildRequestParams() ?? {}),
+  api: () => fetchGetProjectSysScreenTagPointList(tagPointSearchRef.value?.buildRequestParams(selectedTagId.value) ?? {}),
   immediate: false,
   transform: response => defaultTransform<Api.Visual.ProjectSysScreenTagPoint>(response),
   onPaginationParamsChange: params => {
@@ -509,7 +509,6 @@ onMounted(() => {
           </TableHeaderOperation>
         </template>
         <NEmpty v-if="!projectSysScreenId" :description="$t('visualSysScreenTag.missingScreen')" class="py-48px" />
-        <NEmpty v-else-if="!selectedTagId" :description="$t('visualSysScreenTag.selectTag')" class="py-48px" />
         <DataTable
           v-else
           v-model:checked-row-keys="checkedRowKeys"

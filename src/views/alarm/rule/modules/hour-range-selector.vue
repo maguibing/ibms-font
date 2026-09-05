@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, shallowRef } from 'vue';
+import { $t } from '@/locales';
 import { buildRangesFromHours, parseHoursFromRanges, type TimeRangeInput } from './hour-range-selector';
 
 defineOptions({
@@ -98,7 +99,7 @@ onBeforeUnmount(stopDragging);
           type="button"
           :class="getHourCellClass(cell)"
           :aria-pressed="cell.isSelected"
-          :aria-label="`${cell.hour}点`"
+          :aria-label="$t('alarmRule.hourAriaLabel', { value: cell.hour })"
           @pointerdown.prevent="handleHourPointerDown(cell.hour, $event)"
           @pointerenter="handleHourPointerEnter(cell.hour)"
           @keydown.enter.prevent="toggleHour(cell.hour)"

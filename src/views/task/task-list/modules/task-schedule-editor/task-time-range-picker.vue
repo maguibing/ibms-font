@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import ButtonIcon from '@/components/custom/button-icon.vue';
+import { $t } from '@/locales';
 import type { TaskScheduleTimeRange } from './use-task-schedule-editor';
 
 const props = withDefaults(
@@ -175,7 +176,7 @@ function updateManualTime(index: number, key: 'start_at' | 'end_at', value: numb
 }
 
 function formatTime(seconds: number | null) {
-  if (seconds === null) return '未选择';
+  if (seconds === null) return $t('taskList.notSelected');
   return [Math.floor(seconds / 3600), Math.floor((seconds % 3600) / 60)]
     .map(value => value.toString().padStart(2, '0'))
     .join(':');
@@ -228,13 +229,13 @@ function formatTime(seconds: number | null) {
         <button
           class="absolute left--4px top-0 h-30px w-8px cursor-ew-resize border-0 bg-transparent p-0"
           type="button"
-          aria-label="调整开始时间"
+          :aria-label="$t('taskList.adjustStartTime')"
           @pointerdown="handleRangeDown($event, range.index, 'start')"
         ></button>
         <button
           class="absolute right--4px top-0 h-30px w-8px cursor-ew-resize border-0 bg-transparent p-0"
           type="button"
-          aria-label="调整结束时间"
+          :aria-label="$t('taskList.adjustEndTime')"
           @pointerdown="handleRangeDown($event, range.index, 'end')"
         ></button>
       </div>
@@ -273,20 +274,20 @@ function formatTime(seconds: number | null) {
               size="small"
               type="error"
               icon="material-symbols:delete-outline"
-              tooltip-content="删除时间段"
+              :tooltip-content="$t('taskList.deleteTimeRange')"
               :disabled="disabled"
               @click.stop="removeRange(modelValue.indexOf(range))"
             />
           </div>
         </template>
         <div class="w-240px flex flex-col gap-10px">
-          <div class="text-13px text-[var(--n-text-color-1)] font-600">编辑时间段</div>
+          <div class="text-13px text-[var(--n-text-color-1)] font-600">{{ $t('taskList.editTimeRange') }}</div>
           <div class="grid grid-cols-2 gap-8px">
             <NTimePicker
               :value="toPickerValue(range.start_at)"
               value-format="t"
               format="HH:mm"
-              placeholder="开始时间"
+              :placeholder="$t('taskList.startTime')"
               clearable
               @update:value="updateManualTime(rangeIndex, 'start_at', $event)"
             />
@@ -294,12 +295,12 @@ function formatTime(seconds: number | null) {
               :value="toPickerValue(range.end_at)"
               value-format="t"
               format="HH:mm"
-              placeholder="结束时间"
+              :placeholder="$t('taskList.endTime')"
               clearable
               @update:value="updateManualTime(rangeIndex, 'end_at', $event)"
             />
           </div>
-          <div class="text-12px text-[var(--n-text-color-3)]">时间按 5 分钟自动对齐</div>
+          <div class="text-12px text-[var(--n-text-color-3)]">{{ $t('taskList.alignTimeHint') }}</div>
         </div>
       </NPopover>
     </div>

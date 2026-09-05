@@ -1,24 +1,34 @@
 import type { TagProps } from 'naive-ui';
+import { $t } from '@/locales';
 
 export const alarmProjectFilterOption: CommonType.CommonTypeOptions = { type: 104, value: '101' };
 
-export const alarmLevelOptions: CommonType.Option<Api.Alarm.AlarmLevel>[] = [
-  { label: '普通', value: 1 },
-  { label: '重要', value: 2 },
-  { label: '紧急', value: 3 }
-];
+export function createAlarmLevelOptions(): CommonType.Option<Api.Alarm.AlarmLevel>[] {
+  return [
+    { label: $t('alarmRule.levelNormal'), value: 1 },
+    { label: $t('alarmRule.levelImportant'), value: 2 },
+    { label: $t('alarmRule.levelUrgent'), value: 3 }
+  ];
+}
 
-export const alarmLevelMap: Record<Api.Alarm.AlarmLevel, { label: string; type: NonNullable<TagProps['type']> }> = {
-  1: { label: '普通', type: 'info' },
-  2: { label: '重要', type: 'warning' },
-  3: { label: '紧急', type: 'error' }
-};
+export function createAlarmLevelMap(): Record<
+  Api.Alarm.AlarmLevel,
+  { label: string; type: NonNullable<TagProps['type']> }
+> {
+  return {
+    1: { label: $t('alarmRule.levelNormal'), type: 'info' },
+    2: { label: $t('alarmRule.levelImportant'), type: 'warning' },
+    3: { label: $t('alarmRule.levelUrgent'), type: 'error' }
+  };
+}
 
-export const alarmRuleConditionTimeTypeMap: Record<Api.Alarm.AlarmRuleConditionTimeType, string> = {
-  1: '秒',
-  2: '分钟',
-  3: '小时'
-};
+export function createAlarmRuleConditionTimeTypeMap(): Record<Api.Alarm.AlarmRuleConditionTimeType, string> {
+  return {
+    1: $t('alarmRule.durationSecond'),
+    2: $t('alarmRule.durationMinute'),
+    3: $t('alarmRule.durationHour')
+  };
+}
 
 export function createAlarmBaseOptions(): CommonType.CommonTypeOptions[] {
   return [{ ...alarmProjectFilterOption }];
@@ -29,8 +39,8 @@ export function formatAlarmRuleFreq(freq?: Api.Alarm.AlarmRuleConditionFreq | nu
 
   const durations = freq.durations ?? 0;
   const repeatTimes = freq.repeat_times ?? 0;
-  const unit = freq.time_type ? alarmRuleConditionTimeTypeMap[freq.time_type] : '';
-  const durationText = unit ? `${durations}${unit}` : String(durations);
+  const unit = freq.time_type ? createAlarmRuleConditionTimeTypeMap()[freq.time_type] : '';
+  const durationText = unit ? $t('alarmRule.duration', { value: durations, unit }) : String(durations);
 
-  return `${durationText} / 重复${repeatTimes}次`;
+  return `${durationText} / ${$t('alarmRule.repeat', { value: repeatTimes })}`;
 }

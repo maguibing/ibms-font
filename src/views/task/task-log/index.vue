@@ -7,7 +7,7 @@ import { fetchGetTaskLogList } from '@/service/api/task';
 import { $t } from '@/locales';
 import { formatUnixDateTime } from '@/utils/common-methods';
 import ButtonIcon from '@/components/custom/button-icon.vue';
-import { taskTypeMap } from '../constants';
+import { createTaskTypeMap } from '../constants';
 import TaskLogViewDrawer from './modules/task-log-view-drawer.vue';
 import TaskLogSearch from './modules/task-log-search.vue';
 
@@ -28,6 +28,7 @@ const searchParams = ref<Api.Task.TaskLogSearchParams>({
 
 const detailDrawerVisible = shallowRef(false);
 const detailRowData = shallowRef<Api.Task.TaskLog | null>(null);
+const taskTypeMap = computed(createTaskTypeMap);
 
 function transformSearchParamsToRequest(params: Api.Task.TaskLogSearchParams): CommonType.CommonListQueryParams {
   const pageNum = params.pageNum || 1;
@@ -70,7 +71,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'task_id',
-        title: '任务名称',
+        title: $t('taskLog.taskName'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true },
@@ -78,14 +79,14 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'task_type',
-        title: '任务类型',
+        title: $t('taskLog.taskType'),
         align: 'center',
         minWidth: 110,
         render: row => renderTaskType(getTaskType(row))
       },
       {
         key: 'device_id',
-        title: '目标设备',
+        title: $t('taskLog.targetDevice'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true },
@@ -93,7 +94,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'exec_at',
-        title: '执行时间',
+        title: $t('taskLog.executionTime'),
         align: 'center',
         minWidth: 180,
         render: row => formatUnixDateTime(getExecutionTime(row))
@@ -109,7 +110,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
             text
             type="primary"
             icon="material-symbols:visibility-outline"
-            tooltipContent="查看详情"
+            tooltipContent={$t('taskLog.detail')}
             onClick={() => handleView(row)}
           />
         )
@@ -138,7 +139,7 @@ function getTaskType(row: Api.Task.TaskLog) {
 function renderTaskType(type: Api.Task.TaskType | null) {
   if (!type) return '-';
 
-  const config = taskTypeMap[type];
+  const config = taskTypeMap.value[type];
 
   return config ? <NTag type={config.type}>{config.label}</NTag> : String(type);
 }
@@ -175,7 +176,7 @@ function handleView(row: Api.Task.TaskLog) {
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <TaskLogSearch v-model:model="searchParams" @search="handleSearch" />
 
-    <NCard title="任务日志" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('taskLog.title')" :bordered="false" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

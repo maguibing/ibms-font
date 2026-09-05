@@ -2,7 +2,7 @@
 import { computed, ref, shallowRef, watch } from 'vue';
 import { NPopover } from 'naive-ui';
 import { type FilterConfig, isValidFilterConfig } from '@sa/utils';
-import { ENERGY_TYPE_OPTIONS } from '@/constants/device-point';
+import { ENERGY_TYPE_OPTIONS } from '@/constants/business';
 import { ExportBizType, ExportFileType } from '@/enum/business';
 import { useAuth } from '@/hooks/business/auth';
 import { useExportProgress } from '@/hooks/business/export-progress';
@@ -29,26 +29,26 @@ type EnergyTableRecord = Api.Common.PaginatingQueryRecord<EnergyRow, EnergyExtra
 const appStore = useAppStore();
 const { hasAuth } = useAuth();
 const { startExport, stopExport } = useExportProgress();
-const energyTypeOptions = ENERGY_TYPE_OPTIONS.filter(option => {
-  const value = Number(option.value);
-
-  return value > 0 && value !== 6;
-});
-
 const searchParams = ref<Api.Energy.DevicePointEnergyListSearchParams>({
   ...createDefaultSearchParams()
 });
 const energyExtra = shallowRef(createDefaultEnergyExtra());
+
 const visibleEnergyTypeOptions = computed(() => {
+  const options = ENERGY_TYPE_OPTIONS.value.filter(option => {
+    const value = Number(option.value);
+
+    return value > 0 && value !== 6;
+  });
+
   const selectedTypes = searchParams.value.energy_types;
 
-  if (!selectedTypes.length) return energyTypeOptions;
+  if (!selectedTypes.length) return options;
 
   const selectedTypeSet = new Set(selectedTypes.map(Number));
 
-  return energyTypeOptions.filter(option => selectedTypeSet.has(Number(option.value)));
+  return options.filter(option => selectedTypeSet.has(Number(option.value)));
 });
-
 function createDefaultSearchParams(): Api.Energy.DevicePointEnergyListSearchParams {
   return {
     pageNum: 1,

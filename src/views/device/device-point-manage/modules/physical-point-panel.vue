@@ -15,7 +15,7 @@ import ButtonIcon from '@/components/custom/button-icon.vue';
 import CopyableValue from '@/components/custom/copyable-value.vue';
 import DataImportModal from '@/components/custom/data-import-modal.vue';
 import EnumTag from '@/components/custom/enum-tag.vue';
-import { DATA_TYPE_OPTIONS } from '@/constants/device-point';
+import { DATA_TYPE_OPTIONS } from '@/constants/business';
 import { displayValue } from '@/utils/common-methods';
 import { getWebSocketConnectionId } from '@/utils/websocket';
 import DevicePointCommandModal from './device-point-command-modal.vue';

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { $t } from '@/locales';
 import type { SelectOption } from 'naive-ui';
 import {
   createDefaultRangeValue,
@@ -96,7 +97,7 @@ function handleSelectValueChange(_nextValue: unknown, option: SelectOption | nul
 </script>
 
 <template>
-  <NInput v-if="props.disabled || !props.dataType" disabled placeholder="请先选择点位" />
+  <NInput v-if="props.disabled || !props.dataType" disabled :placeholder="$t('taskList.pointPlaceholder')" />
 
   <div v-else-if="props.range && props.dataType === 1" class="grid grid-cols-[1fr_auto_1fr] items-center gap-8px">
     <NInputNumber
@@ -104,15 +105,15 @@ function handleSelectValueChange(_nextValue: unknown, option: SelectOption | nul
       :precision="precision"
       button-placement="right"
       class="w-full"
-      placeholder="最小值"
+      :placeholder="$t('taskList.minValue')"
     />
-    <span class="text-#999">至</span>
+    <span class="text-#999">{{ $t('taskList.to') }}</span>
     <NInputNumber
       v-model:value="maxNumberValue"
       :precision="precision"
       button-placement="right"
       class="w-full"
-      placeholder="最大值"
+      :placeholder="$t('taskList.maxValue')"
     />
   </div>
 
@@ -122,25 +123,30 @@ function handleSelectValueChange(_nextValue: unknown, option: SelectOption | nul
     :precision="precision"
     button-placement="right"
     class="w-full"
-    placeholder="请输入数值"
+    :placeholder="$t('taskList.valuePlaceholder')"
   />
 
   <NSelect
     v-else-if="props.dataType === 2"
     v-model:value="selectValue"
     :options="switchOptions"
-    placeholder="请选择开关值"
+    :placeholder="$t('taskList.switchValuePlaceholder')"
     @update:value="handleSelectValueChange"
   />
 
-  <NInput v-else-if="props.dataType === 3" v-model:value="textValue" maxlength="100" placeholder="请输入文本" />
+  <NInput
+    v-else-if="props.dataType === 3"
+    v-model:value="textValue"
+    maxlength="100"
+    :placeholder="$t('taskList.textValuePlaceholder')"
+  />
 
   <NSelect
     v-else-if="props.dataType === 4"
     v-model:value="selectValue"
     :disabled="enumOptions.length === 0"
     :options="enumOptions"
-    placeholder="请选择枚举值"
+    :placeholder="$t('taskList.enumValuePlaceholder')"
     @update:value="handleSelectValueChange"
   />
 </template>

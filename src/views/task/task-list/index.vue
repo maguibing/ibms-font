@@ -9,7 +9,7 @@ import { fetchDeleteTask, fetchExecuteTask, fetchGetTaskList } from '@/service/a
 import { $t } from '@/locales';
 import { formatUnixDateTime } from '@/utils/common-methods';
 import ButtonIcon from '@/components/custom/button-icon.vue';
-import { taskTypeMap } from '../constants';
+import { createTaskTypeMap } from '../constants';
 import TaskListSearch from './modules/task-list-search.vue';
 import TaskOperateDrawer from './modules/task-operate-drawer.vue';
 import { buildTaskListRequest } from './modules/task-request';
@@ -37,6 +37,7 @@ const operateType = shallowRef<NaiveUI.TableOperateType>('add');
 const operateRowData = shallowRef<Api.Task.Task | null>(null);
 const detailDrawerVisible = shallowRef(false);
 const detailRowData = shallowRef<Api.Task.Task | null>(null);
+const taskTypeMap = computed(createTaskTypeMap);
 
 const searchParams = ref<Api.Task.TaskSearchParams>({
   pageNum: 1,
@@ -73,21 +74,21 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'name',
-        title: '任务名称',
+        title: $t('taskList.taskName'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true }
       },
       {
         key: 'task_type',
-        title: '任务类型',
+        title: $t('taskList.taskType'),
         align: 'center',
         minWidth: 110,
         render: row => renderTaskType(row.task_type)
       },
       {
         key: 'device_id',
-        title: '目标设备',
+        title: $t('taskList.targetDevice'),
         align: 'center',
         minWidth: 180,
         ellipsis: { tooltip: true },
@@ -95,14 +96,14 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
       },
       {
         key: 'status',
-        title: '状态',
+        title: $t('taskList.status'),
         align: 'center',
         minWidth: 100,
         render: row => <StatusTag value={row.status} />
       },
       {
         key: 'created_at',
-        title: '创建时间',
+        title: $t('taskList.createdAt'),
         align: 'center',
         minWidth: 180,
         render: row => formatUnixDateTime(row.created_at)
@@ -119,7 +120,7 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               text
               type="primary"
               icon="material-symbols:visibility-outline"
-              tooltipContent="查看"
+              tooltipContent={$t('taskList.view')}
               onClick={() => handleView(row)}
             />
           );
@@ -139,8 +140,8 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
               text
               type="success"
               icon="material-symbols:play-arrow-outline"
-              tooltipContent="一键执行"
-              popconfirmContent="确认执行该任务？"
+              tooltipContent={$t('taskList.execute')}
+              popconfirmContent={$t('taskList.executePrompt')}
               onPositiveClick={() => handleExecuteTask(row.id)}
             />
           );
@@ -159,7 +160,9 @@ const { columns, columnChecks, data, extraData, getData, getDataByPage, loading,
           const buttons = [];
           if (hasAuth('task:task-list:view')) buttons.push(viewBtn());
           if (hasAuth('task:task-list:edit')) buttons.push(editBtn());
-          if (row.task_type === 2 && hasAuth('task:task-list:exec')) buttons.push(execBtn());
+          if (row.task_type === 2 && row.cond_setting.sched?.type !== 5 && hasAuth('task:task-list:exec')) {
+            buttons.push(execBtn());
+          }
           if (hasAuth('task:task-list:delete')) buttons.push(deleteBtn());
 
           return (
@@ -186,7 +189,7 @@ const taskExtra = computed<Api.Task.TaskListExtra>(() => {
 });
 
 function renderTaskType(type: Api.Task.TaskType) {
-  const config = taskTypeMap[type];
+  const config = taskTypeMap.value[type];
 
   return config ? <NTag type={config.type}>{config.label}</NTag> : String(type);
 }
@@ -235,7 +238,7 @@ async function handleExecuteTask(id: CommonType.IdType) {
   const { error } = await fetchExecuteTask({ id_list: [id] });
   if (error) return;
 
-  window.$message?.success('执行成功');
+  window.$message?.success($t('taskList.executeSuccess'));
 }
 
 function handleView(row: Api.Task.Task) {
@@ -268,7 +271,7 @@ async function handleBatchDelete() {
   <div :class="containerClass">
     <TaskListSearch v-model:model="searchParams" :bordered="embedded" @search="handleSearch" />
 
-    <NCard title="任务列表" :bordered="embedded" size="small" class="card-wrapper sm:flex-1-hidden">
+    <NCard :title="$t('taskList.title')" :bordered="embedded" size="small" class="card-wrapper sm:flex-1-hidden">
       <template #header-extra>
         <TableHeaderOperation
           v-model:columns="columnChecks"

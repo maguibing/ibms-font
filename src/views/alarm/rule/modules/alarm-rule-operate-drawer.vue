@@ -23,7 +23,7 @@ import {
   type TaskRulePointValue
 } from '@/views/task/task-list/modules/task-point-rule-editor/use-task-point-rule-editor';
 import { $t } from '@/locales';
-import { alarmLevelOptions, createAlarmBaseOptions } from '../../shared';
+import { createAlarmBaseOptions, createAlarmLevelOptions } from '../../shared';
 import AlarmRuleValidHourEditor from './alarm-rule-valid-hour-editor.vue';
 import { buildRangesFromHours, parseHoursFromRanges } from './hour-range-selector';
 
@@ -75,14 +75,18 @@ const conditionModel = ref<TaskConditionEditorModel>(createDefaultTaskConditionM
 const selectedNoticeGroups = shallowRef<CommonType.IdNameRecord[]>([]);
 
 const isEdit = computed(() => props.operateType === 'edit');
-const title = computed(() => (isEdit.value ? '编辑报警规则' : '新增报警规则'));
+const title = computed(() => (isEdit.value ? $t('alarmRule.edit') : $t('alarmRule.add')));
 
-const triggerTypeOptions: CommonType.Option<Api.Alarm.AlarmRuleTriggerType>[] = [{ label: '设备点位变化', value: 1 }];
+const alarmLevelOptions = computed(createAlarmLevelOptions);
 
-const deviceSourceTypeOptions: CommonType.Option<Api.Alarm.AlarmRuleDeviceSourceType>[] = [
-  { label: '设备', value: 1 },
-  { label: '设备类型', value: 2 }
-];
+const triggerTypeOptions = computed<CommonType.Option<Api.Alarm.AlarmRuleTriggerType>[]>(() => [
+  { label: $t('alarmRule.triggerTypeDevicePointChange'), value: 1 }
+]);
+
+const deviceSourceTypeOptions = computed<CommonType.Option<Api.Alarm.AlarmRuleDeviceSourceType>[]>(() => [
+  { label: $t('alarmRule.device'), value: 1 },
+  { label: $t('alarmRule.deviceType'), value: 2 }
+]);
 
 const noticeGroupRequestParams: CommonType.CommonListQueryParams = {
   list_option: {
@@ -91,9 +95,9 @@ const noticeGroupRequestParams: CommonType.CommonListQueryParams = {
 };
 
 const rules: Record<RuleKey, App.Global.FormRule> = {
-  name: createRequiredRule('请输入报警规则名称'),
-  alarm_level: createRequiredRule('请选择报警等级'),
-  status: createRequiredRule('请选择状态')
+  name: createRequiredRule($t('alarmRule.namePlaceholder')),
+  alarm_level: createRequiredRule($t('alarmRule.alarmLevelPlaceholder')),
+  status: createRequiredRule($t('alarmRule.statusPlaceholder'))
 };
 
 function createDefaultModel(): Model {
@@ -251,7 +255,7 @@ async function handleSubmit() {
     }
 
     if (model.value.valid_time_ranges.length === 0) {
-      window.$message?.warning('请至少选择一个生效小时');
+      window.$message?.warning($t('alarmRule.selectValidHour'));
       return;
     }
 
@@ -376,10 +380,15 @@ watch(visible, () => {
         <div class="alarm-rule-operate-content">
           <NForm ref="formRef" :model="model" :rules="rules" label-placement="top">
             <NGrid responsive="screen" item-responsive :x-gap="16">
-              <NFormItemGi span="24" label="报警规则名称" path="name">
-                <NInput v-model:value="model.name" maxlength="30" show-count placeholder="请输入报警规则名称" />
+              <NFormItemGi span="24" :label="$t('alarmRule.name')" path="name">
+                <NInput
+                  v-model:value="model.name"
+                  maxlength="30"
+                  show-count
+                  :placeholder="$t('alarmRule.namePlaceholder')"
+                />
               </NFormItemGi>
-              <NFormItemGi span="24 m:12" label="报警等级" path="alarm_level">
+              <NFormItemGi span="24 m:12" :label="$t('alarmRule.alarmLevel')" path="alarm_level">
                 <NRadioGroup v-model:value="model.alarm_level">
                   <NSpace>
                     <NRadio v-for="item in alarmLevelOptions" :key="item.value" :value="item.value">
@@ -388,30 +397,30 @@ watch(visible, () => {
                   </NSpace>
                 </NRadioGroup>
               </NFormItemGi>
-              <NFormItemGi span="24 m:12" label="状态" path="status">
+              <NFormItemGi span="24 m:12" :label="$t('alarmRule.status')" path="status">
                 <NSwitch v-model:value="model.status" :checked-value="1" :unchecked-value="2">
-                  <template #checked>启用</template>
-                  <template #unchecked>停用</template>
+                  <template #checked>{{ $t('alarmRule.enabled') }}</template>
+                  <template #unchecked>{{ $t('alarmRule.disabled') }}</template>
                 </NSwitch>
               </NFormItemGi>
-              <NFormItemGi span="24 m:12" label="触发类型" path="trigger_type">
+              <NFormItemGi span="24 m:12" :label="$t('alarmRule.triggerType')" path="trigger_type">
                 <NSelect v-model:value="model.trigger_type" :options="triggerTypeOptions" disabled />
               </NFormItemGi>
-              <NFormItemGi span="24 m:12" label="设备源类型" path="device_source_type">
+              <NFormItemGi span="24 m:12" :label="$t('alarmRule.deviceSourceType')" path="device_source_type">
                 <NSelect
                   v-model:value="model.device_source_type"
                   :options="deviceSourceTypeOptions"
                   @update:value="handleDeviceSourceTypeChange"
                 />
               </NFormItemGi>
-              <NFormItemGi span="24" label="描述" path="desc">
+              <NFormItemGi span="24" :label="$t('alarmRule.description')" path="desc">
                 <NInput
                   v-model:value="model.desc"
                   type="textarea"
                   maxlength="200"
                   show-count
                   :rows="3"
-                  placeholder="请输入描述"
+                  :placeholder="$t('alarmRule.descriptionPlaceholder')"
                 />
               </NFormItemGi>
             </NGrid>
@@ -428,11 +437,11 @@ watch(visible, () => {
           <NDivider class="!my-0" />
 
           <section class="setting-section">
-            <SectionHeader title="通知设置" type="success" />
+            <SectionHeader :title="$t('alarmRule.noticeSettings')" type="success" />
 
             <NForm :model="model" label-placement="top" :show-feedback="false">
               <NGrid responsive="screen" item-responsive :x-gap="16" :y-gap="4">
-                <NFormItemGi span="24 m:12" label="通知组">
+                <NFormItemGi span="24 m:12" :label="$t('alarmRule.noticeGroup')">
                   <RemoteSearchSelect
                     v-model:value="model.notice_group_id_list"
                     :request="fetchNoticeGroupList"
@@ -444,30 +453,30 @@ watch(visible, () => {
                     value-field="id"
                     multiple
                     clearable
-                    placeholder="请选择通知组"
+                    :placeholder="$t('alarmRule.noticeGroupPlaceholder')"
                   />
                 </NFormItemGi>
-                <NFormItemGi span="24 m:12" label="通知限制">
+                <NFormItemGi span="24 m:12" :label="$t('alarmRule.noticeLimit')">
                   <NInputNumber
                     v-model:value="model.notice_limit"
                     :min="0"
                     :precision="0"
                     button-placement="right"
                     class="w-full"
-                    placeholder="请输入通知限制"
+                    :placeholder="$t('alarmRule.noticeLimitPlaceholder')"
                     @update:value="handleNoticeLimitChange"
                   />
                 </NFormItemGi>
-                <NFormItemGi span="24 m:12" label="自动生成工单" class="mt-10px">
+                <NFormItemGi span="24 m:12" :label="$t('alarmRule.autoGenerateWorkorder')" class="mt-10px">
                   <NSwitch v-model:value="model.is_autogen_workorder">
-                    <template #checked>是</template>
-                    <template #unchecked>否</template>
+                    <template #checked>{{ $t('alarmRule.yes') }}</template>
+                    <template #unchecked>{{ $t('alarmRule.no') }}</template>
                   </NSwitch>
                 </NFormItemGi>
-                <NFormItemGi span="24 m:12" label="是否系统自动解除" class="mt-10px">
+                <NFormItemGi span="24 m:12" :label="$t('alarmRule.systemAutoRecover')" class="mt-10px">
                   <NSwitch v-model:value="model.is_system_auto_recover">
-                    <template #checked>是</template>
-                    <template #unchecked>否</template>
+                    <template #checked>{{ $t('alarmRule.yes') }}</template>
+                    <template #unchecked>{{ $t('alarmRule.no') }}</template>
                   </NSwitch>
                 </NFormItemGi>
               </NGrid>

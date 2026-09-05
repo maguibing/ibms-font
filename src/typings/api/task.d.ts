@@ -149,6 +149,11 @@ declare namespace Api {
       device_type_point_list?: TaskLogDeviceTypePoint[];
       exec_at?: number;
       continuous_times?: number;
+      calendar_branch?: 1 | 2;
+      time_range?: {
+        start_at?: number;
+        end_at?: number;
+      };
     };
 
     type TaskScheduleType = 1 | 2 | 3 | 4 | 5;
@@ -190,7 +195,6 @@ declare namespace Api {
     type TaskLogScheduleCalendar = {
       date_groups?: TaskLogScheduleCalendarDateGroup[];
       poll_interval_seconds?: number;
-      max_continuous_fail?: number;
     };
 
     type TaskLogSchedule = {

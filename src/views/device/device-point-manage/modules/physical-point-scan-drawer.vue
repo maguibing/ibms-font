@@ -7,7 +7,7 @@ import { fetchGetGateway, fetchGetGatewayList } from '@/service/api/gateway';
 import { useExportProgress } from '@/hooks/business/export-progress';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';
 import { ExportBizType, ExportFileType, PhysicalPointType } from '@/enum/business';
-import { ACCESS_LEVEL_OPTIONS } from '@/constants/device-point';
+import { ACCESS_LEVEL_OPTIONS } from '@/constants/business';
 import { getGatewayProtocolLabel } from '@/views/gateway/gateway-list/shared';
 import { getWebSocketConnectionId } from '@/utils/websocket';
 import PhysicalPointScanDeviceDetail from './physical-point-scan-device-detail.vue';

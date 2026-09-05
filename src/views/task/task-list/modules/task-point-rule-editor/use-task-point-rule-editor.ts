@@ -1,30 +1,40 @@
 import type { SelectOption } from 'naive-ui';
+import { $t } from '@/locales';
+import { createConditionTimeTypeOptions, createThresholdOptions, getThresholdOptions } from '../../../constants';
 
+/** 点位规则编辑模式。 */
 export type TaskPointRuleEditorMode = 'condition' | 'action';
 
+/** 条件设备来源类型。 */
 export type TaskRuleDeviceSourceType = 1 | 2;
 
+/** 规则设备选项。 */
 export type TaskRuleDeviceOption = CommonType.IdNameRecord & {
   device_type_id?: CommonType.IdType;
 } & Record<string, unknown>;
 
+/** 设备点位选项。 */
 export type TaskRuleDeviceTypePointOption = Pick<Api.Device.DeviceTypePoint, 'id' | 'name'> & {
   device_type_id?: CommonType.IdType;
   data_type: CommonType.DataType;
   setting?: Api.Device.DeviceTypePointSetting | null;
 };
 
+/** 点位值选项。 */
 export type TaskRuleValueOption = SelectOption & {
   alias: string;
 };
 
+/** 点位值。 */
 export type TaskRulePointValue = Api.Task.TaskPointValueContent;
 
+/** 点位范围值。 */
 export type TaskRuleRangeValue = {
   min_val: TaskRulePointValue;
   max_val: TaskRulePointValue;
 };
 
+/** 条件点位编辑模型。 */
 export type TaskConditionSubCondEditor = {
   _key: string;
   device_type_point_id: CommonType.IdType | null;
@@ -37,6 +47,7 @@ export type TaskConditionSubCondEditor = {
   range_val: TaskRuleRangeValue;
 };
 
+/** 条件项编辑模型。 */
 export type TaskConditionEditor = {
   _key: string;
   logic_operator_type: Api.Task.TaskLogicalOperatorType;
@@ -46,12 +57,14 @@ export type TaskConditionEditor = {
   sub_conds: TaskConditionSubCondEditor[];
 };
 
+/** 条件规则编辑模型。 */
 export type TaskConditionEditorModel = {
   task_type: 1;
   conds: TaskConditionEditor[];
   freq: Required<Api.Task.TaskConditionFreq>;
 };
 
+/** 执行点位编辑模型。 */
 export type TaskActionPointEditor = {
   _key: string;
   device_type_point_id: CommonType.IdType | null;
@@ -61,6 +74,7 @@ export type TaskActionPointEditor = {
   point_val: TaskRulePointValue;
 };
 
+/** 执行项编辑模型。 */
 export type TaskActionEditor = {
   _key: string;
   device_id: CommonType.IdType | null;
@@ -70,12 +84,15 @@ export type TaskActionEditor = {
   point_vals: TaskActionPointEditor[];
 };
 
+/** 动作规则编辑模型。 */
 export type TaskActionEditorModel = {
   actions: TaskActionEditor[];
 };
 
+/** 点位规则编辑模型。 */
 export type TaskPointRuleEditorModel = TaskConditionEditorModel | TaskActionEditorModel;
 
+/** 点位规则编辑器选项映射。 */
 export type TaskRuleEditorOptionMaps = {
   deviceMap?: CommonType.IdNameMap;
   deviceTypeMap?: CommonType.IdNameMap;
@@ -93,43 +110,21 @@ const DEFAULT_CONDITION_REPEAT_TIMES = 10;
 
 let editorKeySeed = 0;
 
+/** 条件和动作编辑器的最大数量。 */
 export const maxConditionCount = 10;
+/** 单个条件的最大点位数量。 */
 export const maxConditionPointCount = 20;
+/** 动作的最大数量。 */
 export const maxActionCount = 10;
+/** 单个动作的最大点位数量。 */
 export const maxActionPointCount = 20;
 
-export const logicOperatorOptions: CommonType.Option<Api.Task.TaskLogicalOperatorType>[] = [
-  { label: '且', value: 1 },
-  { label: '或', value: 2 }
-];
-
-export const thresholdOptions: CommonType.Option<Api.Task.TaskThresholdType>[] = [
-  { label: '大于', value: 1 },
-  { label: '小于', value: 2 },
-  { label: '大于等于', value: 3 },
-  { label: '小于等于', value: 4 },
-  { label: '介于', value: 5 },
-  { label: '不介于', value: 6 },
-  { label: '等于', value: 7 },
-  { label: '不等于', value: 8 }
-];
-
-export const conditionTimeTypeOptions: CommonType.Option<Api.Task.TaskConditionTimeType>[] = [
-  { label: '秒', value: 1 },
-  { label: '分', value: 2 },
-  { label: '小时', value: 3 }
-];
-
-export const equalityThresholdOptions = thresholdOptions.filter(item => [7, 8].includes(item.value));
-
-export function getThresholdOptions(dataType?: CommonType.DataType | null) {
-  return dataType === 1 ? thresholdOptions : equalityThresholdOptions;
-}
-
+/** 判断是否为范围阈值。 */
 export function isRangeThreshold(thresholdType?: Api.Task.TaskThresholdType | null) {
   return thresholdType === 5 || thresholdType === 6;
 }
 
+/** 创建默认点位值。 */
 export function createDefaultPointValue(): TaskRulePointValue {
   return {
     value: null,
@@ -138,6 +133,7 @@ export function createDefaultPointValue(): TaskRulePointValue {
   };
 }
 
+/** 创建默认范围值。 */
 export function createDefaultRangeValue(): TaskRuleRangeValue {
   return {
     min_val: createDefaultPointValue(),
@@ -145,6 +141,7 @@ export function createDefaultRangeValue(): TaskRuleRangeValue {
   };
 }
 
+/** 创建默认条件点位。 */
 export function createDefaultConditionSubCond(): TaskConditionSubCondEditor {
   return {
     _key: createEditorKey('condition-point'),
@@ -159,6 +156,7 @@ export function createDefaultConditionSubCond(): TaskConditionSubCondEditor {
   };
 }
 
+/** 创建默认条件项。 */
 export function createDefaultCondition(
   logicOperatorType: Api.Task.TaskLogicalOperatorType = DEFAULT_LOGIC_OPERATOR_TYPE,
   deviceSourceType: TaskRuleDeviceSourceType = DEFAULT_DEVICE_SOURCE_TYPE
@@ -173,6 +171,7 @@ export function createDefaultCondition(
   };
 }
 
+/** 创建默认触发频率。 */
 export function createDefaultConditionFreq(): Required<Api.Task.TaskConditionFreq> {
   return {
     time_type: DEFAULT_CONDITION_TIME_TYPE,
@@ -181,6 +180,7 @@ export function createDefaultConditionFreq(): Required<Api.Task.TaskConditionFre
   };
 }
 
+/** 创建默认条件模型。 */
 export function createDefaultTaskConditionModel(
   deviceSourceType: TaskRuleDeviceSourceType = DEFAULT_DEVICE_SOURCE_TYPE
 ): TaskConditionEditorModel {
@@ -191,6 +191,7 @@ export function createDefaultTaskConditionModel(
   };
 }
 
+/** 创建默认执行点位。 */
 export function createDefaultActionPoint(): TaskActionPointEditor {
   return {
     _key: createEditorKey('action-point'),
@@ -202,6 +203,7 @@ export function createDefaultActionPoint(): TaskActionPointEditor {
   };
 }
 
+/** 创建默认执行项。 */
 export function createDefaultAction(): TaskActionEditor {
   return {
     _key: createEditorKey('action'),
@@ -213,12 +215,14 @@ export function createDefaultAction(): TaskActionEditor {
   };
 }
 
+/** 创建默认动作模型。 */
 export function createDefaultTaskActionModel(): TaskActionEditorModel {
   return {
     actions: [createDefaultAction()]
   };
 }
 
+/** 规范化条件模型。 */
 export function normalizeTaskConditionModel(
   model?: Partial<Api.Task.TaskConditionSetting>,
   maps: TaskRuleEditorOptionMaps = {}
@@ -234,6 +238,7 @@ export function normalizeTaskConditionModel(
   };
 }
 
+/** 规范化动作模型。 */
 export function normalizeTaskActionModel(
   model?: Partial<Api.Task.TaskActionSetting>,
   maps: TaskRuleEditorOptionMaps = {}
@@ -245,6 +250,7 @@ export function normalizeTaskActionModel(
   };
 }
 
+/** 构建点位请求参数。 */
 export function buildDeviceTypePointRequestParams(
   device?: TaskRuleDeviceOption | null,
   deviceSourceType: TaskRuleDeviceSourceType = DEFAULT_DEVICE_SOURCE_TYPE
@@ -278,6 +284,7 @@ export function buildDeviceTypePointRequestParams(
   };
 }
 
+/** 补充任务查询参数。 */
 export function withDefaultTaskSearchOption(
   params: Record<string, unknown>,
   defaultOption: CommonType.CommonTypeOptions
@@ -295,6 +302,7 @@ export function withDefaultTaskSearchOption(
   };
 }
 
+/** 提取点位选项。 */
 export function extractTaskDeviceTypePointOptions(response: unknown): TaskRuleDeviceTypePointOption[] {
   const payload = unwrapPayload(response);
   const list = getPayloadList(payload);
@@ -304,18 +312,21 @@ export function extractTaskDeviceTypePointOptions(response: unknown): TaskRuleDe
     .filter((item): item is TaskRuleDeviceTypePointOption => item !== null);
 }
 
+/** 同步条件设备。 */
 export function syncConditionDevice(condition: TaskConditionEditor, selected: unknown) {
   condition.selected_device = normalizeDeviceOption(selected);
   condition.device_source_id = condition.selected_device?.id ?? null;
   condition.sub_conds = [createDefaultConditionSubCond()];
 }
 
+/** 同步执行设备。 */
 export function syncActionDevice(action: TaskActionEditor, selected: unknown) {
   action.selected_device = normalizeDeviceOption(selected);
   action.device_id = action.selected_device?.id ?? null;
   action.point_vals = [createDefaultActionPoint()];
 }
 
+/** 同步条件点位。 */
 export function syncConditionPoint(point: TaskConditionSubCondEditor, selected: unknown) {
   const deviceTypePoint = normalizeDeviceTypePointSelection(selected);
 
@@ -336,6 +347,7 @@ export function syncConditionPoint(point: TaskConditionSubCondEditor, selected: 
   resetConditionPointValue(point);
 }
 
+/** 同步执行点位。 */
 export function syncActionPoint(point: TaskActionPointEditor, selected: unknown) {
   const deviceTypePoint = normalizeDeviceTypePointSelection(selected);
 
@@ -351,12 +363,14 @@ export function syncActionPoint(point: TaskActionPointEditor, selected: unknown)
   resetActionPointValue(point);
 }
 
+/** 同步点位值别名。 */
 export function syncPointValueAlias(value: TaskRulePointValue, selected: unknown) {
   const option = isRecord(selected) ? selected : null;
 
   value.alias = option?.alias === undefined ? null : String(option.alias);
 }
 
+/** 规范化触发频率。 */
 export function normalizeConditionFreq(
   freq: Api.Task.TaskConditionFreq | undefined
 ): Required<Api.Task.TaskConditionFreq> {
@@ -371,14 +385,17 @@ export function normalizeConditionFreq(
   };
 }
 
+/** 规范化延迟秒数。 */
 export function normalizeActionDelaySeconds(value: unknown) {
   return clampInteger(value, 1, 300);
 }
 
+/** 规范化连续次数。 */
 export function normalizeActionContinuousTimes(value: unknown) {
   return clampInteger(value, 1, 5);
 }
 
+/** 校验范围值。 */
 export function isValidRangeValue(range: TaskRuleRangeValue) {
   const min = normalizeRequiredNumber(range.min_val.value);
   const max = normalizeRequiredNumber(range.max_val.value);
@@ -386,39 +403,60 @@ export function isValidRangeValue(range: TaskRuleRangeValue) {
   return min !== null && max !== null && min < max;
 }
 
+/** 获取条件校验提示。 */
 export function getTaskConditionValidationMessage(model: TaskConditionEditorModel) {
-  if (model.conds.length > maxConditionCount) return `条件项最多添加 ${maxConditionCount} 个`;
+  if (model.conds.length > maxConditionCount) return $t('taskList.maxConditions', { value: maxConditionCount });
 
   for (const [conditionIndex, condition] of model.conds.entries()) {
     if (conditionIndex > 0 && condition.logic_operator_type !== 2) {
-      return `条件项 ${conditionIndex + 1} 只能使用或关系`;
+      return $t('taskList.conditionOnlyOr', { value: conditionIndex + 1 });
     }
 
-    if (!condition.device_source_id) return `请选择条件项 ${conditionIndex + 1} 的触发设备`;
+    if (!condition.device_source_id) return $t('taskList.selectDevice', { condition: conditionIndex + 1 });
 
     if (condition.sub_conds.length > maxConditionPointCount) {
-      return `每个条件项最多添加 ${maxConditionPointCount} 个点位条件`;
+      return $t('taskList.maxConditionPoints', { value: maxConditionPointCount });
     }
 
     for (const [pointIndex, point] of condition.sub_conds.entries()) {
-      if (!point.device_type_point_id) return `请选择条件项 ${conditionIndex + 1} 的点位 ${pointIndex + 1}`;
+      if (!point.device_type_point_id) {
+        return $t('taskList.selectConditionPoint', { condition: conditionIndex + 1, point: pointIndex + 1 });
+      }
 
-      if (!point.data_type) return `条件项 ${conditionIndex + 1} 的点位 ${pointIndex + 1} 缺少数据类型`;
+      if (!point.data_type) {
+        return $t('taskList.missingDataType', {
+          prefix: $t('taskList.conditionLabel'),
+          item: conditionIndex + 1,
+          point: pointIndex + 1
+        });
+      }
 
       if (!getThresholdOptions(point.data_type).some(item => item.value === point.threshold_type)) {
-        return `条件项 ${conditionIndex + 1} 的点位 ${pointIndex + 1} 阈值不支持当前数据类型`;
+        return $t('taskList.unsupportedThreshold', {
+          prefix: $t('taskList.conditionLabel'),
+          item: conditionIndex + 1,
+          point: pointIndex + 1
+        });
       }
 
       if (isRangeThreshold(point.threshold_type)) {
         if (!isValidRangeValue(point.range_val)) {
-          return `条件项 ${conditionIndex + 1} 的点位 ${pointIndex + 1} 范围值需满足最小值小于最大值`;
+          return $t('taskList.invalidRange', {
+            prefix: $t('taskList.conditionLabel'),
+            item: conditionIndex + 1,
+            point: pointIndex + 1
+          });
         }
 
         continue;
       }
 
       if (!isTaskPointValueFilled(point.single_val)) {
-        return `请输入条件项 ${conditionIndex + 1} 的点位 ${pointIndex + 1} 的值`;
+        return $t('taskList.inputValue', {
+          prefix: $t('taskList.conditionLabel'),
+          item: conditionIndex + 1,
+          point: pointIndex + 1
+        });
       }
     }
   }
@@ -426,31 +464,44 @@ export function getTaskConditionValidationMessage(model: TaskConditionEditorMode
   return '';
 }
 
+/** 获取动作校验提示。 */
 export function getTaskActionValidationMessage(model: TaskActionEditorModel) {
-  if (model.actions.length > maxActionCount) return `执行项最多添加 ${maxActionCount} 个`;
+  if (model.actions.length > maxActionCount) return $t('taskList.maxActions', { value: maxActionCount });
 
   for (const [actionIndex, action] of model.actions.entries()) {
-    if (!action.device_id) return `请选择执行项 ${actionIndex + 1} 的设备`;
+    if (!action.device_id) return $t('taskList.selectActionDevice', { value: actionIndex + 1 });
 
     if (!isIntegerInRange(action.delay_seconds, 1, 300)) {
-      return `执行项 ${actionIndex + 1} 的延迟秒数需在 1-300 之间`;
+      return $t('taskList.invalidDelay', { value: actionIndex + 1 });
     }
 
     if (!isIntegerInRange(action.continuous_times, 1, 5)) {
-      return `执行项 ${actionIndex + 1} 的连续次数需在 1-5 之间`;
+      return $t('taskList.invalidContinuousTimes', { value: actionIndex + 1 });
     }
 
     if (action.point_vals.length > maxActionPointCount) {
-      return `每个执行项最多添加 ${maxActionPointCount} 个执行点位`;
+      return $t('taskList.maxActionPoints', { value: maxActionPointCount });
     }
 
     for (const [pointIndex, point] of action.point_vals.entries()) {
-      if (!point.device_type_point_id) return `请选择执行项 ${actionIndex + 1} 的点位 ${pointIndex + 1}`;
+      if (!point.device_type_point_id) {
+        return $t('taskList.selectActionPoint', { action: actionIndex + 1, point: pointIndex + 1 });
+      }
 
-      if (!point.data_type) return `执行项 ${actionIndex + 1} 的点位 ${pointIndex + 1} 缺少数据类型`;
+      if (!point.data_type) {
+        return $t('taskList.missingDataType', {
+          prefix: $t('taskList.actionLabel'),
+          item: actionIndex + 1,
+          point: pointIndex + 1
+        });
+      }
 
       if (!isTaskPointValueFilled(point.point_val)) {
-        return `请输入执行项 ${actionIndex + 1} 的点位 ${pointIndex + 1} 的值`;
+        return $t('taskList.inputValue', {
+          prefix: $t('taskList.actionLabel'),
+          item: actionIndex + 1,
+          point: pointIndex + 1
+        });
       }
     }
   }
@@ -458,6 +509,7 @@ export function getTaskActionValidationMessage(model: TaskActionEditorModel) {
   return '';
 }
 
+/** 构建条件提交参数。 */
 export function buildTaskConditionSubmitModel(model: TaskConditionEditorModel): Api.Task.TaskConditionSetting {
   return {
     task_type: 1,
@@ -488,6 +540,7 @@ export function buildTaskConditionSubmitModel(model: TaskConditionEditorModel): 
   };
 }
 
+/** 构建动作提交参数。 */
 export function buildTaskActionSubmitModel(model: TaskActionEditorModel): Api.Task.TaskActionSetting {
   return {
     actions: model.actions.map(action => ({
@@ -498,6 +551,7 @@ export function buildTaskActionSubmitModel(model: TaskActionEditorModel): Api.Ta
   };
 }
 
+/** 获取开关值选项。 */
 export function getSwitchValueOptions(setting?: Api.Device.DeviceTypePointSetting | null): TaskRuleValueOption[] {
   const trueVal = setting?.switch_val?.true_val;
   const falseVal = setting?.switch_val?.false_val;
@@ -516,6 +570,7 @@ export function getSwitchValueOptions(setting?: Api.Device.DeviceTypePointSettin
   ];
 }
 
+/** 获取枚举值选项。 */
 export function getEnumValueOptions(setting?: Api.Device.DeviceTypePointSetting | null): TaskRuleValueOption[] {
   const enumList = setting?.enum_val?.enum_list;
 
@@ -865,7 +920,7 @@ function normalizeLogicOperatorType(value?: Api.Task.TaskLogicalOperatorType | n
 function normalizeThresholdType(value?: Api.Task.TaskThresholdType | null): Api.Task.TaskThresholdType {
   const numberValue = Number(value);
 
-  return thresholdOptions.some(item => item.value === numberValue)
+  return createThresholdOptions().some(item => item.value === numberValue)
     ? (numberValue as Api.Task.TaskThresholdType)
     : DEFAULT_THRESHOLD_TYPE;
 }
@@ -873,7 +928,7 @@ function normalizeThresholdType(value?: Api.Task.TaskThresholdType | null): Api.
 function normalizeTimeType(value?: Api.Task.TaskConditionTimeType | null): Api.Task.TaskConditionTimeType {
   const numberValue = Number(value);
 
-  return conditionTimeTypeOptions.some(item => item.value === numberValue)
+  return createConditionTimeTypeOptions().some(item => item.value === numberValue)
     ? (numberValue as Api.Task.TaskConditionTimeType)
     : 1;
 }
